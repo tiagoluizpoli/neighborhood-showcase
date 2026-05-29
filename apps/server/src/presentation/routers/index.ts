@@ -3,6 +3,7 @@ import { announcementRouter } from './announcement';
 import { assignmentRouter } from './assignment';
 import { condominiumRouter } from './condominium';
 import { todoRouter } from './todo';
+import { userRouter } from './user';
 
 export const appRouter = router({
   healthCheck: publicProcedure.query(() => {
@@ -18,6 +19,7 @@ export const appRouter = router({
   condominium: condominiumRouter,
   assignment: assignmentRouter,
   announcement: announcementRouter,
+  user: userRouter,
 });
 
 export type AppRouter = typeof appRouter;

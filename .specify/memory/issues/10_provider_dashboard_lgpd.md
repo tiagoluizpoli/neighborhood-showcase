@@ -4,12 +4,12 @@ Implement the Provider Dashboard interface at `/dashboard` and the LGPD-complian
 
 ## Acceptance criteria
 
-- [ ] Stat metrics display total impressions (views), total interactions (clicks), and conversion rate.
-- [ ] Swappable lists for active, draft, expired, and suspended announcements.
-- [ ] Suspension alerts display the reason entered by the moderator.
-- [ ] Edit action flags updated ads for moderator review.
-- [ ] LGPD Delete Account action performs a soft-delete: scrubs `Users.name`, `Users.email`, and `Users.phone` but retains anonymized financial payment records.
-- [ ] Integration tests verify that metrics calculations aggregate accurately and account deletions scrub personal identifiable data.
+- [x] Stat metrics display total impressions (views), total interactions (clicks), and conversion rate.
+- [x] Swappable lists for active, draft, expired, and suspended announcements.
+- [x] Suspension alerts display the reason entered by the moderator.
+- [x] Edit action flags updated ads for moderator review.
+- [x] LGPD Delete Account action performs a soft-delete: scrubs `Users.name`, `Users.email`, and `Users.phone` but retains anonymized financial payment records.
+- [x] Integration tests verify that metrics calculations aggregate accurately and account deletions scrub personal identifiable data.
 
 ## Blocked by
 

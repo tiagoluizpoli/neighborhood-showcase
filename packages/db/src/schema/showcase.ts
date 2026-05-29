@@ -102,6 +102,7 @@ export const announcement = pgTable('announcement', {
     .notNull()
     .default({}),
   showVerifiedBadge: boolean('show_verified_badge').default(false).notNull(),
+  flaggedForReview: boolean('flagged_for_review').default(false).notNull(),
   status: text('status', {
     enum: ['DRAFT', 'PENDING_PAYMENT', 'ACTIVE', 'EXPIRED', 'SUSPENDED'],
   })
@@ -111,6 +112,7 @@ export const announcement = pgTable('announcement', {
   expiresAt: timestamp('expires_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
+  suspensionReason: text('suspension_reason'),
 });
 
 export const announcementRelations = relations(

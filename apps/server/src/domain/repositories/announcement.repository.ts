@@ -27,4 +27,8 @@ export interface AnnouncementRepository {
   create(input: CreateAnnouncementRepositoryInput): Promise<Announcement>;
   findById(id: string): Promise<Announcement | null>;
   updateStatus(id: string, status: AnnouncementStatus): Promise<Announcement>;
+  update(
+    id: string,
+    input: Partial<Omit<Announcement, 'id' | 'providerId' | 'condominiumId' | 'createdAt'>>,
+  ): Promise<Announcement>;
 }

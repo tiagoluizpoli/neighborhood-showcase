@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { CreateAnnouncement } from '../../application/use-cases/announcement/create-announcement';
 import { ListPublicAnnouncements } from '../../application/use-cases/announcement/list-public-announcements';
 import { TrackAnalyticsEvent } from '../../application/use-cases/announcement/track-analytics-event';
+import { GetProviderDashboardData } from '../../application/use-cases/announcement/get-provider-dashboard-data';
 import { GeneratePaymentIntent } from '../../application/use-cases/payment/generate-payment-intent';
 import { DrizzleAnnouncementRepository } from '../../infrastructure/db/announcement-repository';
 import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-repository';
@@ -31,6 +32,7 @@ const generatePaymentIntentUseCase = new GeneratePaymentIntent(
 
 const listPublicAnnouncementsUseCase = new ListPublicAnnouncements();
 const trackAnalyticsEventUseCase = new TrackAnalyticsEvent();
+const getProviderDashboardDataUseCase = new GetProviderDashboardData();
 
 export const announcementRouter = router({
   create: protectedProcedure
@@ -183,5 +185,57 @@ export const announcementRouter = router({
         condoCity: condo?.city || '',
         condoState: condo?.state || '',
       };
+    }),
+
+  getDashboardData: protectedProcedure.query(async ({ ctx }) => {
+    return getProviderDashboardDataUseCase.execute({
+      providerId: ctx.session.user.id,
+    });
+  }),
+
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().min(1),
+        title: z.string().min(3).max(100),
+        subtitle: z.string().nullable().optional(),
+        description: z.string().min(10).max(2000),
+        priceCents: z.number().nullable().optional(),
+        imageUrl: z.string().min(1),
+        category: z.string().min(1),
+        tags: z.array(z.string()),
+        contactLinks: z.object({
+          whatsapp: z.string().optional(),
+          instagram: z.string().optional(),
+          website: z.string().optional(),
+        }),
+        showVerifiedBadge: z.boolean(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const ann = await announcementRepo.findById(input.id);
+      if (!ann || ann.providerId !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Acesso negado. Você não é o proprietário deste anúncio.',
+        });
+      }
+
+      const newStatus = ann.status === 'SUSPENDED' ? 'ACTIVE' : ann.status;
+
+      return announcementRepo.update(input.id, {
+        title: input.title,
+        subtitle: input.subtitle,
+        description: input.description,
+        priceCents: input.priceCents,
+        imageUrl: input.imageUrl,
+        category: input.category,
+        tags: input.tags,
+        contactLinks: input.contactLinks,
+        showVerifiedBadge: input.showVerifiedBadge,
+        status: newStatus as any,
+        flaggedForReview: true,
+        suspensionReason: null,
+      });
     }),
 });

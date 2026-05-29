@@ -24,11 +24,13 @@ export interface Announcement {
     website?: string;
   };
   showVerifiedBadge: boolean;
+  flaggedForReview: boolean;
   status: AnnouncementStatus;
   paidAt?: Date | null;
   expiresAt?: Date | null;
   createdAt: Date;
   deletedAt?: Date | null;
+  suspensionReason?: string | null;
 }
 
 export function validateAnnouncement(input: {

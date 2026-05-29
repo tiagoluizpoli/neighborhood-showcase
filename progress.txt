@@ -11,7 +11,7 @@
 - [x] **Issue 07**: Payment Intent PIX (Completed: 2026-05-29)
 - [x] **Issue 08**: Webhook Payment Resolution (Completed: 2026-05-29)
 - [x] **Issue 09**: Public Showcase Discovery (Completed: 2026-05-29)
-- [ ] **Issue 10**: Provider Dashboard & LGPD (Status: PENDING)
+- [x] **Issue 10**: Provider Dashboard & LGPD (Completed: 2026-05-29)
 - [ ] **Issue 11**: Moderator Suspension & Admin Blacklist (Status: PENDING)
 
 ---
@@ -85,3 +85,11 @@
 - Details modal (desktop) and drawer (mobile) syncing the route to `/anuncios/:id` using history API without page reloads.
 - Click-through analytics tracking on contacts (WhatsApp/Instagram/PDF Catalog) with server-side trackEvent procedure.
 - Fully unit-tested showcase sorting, ranking, and filter criteria.
+
+### Issue 10: Provider Dashboard & LGPD
+- Implemented `/dashboard` containing provider statistics (views, clicks, conversion rate).
+- Added swappable lists for active, draft (including pending payment), expired, and suspended announcements.
+- Integrated renew actions for expired ads to initiate Pix payment checks, and pay action for pending payments.
+- Created `getDashboardData` and `update` backend procedures and `GetProviderDashboardData` usecase.
+- Implemented LGPD-compliant `deleteAccount` mutation that scrubs PII (name, email, phone, CPF) and soft-deletes related ads, while retaining anonymized financial payment records.
+- Added comprehensive integration tests for metrics aggregation and LGPD account deletion.

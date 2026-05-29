@@ -1,6 +1,6 @@
 import { db } from '@base-fullstack-template/db';
 import { payment as paymentSchema } from '@base-fullstack-template/db/schema/showcase';
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import type {
   Payment,
   PaymentStatus,
@@ -37,6 +37,7 @@ export class DrizzlePaymentRepository implements PaymentRepository {
       .select()
       .from(paymentSchema)
       .where(eq(paymentSchema.announcementId, announcementId))
+      .orderBy(desc(paymentSchema.createdAt))
       .limit(1);
 
     return (found as Payment) || null;

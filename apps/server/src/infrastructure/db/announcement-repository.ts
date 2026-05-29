@@ -29,6 +29,7 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
         tags: input.tags,
         contactLinks: input.contactLinks,
         showVerifiedBadge: input.showVerifiedBadge,
+        flaggedForReview: false,
         status: input.status || 'DRAFT',
       })
       .returning();
@@ -62,6 +63,23 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
 
     if (!updated) {
       throw new Error(`Failed to update announcement status for ${id}`);
+    }
+
+    return updated as Announcement;
+  }
+
+  async update(
+    id: string,
+    input: Partial<Omit<Announcement, 'id' | 'providerId' | 'condominiumId' | 'createdAt'>>,
+  ): Promise<Announcement> {
+    const [updated] = await db
+      .update(announcementSchema)
+      .set(input)
+      .where(eq(announcementSchema.id, id))
+      .returning();
+
+    if (!updated) {
+      throw new Error(`Failed to update announcement for ${id}`);
     }
 
     return updated as Announcement;
