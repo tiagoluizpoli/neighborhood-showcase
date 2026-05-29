@@ -1,4 +1,4 @@
-import type { AppRouter } from '@base-fullstack-template/api/routers/index';
+import type { AppRouter } from '@base-fullstack-template/api';
 import { env } from '@base-fullstack-template/env/web';
 import { QueryCache, QueryClient } from '@tanstack/react-query';
 import { createTRPCClient, httpBatchLink } from '@trpc/client';
