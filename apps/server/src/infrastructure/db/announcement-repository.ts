@@ -1,7 +1,10 @@
 import { db } from '@base-fullstack-template/db';
 import { announcement as announcementSchema } from '@base-fullstack-template/db/schema/showcase';
 import { eq } from 'drizzle-orm';
-import type { Announcement } from '../../domain/entities/announcement.entity';
+import type {
+  Announcement,
+  AnnouncementStatus,
+} from '../../domain/entities/announcement.entity';
 import type {
   AnnouncementRepository,
   CreateAnnouncementRepositoryInput,
@@ -45,5 +48,22 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
       .limit(1);
 
     return (found as Announcement) || null;
+  }
+
+  async updateStatus(
+    id: string,
+    status: AnnouncementStatus,
+  ): Promise<Announcement> {
+    const [updated] = await db
+      .update(announcementSchema)
+      .set({ status })
+      .where(eq(announcementSchema.id, id))
+      .returning();
+
+    if (!updated) {
+      throw new Error(`Failed to update announcement status for ${id}`);
+    }
+
+    return updated as Announcement;
   }
 }

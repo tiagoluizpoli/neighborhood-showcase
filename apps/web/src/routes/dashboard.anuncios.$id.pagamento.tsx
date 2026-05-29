@@ -1,0 +1,283 @@
+import { Button } from '@base-fullstack-template/ui/components/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@base-fullstack-template/ui/components/card';
+import { Label } from '@base-fullstack-template/ui/components/label';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import {
+  CheckCircle2,
+  Copy,
+  CreditCard,
+  Loader2,
+  RefreshCw,
+  Timer,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { trpc } from '@/utils/trpc';
+
+export const Route = createFileRoute('/dashboard/anuncios/$id/pagamento')({
+  component: PaymentComponent,
+});
+
+function PaymentComponent() {
+  const { id } = Route.useParams();
+  const navigate = useNavigate();
+
+  // Local state for countdown timer (10 mins = 600 seconds)
+  const [timeLeft, setTimeLeft] = useState<number>(600);
+  const [copied, setCopied] = useState<boolean>(false);
+
+  // Mutation to request/generate the payment intent details
+  const getPaymentDetailsMutation = useMutation(
+    trpc.announcement.getPaymentDetails.mutationOptions(),
+  );
+
+  // Trigger payment generation on mount
+  useEffect(() => {
+    getPaymentDetailsMutation.mutate({ announcementId: id });
+  }, [id, getPaymentDetailsMutation]);
+
+  const payment = getPaymentDetailsMutation.data;
+  const isGenerating = getPaymentDetailsMutation.isPending;
+
+  // Poll database status every 5 seconds once payment details are loaded
+  const statusQuery = useQuery({
+    ...trpc.announcement.getPaymentStatus.queryOptions({ announcementId: id }),
+    refetchInterval: (query) => {
+      // Only poll if payment is pending
+      return query.state.data?.status === 'PENDING' ? 5000 : false;
+    },
+    enabled: !!payment,
+  });
+
+  const currentStatus = statusQuery.data?.status || 'PENDING';
+
+  // Decrement countdown timer every second
+  useEffect(() => {
+    if (timeLeft <= 0 || currentStatus === 'PAID') return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, currentStatus]);
+
+  // Handle redirect on successful payment
+  useEffect(() => {
+    if (currentStatus === 'PAID') {
+      toast.success('Pagamento confirmado! Seu anúncio está ativo.');
+      const timeout = setTimeout(() => {
+        navigate({ to: '/dashboard' });
+      }, 4000);
+      return () => clearTimeout(timeout);
+    }
+  }, [currentStatus, navigate]);
+
+  // Copy Pix Copy-Paste code to clipboard
+  const handleCopyCode = async () => {
+    if (!payment?.pixCopyPaste) return;
+    try {
+      await navigator.clipboard.writeText(payment.pixCopyPaste);
+      setCopied(true);
+      toast.success(
+        'Código Pix Copia e Cola copiado para a área de transferência!',
+      );
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error('Falha ao copiar o código. Por favor, copie manualmente.');
+    }
+  };
+
+  // Formatting seconds into MM:SS
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  if (isGenerating) {
+    return (
+      <div className="flex min-h-[70vh] flex-col items-center justify-center space-y-4">
+        <Loader2 className="h-10 w-10 animate-spin text-indigo-500" />
+        <p className="text-slate-400 text-sm">
+          Gerando cobrança Pix de R$ 2,00...
+        </p>
+      </div>
+    );
+  }
+
+  if (getPaymentDetailsMutation.isError) {
+    return (
+      <div className="flex min-h-[70vh] flex-col items-center justify-center space-y-4 p-4 text-center">
+        <div className="rounded-full border border-red-900/30 bg-red-950/40 p-4 text-red-500">
+          <CreditCard className="h-10 w-10" />
+        </div>
+        <h2 className="font-bold text-white text-xl">
+          Falha ao gerar cobrança
+        </h2>
+        <p className="max-w-md text-slate-400 text-sm">
+          {getPaymentDetailsMutation.error.message ||
+            'Não foi possível estabelecer contato com o gateway de pagamento. Tente novamente mais tarde.'}
+        </p>
+        <Button
+          onClick={() =>
+            getPaymentDetailsMutation.mutate({ announcementId: id })
+          }
+          className="bg-indigo-650 text-white hover:bg-indigo-600"
+        >
+          <RefreshCw className="mr-2 h-4 w-4" /> Tentar Novamente
+        </Button>
+      </div>
+    );
+  }
+
+  // Render Confirmation / Success view if status is PAID
+  if (currentStatus === 'PAID') {
+    return (
+      <div className="mx-auto flex min-h-[80vh] max-w-md flex-col items-center justify-center p-4 md:p-8">
+        <div className="relative flex w-full flex-col items-center justify-center space-y-6 rounded-2xl border border-emerald-900/40 bg-slate-900/50 p-8 text-center shadow-2xl shadow-emerald-950/20 backdrop-blur-xl">
+          {/* Custom Success Checkmark Animation */}
+          <div className="relative">
+            <div className="absolute inset-0 animate-pulse rounded-full bg-emerald-500/20 blur-xl" />
+            <CheckCircle2 className="relative z-10 h-20 w-20 animate-scale-up text-emerald-500" />
+          </div>
+          <div>
+            <h1 className="font-bold text-2xl text-white">
+              Pagamento Confirmado!
+            </h1>
+            <p className="mt-2 text-slate-400 text-sm">
+              Seu anúncio foi publicado com sucesso e estará ativo pelos
+              próximos 30 dias.
+            </p>
+          </div>
+          <div className="h-1 w-full overflow-hidden rounded-full bg-slate-800">
+            <div className="h-full animate-loading-bar bg-emerald-500" />
+          </div>
+          <p className="text-slate-500 text-xs">
+            Redirecionando para o dashboard em instantes...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-md space-y-6 p-4 md:p-8">
+      <Card className="border-slate-850 bg-slate-900/60 shadow-2xl backdrop-blur-xl">
+        <CardHeader className="text-center">
+          <CardTitle className="flex items-center justify-center gap-2 font-bold text-white text-xl">
+            Pagamento Pix <Timer className="h-5 w-5 text-indigo-400" />
+          </CardTitle>
+          <CardDescription className="text-slate-400">
+            Pague a taxa única de R$ 2,00 para ativar o seu anúncio por 30 dias.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center space-y-6">
+          {/* Value display */}
+          <div className="w-full rounded-lg border border-slate-850 bg-slate-950/60 py-4 text-center">
+            <span className="block font-semibold text-slate-400 text-xs uppercase tracking-wider">
+              Valor a pagar
+            </span>
+            <span className="mt-1 block font-extrabold text-3xl text-white">
+              R$ 2,00
+            </span>
+          </div>
+
+          {/* Pix QR Code */}
+          {payment?.pixQrCode ? (
+            <div className="relative rounded-xl border border-slate-200 bg-white p-3 shadow-inner">
+              {timeLeft <= 0 ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-slate-950/90 p-4 text-center">
+                  <Timer className="mb-2 h-8 w-8 text-red-500" />
+                  <p className="font-semibold text-white text-xs">
+                    QR Code Expirado
+                  </p>
+                  <Button
+                    variant="link"
+                    onClick={() =>
+                      getPaymentDetailsMutation.mutate({ announcementId: id })
+                    }
+                    className="mt-1 text-indigo-400 text-xs"
+                  >
+                    Gerar novo código
+                  </Button>
+                </div>
+              ) : null}
+              <img
+                src={payment.pixQrCode}
+                alt="QR Code Pix"
+                className="h-48 w-48 object-contain"
+              />
+            </div>
+          ) : (
+            <div className="flex h-48 w-48 animate-pulse items-center justify-center rounded-xl bg-slate-850">
+              <Loader2 className="h-6 w-6 animate-spin text-slate-600" />
+            </div>
+          )}
+
+          {/* Timer Display */}
+          <div className="flex items-center gap-2 text-slate-350 text-sm">
+            <Timer className="h-4 w-4 text-indigo-400" />
+            <span>Código expira em: </span>
+            <span
+              className={`font-bold font-mono ${
+                timeLeft < 60 ? 'animate-pulse text-red-500' : 'text-white'
+              }`}
+            >
+              {timeLeft > 0 ? formatTime(timeLeft) : 'Expirado'}
+            </span>
+          </div>
+
+          {/* Pix Copy and Paste */}
+          {payment?.pixCopyPaste && (
+            <div className="w-full space-y-2">
+              <Label
+                htmlFor="pix-copia-cola"
+                className="font-medium text-slate-350 text-xs"
+              >
+                Pix Copia e Cola
+              </Label>
+              <div className="relative flex items-center">
+                <input
+                  id="pix-copia-cola"
+                  type="text"
+                  readOnly
+                  value={payment.pixCopyPaste}
+                  className="w-full overflow-ellipsis rounded-md border border-slate-800 bg-slate-950 py-2.5 pr-10 pl-3 text-slate-300 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+                <button
+                  type="button"
+                  onClick={handleCopyCode}
+                  className="absolute right-2 text-slate-500 transition-colors hover:text-white"
+                  title="Copiar código"
+                >
+                  <Copy className="h-4 w-4" />
+                </button>
+              </div>
+              <Button
+                type="button"
+                onClick={handleCopyCode}
+                className="mt-2 w-full bg-indigo-650 font-semibold text-white hover:bg-indigo-600"
+              >
+                {copied ? 'Copiado!' : 'Copiar Código Pix'}
+              </Button>
+            </div>
+          )}
+
+          {/* Bottom helper info */}
+          <div className="flex items-center justify-center gap-2 text-center text-[10px] text-slate-500">
+            <RefreshCw className="h-3 w-3 animate-spin text-slate-600" />
+            <span>Aguardando confirmação do pagamento pelo seu banco...</span>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

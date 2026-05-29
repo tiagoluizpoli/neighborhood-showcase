@@ -113,13 +113,45 @@ export const announcement = pgTable('announcement', {
   deletedAt: timestamp('deleted_at'),
 });
 
-export const announcementRelations = relations(announcement, ({ one }) => ({
-  provider: one(user, {
-    fields: [announcement.providerId],
-    references: [user.id],
+export const announcementRelations = relations(
+  announcement,
+  ({ one, many }) => ({
+    provider: one(user, {
+      fields: [announcement.providerId],
+      references: [user.id],
+    }),
+    condominium: one(condominium, {
+      fields: [announcement.condominiumId],
+      references: [condominium.id],
+    }),
+    payments: many(payment),
   }),
-  condominium: one(condominium, {
-    fields: [announcement.condominiumId],
-    references: [condominium.id],
+);
+
+export const payment = pgTable('payment', {
+  id: text('id').primaryKey(),
+  announcementId: text('announcement_id')
+    .notNull()
+    .references(() => announcement.id, { onDelete: 'cascade' }),
+  billingId: text('billing_id').notNull(),
+  amountCents: integer('amount_cents').notNull(),
+  status: text('status', {
+    enum: ['PENDING', 'PAID', 'EXPIRED', 'REFUNDED'],
+  })
+    .default('PENDING')
+    .notNull(),
+  pixQrCode: text('pix_qr_code'),
+  pixCopyPaste: text('pix_copy_paste'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at')
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const paymentRelations = relations(payment, ({ one }) => ({
+  announcement: one(announcement, {
+    fields: [payment.announcementId],
+    references: [announcement.id],
   }),
 }));

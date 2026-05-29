@@ -26,4 +26,5 @@ export interface CreateAnnouncementRepositoryInput {
 export interface AnnouncementRepository {
   create(input: CreateAnnouncementRepositoryInput): Promise<Announcement>;
   findById(id: string): Promise<Announcement | null>;
+  updateStatus(id: string, status: AnnouncementStatus): Promise<Announcement>;
 }

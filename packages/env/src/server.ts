@@ -16,6 +16,7 @@ export const env = createEnv({
     S3_ACCESS_KEY_ID: z.string().default('minioadmin'),
     S3_SECRET_ACCESS_KEY: z.string().default('minioadmin'),
     S3_BUCKET_NAME: z.string().default('showcase'),
+    ABACATEPAY_API_KEY: z.string().default('mock-abacatepay-key'),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

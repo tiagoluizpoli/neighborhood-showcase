@@ -18,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardCondoSetupRouteImport } from './routes/dashboard.condo-setup'
 import { Route as DashboardAnunciosNovoRouteImport } from './routes/dashboard.anuncios.novo'
+import { Route as DashboardAnunciosIdPagamentoRouteImport } from './routes/dashboard.anuncios.$id.pagamento'
 
 const TodosRoute = TodosRouteImport.update({
   id: '/todos',
@@ -64,6 +65,12 @@ const DashboardAnunciosNovoRoute = DashboardAnunciosNovoRouteImport.update({
   path: '/anuncios/novo',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardAnunciosIdPagamentoRoute =
+  DashboardAnunciosIdPagamentoRouteImport.update({
+    id: '/anuncios/$id/pagamento',
+    path: '/anuncios/$id/pagamento',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/anuncios/novo': typeof DashboardAnunciosNovoRoute
+  '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,6 +93,7 @@ export interface FileRoutesByTo {
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/anuncios/novo': typeof DashboardAnunciosNovoRoute
+  '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,6 +106,7 @@ export interface FileRoutesById {
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/anuncios/novo': typeof DashboardAnunciosNovoRoute
+  '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/dashboard/condo-setup'
     | '/dashboard/'
     | '/dashboard/anuncios/novo'
+    | '/dashboard/anuncios/$id/pagamento'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/dashboard/condo-setup'
     | '/dashboard'
     | '/dashboard/anuncios/novo'
+    | '/dashboard/anuncios/$id/pagamento'
   id:
     | '__root__'
     | '/'
@@ -131,6 +143,7 @@ export interface FileRouteTypes {
     | '/dashboard/condo-setup'
     | '/dashboard/'
     | '/dashboard/anuncios/novo'
+    | '/dashboard/anuncios/$id/pagamento'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -207,6 +220,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAnunciosNovoRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/anuncios/$id/pagamento': {
+      id: '/dashboard/anuncios/$id/pagamento'
+      path: '/anuncios/$id/pagamento'
+      fullPath: '/dashboard/anuncios/$id/pagamento'
+      preLoaderRoute: typeof DashboardAnunciosIdPagamentoRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
@@ -214,12 +234,14 @@ interface DashboardRouteChildren {
   DashboardCondoSetupRoute: typeof DashboardCondoSetupRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardAnunciosNovoRoute: typeof DashboardAnunciosNovoRoute
+  DashboardAnunciosIdPagamentoRoute: typeof DashboardAnunciosIdPagamentoRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardCondoSetupRoute: DashboardCondoSetupRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardAnunciosNovoRoute: DashboardAnunciosNovoRoute,
+  DashboardAnunciosIdPagamentoRoute: DashboardAnunciosIdPagamentoRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(

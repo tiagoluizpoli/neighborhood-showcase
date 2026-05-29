@@ -8,7 +8,7 @@
 - [x] **Issue 04**: Condo Approval - Admin (Completed: 2026-05-29)
 - [x] **Issue 05**: Resident Approval - Moderator (Completed: 2026-05-29)
 - [x] **Issue 06**: Announcement Draft Creation (Completed: 2026-05-29)
-- [ ] **Issue 07**: Payment Intent PIX (Status: PENDING)
+- [x] **Issue 07**: Payment Intent PIX (Completed: 2026-05-29)
 - [ ] **Issue 08**: Webhook Payment Resolution (Status: PENDING)
 - [ ] **Issue 09**: Public Showcase Discovery (Status: PENDING)
 - [ ] **Issue 10**: Provider Dashboard & LGPD (Status: PENDING)
@@ -61,5 +61,13 @@
 - Exposed protected tRPC mutation for creation with Zod input schema.
 - Added responsive frontend page at `/dashboard/anuncios/novo` featuring a premium 4:3 canvas-based zoom-and-pan cropper and live coordinate check.
 - Added unit tests for frontend cropper bounds and image optimization utility, plus integration tests for database persistence.
+
+### Issue 07: Payment Intent PIX
+- Added the `payment` table to Drizzle schema, relation links, and executed database kit push updates.
+- Built `GeneratePaymentIntent` use case implementing AbacatePay transparent checkouts (PIX fee of R$ 2,00) with announcement ownership checks, idempotency, and announcement status transitions to `PENDING_PAYMENT`.
+- Created payment repository and AbacatePay API client featuring simulated mock fallbacks.
+- Exposed tRPC endpoints for generating and querying payment details and status.
+- Designed mobile-first Pix paywall screen at `/dashboard/anuncios/$id/pagamento` rendering dynamic QR Code, copy-paste strings, copy toast actions, countdown timers, and database polling intervals.
+- Verified compilation and test suite (all 74 tests green).
 
 
