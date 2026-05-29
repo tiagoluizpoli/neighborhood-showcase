@@ -49,7 +49,15 @@ coverage
 .cache
 tmp
 temp
-.agent/skills
-.agent/workflows
+.agents/skills
+.agents/workflows
 AGENTS.md
 SKILLS_OVERVIEW.md
+.specify/templates
+.specify/workflows
+.specify/scripts
+.specify/extensions
+.specify/integrations
+.specify/extensions.yml
+.specify/integration.json
+.specify/init-options.json
