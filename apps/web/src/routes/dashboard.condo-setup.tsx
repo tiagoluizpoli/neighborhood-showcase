@@ -6,74 +6,508 @@ import {
   CardHeader,
   CardTitle,
 } from '@base-fullstack-template/ui/components/card';
-import { createFileRoute } from '@tanstack/react-router';
-import { Home, Plus, Users } from 'lucide-react';
+import { Input } from '@base-fullstack-template/ui/components/input';
+import { Label } from '@base-fullstack-template/ui/components/label';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import {
+  ArrowLeft,
+  Clock,
+  FileText,
+  Home,
+  Loader2,
+  Plus,
+  UploadCloud,
+  Users,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { trpc } from '@/utils/trpc';
 
 export const Route = createFileRoute('/dashboard/condo-setup')({
   component: CondoSetupComponent,
 });
 
 function CondoSetupComponent() {
+  const navigate = useNavigate();
+  const [flow, setFlow] = useState<'select' | 'sindico' | 'resident'>('select');
+
+  // Query my created condo status
+  const myCondoQuery = useQuery(trpc.condominium.myCreated.queryOptions());
+
+  // Form states
+  const [name, setName] = useState('');
+  const [cep, setCep] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+
+  const [isSearchingCep, setIsSearchingCep] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  // tRPC condo request mutation
+  const requestCondoMutation = useMutation(
+    trpc.condominium.request.mutationOptions({
+      onSuccess: () => {
+        toast.success('Condomínio cadastrado com sucesso!');
+        myCondoQuery.refetch();
+      },
+      onError: (err) => {
+        toast.error(err.message || 'Erro ao cadastrar condomínio.');
+      },
+    }),
+  );
+
+  // CEP Autofill Effect
+  useEffect(() => {
+    const cleanCep = cep.replace(/\D/g, '');
+    if (cleanCep.length === 8) {
+      setIsSearchingCep(true);
+      fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.erro) {
+            toast.error('CEP não encontrado.');
+            setCity('');
+            setState('');
+          } else {
+            setCity(data.localidade || '');
+            setState(data.uf || '');
+          }
+        })
+        .catch(() => {
+          toast.error('Erro ao buscar o CEP.');
+        })
+        .finally(() => {
+          setIsSearchingCep(false);
+        });
+    }
+  }, [cep]);
+
+  // Handle Form Submit
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!name || !cep || !city || !state) {
+      toast.error('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    if (!file) {
+      toast.error('Por favor, envie o documento de convenção/ata de eleição.');
+      return;
+    }
+
+    setIsUploading(true);
+    let proofUrl = '';
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'document');
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error('Falha no upload do documento.');
+      }
+
+      const uploadData = await uploadRes.json();
+      proofUrl = uploadData.url;
+    } catch (err) {
+      const error = err as Error;
+      toast.error(error.message || 'Erro ao realizar upload do documento.');
+      setIsUploading(false);
+      return;
+    } finally {
+      setIsUploading(false);
+    }
+
+    // Call tRPC mutation
+    requestCondoMutation.mutate({
+      name,
+      city,
+      state,
+      cep: cep.replace(/\D/g, ''),
+      contactInfo: {
+        email: email || undefined,
+        phone: phone || undefined,
+      },
+      proofUrl,
+    });
+  };
+
+  const myCondo = myCondoQuery.data;
+
+  // If the user already has a pending condo creation
+  if (myCondo && myCondo.status === 'PENDING_APPROVAL') {
+    return (
+      <div className="relative flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <div className="absolute inset-0 -z-10 bg-slate-950">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.12),transparent_45%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.12),transparent_45%)]" />
+        </div>
+
+        <Card className="w-full max-w-lg border-slate-800 bg-slate-900/60 p-6 text-center shadow-2xl backdrop-blur-xl">
+          <CardHeader>
+            <div className="mx-auto mb-4 flex h-16 w-16 animate-pulse items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400">
+              <Clock className="h-8 w-8" />
+            </div>
+            <CardTitle className="font-bold text-2xl text-slate-100">
+              Cadastro em Análise
+            </CardTitle>
+            <CardDescription className="mt-2 text-slate-400">
+              O condomínio{' '}
+              <strong className="text-indigo-400">{myCondo.name}</strong> foi
+              enviado para aprovação.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-slate-300 text-sm">
+              Nossos administradores estão verificando os documentos anexados.
+              Você receberá acesso como <strong>Síndico/Moderador</strong> assim
+              que for aprovado.
+            </p>
+            <div className="space-y-2 rounded-lg border border-slate-800 bg-slate-950/40 p-4 text-left text-slate-400 text-xs">
+              <div>
+                <strong>Cidade/UF:</strong> {myCondo.city} - {myCondo.state}
+              </div>
+              <div>
+                <strong>CEP:</strong> {myCondo.cep}
+              </div>
+              {myCondo.proofUrl && (
+                <div className="flex items-center space-x-1">
+                  <strong>Comprovante:</strong>
+                  <a
+                    href={myCondo.proofUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center text-indigo-400 hover:underline"
+                  >
+                    Ver arquivo <FileText className="ml-1 h-3 w-3" />
+                  </a>
+                </div>
+              )}
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => myCondoQuery.refetch()}
+              className="mt-4 border-slate-700 text-slate-300 hover:bg-slate-800"
+            >
+              Atualizar Status
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // If approved, redirect to dashboard or show completion
+  if (myCondo && myCondo.status === 'APPROVED') {
+    return (
+      <div className="relative flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-md border-slate-800 bg-slate-900/60 p-6 text-center shadow-2xl backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="font-bold text-2xl text-green-400">
+              Condomínio Aprovado!
+            </CardTitle>
+            <CardDescription className="mt-2 text-slate-400">
+              Seu acesso como moderador foi ativado.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={() => navigate({ to: '/dashboard' })}
+              className="w-full bg-indigo-600 hover:bg-indigo-700"
+            >
+              Ir para o Painel
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Selection Screen
+  if (flow === 'select') {
+    return (
+      <div className="relative flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <div className="absolute inset-0 -z-10 bg-slate-950">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.12),transparent_45%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.12),transparent_45%)]" />
+        </div>
+
+        <Card className="w-full max-w-2xl border-slate-800 bg-slate-900/60 p-6 shadow-2xl backdrop-blur-xl">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400">
+              <Home className="h-8 w-8" />
+            </div>
+            <CardTitle className="font-bold text-2xl text-slate-100">
+              Configuração de Condomínio
+            </CardTitle>
+            <CardDescription className="mt-2 text-slate-400">
+              Você ainda não está associado a nenhum condomínio. Escolha uma das
+              opções abaixo para começar.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="mt-6 grid gap-6 md:grid-cols-2">
+            <div className="flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-6 transition-all hover:border-slate-700">
+              <div>
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400">
+                  <Plus className="h-6 w-6" />
+                </div>
+                <h3 className="font-semibold text-lg text-slate-200">
+                  Criar Novo Condomínio
+                </h3>
+                <p className="mt-2 text-slate-400 text-sm">
+                  Cadastre um novo condomínio como{' '}
+                  <strong>Síndico/Administrador</strong> para gerenciar
+                  moradores e anúncios.
+                </p>
+              </div>
+              <Button
+                onClick={() => setFlow('sindico')}
+                className="mt-6 w-full animate-none cursor-pointer bg-indigo-600 hover:bg-indigo-700"
+              >
+                Começar
+              </Button>
+            </div>
+
+            <div className="flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-6 transition-all hover:border-slate-700">
+              <div>
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
+                  <Users className="h-6 w-6" />
+                </div>
+                <h3 className="font-semibold text-lg text-slate-200">
+                  Participar de um Existente
+                </h3>
+                <p className="mt-2 text-slate-400 text-sm">
+                  Solicite associação a um condomínio existente informando sua
+                  unidade e comprovante de residência.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setFlow('resident')}
+                className="mt-6 w-full cursor-pointer border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-slate-200"
+              >
+                Solicitar Acesso
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Resident sub-flow placeholder (to be completed in Issue 03)
+  if (flow === 'resident') {
+    return (
+      <div className="relative flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-md border-slate-800 bg-slate-900/60 p-6 text-center shadow-2xl backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="font-bold text-2xl text-slate-100">
+              Participar de Condomínio
+            </CardTitle>
+            <CardDescription className="mt-2 text-slate-400">
+              O fluxo de morador estará disponível na próxima etapa.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={() => setFlow('select')}
+              className="w-full cursor-pointer bg-slate-800 text-slate-200 hover:bg-slate-700"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Síndico Path Form
   return (
-    <div className="relative flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-      {/* Decorative background gradients */}
+    <div className="relative flex min-h-[85vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
       <div className="absolute inset-0 -z-10 bg-slate-950">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.12),transparent_45%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.12),transparent_45%)]" />
       </div>
 
-      <Card className="w-full max-w-2xl border-slate-800 bg-slate-900/60 p-6 shadow-2xl backdrop-blur-xl">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400">
-            <Home className="h-8 w-8" />
+      <Card className="w-full max-w-lg border-slate-800 bg-slate-900/60 shadow-2xl backdrop-blur-xl">
+        <CardHeader className="relative">
+          <Button
+            variant="ghost"
+            onClick={() => setFlow('select')}
+            className="absolute top-4 left-4 h-8 w-8 cursor-pointer p-0 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div className="pt-4 text-center">
+            <CardTitle className="font-bold text-2xl text-slate-100">
+              Cadastrar Condomínio
+            </CardTitle>
+            <CardDescription className="mt-1 text-slate-400">
+              Preencha os dados como administrador/síndico
+            </CardDescription>
           </div>
-          <CardTitle className="font-bold text-2xl text-slate-100">
-            Configuração de Condomínio
-          </CardTitle>
-          <CardDescription className="mt-2 text-slate-400">
-            Você ainda não está associado a nenhum condomínio. Escolha uma das
-            opções abaixo para começar.
-          </CardDescription>
         </CardHeader>
-        <CardContent className="mt-6 grid gap-6 md:grid-cols-2">
-          <div className="flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-6 transition-all hover:border-slate-700">
-            <div>
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400">
-                <Plus className="h-6 w-6" />
-              </div>
-              <h3 className="font-semibold text-lg text-slate-200">
-                Criar Novo Condomínio
-              </h3>
-              <p className="mt-2 text-slate-400 text-sm">
-                Cadastre um novo condomínio para gerenciar moradores,
-                prestadores de serviços e muito mais.
-              </p>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="condo-name" className="text-slate-300">
+                Nome do Condomínio *
+              </Label>
+              <Input
+                id="condo-name"
+                placeholder="Ex: Condomínio Residencial Vista Alegre"
+                className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
-            <Button className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700">
-              Começar
-            </Button>
-          </div>
 
-          <div className="flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-6 transition-all hover:border-slate-700">
-            <div>
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
-                <Users className="h-6 w-6" />
+            <div className="grid grid-cols-3 gap-4">
+              <div className="col-span-1 space-y-2">
+                <Label htmlFor="condo-cep" className="text-slate-300">
+                  CEP *
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="condo-cep"
+                    placeholder="00000-000"
+                    maxLength={9}
+                    className="border-slate-800 bg-slate-950 pr-8 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                    value={cep}
+                    onChange={(e) => setCep(e.target.value)}
+                  />
+                  {isSearchingCep && (
+                    <Loader2 className="absolute top-2.5 right-2 h-4 w-4 animate-spin text-slate-500" />
+                  )}
+                </div>
               </div>
-              <h3 className="font-semibold text-lg text-slate-200">
-                Participar de um Existente
-              </h3>
-              <p className="mt-2 text-slate-400 text-sm">
-                Insira um código de convite ou solicite acesso para fazer parte
-                de um condomínio já ativo.
-              </p>
+
+              <div className="col-span-1 space-y-2">
+                <Label htmlFor="condo-city" className="text-slate-300">
+                  Cidade *
+                </Label>
+                <Input
+                  id="condo-city"
+                  placeholder="Cidade"
+                  disabled
+                  className="border-slate-800 bg-slate-900 text-slate-400"
+                  value={city}
+                />
+              </div>
+
+              <div className="col-span-1 space-y-2">
+                <Label htmlFor="condo-state" className="text-slate-300">
+                  UF *
+                </Label>
+                <Input
+                  id="condo-state"
+                  placeholder="UF"
+                  disabled
+                  className="border-slate-800 bg-slate-900 text-slate-400"
+                  value={state}
+                />
+              </div>
             </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="condo-email" className="text-slate-300">
+                  E-mail de Contato
+                </Label>
+                <Input
+                  id="condo-email"
+                  type="email"
+                  placeholder="admin@condo.com"
+                  className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="condo-phone" className="text-slate-300">
+                  Telefone / WhatsApp
+                </Label>
+                <Input
+                  id="condo-phone"
+                  placeholder="(11) 99999-9999"
+                  className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-slate-300">
+                Ata de Eleição / Convenção *
+              </Label>
+              <div className="flex justify-center rounded-lg border border-slate-800 border-dashed bg-slate-950/40 px-6 py-8 transition-colors hover:border-slate-700">
+                <div className="space-y-2 text-center">
+                  <UploadCloud className="mx-auto h-10 w-10 text-slate-500" />
+                  <div className="flex justify-center text-slate-400 text-sm">
+                    <label
+                      htmlFor="file-upload"
+                      className="relative cursor-pointer rounded-md font-semibold text-indigo-400 hover:text-indigo-300"
+                    >
+                      <span>Enviar arquivo</span>
+                      <input
+                        id="file-upload"
+                        name="file-upload"
+                        type="file"
+                        accept="application/pdf,image/*"
+                        className="sr-only"
+                        onChange={(e) => {
+                          const files = e.target.files;
+                          if (files && files.length > 0) {
+                            setFile(files[0]);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                  <p className="text-slate-500 text-xs">
+                    PDF ou Imagem de até 10MB
+                  </p>
+                  {file && (
+                    <div className="inline-block rounded border border-slate-800 bg-slate-950 p-2 font-medium text-slate-300 text-xs">
+                      📁 {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <Button
-              variant="outline"
-              className="mt-6 w-full border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-slate-200"
+              type="submit"
+              disabled={isUploading || requestCondoMutation.isPending}
+              className="mt-6 w-full cursor-pointer rounded-lg bg-indigo-600 py-2 font-semibold text-white transition-colors hover:bg-indigo-700"
             >
-              Solicitar Acesso
+              {isUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Enviando documento...
+                </>
+              ) : requestCondoMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Salvando dados...
+                </>
+              ) : (
+                'Solicitar Aprovação'
+              )}
             </Button>
-          </div>
+          </form>
         </CardContent>
       </Card>
     </div>

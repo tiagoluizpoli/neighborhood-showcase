@@ -1,6 +1,7 @@
 import { auth } from '@base-fullstack-template/auth';
 import { env } from '@base-fullstack-template/env/server';
 import fastifyCors from '@fastify/cors';
+import fastifyMultipart from '@fastify/multipart';
 import {
   type FastifyTRPCPluginOptions,
   fastifyTRPCPlugin,
@@ -8,6 +9,7 @@ import {
 import Fastify from 'fastify';
 import { createContext } from './presentation/context';
 import { type AppRouter, appRouter } from './presentation/routers/index';
+import { uploadRoutes } from './presentation/routes/upload';
 
 const baseCorsConfig = {
   origin: env.CORS_ORIGIN,
@@ -22,6 +24,12 @@ const fastify = Fastify({
 });
 
 fastify.register(fastifyCors, baseCorsConfig);
+fastify.register(fastifyMultipart, {
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+  },
+});
+fastify.register(uploadRoutes);
 
 fastify.route({
   method: ['GET', 'POST'],

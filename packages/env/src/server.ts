@@ -11,6 +11,11 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(['development', 'production', 'test'])
       .default('development'),
+    S3_ENDPOINT: z.string().url().default('http://localhost:9000'),
+    S3_REGION: z.string().default('us-east-1'),
+    S3_ACCESS_KEY_ID: z.string().default('minioadmin'),
+    S3_SECRET_ACCESS_KEY: z.string().default('minioadmin'),
+    S3_BUCKET_NAME: z.string().default('showcase'),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

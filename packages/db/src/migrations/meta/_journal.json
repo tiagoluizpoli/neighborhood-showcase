@@ -15,6 +15,13 @@
       "when": 1780023903746,
       "tag": "0001_fearless_annihilus",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780048129738,
+      "tag": "0002_glossy_zarda",
+      "breakpoints": true
     }
   ]
 }
