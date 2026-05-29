@@ -9,7 +9,7 @@
 - [x] **Issue 05**: Resident Approval - Moderator (Completed: 2026-05-29)
 - [x] **Issue 06**: Announcement Draft Creation (Completed: 2026-05-29)
 - [x] **Issue 07**: Payment Intent PIX (Completed: 2026-05-29)
-- [ ] **Issue 08**: Webhook Payment Resolution (Status: PENDING)
+- [x] **Issue 08**: Webhook Payment Resolution (Completed: 2026-05-29)
 - [ ] **Issue 09**: Public Showcase Discovery (Status: PENDING)
 - [ ] **Issue 10**: Provider Dashboard & LGPD (Status: PENDING)
 - [ ] **Issue 11**: Moderator Suspension & Admin Blacklist (Status: PENDING)
@@ -69,5 +69,14 @@
 - Exposed tRPC endpoints for generating and querying payment details and status.
 - Designed mobile-first Pix paywall screen at `/dashboard/anuncios/$id/pagamento` rendering dynamic QR Code, copy-paste strings, copy toast actions, countdown timers, and database polling intervals.
 - Verified compilation and test suite (all 74 tests green).
+
+### Issue 08: Webhook Payment Resolution
+- Implemented Fastify route at `/api/webhooks/abacatepay` using `fastify-raw-body` plugin to parse raw payloads.
+- Validated AbacatePay cryptographic signature header `X-Webhook-Signature` using HMAC-SHA256 timing-safe comparison.
+- Added database transaction logic to update payment status to `PAID` and announcement status to `ACTIVE` (setting `expiresAt` to `now + 30 days` and `paidAt` to `now`).
+- Implemented idempotency checks, ensuring duplicate events return `200 OK` without duplicating transitions.
+- Integrated Resend client with mock fallback to send confirmation emails to the provider.
+- Implemented comprehensive route integration tests.
+
 
 

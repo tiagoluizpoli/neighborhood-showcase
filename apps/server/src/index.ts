@@ -7,9 +7,11 @@ import {
   fastifyTRPCPlugin,
 } from '@trpc/server/adapters/fastify';
 import Fastify from 'fastify';
+import fastifyRawBody from 'fastify-raw-body';
 import { createContext } from './presentation/context';
 import { type AppRouter, appRouter } from './presentation/routers/index';
 import { uploadRoutes } from './presentation/routes/upload';
+import { webhookRoutes } from './presentation/routes/webhook';
 
 const baseCorsConfig = {
   origin: env.CORS_ORIGIN,
@@ -29,7 +31,14 @@ fastify.register(fastifyMultipart, {
     fileSize: 10 * 1024 * 1024,
   },
 });
+fastify.register(fastifyRawBody, {
+  field: 'rawBody',
+  global: false,
+  encoding: 'utf8',
+  runFirst: true,
+});
 fastify.register(uploadRoutes);
+fastify.register(webhookRoutes);
 
 fastify.route({
   method: ['GET', 'POST'],
