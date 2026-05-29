@@ -1,5 +1,6 @@
 import type {
   Assignment,
+  AssignmentStatus,
   AssignmentType,
   AssignmentWithCondo,
 } from '../entities/assignment.entity';
@@ -9,6 +10,7 @@ export interface CreateAssignmentRepositoryInput {
   providerId: string;
   condominiumId: string;
   type: AssignmentType;
+  status?: AssignmentStatus;
   unitInfo?: string;
   proofOfResidency?: string;
 }

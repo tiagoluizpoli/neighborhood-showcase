@@ -79,4 +79,30 @@ export class DrizzleCondominiumRepository implements CondominiumRepository {
 
     return results as Condominium[];
   }
+
+  async listPending(): Promise<Condominium[]> {
+    const results = await db
+      .select()
+      .from(condoSchema)
+      .where(eq(condoSchema.status, 'PENDING_APPROVAL'));
+
+    return results as Condominium[];
+  }
+
+  async updateStatus(
+    id: string,
+    status: 'APPROVED' | 'REJECTED',
+  ): Promise<Condominium> {
+    const [updated] = await db
+      .update(condoSchema)
+      .set({ status })
+      .where(eq(condoSchema.id, id))
+      .returning();
+
+    if (!updated) {
+      throw new Error(`Failed to update status of condominium ${id}`);
+    }
+
+    return updated as Condominium;
+  }
 }

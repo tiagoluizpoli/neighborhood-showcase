@@ -20,4 +20,9 @@ export interface CondominiumRepository {
   findByCEP(cep: string): Promise<Condominium[]>;
   findByCreatorId(userId: string): Promise<Condominium | null>;
   searchApproved(query: string): Promise<Condominium[]>;
+  listPending(): Promise<Condominium[]>;
+  updateStatus(
+    id: string,
+    status: 'APPROVED' | 'REJECTED',
+  ): Promise<Condominium>;
 }

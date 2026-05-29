@@ -19,7 +19,7 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
         providerId: input.providerId,
         condominiumId: input.condominiumId,
         type: input.type,
-        status: 'PENDING',
+        status: input.status || 'PENDING',
         unitInfo: input.unitInfo || null,
         proofOfResidency: input.proofOfResidency || null,
       })

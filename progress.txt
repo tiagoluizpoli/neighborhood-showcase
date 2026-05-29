@@ -5,7 +5,7 @@
 - [x] **Issue 01**: Auth & CPF Validation (Completed: 2026-05-29)
 - [x] **Issue 02**: Condo Creation - Síndico (Completed: 2026-05-29)
 - [x] **Issue 03**: Condo Joining - Resident (Completed: 2026-05-29)
-- [ ] **Issue 04**: Condo Approval - Admin (Status: PENDING)
+- [x] **Issue 04**: Condo Approval - Admin (Completed: 2026-05-29)
 - [ ] **Issue 05**: Resident Approval - Moderator (Status: PENDING)
 - [ ] **Issue 06**: Announcement Draft Creation (Status: PENDING)
 - [ ] **Issue 07**: Payment Intent PIX (Status: PENDING)
@@ -37,3 +37,12 @@
 - Assignment request mutation and repository with `findByProviderId` relation fetch.
 - Locked users on a pending screen with status refresh button until approved.
 - Implemented integration tests.
+
+### Issue 04: Condo Approval - Admin
+- Route beforeLoad guard restricting access to `/admin` only to `SYSTEM_MANAGER` users.
+- Admin panel list querying pending condominiums.
+- Integrated image and PDF preview modals for election convention minutes.
+- Implemented approve tRPC endpoint (updates status to `APPROVED` and grants pre-approved `MODERATOR` assignment to creator).
+- Implemented reject tRPC endpoint (updates status to `REJECTED` and dispatches mock email to creator).
+- Implemented integration tests.
+

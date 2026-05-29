@@ -21,3 +21,13 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
     },
   });
 });
+
+export const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'Apenas administradores globais podem realizar esta ação.',
+    });
+  }
+  return next();
+});
