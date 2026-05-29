@@ -1,3 +1,4 @@
+import { env } from '@base-fullstack-template/env/web';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import {
@@ -658,7 +659,7 @@ function EditAnnouncementModal({
     formData.append('file', file);
 
     try {
-      const response = await fetch('/api/upload', {
+      const response = await fetch(`${env.VITE_SERVER_URL}/api/upload`, {
         method: 'POST',
         body: formData,
       });

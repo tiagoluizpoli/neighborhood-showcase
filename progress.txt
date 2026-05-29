@@ -106,4 +106,5 @@
 - Resolved port conflicts by mapping Postgres database service to port `5435`.
 - Stood up Postgres and MinIO Docker containers successfully.
 - Executed `bun run db:push` to synchronize the Drizzle schema with the database instance.
+- Fixed 404 upload endpoint error by changing relative client fetch paths (`/api/upload`) to absolute paths targeting `env.VITE_SERVER_URL` on all dashboard upload screens.
 - Verified test suite and local environment configuration.

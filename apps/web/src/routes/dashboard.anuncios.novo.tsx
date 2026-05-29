@@ -1,3 +1,4 @@
+import { env } from '@base-fullstack-template/env/web';
 import { Button } from '@base-fullstack-template/ui/components/button';
 import {
   Card,
@@ -234,7 +235,7 @@ function NewAnnouncementComponent() {
       formData.append('file', croppedBlob, 'cover-image.webp');
       formData.append('type', 'image');
 
-      const uploadRes = await fetch('/api/upload', {
+      const uploadRes = await fetch(`${env.VITE_SERVER_URL}/api/upload`, {
         method: 'POST',
         body: formData,
       });

@@ -1,3 +1,4 @@
+import { env } from '@base-fullstack-template/env/web';
 import { Button } from '@base-fullstack-template/ui/components/button';
 import {
   Card,
@@ -156,7 +157,7 @@ function CondoSetupComponent() {
       formData.append('file', file);
       formData.append('type', 'document');
 
-      const uploadRes = await fetch('/api/upload', {
+      const uploadRes = await fetch(`${env.VITE_SERVER_URL}/api/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -485,7 +486,7 @@ function CondoSetupComponent() {
           formData.append('file', proofFile);
           formData.append('type', 'document');
 
-          const uploadRes = await fetch('/api/upload', {
+          const uploadRes = await fetch(`${env.VITE_SERVER_URL}/api/upload`, {
             method: 'POST',
             body: formData,
           });
