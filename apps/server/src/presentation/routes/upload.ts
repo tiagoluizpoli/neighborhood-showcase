@@ -1,6 +1,6 @@
 import { auth } from '@base-fullstack-template/auth';
 import type { FastifyInstance } from 'fastify';
-import sharp from 'sharp';
+import { resizeTo43Webp } from '../../infrastructure/storage/image.utils';
 import { storageClient } from '../../infrastructure/storage/storage.client';
 
 export async function uploadRoutes(fastify: FastifyInstance) {
@@ -51,10 +51,7 @@ export async function uploadRoutes(fastify: FastifyInstance) {
     // If it's an image, run sharp optimization!
     if (uploadType === 'image' || mimetype.startsWith('image/')) {
       try {
-        uploadBuffer = await sharp(buffer)
-          .resize(800, 600, { fit: 'cover' }) // 4:3 cropped aspect ratio
-          .webp({ quality: 80 })
-          .toBuffer();
+        uploadBuffer = await resizeTo43Webp(buffer);
         uploadMimetype = 'image/webp';
 
         const extIndex = uploadFilename.lastIndexOf('.');

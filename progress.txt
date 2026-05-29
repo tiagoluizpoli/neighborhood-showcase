@@ -7,7 +7,7 @@
 - [x] **Issue 03**: Condo Joining - Resident (Completed: 2026-05-29)
 - [x] **Issue 04**: Condo Approval - Admin (Completed: 2026-05-29)
 - [x] **Issue 05**: Resident Approval - Moderator (Completed: 2026-05-29)
-- [ ] **Issue 06**: Announcement Draft Creation (Status: PENDING)
+- [x] **Issue 06**: Announcement Draft Creation (Completed: 2026-05-29)
 - [ ] **Issue 07**: Payment Intent PIX (Status: PENDING)
 - [ ] **Issue 08**: Webhook Payment Resolution (Status: PENDING)
 - [ ] **Issue 09**: Public Showcase Discovery (Status: PENDING)
@@ -54,5 +54,12 @@
 - Implemented reject assignment mutation (sets status to `REJECTED` and logs reason).
 - Moderation dashboard UI with condo selector context and resident info/comprovante preview modal.
 - Implemented integration tests.
+
+### Issue 06: Announcement Draft Creation
+- Added `announcement` schema, database relations, and Drizzle repositories.
+- Created `CreateAnnouncement` domain use case validating parameters (minimum length, categories, contact links) and enforcing approved condominium residency status.
+- Exposed protected tRPC mutation for creation with Zod input schema.
+- Added responsive frontend page at `/dashboard/anuncios/novo` featuring a premium 4:3 canvas-based zoom-and-pan cropper and live coordinate check.
+- Added unit tests for frontend cropper bounds and image optimization utility, plus integration tests for database persistence.
 
 

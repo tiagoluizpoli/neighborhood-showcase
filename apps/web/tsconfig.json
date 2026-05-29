@@ -15,5 +15,6 @@
       "@/*": ["./src/*"],
       "@base-fullstack-template/ui/*": ["../../packages/ui/src/*"]
     }
-  }
+  },
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
 }
