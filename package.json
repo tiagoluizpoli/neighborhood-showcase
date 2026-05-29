@@ -43,6 +43,7 @@
     "db:watch": "turbo -F @base-fullstack-template/db db:watch",
     "db:stop": "turbo -F @base-fullstack-template/db db:stop",
     "db:down": "turbo -F @base-fullstack-template/db db:down",
+    "db:promote-user": "bun run packages/db/src/promote-user.ts",
     "check": "biome check --write .",
     "commit": "cz",
     "test": "bun test"
