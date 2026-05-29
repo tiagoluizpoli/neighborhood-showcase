@@ -1,12 +1,17 @@
+import { db } from '@base-fullstack-template/db';
+import { condominium as condominiumSchema } from '@base-fullstack-template/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
+import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { CreateAnnouncement } from '../../application/use-cases/announcement/create-announcement';
+import { ListPublicAnnouncements } from '../../application/use-cases/announcement/list-public-announcements';
+import { TrackAnalyticsEvent } from '../../application/use-cases/announcement/track-analytics-event';
 import { GeneratePaymentIntent } from '../../application/use-cases/payment/generate-payment-intent';
 import { DrizzleAnnouncementRepository } from '../../infrastructure/db/announcement-repository';
 import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-repository';
 import { DrizzlePaymentRepository } from '../../infrastructure/db/payment-repository';
 import { AbacatePayClient } from '../../infrastructure/payment/abacatepay.client';
-import { protectedProcedure, router } from '../trpc';
+import { protectedProcedure, publicProcedure, router } from '../trpc';
 
 const announcementRepo = new DrizzleAnnouncementRepository();
 const assignmentRepo = new DrizzleAssignmentRepository();
@@ -23,6 +28,9 @@ const generatePaymentIntentUseCase = new GeneratePaymentIntent(
   paymentRepo,
   abacatePayClient,
 );
+
+const listPublicAnnouncementsUseCase = new ListPublicAnnouncements();
+const trackAnalyticsEventUseCase = new TrackAnalyticsEvent();
 
 export const announcementRouter = router({
   create: protectedProcedure
@@ -106,6 +114,74 @@ export const announcementRouter = router({
         id: paymentRecord.id,
         status: paymentRecord.status,
         billingId: paymentRecord.billingId,
+      };
+    }),
+
+  listPublic: publicProcedure
+    .input(
+      z.object({
+        condominiumId: z.string().optional(),
+        category: z.string().optional(),
+        search: z.string().optional(),
+        verifiedOnly: z.boolean().optional(),
+        userCondoId: z.string().optional(),
+      }),
+    )
+    .query(async ({ input }) => {
+      return listPublicAnnouncementsUseCase.execute({
+        condominiumId: input.condominiumId,
+        category: input.category,
+        search: input.search,
+        verifiedOnly: input.verifiedOnly,
+        userCondoId: input.userCondoId,
+      });
+    }),
+
+  trackEvent: publicProcedure
+    .input(
+      z.object({
+        announcementId: z.string().min(1),
+        eventType: z.enum(['IMPRESSION', 'CONTACT_CLICK']),
+        targetType: z
+          .enum(['WHATSAPP', 'INSTAGRAM', 'WEBSITE'])
+          .nullable()
+          .optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      return trackAnalyticsEventUseCase.execute({
+        announcementId: input.announcementId,
+        eventType: input.eventType,
+        targetType: input.targetType,
+      });
+    }),
+
+  getPublic: publicProcedure
+    .input(
+      z.object({
+        id: z.string().min(1),
+      }),
+    )
+    .query(async ({ input }) => {
+      const ann = await announcementRepo.findById(input.id);
+      if (!ann || ann.status !== 'ACTIVE') {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Anúncio não encontrado ou inativo.',
+        });
+      }
+
+      const [condo] = await db
+        .select()
+        .from(condominiumSchema)
+        .where(eq(condominiumSchema.id, ann.condominiumId))
+        .limit(1);
+
+      return {
+        ...ann,
+        condoName: condo?.name || '',
+        condoCity: condo?.city || '',
+        condoState: condo?.state || '',
       };
     }),
 });

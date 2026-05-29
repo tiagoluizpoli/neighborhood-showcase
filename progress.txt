@@ -10,7 +10,7 @@
 - [x] **Issue 06**: Announcement Draft Creation (Completed: 2026-05-29)
 - [x] **Issue 07**: Payment Intent PIX (Completed: 2026-05-29)
 - [x] **Issue 08**: Webhook Payment Resolution (Completed: 2026-05-29)
-- [ ] **Issue 09**: Public Showcase Discovery (Status: PENDING)
+- [x] **Issue 09**: Public Showcase Discovery (Completed: 2026-05-29)
 - [ ] **Issue 10**: Provider Dashboard & LGPD (Status: PENDING)
 - [ ] **Issue 11**: Moderator Suspension & Admin Blacklist (Status: PENDING)
 
@@ -78,5 +78,10 @@
 - Integrated Resend client with mock fallback to send confirmation emails to the provider.
 - Implemented comprehensive route integration tests.
 
-
-
+### Issue 09: Public Showcase Discovery
+- Auto-requests geolocation on page load; falls back to manual condo/city selector modal if rejected/unavailable.
+- Priority sorts active announcements dynamically (selected condo first, same city next, same state next, newest last).
+- Grid search bar, category navigation tabs, and verified resident toggle options.
+- Details modal (desktop) and drawer (mobile) syncing the route to `/anuncios/:id` using history API without page reloads.
+- Click-through analytics tracking on contacts (WhatsApp/Instagram/PDF Catalog) with server-side trackEvent procedure.
+- Fully unit-tested showcase sorting, ranking, and filter criteria.

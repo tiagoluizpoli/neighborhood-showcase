@@ -125,6 +125,7 @@ export const announcementRelations = relations(
       references: [condominium.id],
     }),
     payments: many(payment),
+    analyticsEvents: many(analyticsEvent),
   }),
 );
 
@@ -152,6 +153,27 @@ export const payment = pgTable('payment', {
 export const paymentRelations = relations(payment, ({ one }) => ({
   announcement: one(announcement, {
     fields: [payment.announcementId],
+    references: [announcement.id],
+  }),
+}));
+
+export const analyticsEvent = pgTable('analytics_event', {
+  id: text('id').primaryKey(),
+  announcementId: text('announcement_id')
+    .notNull()
+    .references(() => announcement.id, { onDelete: 'cascade' }),
+  eventType: text('event_type', {
+    enum: ['IMPRESSION', 'CONTACT_CLICK'],
+  }).notNull(),
+  targetType: text('target_type', {
+    enum: ['WHATSAPP', 'INSTAGRAM', 'WEBSITE'],
+  }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const analyticsEventRelations = relations(analyticsEvent, ({ one }) => ({
+  announcement: one(announcement, {
+    fields: [analyticsEvent.announcementId],
     references: [announcement.id],
   }),
 }));
