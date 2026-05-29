@@ -4,11 +4,11 @@ Implement local moderator announcement suspensions in `/moderation` and global S
 
 ## Acceptance criteria
 
-- [ ] Local moderators can click a "Suspend" action on active ads in their condo, prompting for a suspension reason and changing ad status to `SUSPENDED`.
-- [ ] Global admins can search a directory of all registered providers.
-- [ ] Global admin "Ban" action changes user status to `BANNED`, removes all their active announcements, revokes sessions, and adds their hashed CPF to `blacklisted_identifiers`.
-- [ ] Global admin blacklist panel allows adding CPF hashes (with reason) and removing them.
-- [ ] Integration tests verify that suspensions hide ads, banning logs out the user, and blacklisted CPFs cannot register again.
+- [x] Local moderators can click a "Suspend" action on active ads in their condo, prompting for a suspension reason and changing ad status to `SUSPENDED`.
+- [x] Global admins can search a directory of all registered providers.
+- [x] Global admin "Ban" action changes user status to `BANNED`, removes all their active announcements, revokes sessions, and adds their hashed CPF to `blacklisted_identifiers`.
+- [x] Global admin blacklist panel allows adding CPF hashes (with reason) and removing them.
+- [x] Integration tests verify that suspensions hide ads, banning logs out the user, and blacklisted CPFs cannot register again.
 
 ## Blocked by
 

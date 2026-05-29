@@ -1,4 +1,5 @@
 import { protectedProcedure, publicProcedure, router } from '../trpc';
+import { adminRouter } from './admin';
 import { announcementRouter } from './announcement';
 import { assignmentRouter } from './assignment';
 import { condominiumRouter } from './condominium';
@@ -20,6 +21,7 @@ export const appRouter = router({
   assignment: assignmentRouter,
   announcement: announcementRouter,
   user: userRouter,
+  admin: adminRouter,
 });
 
 export type AppRouter = typeof appRouter;

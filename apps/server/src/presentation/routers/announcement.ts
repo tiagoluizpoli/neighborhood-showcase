@@ -1,13 +1,20 @@
 import { db } from '@base-fullstack-template/db';
-import { condominium as condominiumSchema } from '@base-fullstack-template/db/schema/showcase';
+import {
+  condominium as condominiumSchema,
+  assignment as assignmentSchema,
+  announcement as announcementSchema,
+} from '@base-fullstack-template/db/schema/showcase';
+import { user as userSchema } from '@base-fullstack-template/db/schema/auth';
 import { TRPCError } from '@trpc/server';
-import { eq } from 'drizzle-orm';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { CreateAnnouncement } from '../../application/use-cases/announcement/create-announcement';
 import { ListPublicAnnouncements } from '../../application/use-cases/announcement/list-public-announcements';
 import { TrackAnalyticsEvent } from '../../application/use-cases/announcement/track-analytics-event';
 import { GetProviderDashboardData } from '../../application/use-cases/announcement/get-provider-dashboard-data';
 import { GeneratePaymentIntent } from '../../application/use-cases/payment/generate-payment-intent';
+import { SuspendAnnouncement } from '../../application/use-cases/announcement/suspend-announcement';
+import { ReinstateAnnouncement } from '../../application/use-cases/announcement/reinstate-announcement';
 import { DrizzleAnnouncementRepository } from '../../infrastructure/db/announcement-repository';
 import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-repository';
 import { DrizzlePaymentRepository } from '../../infrastructure/db/payment-repository';
@@ -33,6 +40,8 @@ const generatePaymentIntentUseCase = new GeneratePaymentIntent(
 const listPublicAnnouncementsUseCase = new ListPublicAnnouncements();
 const trackAnalyticsEventUseCase = new TrackAnalyticsEvent();
 const getProviderDashboardDataUseCase = new GetProviderDashboardData();
+const suspendAnnouncementUseCase = new SuspendAnnouncement();
+const reinstateAnnouncementUseCase = new ReinstateAnnouncement();
 
 export const announcementRouter = router({
   create: protectedProcedure
@@ -237,5 +246,95 @@ export const announcementRouter = router({
         flaggedForReview: true,
         suspensionReason: null,
       });
+    }),
+
+  listForModeration: protectedProcedure
+    .input(
+      z.object({
+        condominiumId: z.string().min(1),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      // Verify moderator role for this condo
+      const [isMod] = await db
+        .select()
+        .from(assignmentSchema)
+        .where(
+          and(
+            eq(assignmentSchema.providerId, ctx.session.user.id),
+            eq(assignmentSchema.condominiumId, input.condominiumId),
+            eq(assignmentSchema.type, 'MODERATOR'),
+            eq(assignmentSchema.status, 'APPROVED'),
+          ),
+        )
+        .limit(1);
+
+      if (!isMod) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Acesso negado. Você não é moderador deste condomínio.',
+        });
+      }
+
+      // Query active or suspended announcements
+      const ads = await db
+        .select({
+          id: announcementSchema.id,
+          title: announcementSchema.title,
+          subtitle: announcementSchema.subtitle,
+          description: announcementSchema.description,
+          priceCents: announcementSchema.priceCents,
+          imageUrl: announcementSchema.imageUrl,
+          category: announcementSchema.category,
+          tags: announcementSchema.tags,
+          contactLinks: announcementSchema.contactLinks,
+          showVerifiedBadge: announcementSchema.showVerifiedBadge,
+          flaggedForReview: announcementSchema.flaggedForReview,
+          status: announcementSchema.status,
+          suspensionReason: announcementSchema.suspensionReason,
+          createdAt: announcementSchema.createdAt,
+          providerName: userSchema.name,
+        })
+        .from(announcementSchema)
+        .innerJoin(userSchema, eq(announcementSchema.providerId, userSchema.id))
+        .where(
+          and(
+            eq(announcementSchema.condominiumId, input.condominiumId),
+            inArray(announcementSchema.status, ['ACTIVE', 'SUSPENDED']),
+            isNull(announcementSchema.deletedAt),
+          ),
+        );
+
+      return ads;
+    }),
+
+  suspend: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().min(1),
+        reason: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      await suspendAnnouncementUseCase.execute({
+        announcementId: input.id,
+        moderatorId: ctx.session.user.id,
+        reason: input.reason,
+      });
+      return { success: true };
+    }),
+
+  reinstate: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      await reinstateAnnouncementUseCase.execute({
+        announcementId: input.id,
+        moderatorId: ctx.session.user.id,
+      });
+      return { success: true };
     }),
 });

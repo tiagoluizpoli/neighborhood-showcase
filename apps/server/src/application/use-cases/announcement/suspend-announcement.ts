@@ -1,0 +1,64 @@
+import { db } from '@base-fullstack-template/db';
+import {
+  announcement as announcementSchema,
+  assignment as assignmentSchema,
+} from '@base-fullstack-template/db/schema/showcase';
+import { and, eq } from 'drizzle-orm';
+import { TRPCError } from '@trpc/server';
+
+export interface SuspendAnnouncementInput {
+  announcementId: string;
+  moderatorId: string;
+  reason: string;
+}
+
+export class SuspendAnnouncement {
+  async execute(input: SuspendAnnouncementInput): Promise<void> {
+    const { announcementId, moderatorId, reason } = input;
+
+    // 1. Fetch announcement
+    const [ann] = await db
+      .select()
+      .from(announcementSchema)
+      .where(eq(announcementSchema.id, announcementId))
+      .limit(1);
+
+    if (!ann) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Anúncio não encontrado.',
+      });
+    }
+
+    // 2. Verify moderator permission for the announcement's condominium
+    const [isMod] = await db
+      .select()
+      .from(assignmentSchema)
+      .where(
+        and(
+          eq(assignmentSchema.providerId, moderatorId),
+          eq(assignmentSchema.condominiumId, ann.condominiumId),
+          eq(assignmentSchema.type, 'MODERATOR'),
+          eq(assignmentSchema.status, 'APPROVED'),
+        ),
+      )
+      .limit(1);
+
+    if (!isMod) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'Acesso negado. Você não é moderador deste condomínio.',
+      });
+    }
+
+    // 3. Update announcement to SUSPENDED with reason
+    await db
+      .update(announcementSchema)
+      .set({
+        status: 'SUSPENDED',
+        suspensionReason: reason,
+        flaggedForReview: false,
+      })
+      .where(eq(announcementSchema.id, announcementId));
+  }
+}

@@ -12,7 +12,7 @@
 - [x] **Issue 08**: Webhook Payment Resolution (Completed: 2026-05-29)
 - [x] **Issue 09**: Public Showcase Discovery (Completed: 2026-05-29)
 - [x] **Issue 10**: Provider Dashboard & LGPD (Completed: 2026-05-29)
-- [ ] **Issue 11**: Moderator Suspension & Admin Blacklist (Status: PENDING)
+- [x] **Issue 11**: Moderator Suspension & Admin Blacklist (Completed: 2026-05-29)
 
 ---
 
@@ -93,3 +93,11 @@
 - Created `getDashboardData` and `update` backend procedures and `GetProviderDashboardData` usecase.
 - Implemented LGPD-compliant `deleteAccount` mutation that scrubs PII (name, email, phone, CPF) and soft-deletes related ads, while retaining anonymized financial payment records.
 - Added comprehensive integration tests for metrics aggregation and LGPD account deletion.
+
+### Issue 11: Moderator Suspension & Admin Blacklist
+- Integrated sub-tab navigation on `/moderation` for Resident approvals vs Announcement moderation.
+- Implemented announcement suspension (prompting for reason) and reinstatement actions for local condo moderators.
+- Created `SuspendAnnouncement` and `ReinstateAnnouncement` use cases and matching tRPC endpoints.
+- Expanded global admin page `/admin` with tabs for Pending Condos, a registered Provider directory (with Search and Ban actions), and a Blacklist panel.
+- Implemented CPF blacklist addition and removal capabilities on both the backend and frontend.
+- Added comprehensive integration tests for moderator suspension/reinstatement and global admin banning.
