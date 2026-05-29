@@ -107,4 +107,5 @@
 - Stood up Postgres and MinIO Docker containers successfully.
 - Executed `bun run db:push` to synchronize the Drizzle schema with the database instance.
 - Fixed 404 upload endpoint error by changing relative client fetch paths (`/api/upload`) to absolute paths targeting `env.VITE_SERVER_URL` on all dashboard upload screens.
+- Fixed 401 Unauthorized upload error by adding `credentials: 'include'` to all client-side upload fetch requests, allowing session cookies to be sent cross-origin.
 - Verified test suite and local environment configuration.

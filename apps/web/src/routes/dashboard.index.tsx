@@ -662,6 +662,7 @@ function EditAnnouncementModal({
       const response = await fetch(`${env.VITE_SERVER_URL}/api/upload`, {
         method: 'POST',
         body: formData,
+        credentials: 'include',
       });
 
       if (!response.ok) {
