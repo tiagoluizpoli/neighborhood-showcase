@@ -4,12 +4,13 @@ Implement the condominium creation flow for Síndicos at `/dashboard/condo-setup
 
 ## Acceptance criteria
 
-- [ ] Swappable sub-flows on `/dashboard/condo-setup` screen (Síndico Path).
-- [ ] Condo creation form collects Name, CEP (with autofill query), administrative Email/Phone, and convenção document file upload.
-- [ ] Successfully uploads convenção PDF/Image to configured S3/MinIO bucket.
-- [ ] Database record created in `condominiums` with status `PENDING_APPROVAL`.
-- [ ] User remains locked on `/dashboard/condo-setup` with pending screen warning and is blocked from navigating to main dashboard.
-- [ ] Integration tests verify database insertion and file upload to storage.
+- [x] Swappable sub-flows on `/dashboard/condo-setup` screen (Síndico Path).
+- [x] Condo creation form collects Name, CEP (with autofill query), administrative Email/Phone, and convenção document file upload.
+- [x] Successfully uploads convenção PDF/Image to configured S3/MinIO bucket.
+- [x] Database record created in `condominiums` with status `PENDING_APPROVAL`.
+- [x] User remains locked on `/dashboard/condo-setup` with pending screen warning and is blocked from navigating to main dashboard.
+- [x] Integration tests verify database insertion and file upload to storage.
+
 
 ## Blocked by
 

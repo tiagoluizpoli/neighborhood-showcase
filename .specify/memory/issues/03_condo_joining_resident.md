@@ -4,12 +4,13 @@ Implement the condominium joining flow for local resident providers on the `/das
 
 ## Acceptance criteria
 
-- [ ] Swappable sub-flows on `/dashboard/condo-setup` screen (Resident Path).
-- [ ] Condo search auto-complete searching by Name, City, or CEP (lists approved condos).
-- [ ] Association form collects unit details and uploads an optional residency proof file to S3/MinIO.
-- [ ] Creates a record in the `assignments` table with type `RESIDENT` and status `PENDING`.
-- [ ] User remains on the setup setup screen displaying pending status for the condominium request.
-- [ ] Integration tests verify the association request creation.
+- [x] Swappable sub-flows on `/dashboard/condo-setup` screen (Resident Path).
+- [x] Condo search auto-complete searching by Name, City, or CEP (lists approved condos).
+- [x] Association form collects unit details and uploads an optional residency proof file to S3/MinIO.
+- [x] Creates a record in the `assignments` table with type `RESIDENT` and status `PENDING`.
+- [x] User remains on the setup setup screen displaying pending status for the condominium request.
+- [x] Integration tests verify the association request creation.
+
 
 ## Blocked by
 

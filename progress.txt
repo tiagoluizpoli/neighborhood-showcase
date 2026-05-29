@@ -1,1 +1,39 @@
 # Neighborhood Showcase Progress Log
+
+## Project Roadmap & Status
+
+- [x] **Issue 01**: Auth & CPF Validation (Completed: 2026-05-29)
+- [x] **Issue 02**: Condo Creation - Síndico (Completed: 2026-05-29)
+- [x] **Issue 03**: Condo Joining - Resident (Completed: 2026-05-29)
+- [ ] **Issue 04**: Condo Approval - Admin (Status: PENDING)
+- [ ] **Issue 05**: Resident Approval - Moderator (Status: PENDING)
+- [ ] **Issue 06**: Announcement Draft Creation (Status: PENDING)
+- [ ] **Issue 07**: Payment Intent PIX (Status: PENDING)
+- [ ] **Issue 08**: Webhook Payment Resolution (Status: PENDING)
+- [ ] **Issue 09**: Public Showcase Discovery (Status: PENDING)
+- [ ] **Issue 10**: Provider Dashboard & LGPD (Status: PENDING)
+- [ ] **Issue 11**: Moderator Suspension & Admin Blacklist (Status: PENDING)
+
+---
+
+## Log Details
+
+### Issue 01: Auth & CPF Validation
+- Dual tab on `/auth` (Login & SignUp).
+- Mathematical validation of CPF during SignUp.
+- Checked CPF SHA-256 hash against global blacklist table.
+- Implemented unit and integration tests.
+
+### Issue 02: Condo Creation - Síndico
+- Setup form at `/dashboard/condo-setup`.
+- Uploaded election convenção to MinIO/S3 via `/api/upload`.
+- Handled sharp image optimization.
+- Locked users with PENDING condominium creation on the setup page.
+- Implemented database schemas and integration tests.
+
+### Issue 03: Condo Joining - Resident
+- Auto-complete search on `/dashboard/condo-setup` querying approved condos by Name, City, or CEP.
+- Unit details entry and optional residency proof file upload to S3.
+- Assignment request mutation and repository with `findByProviderId` relation fetch.
+- Locked users on a pending screen with status refresh button until approved.
+- Implemented integration tests.
