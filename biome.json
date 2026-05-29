@@ -9,6 +9,8 @@
     "ignoreUnknown": true,
     "includes": [
       "**",
+      "!apps/fumadocs",
+      "!**/apps/fumadocs",
       "!**/.next",
       "!**/dist",
       "!**/.turbo",
@@ -29,7 +31,6 @@
       "!**/convex/_generated",
       "!**/.react-router",
       "!**/.react-router-v7",
-      "!**/.react-router-v7-linux-x64-gnu",
       "!**/apps/desktop/build",
       "!**/.agents",
       "!**/.specify"
@@ -154,8 +155,10 @@
     },
     {
       "includes": [
-        "**/apps/fumadocs/.react-router/**/*",
-        "**/apps/fumadocs/.react-router-v7/**/*",
+        "apps/fumadocs/**/*",
+        "**/apps/fumadocs/**/*",
+        "apps/fumadocs/**",
+        "**/apps/fumadocs/**",
         "**/apps/desktop/build/**/*",
         "**/.next/**/*",
         "**/dist/**/*",

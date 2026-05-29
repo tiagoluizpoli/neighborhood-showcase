@@ -8,6 +8,13 @@
       "when": 1775420578972,
       "tag": "0000_dashing_madripoor",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780023903746,
+      "tag": "0001_fearless_annihilus",
+      "breakpoints": true
     }
   ]
 }

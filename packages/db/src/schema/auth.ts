@@ -7,11 +7,28 @@ export const user = pgTable('user', {
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').default(false).notNull(),
   image: text('image'),
+  // Custom Extensions for Neighborhood Showcase
+  cpfHash: text('cpf_hash').unique(),
+  role: text('role', { enum: ['PROVIDER', 'SYSTEM_MANAGER'] })
+    .default('PROVIDER')
+    .notNull(),
+  status: text('status', { enum: ['ACTIVE', 'BANNED'] })
+    .default('ACTIVE')
+    .notNull(),
+  phone: text('phone'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
+  deletedAt: timestamp('deleted_at'),
+});
+
+export const blacklistedIdentifier = pgTable('blacklisted_identifier', {
+  id: text('id').primaryKey(),
+  cpfHash: text('cpf_hash').notNull().unique(),
+  reason: text('reason').notNull(),
+  bannedAt: timestamp('banned_at').defaultNow().notNull(),
 });
 
 export const session = pgTable(

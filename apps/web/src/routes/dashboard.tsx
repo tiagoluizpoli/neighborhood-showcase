@@ -1,15 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import { authClient } from '@/lib/auth-client';
-import { trpc } from '@/utils/trpc';
 
 export const Route = createFileRoute('/dashboard')({
-  component: RouteComponent,
+  component: DashboardLayoutComponent,
   beforeLoad: async () => {
     const session = await authClient.getSession();
     if (!session.data) {
       redirect({
-        to: '/login',
+        to: '/auth',
         throw: true,
       });
     }
@@ -17,16 +15,10 @@ export const Route = createFileRoute('/dashboard')({
   },
 });
 
-function RouteComponent() {
-  const { session } = Route.useRouteContext();
-
-  const privateData = useQuery(trpc.privateData.queryOptions());
-
+function DashboardLayoutComponent() {
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <p>Welcome {session.data?.user.name}</p>
-      <p>API: {privateData.data?.message}</p>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <Outlet />
     </div>
   );
 }

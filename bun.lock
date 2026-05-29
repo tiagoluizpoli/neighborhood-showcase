@@ -18,7 +18,7 @@
         "@types/three": "^0.184.1",
         "commitizen": "^4.3.1",
         "cz-conventional-changelog": "^3.3.0",
-        "desktop": "^0.1.0",
+        "desktop": "workspace:*",
         "lefthook": "^2.1.4",
         "turbo": "^2.8.12",
         "typescript": "^5",
@@ -156,6 +156,7 @@
         "@base-fullstack-template/env": "workspace:*",
         "better-auth": "catalog:",
         "dotenv": "catalog:",
+        "drizzle-orm": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {

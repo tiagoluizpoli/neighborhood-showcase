@@ -44,7 +44,8 @@
     "db:stop": "turbo -F @base-fullstack-template/db db:stop",
     "db:down": "turbo -F @base-fullstack-template/db db:down",
     "check": "biome check --write .",
-    "commit": "cz"
+    "commit": "cz",
+    "test": "bun test"
   },
   "dependencies": {
     "@base-fullstack-template/env": "workspace:*",
