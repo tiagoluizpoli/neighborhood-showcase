@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { RequestCondominium } from '../../application/use-cases/condominium/request-condominium';
 import { DrizzleCondominiumRepository } from '../../infrastructure/db/condominium-repository';
-import { protectedProcedure, router } from '../trpc';
+import { protectedProcedure, publicProcedure, router } from '../trpc';
 
 const condoRepo = new DrizzleCondominiumRepository();
 const requestCondoUseCase = new RequestCondominium(condoRepo);
@@ -37,4 +37,10 @@ export const condominiumRouter = router({
   myCreated: protectedProcedure.query(async ({ ctx }) => {
     return condoRepo.findByCreatorId(ctx.session.user.id);
   }),
+
+  listApproved: publicProcedure
+    .input(z.object({ query: z.string().default('') }))
+    .query(async ({ input }) => {
+      return condoRepo.searchApproved(input.query);
+    }),
 });

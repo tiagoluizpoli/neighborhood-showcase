@@ -19,4 +19,5 @@ export interface CondominiumRepository {
   findById(id: string): Promise<Condominium | null>;
   findByCEP(cep: string): Promise<Condominium[]>;
   findByCreatorId(userId: string): Promise<Condominium | null>;
+  searchApproved(query: string): Promise<Condominium[]>;
 }

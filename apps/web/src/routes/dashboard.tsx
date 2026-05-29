@@ -11,6 +11,7 @@ export const Route = createFileRoute('/dashboard')({
         to: '/auth',
         throw: true,
       });
+      throw new Error('Not authenticated');
     }
 
     // Bypass check if already on condo-setup
@@ -19,8 +20,23 @@ export const Route = createFileRoute('/dashboard')({
     }
 
     try {
+      if (session.data.user.role === 'SYSTEM_MANAGER') {
+        return { session };
+      }
+
+      // Check if they created an approved condo
       const myCondo = await trpcClient.condominium.myCreated.query();
-      if (!myCondo || myCondo.status !== 'APPROVED') {
+      if (myCondo && myCondo.status === 'APPROVED') {
+        return { session };
+      }
+
+      // Check if they have an approved assignment
+      const assignments = await trpcClient.assignment.getMyAssignments.query();
+      const hasApprovedAssignment = assignments.some(
+        (a) => a.status === 'APPROVED',
+      );
+
+      if (!hasApprovedAssignment) {
         redirect({
           to: '/dashboard/condo-setup',
           throw: true,
@@ -35,8 +51,12 @@ export const Route = createFileRoute('/dashboard')({
       ) {
         throw err;
       }
-      // Otherwise, just log the error and allow fallback (or handle appropriately)
+      // Otherwise, redirect to condo-setup on error to be safe
       console.error('Error fetching condo status in route guard:', err);
+      redirect({
+        to: '/dashboard/condo-setup',
+        throw: true,
+      });
     }
 
     return { session };

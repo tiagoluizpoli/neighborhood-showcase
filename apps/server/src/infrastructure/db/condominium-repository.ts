@@ -59,4 +59,24 @@ export class DrizzleCondominiumRepository implements CondominiumRepository {
 
     return (found as Condominium) || null;
   }
+
+  async searchApproved(query: string): Promise<Condominium[]> {
+    const formattedQuery = `%${query}%`;
+    const { and, eq, or, ilike } = await import('drizzle-orm');
+    const results = await db
+      .select()
+      .from(condoSchema)
+      .where(
+        and(
+          eq(condoSchema.status, 'APPROVED'),
+          or(
+            ilike(condoSchema.name, formattedQuery),
+            ilike(condoSchema.city, formattedQuery),
+            ilike(condoSchema.cep, formattedQuery),
+          ),
+        ),
+      );
+
+    return results as Condominium[];
+  }
 }
