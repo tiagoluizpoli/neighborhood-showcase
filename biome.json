@@ -30,7 +30,9 @@
       "!**/.react-router",
       "!**/.react-router-v7",
       "!**/.react-router-v7-linux-x64-gnu",
-      "!**/apps/desktop/build"
+      "!**/apps/desktop/build",
+      "!**/.agents",
+      "!**/.specify"
     ]
   },
   "formatter": {
