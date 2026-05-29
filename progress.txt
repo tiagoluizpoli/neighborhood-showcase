@@ -108,4 +108,5 @@
 - Executed `bun run db:push` to synchronize the Drizzle schema with the database instance.
 - Fixed 404 upload endpoint error by changing relative client fetch paths (`/api/upload`) to absolute paths targeting `env.VITE_SERVER_URL` on all dashboard upload screens.
 - Fixed 401 Unauthorized upload error by adding `credentials: 'include'` to all client-side upload fetch requests, allowing session cookies to be sent cross-origin.
+- Configured public read bucket policy (`PutBucketPolicyCommand`) on the S3/MinIO storage client to ensure uploaded files can be directly retrieved and visualized by browsers without Access Denied errors.
 - Verified test suite and local environment configuration.
