@@ -101,3 +101,9 @@
 - Expanded global admin page `/admin` with tabs for Pending Condos, a registered Provider directory (with Search and Ban actions), and a Blacklist panel.
 - Implemented CPF blacklist addition and removal capabilities on both the backend and frontend.
 - Added comprehensive integration tests for moderator suspension/reinstatement and global admin banning.
+
+### Infrastructure Setup
+- Resolved port conflicts by mapping Postgres database service to port `5435`.
+- Stood up Postgres and MinIO Docker containers successfully.
+- Executed `bun run db:push` to synchronize the Drizzle schema with the database instance.
+- Verified test suite and local environment configuration.

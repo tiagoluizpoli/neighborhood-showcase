@@ -5,15 +5,15 @@ services:
     image: postgres
     container_name: base-fullstack-template-postgres
     environment:
-      POSTGRES_DB: base-fullstack-template
+      POSTGRES_DB: neighborhood_showcase
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
       - base-fullstack-template_postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d neighborhood_showcase"]
       interval: 10s
       timeout: 5s
       retries: 5
