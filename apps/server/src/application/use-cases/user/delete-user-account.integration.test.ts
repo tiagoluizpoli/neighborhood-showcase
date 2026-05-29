@@ -1,9 +1,9 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
 import { db } from '@base-fullstack-template/db';
 import {
-  user,
-  session,
   account,
+  session,
+  user,
 } from '@base-fullstack-template/db/schema/auth';
 import {
   announcement,
@@ -11,8 +11,8 @@ import {
   condominium,
   payment,
 } from '@base-fullstack-template/db/schema/showcase';
-import { DeleteUserAccount } from './delete-user-account';
 import { eq } from 'drizzle-orm';
+import { DeleteUserAccount } from './delete-user-account';
 
 describe('Delete User Account LGPD Integration Test', () => {
   const useCase = new DeleteUserAccount();
@@ -104,11 +104,11 @@ describe('Delete User Account LGPD Integration Test', () => {
       .limit(1);
 
     expect(updatedUser).toBeDefined();
-    expect(updatedUser!.name).toBe('Anônimo');
-    expect(updatedUser!.email).toBe(`deleted-${userId}@lgpd.local`);
-    expect(updatedUser!.phone).toBeNull();
-    expect(updatedUser!.cpfHash).toBeNull();
-    expect(updatedUser!.deletedAt).not.toBeNull();
+    expect(updatedUser?.name).toBe('Anônimo');
+    expect(updatedUser?.email).toBe(`deleted-${userId}@lgpd.local`);
+    expect(updatedUser?.phone).toBeNull();
+    expect(updatedUser?.cpfHash).toBeNull();
+    expect(updatedUser?.deletedAt).not.toBeNull();
 
     // Verify Announcements are soft-deleted
     const [updatedAnn] = await db
@@ -118,7 +118,7 @@ describe('Delete User Account LGPD Integration Test', () => {
       .limit(1);
 
     expect(updatedAnn).toBeDefined();
-    expect(updatedAnn!.deletedAt).not.toBeNull();
+    expect(updatedAnn?.deletedAt).not.toBeNull();
 
     // Verify Sessions and Accounts are deleted
     const activeSessions = await db
@@ -141,7 +141,7 @@ describe('Delete User Account LGPD Integration Test', () => {
       .limit(1);
 
     expect(preservedPayment).toBeDefined();
-    expect(preservedPayment!.status).toBe('PAID');
-    expect(preservedPayment!.amountCents).toBe(200);
+    expect(preservedPayment?.status).toBe('PAID');
+    expect(preservedPayment?.amountCents).toBe(200);
   });
 });

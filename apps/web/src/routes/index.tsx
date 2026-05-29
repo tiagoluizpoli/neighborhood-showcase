@@ -572,7 +572,7 @@ function PublicVitrineComponent() {
                             onClick={() =>
                               handleContactClick(
                                 activeAdQuery.data.id,
-                                "WHATSAPP",
+                                'WHATSAPP',
                               )
                             }
                           >
@@ -591,7 +591,7 @@ function PublicVitrineComponent() {
                             onClick={() =>
                               handleContactClick(
                                 activeAdQuery.data.id,
-                                "INSTAGRAM",
+                                'INSTAGRAM',
                               )
                             }
                           >
@@ -619,7 +619,7 @@ function PublicVitrineComponent() {
                             onClick={() =>
                               handleContactClick(
                                 activeAdQuery.data.id,
-                                "WEBSITE",
+                                'WEBSITE',
                               )
                             }
                             className="sm:col-span-2"

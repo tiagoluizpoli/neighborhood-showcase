@@ -1,8 +1,8 @@
 import { db } from '@base-fullstack-template/db';
 import {
-  user as userSchema,
-  session as sessionSchema,
   account as accountSchema,
+  session as sessionSchema,
+  user as userSchema,
 } from '@base-fullstack-template/db/schema/auth';
 import { announcement as announcementSchema } from '@base-fullstack-template/db/schema/showcase';
 import { eq } from 'drizzle-orm';

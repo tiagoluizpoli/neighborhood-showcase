@@ -1,5 +1,5 @@
-import { protectedProcedure, router } from '../trpc';
 import { DeleteUserAccount } from '../../application/use-cases/user/delete-user-account';
+import { protectedProcedure, router } from '../trpc';
 
 const deleteUserAccountUseCase = new DeleteUserAccount();
 

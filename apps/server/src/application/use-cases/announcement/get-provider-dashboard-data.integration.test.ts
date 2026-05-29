@@ -2,10 +2,10 @@ import { beforeAll, describe, expect, test } from 'bun:test';
 import { db } from '@base-fullstack-template/db';
 import { user } from '@base-fullstack-template/db/schema/auth';
 import {
+  analyticsEvent,
   announcement,
   assignment,
   condominium,
-  analyticsEvent,
 } from '@base-fullstack-template/db/schema/showcase';
 import { GetProviderDashboardData } from './get-provider-dashboard-data';
 
@@ -152,11 +152,11 @@ describe('Get Provider Dashboard Data Integration Test', () => {
 
     // Active
     expect(result.announcements.active).toHaveLength(1);
-    const activeAd = result.announcements.active[0]!;
+    const activeAd = result.announcements.active[0];
+    expect(activeAd).toBeDefined();
+    if (!activeAd) throw new Error('Expected active ad');
     expect(activeAd.id).toBe('ann-active');
-    expect(activeAd.condoName).toBe(
-      'Residencial Dashboard',
-    );
+    expect(activeAd.condoName).toBe('Residencial Dashboard');
 
     // Draft
     expect(result.announcements.draft).toHaveLength(2);
@@ -166,12 +166,16 @@ describe('Get Provider Dashboard Data Integration Test', () => {
 
     // Expired
     expect(result.announcements.expired).toHaveLength(1);
-    const expiredAd = result.announcements.expired[0]!;
+    const expiredAd = result.announcements.expired[0];
+    expect(expiredAd).toBeDefined();
+    if (!expiredAd) throw new Error('Expected expired ad');
     expect(expiredAd.id).toBe('ann-expired');
 
     // Suspended
     expect(result.announcements.suspended).toHaveLength(1);
-    const suspendedAd = result.announcements.suspended[0]!;
+    const suspendedAd = result.announcements.suspended[0];
+    expect(suspendedAd).toBeDefined();
+    if (!suspendedAd) throw new Error('Expected suspended ad');
     expect(suspendedAd.id).toBe('ann-suspended');
     expect(suspendedAd.suspensionReason).toBe(
       'Violou diretrizes da comunidade.',

@@ -3,8 +3,8 @@ import {
   announcement as announcementSchema,
   assignment as assignmentSchema,
 } from '@base-fullstack-template/db/schema/showcase';
-import { and, eq } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
+import { and, eq } from 'drizzle-orm';
 
 export interface ReinstateAnnouncementInput {
   announcementId: string;

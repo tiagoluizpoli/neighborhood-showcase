@@ -1,17 +1,17 @@
+import crypto from 'node:crypto';
 import { beforeAll, describe, expect, test } from 'bun:test';
 import { db } from '@base-fullstack-template/db';
 import {
-  user,
-  session,
   account,
   blacklistedIdentifier,
+  session,
+  user,
 } from '@base-fullstack-template/db/schema/auth';
 import {
   announcement,
   condominium,
 } from '@base-fullstack-template/db/schema/showcase';
 import { eq } from 'drizzle-orm';
-import crypto from 'node:crypto';
 
 describe('Ban Provider Integration Test', () => {
   const providerId = 'ban-provider-id';
@@ -118,7 +118,7 @@ describe('Ban Provider Integration Test', () => {
       .where(eq(user.id, providerId))
       .limit(1);
     expect(bannedUser).toBeDefined();
-    expect(bannedUser!.status).toBe('BANNED');
+    expect(bannedUser?.status).toBe('BANNED');
 
     const [blacklistRecord] = await db
       .select()
@@ -126,7 +126,7 @@ describe('Ban Provider Integration Test', () => {
       .where(eq(blacklistedIdentifier.cpfHash, targetCpfHash))
       .limit(1);
     expect(blacklistRecord).toBeDefined();
-    expect(blacklistRecord!.reason).toBe(reasonForBan);
+    expect(blacklistRecord?.reason).toBe(reasonForBan);
 
     const [updatedAnn] = await db
       .select()
@@ -134,8 +134,8 @@ describe('Ban Provider Integration Test', () => {
       .where(eq(announcement.id, 'ann-ban-id'))
       .limit(1);
     expect(updatedAnn).toBeDefined();
-    expect(updatedAnn!.deletedAt).not.toBeNull();
-    expect(updatedAnn!.status).toBe('SUSPENDED');
+    expect(updatedAnn?.deletedAt).not.toBeNull();
+    expect(updatedAnn?.status).toBe('SUSPENDED');
 
     const activeSessions = await db
       .select()

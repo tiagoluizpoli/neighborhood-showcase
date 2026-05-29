@@ -6,9 +6,9 @@ import {
   assignment,
   condominium,
 } from '@base-fullstack-template/db/schema/showcase';
-import { SuspendAnnouncement } from './suspend-announcement';
-import { ReinstateAnnouncement } from './reinstate-announcement';
 import { eq } from 'drizzle-orm';
+import { ReinstateAnnouncement } from './reinstate-announcement';
+import { SuspendAnnouncement } from './suspend-announcement';
 
 describe('Suspend and Reinstate Announcement Integration Test', () => {
   const suspendUseCase = new SuspendAnnouncement();
@@ -95,11 +95,11 @@ describe('Suspend and Reinstate Announcement Integration Test', () => {
       .limit(1);
 
     expect(suspendedAnn).toBeDefined();
-    expect(suspendedAnn!.status).toBe('SUSPENDED');
-    expect(suspendedAnn!.suspensionReason).toBe(
+    expect(suspendedAnn?.status).toBe('SUSPENDED');
+    expect(suspendedAnn?.suspensionReason).toBe(
       'Contains inappropriate content.',
     );
-    expect(suspendedAnn!.flaggedForReview).toBe(false);
+    expect(suspendedAnn?.flaggedForReview).toBe(false);
 
     // 2. Reinstate the announcement
     await reinstateUseCase.execute({
@@ -114,9 +114,9 @@ describe('Suspend and Reinstate Announcement Integration Test', () => {
       .limit(1);
 
     expect(reinstatedAnn).toBeDefined();
-    expect(reinstatedAnn!.status).toBe('ACTIVE');
-    expect(reinstatedAnn!.suspensionReason).toBeNull();
-    expect(reinstatedAnn!.flaggedForReview).toBe(false);
+    expect(reinstatedAnn?.status).toBe('ACTIVE');
+    expect(reinstatedAnn?.suspensionReason).toBeNull();
+    expect(reinstatedAnn?.flaggedForReview).toBe(false);
   });
 
   test('fails suspension if moderator is not approved for the condominium', async () => {

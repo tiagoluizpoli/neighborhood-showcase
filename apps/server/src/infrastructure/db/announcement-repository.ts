@@ -70,7 +70,9 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
 
   async update(
     id: string,
-    input: Partial<Omit<Announcement, 'id' | 'providerId' | 'condominiumId' | 'createdAt'>>,
+    input: Partial<
+      Omit<Announcement, 'id' | 'providerId' | 'condominiumId' | 'createdAt'>
+    >,
   ): Promise<Announcement> {
     const [updated] = await db
       .update(announcementSchema)

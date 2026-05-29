@@ -84,9 +84,9 @@ export class ListPublicAnnouncements {
       conditions.push(
         or(
           ilike(announcementSchema.title, searchPattern),
-          ilike(announcementSchema.subtitle, searchPattern) as any,
+          ilike(announcementSchema.subtitle, searchPattern) as SQL,
           ilike(announcementSchema.description, searchPattern),
-        ) as any,
+        ) as SQL,
       );
     }
 

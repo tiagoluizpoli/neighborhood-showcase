@@ -1,27 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
-import { useState, useRef } from 'react';
-import { trpc } from '@/utils/trpc';
-import { authClient } from '@/lib/auth-client';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import {
-  TrendingUp,
-  Eye,
-  MousePointerClick,
-  Edit,
-  Trash2,
   AlertTriangle,
-  Plus,
-  Loader2,
   ArrowRight,
-  ShieldAlert,
-  ShieldCheck,
-  ExternalLink,
   Calendar,
+  Edit,
+  Eye,
+  Loader2,
+  MousePointerClick,
+  Plus,
   RefreshCw,
-  X,
+  ShieldCheck,
+  TrendingUp,
   UserX,
+  X,
 } from 'lucide-react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { authClient } from '@/lib/auth-client';
+import { trpc } from '@/utils/trpc';
 
 export const Route = createFileRoute('/dashboard/')({
   component: DashboardIndexComponent,
@@ -64,12 +61,18 @@ function DashboardIndexComponent() {
   const { session } = Route.useRouteContext();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'active' | 'draft' | 'expired' | 'suspended'>('active');
-  const [editingAd, setEditingAd] = useState<DashboardAnnouncementItem | null>(null);
+  const [activeTab, setActiveTab] = useState<
+    'active' | 'draft' | 'expired' | 'suspended'
+  >('active');
+  const [editingAd, setEditingAd] = useState<DashboardAnnouncementItem | null>(
+    null,
+  );
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Fetch dashboard data
-  const dashboardQuery = useQuery(trpc.announcement.getDashboardData.queryOptions());
+  const dashboardQuery = useQuery(
+    trpc.announcement.getDashboardData.queryOptions(),
+  );
 
   // Delete account mutation
   const deleteAccountMutation = useMutation(
@@ -113,15 +116,22 @@ function DashboardIndexComponent() {
     return (
       <div className="flex min-h-[80vh] flex-col items-center justify-center space-y-4 text-center">
         <AlertTriangle className="h-12 w-12 text-rose-500" />
-        <h2 className="font-semibold text-xl text-slate-100">Erro ao carregar dados</h2>
+        <h2 className="font-semibold text-slate-100 text-xl">
+          Erro ao carregar dados
+        </h2>
         <p className="max-w-md text-slate-400">
-          Não foi possível carregar as informações do seu painel. Por favor, tente novamente mais tarde.
+          Não foi possível carregar as informações do seu painel. Por favor,
+          tente novamente mais tarde.
         </p>
       </div>
     );
   }
 
-  const { stats, announcements } = dashboardQuery.data!;
+  if (!dashboardQuery.data) {
+    return null;
+  }
+
+  const { stats, announcements } = dashboardQuery.data;
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return '-';
@@ -141,22 +151,29 @@ function DashboardIndexComponent() {
       {/* Header */}
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="font-bold text-3xl text-slate-100 tracking-tight">Painel do Provedor</h1>
+          <h1 className="font-bold text-3xl text-slate-100 tracking-tight">
+            Painel do Provedor
+          </h1>
           <p className="mt-1 text-slate-400 text-sm">
-            Bem-vindo de volta, <span className="font-medium text-slate-200">{session.data?.user.name}</span>. Gerencie seus anúncios e analise suas conversões.
+            Bem-vindo de volta,{' '}
+            <span className="font-medium text-slate-200">
+              {session.data?.user.name}
+            </span>
+            . Gerencie seus anúncios e analise suas conversões.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Link
             to="/dashboard/anuncios/novo"
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 font-medium text-sm text-white hover:from-indigo-500 hover:to-violet-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 active:scale-95 transition-all"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 font-medium text-sm text-white transition-all hover:from-indigo-500 hover:to-violet-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 active:scale-95"
           >
             <Plus className="h-4 w-4" />
             Criar Anúncio
           </Link>
           <button
+            type="button"
             onClick={() => setShowDeleteModal(true)}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 font-medium text-rose-500 text-sm hover:bg-rose-500/10 hover:text-rose-400 active:scale-95 transition-all"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 font-medium text-rose-500 text-sm transition-all hover:bg-rose-500/10 hover:text-rose-400 active:scale-95"
           >
             <UserX className="h-4 w-4" />
             Excluir Conta
@@ -169,42 +186,58 @@ function DashboardIndexComponent() {
         {/* Impressions */}
         <div className="relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/50 p-6 backdrop-blur-md">
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-sm font-medium">Visualizações</span>
+            <span className="font-medium text-slate-400 text-sm">
+              Visualizações
+            </span>
             <div className="rounded-lg bg-indigo-500/10 p-2 text-indigo-400">
               <Eye className="h-5 w-5" />
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="font-bold text-3xl text-slate-100">{stats.totalImpressions}</h3>
-            <p className="mt-1 text-slate-500 text-xs">Exibições na vitrine pública</p>
+            <h3 className="font-bold text-3xl text-slate-100">
+              {stats.totalImpressions}
+            </h3>
+            <p className="mt-1 text-slate-500 text-xs">
+              Exibições na vitrine pública
+            </p>
           </div>
         </div>
 
         {/* Interactions */}
         <div className="relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/50 p-6 backdrop-blur-md">
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-sm font-medium">Interações</span>
+            <span className="font-medium text-slate-400 text-sm">
+              Interações
+            </span>
             <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-400">
               <MousePointerClick className="h-5 w-5" />
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="font-bold text-3xl text-slate-100">{stats.totalInteractions}</h3>
-            <p className="mt-1 text-slate-500 text-xs">Cliques em WhatsApp/Instagram/Site</p>
+            <h3 className="font-bold text-3xl text-slate-100">
+              {stats.totalInteractions}
+            </h3>
+            <p className="mt-1 text-slate-500 text-xs">
+              Cliques em WhatsApp/Instagram/Site
+            </p>
           </div>
         </div>
 
         {/* Conversion Rate */}
         <div className="relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/50 p-6 backdrop-blur-md">
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-sm font-medium">Taxa de Conversão</span>
+            <span className="font-medium text-slate-400 text-sm">
+              Taxa de Conversão
+            </span>
             <div className="rounded-lg bg-violet-500/10 p-2 text-violet-400">
               <TrendingUp className="h-5 w-5" />
             </div>
           </div>
           <div className="mt-4">
             <div className="flex items-baseline gap-2">
-              <h3 className="font-bold text-3xl text-slate-100">{stats.conversionRate}%</h3>
+              <h3 className="font-bold text-3xl text-slate-100">
+                {stats.conversionRate}%
+              </h3>
             </div>
             {/* Visual Progress Bar */}
             <div className="mt-3 h-1.5 w-full rounded-full bg-slate-800">
@@ -221,33 +254,45 @@ function DashboardIndexComponent() {
       <div className="mb-6 border-slate-800 border-b">
         <div className="flex space-x-8">
           <button
+            type="button"
             onClick={() => setActiveTab('active')}
-            className={`pb-4 font-semibold text-sm transition-all relative ${
-              activeTab === 'active' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-slate-400 hover:text-slate-200'
+            className={`relative pb-4 font-semibold text-sm transition-all ${
+              activeTab === 'active'
+                ? 'border-indigo-400 border-b-2 text-indigo-400'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             Ativos ({announcements.active.length})
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('draft')}
-            className={`pb-4 font-semibold text-sm transition-all relative ${
-              activeTab === 'draft' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-slate-400 hover:text-slate-200'
+            className={`relative pb-4 font-semibold text-sm transition-all ${
+              activeTab === 'draft'
+                ? 'border-indigo-400 border-b-2 text-indigo-400'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             Rascunhos & Pendentes ({announcements.draft.length})
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('expired')}
-            className={`pb-4 font-semibold text-sm transition-all relative ${
-              activeTab === 'expired' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-slate-400 hover:text-slate-200'
+            className={`relative pb-4 font-semibold text-sm transition-all ${
+              activeTab === 'expired'
+                ? 'border-indigo-400 border-b-2 text-indigo-400'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             Expirados ({announcements.expired.length})
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('suspended')}
-            className={`pb-4 font-semibold text-sm transition-all relative ${
-              activeTab === 'suspended' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-slate-400 hover:text-slate-200'
+            className={`relative pb-4 font-semibold text-sm transition-all ${
+              activeTab === 'suspended'
+                ? 'border-indigo-400 border-b-2 text-indigo-400'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             Suspensos ({announcements.suspended.length})
@@ -260,7 +305,11 @@ function DashboardIndexComponent() {
         {activeTab === 'active' && (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {announcements.active.length === 0 ? (
-              <EmptyState text="Nenhum anúncio ativo no momento." link="/dashboard/anuncios/novo" buttonText="Criar Anúncio" />
+              <EmptyState
+                text="Nenhum anúncio ativo no momento."
+                link="/dashboard/anuncios/novo"
+                buttonText="Criar Anúncio"
+              />
             ) : (
               announcements.active.map((ad) => (
                 <AnnouncementCard
@@ -278,7 +327,11 @@ function DashboardIndexComponent() {
         {activeTab === 'draft' && (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {announcements.draft.length === 0 ? (
-              <EmptyState text="Nenhum rascunho ou pagamento pendente." link="/dashboard/anuncios/novo" buttonText="Criar Anúncio" />
+              <EmptyState
+                text="Nenhum rascunho ou pagamento pendente."
+                link="/dashboard/anuncios/novo"
+                buttonText="Criar Anúncio"
+              />
             ) : (
               announcements.draft.map((ad) => (
                 <AnnouncementCard
@@ -287,7 +340,9 @@ function DashboardIndexComponent() {
                   onEdit={() => setEditingAd(ad)}
                   formatDate={formatDate}
                   formatPrice={formatPrice}
-                  onPay={() => navigate({ to: `/dashboard/anuncios/${ad.id}/pagamento` })}
+                  onPay={() =>
+                    navigate({ to: `/dashboard/anuncios/${ad.id}/pagamento` })
+                  }
                 />
               ))
             )}
@@ -306,8 +361,13 @@ function DashboardIndexComponent() {
                   onEdit={() => setEditingAd(ad)}
                   formatDate={formatDate}
                   formatPrice={formatPrice}
-                  onRenew={() => renewMutation.mutate({ announcementId: ad.id })}
-                  isRenewing={renewMutation.isPending && renewMutation.variables?.announcementId === ad.id}
+                  onRenew={() =>
+                    renewMutation.mutate({ announcementId: ad.id })
+                  }
+                  isRenewing={
+                    renewMutation.isPending &&
+                    renewMutation.variables?.announcementId === ad.id
+                  }
                 />
               ))
             )}
@@ -340,7 +400,9 @@ function DashboardIndexComponent() {
           onClose={() => setEditingAd(null)}
           onSuccess={() => {
             setEditingAd(null);
-            queryClient.invalidateQueries({ queryKey: trpc.announcement.getDashboardData.queryKey() });
+            queryClient.invalidateQueries({
+              queryKey: trpc.announcement.getDashboardData.queryKey(),
+            });
           }}
         />
       )}
@@ -358,15 +420,25 @@ function DashboardIndexComponent() {
 }
 
 // Subcomponents
-function EmptyState({ text, link, buttonText, hideButton = false }: { text: string; link?: string; buttonText?: string; hideButton?: boolean }) {
+function EmptyState({
+  text,
+  link,
+  buttonText,
+  hideButton = false,
+}: {
+  text: string;
+  link?: string;
+  buttonText?: string;
+  hideButton?: boolean;
+}) {
   return (
-    <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-800 p-12 text-center">
+    <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-slate-800 border-dashed p-12 text-center">
       <AlertTriangle className="mx-auto h-10 w-10 text-slate-500" />
-      <p className="mt-4 text-slate-400 text-sm font-medium">{text}</p>
+      <p className="mt-4 font-medium text-slate-400 text-sm">{text}</p>
       {!hideButton && link && buttonText && (
         <Link
           to={link}
-          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 font-medium text-slate-200 text-sm hover:bg-slate-800 transition-colors"
+          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 font-medium text-slate-200 text-sm transition-colors hover:bg-slate-800"
         >
           {buttonText}
         </Link>
@@ -393,23 +465,27 @@ function AnnouncementCard({
   isRenewing?: boolean;
 }) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40 hover:border-slate-700/60 transition-all duration-300">
+    <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40 transition-all duration-300 hover:border-slate-700/60">
       {/* Cover Image */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-950">
-        <img src={ad.imageUrl} alt={ad.title} className="h-full w-full object-cover" />
-        <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-end">
+        <img
+          src={ad.imageUrl}
+          alt={ad.title}
+          className="h-full w-full object-cover"
+        />
+        <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5">
           {/* Status Badge */}
           <span
-            className={`rounded-full px-2.5 py-1 text-xs font-semibold backdrop-blur-md shadow-md ${
+            className={`rounded-full px-2.5 py-1 font-semibold text-xs shadow-md backdrop-blur-md ${
               ad.status === 'ACTIVE'
-                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                ? 'border border-emerald-500/30 bg-emerald-500/20 text-emerald-300'
                 : ad.status === 'PENDING_PAYMENT'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                  ? 'border border-amber-500/30 bg-amber-500/20 text-amber-300'
                   : ad.status === 'DRAFT'
-                    ? 'bg-slate-500/20 text-slate-300 border border-slate-500/30'
+                    ? 'border border-slate-500/30 bg-slate-500/20 text-slate-300'
                     : ad.status === 'EXPIRED'
-                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                      : 'bg-rose-600/30 text-rose-200 border border-rose-600/40'
+                      ? 'border border-rose-500/30 bg-rose-500/20 text-rose-300'
+                      : 'border border-rose-600/40 bg-rose-600/30 text-rose-200'
             }`}
           >
             {ad.status === 'ACTIVE'
@@ -426,39 +502,49 @@ function AnnouncementCard({
           </span>
           {/* Verified Badge */}
           {ad.showVerifiedBadge && (
-            <span className="flex items-center gap-1 rounded-full bg-indigo-500/20 border border-indigo-500/30 px-2 py-0.5 text-[10px] font-semibold text-indigo-300 backdrop-blur-md">
+            <span className="flex items-center gap-1 rounded-full border border-indigo-500/30 bg-indigo-500/20 px-2 py-0.5 font-semibold text-[10px] text-indigo-300 backdrop-blur-md">
               <ShieldCheck className="h-3 w-3" /> Morador Verificado
             </span>
           )}
         </div>
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-950/80 to-transparent p-4">
-          <p className="text-xs text-indigo-300 font-semibold uppercase tracking-wider">{ad.category}</p>
-          <h4 className="font-bold text-lg text-slate-100 line-clamp-1">{ad.title}</h4>
+        <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-slate-950/80 to-transparent p-4">
+          <p className="font-semibold text-indigo-300 text-xs uppercase tracking-wider">
+            {ad.category}
+          </p>
+          <h4 className="line-clamp-1 font-bold text-lg text-slate-100">
+            {ad.title}
+          </h4>
         </div>
       </div>
 
       {/* Body Content */}
       <div className="flex flex-1 flex-col p-5">
-        <p className="text-slate-400 text-sm line-clamp-2 mb-4">{ad.description}</p>
+        <p className="mb-4 line-clamp-2 text-slate-400 text-sm">
+          {ad.description}
+        </p>
 
         {/* Meta Info */}
         <div className="mt-auto space-y-2 border-slate-800/80 border-t pt-4">
-          <div className="flex items-center justify-between text-xs text-slate-500">
+          <div className="flex items-center justify-between text-slate-500 text-xs">
             <span>Preço:</span>
-            <span className="font-bold text-sm text-slate-200">{formatPrice(ad.priceCents)}</span>
+            <span className="font-bold text-slate-200 text-sm">
+              {formatPrice(ad.priceCents)}
+            </span>
           </div>
 
-          <div className="flex items-center justify-between text-xs text-slate-500">
+          <div className="flex items-center justify-between text-slate-500 text-xs">
             <span>Condomínio:</span>
             <span className="text-slate-300">{ad.condoName}</span>
           </div>
 
           {ad.status === 'ACTIVE' && ad.expiresAt && (
-            <div className="flex items-center justify-between text-xs text-slate-500">
+            <div className="flex items-center justify-between text-slate-500 text-xs">
               <span className="flex items-center gap-1">
                 <Calendar className="h-3.5 w-3.5 text-indigo-400" /> Expira em:
               </span>
-              <span className="font-medium text-slate-300">{formatDate(ad.expiresAt)}</span>
+              <span className="font-medium text-slate-300">
+                {formatDate(ad.expiresAt)}
+              </span>
             </div>
           )}
         </div>
@@ -466,7 +552,9 @@ function AnnouncementCard({
         {/* Suspended Reason Banner */}
         {ad.status === 'SUSPENDED' && ad.suspensionReason && (
           <div className="mt-4 rounded-xl border border-rose-500/20 bg-rose-500/5 p-3 text-xs">
-            <span className="font-bold text-rose-400 block mb-1">Motivo da Suspensão:</span>
+            <span className="mb-1 block font-bold text-rose-400">
+              Motivo da Suspensão:
+            </span>
             <p className="text-rose-300/90 italic">{ad.suspensionReason}</p>
           </div>
         )}
@@ -475,8 +563,9 @@ function AnnouncementCard({
         <div className="mt-5 flex gap-2">
           {ad.status === 'PENDING_PAYMENT' && onPay && (
             <button
+              type="button"
               onClick={onPay}
-              className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 py-2.5 font-semibold text-slate-950 text-sm hover:bg-amber-400 transition-colors"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-amber-500 py-2.5 font-semibold text-slate-950 text-sm transition-colors hover:bg-amber-400"
             >
               Pagar Pix
               <ArrowRight className="h-4 w-4" />
@@ -485,24 +574,34 @@ function AnnouncementCard({
 
           {ad.status === 'EXPIRED' && onRenew && (
             <button
+              type="button"
               onClick={onRenew}
               disabled={isRenewing}
-              className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 py-2.5 font-semibold text-white text-sm hover:bg-indigo-500 disabled:opacity-50 transition-colors"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 py-2.5 font-semibold text-sm text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
             >
-              {isRenewing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              {isRenewing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
               Renovar Anúncio (R$ 2,00)
             </button>
           )}
 
           <button
+            type="button"
             onClick={onEdit}
-            className={`inline-flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-900/40 py-2.5 font-medium text-slate-300 text-sm hover:bg-slate-800 hover:text-white transition-colors ${
-              ad.status === 'PENDING_PAYMENT' || ad.status === 'EXPIRED' ? 'px-3' : 'flex-1'
+            className={`inline-flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-900/40 py-2.5 font-medium text-slate-300 text-sm transition-colors hover:bg-slate-800 hover:text-white ${
+              ad.status === 'PENDING_PAYMENT' || ad.status === 'EXPIRED'
+                ? 'px-3'
+                : 'flex-1'
             }`}
             title="Editar Anúncio"
           >
             <Edit className="h-4 w-4" />
-            {ad.status !== 'PENDING_PAYMENT' && ad.status !== 'EXPIRED' && 'Editar'}
+            {ad.status !== 'PENDING_PAYMENT' &&
+              ad.status !== 'EXPIRED' &&
+              'Editar'}
           </button>
         </div>
       </div>
@@ -523,12 +622,16 @@ function EditAnnouncementModal({
   const [title, setTitle] = useState(ad.title);
   const [subtitle, setSubtitle] = useState(ad.subtitle || '');
   const [description, setDescription] = useState(ad.description);
-  const [price, setPrice] = useState<number | ''>(ad.priceCents ? ad.priceCents / 100 : '');
+  const [price, setPrice] = useState<number | ''>(
+    ad.priceCents ? ad.priceCents / 100 : '',
+  );
   const [category, setCategory] = useState(ad.category);
   const [whatsapp, setWhatsapp] = useState(ad.contactLinks.whatsapp || '');
   const [instagram, setInstagram] = useState(ad.contactLinks.instagram || '');
   const [website, setWebsite] = useState(ad.contactLinks.website || '');
-  const [showVerifiedBadge, setShowVerifiedBadge] = useState(ad.showVerifiedBadge);
+  const [showVerifiedBadge, setShowVerifiedBadge] = useState(
+    ad.showVerifiedBadge,
+  );
   const [imageUrl, setImageUrl] = useState(ad.imageUrl);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -567,8 +670,8 @@ function EditAnnouncementModal({
       const data = await response.json();
       setImageUrl(data.url);
       toast.success('Imagem enviada com sucesso!');
-    } catch (err: any) {
-      toast.error(err.message || 'Erro no upload da imagem.');
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Erro no upload da imagem.');
     } finally {
       setIsUploading(false);
     }
@@ -588,7 +691,9 @@ function EditAnnouncementModal({
     }
 
     if (!whatsapp.trim() && !instagram.trim() && !website.trim()) {
-      toast.error('Forneça pelo menos um meio de contato (WhatsApp, Instagram ou Site).');
+      toast.error(
+        'Forneça pelo menos um meio de contato (WhatsApp, Instagram ou Site).',
+      );
       return;
     }
 
@@ -611,27 +716,42 @@ function EditAnnouncementModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-      <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
+      <div className="fade-in zoom-in-95 relative flex max-h-[90vh] w-full max-w-2xl animate-in flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl duration-200">
         {/* Header */}
         <div className="flex items-center justify-between border-slate-800 border-b p-5">
           <div>
-            <h3 className="font-bold text-xl text-slate-100">Editar Anúncio</h3>
-            <p className="text-slate-400 text-xs mt-0.5">As alterações serão salvas e enviadas para revisão.</p>
+            <h3 className="font-bold text-slate-100 text-xl">Editar Anúncio</h3>
+            <p className="mt-0.5 text-slate-400 text-xs">
+              As alterações serão salvas e enviadas para revisão.
+            </p>
           </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Scrollable Content */}
-        <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-6 space-y-5">
+        <form
+          onSubmit={handleSave}
+          className="flex-1 space-y-5 overflow-y-auto p-6"
+        >
           {/* Cover Image Upload */}
           <div className="space-y-2">
-            <label className="block text-slate-300 text-sm font-medium">Imagem de Capa (4:3)</label>
-            <div className="flex gap-4 items-center">
-              <div className="relative aspect-[4/3] w-32 overflow-hidden rounded-lg bg-slate-950 border border-slate-800">
-                <img src={imageUrl} alt="Preview" className="h-full w-full object-cover" />
+            <span className="block font-medium text-slate-300 text-sm">
+              Imagem de Capa (4:3)
+            </span>
+            <div className="flex items-center gap-4">
+              <div className="relative aspect-[4/3] w-32 overflow-hidden rounded-lg border border-slate-800 bg-slate-950">
+                <img
+                  src={imageUrl}
+                  alt="Preview"
+                  className="h-full w-full object-cover"
+                />
                 {isUploading && (
                   <div className="absolute inset-0 flex items-center justify-center bg-slate-950/70">
                     <Loader2 className="h-5 w-5 animate-spin text-indigo-400" />
@@ -642,7 +762,7 @@ function EditAnnouncementModal({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2 font-semibold text-slate-200 text-sm hover:bg-slate-800 transition-colors"
+                  className="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2 font-semibold text-slate-200 text-sm transition-colors hover:bg-slate-800"
                 >
                   Alterar Imagem
                 </button>
@@ -653,7 +773,9 @@ function EditAnnouncementModal({
                   accept="image/*"
                   className="hidden"
                 />
-                <p className="text-slate-500 text-xs">Imagens na proporção 4:3 são preferíveis.</p>
+                <p className="text-slate-500 text-xs">
+                  Imagens na proporção 4:3 são preferíveis.
+                </p>
               </div>
             </div>
           </div>
@@ -661,24 +783,28 @@ function EditAnnouncementModal({
           {/* Title & Subtitle */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label className="block text-slate-300 text-sm font-medium">Título *</label>
+              <span className="block font-medium text-slate-300 text-sm">
+                Título *
+              </span>
               <input
                 type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ex: Marmitas Saudáveis"
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="block text-slate-300 text-sm font-medium">Subtítulo (Opcional)</label>
+              <span className="block font-medium text-slate-300 text-sm">
+                Subtítulo (Opcional)
+              </span>
               <input
                 type="text"
                 value={subtitle}
                 onChange={(e) => setSubtitle(e.target.value)}
                 placeholder="Ex: Feitas com amor e ingredientes locais"
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
           </div>
@@ -686,12 +812,14 @@ function EditAnnouncementModal({
           {/* Category & Price */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label className="block text-slate-300 text-sm font-medium">Categoria *</label>
+              <span className="block font-medium text-slate-300 text-sm">
+                Categoria *
+              </span>
               <select
                 required
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -701,64 +829,78 @@ function EditAnnouncementModal({
               </select>
             </div>
             <div className="space-y-1.5">
-              <label className="block text-slate-300 text-sm font-medium">Preço (R$, opcional)</label>
+              <span className="block font-medium text-slate-300 text-sm">
+                Preço (R$, opcional)
+              </span>
               <input
                 type="number"
                 step="0.01"
                 min="0"
                 value={price}
-                onChange={(e) => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                onChange={(e) =>
+                  setPrice(e.target.value === '' ? '' : Number(e.target.value))
+                }
                 placeholder="Ex: 25.00 (deixe em branco para combinar)"
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
           </div>
 
           {/* Description */}
           <div className="space-y-1.5">
-            <label className="block text-slate-300 text-sm font-medium">Descrição Detalhada *</label>
+            <span className="block font-medium text-slate-300 text-sm">
+              Descrição Detalhada *
+            </span>
             <textarea
               required
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Descreva o que você oferece, horários, prazos..."
-              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none resize-none"
+              className="w-full resize-none rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
           </div>
 
           {/* Contacts */}
           <div className="space-y-3">
-            <h4 className="font-semibold text-slate-300 text-sm">Meios de Contato (Forneça ao menos um)</h4>
+            <h4 className="font-semibold text-slate-300 text-sm">
+              Meios de Contato (Forneça ao menos um)
+            </h4>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="space-y-1.5">
-                <label className="block text-slate-400 text-xs">WhatsApp (DDD + Número)</label>
+                <span className="block text-slate-400 text-xs">
+                  WhatsApp (DDD + Número)
+                </span>
                 <input
                   type="text"
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
                   placeholder="Ex: 47999999999"
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-slate-400 text-xs">Instagram (Username)</label>
+                <span className="block text-slate-400 text-xs">
+                  Instagram (Username)
+                </span>
                 <input
                   type="text"
                   value={instagram}
                   onChange={(e) => setInstagram(e.target.value)}
                   placeholder="Ex: @seuusername"
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-slate-400 text-xs">Site / Portfólio (URL)</label>
+                <span className="block text-slate-400 text-xs">
+                  Site / Portfólio (URL)
+                </span>
                 <input
                   type="url"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
                   placeholder="Ex: https://meusite.com"
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
             </div>
@@ -767,8 +909,12 @@ function EditAnnouncementModal({
           {/* Toggle Badge */}
           <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-4">
             <div className="space-y-0.5">
-              <label className="font-semibold text-slate-200 text-sm block">Exibir Selo de Morador Verificado</label>
-              <span className="text-slate-500 text-xs">Exiba que você é um morador aprovado neste condomínio.</span>
+              <span className="block font-semibold text-slate-200 text-sm">
+                Exibir Selo de Morador Verificado
+              </span>
+              <span className="text-slate-500 text-xs">
+                Exiba que você é um morador aprovado neste condomínio.
+              </span>
             </div>
             <input
               type="checkbox"
@@ -784,16 +930,19 @@ function EditAnnouncementModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-slate-800 bg-slate-900/60 px-5 py-2.5 font-semibold text-slate-300 text-sm hover:bg-slate-800 hover:text-white transition-colors"
+            className="rounded-xl border border-slate-800 bg-slate-900/60 px-5 py-2.5 font-semibold text-slate-300 text-sm transition-colors hover:bg-slate-800 hover:text-white"
           >
             Cancelar
           </button>
           <button
+            type="button"
             onClick={handleSave}
             disabled={updateMutation.isPending || isUploading}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 font-semibold text-white text-sm hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 font-semibold text-sm text-white transition-colors hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50"
           >
-            {updateMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+            {updateMutation.isPending && (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            )}
             Salvar Alterações
           </button>
         </div>
@@ -813,30 +962,37 @@ function DeleteAccountModal({
   isPending: boolean;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/10 text-rose-500 mb-4">
+    <div className="fade-in fixed inset-0 z-50 flex animate-in items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm duration-200">
+      <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 text-center shadow-2xl">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/10 text-rose-500">
           <AlertTriangle className="h-6 w-6" />
         </div>
-        <h3 className="font-bold text-xl text-slate-100">Excluir Conta Permanentemente?</h3>
+        <h3 className="font-bold text-slate-100 text-xl">
+          Excluir Conta Permanentemente?
+        </h3>
         <p className="mt-3 text-slate-400 text-sm leading-relaxed">
-          Esta ação é <strong>irreversível</strong> e em conformidade com a <strong>LGPD</strong>.
+          Esta ação é <strong>irreversível</strong> e em conformidade com a{' '}
+          <strong>LGPD</strong>.
         </p>
-        <p className="mt-2 text-slate-400 text-xs leading-relaxed bg-slate-950/50 p-3 rounded-xl border border-slate-800">
-          Seus dados pessoais (nome, e-mail, telefone e CPF) serão apagados permanentemente. Seus anúncios serão removidos da vitrine pública.
-          Registros financeiros de transações serão mantidos de forma totalmente anônima.
+        <p className="mt-2 rounded-xl border border-slate-800 bg-slate-950/50 p-3 text-slate-400 text-xs leading-relaxed">
+          Seus dados pessoais (nome, e-mail, telefone e CPF) serão apagados
+          permanentemente. Seus anúncios serão removidos da vitrine pública.
+          Registros financeiros de transações serão mantidos de forma totalmente
+          anônima.
         </p>
         <div className="mt-6 flex gap-3">
           <button
+            type="button"
             onClick={onClose}
-            className="flex-1 rounded-xl border border-slate-800 bg-slate-900/60 py-2.5 font-semibold text-slate-300 text-sm hover:bg-slate-800 transition-colors"
+            className="flex-1 rounded-xl border border-slate-800 bg-slate-900/60 py-2.5 font-semibold text-slate-300 text-sm transition-colors hover:bg-slate-800"
           >
             Cancelar
           </button>
           <button
+            type="button"
             onClick={onConfirm}
             disabled={isPending}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 py-2.5 font-semibold text-white text-sm hover:bg-rose-500 disabled:opacity-50 transition-colors"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-rose-600 py-2.5 font-semibold text-sm text-white transition-colors hover:bg-rose-500 disabled:opacity-50"
           >
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             Confirmar Exclusão

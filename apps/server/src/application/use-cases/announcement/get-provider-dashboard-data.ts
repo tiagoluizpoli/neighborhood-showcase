@@ -1,10 +1,10 @@
 import { db } from '@base-fullstack-template/db';
 import {
+  analyticsEvent as analyticsEventSchema,
   announcement as announcementSchema,
   condominium as condominiumSchema,
-  analyticsEvent as analyticsEventSchema,
 } from '@base-fullstack-template/db/schema/showcase';
-import { and, eq, isNull, inArray } from 'drizzle-orm';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 
 export interface GetProviderDashboardDataInput {
   providerId: string;
@@ -126,10 +126,11 @@ export class GetProviderDashboardData {
         imageUrl: raw.imageUrl,
         category: raw.category,
         tags: raw.tags,
-        contactLinks: raw.contactLinks as any,
+        contactLinks:
+          raw.contactLinks as DashboardAnnouncementItem['contactLinks'],
         showVerifiedBadge: raw.showVerifiedBadge,
         flaggedForReview: raw.flaggedForReview,
-        status: raw.status as any,
+        status: raw.status as DashboardAnnouncementItem['status'],
         paidAt: raw.paidAt,
         expiresAt: raw.expiresAt,
         createdAt: raw.createdAt,

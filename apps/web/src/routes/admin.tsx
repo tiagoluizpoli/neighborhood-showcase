@@ -17,13 +17,12 @@ import {
   FileText,
   Loader2,
   LogOut,
-  X,
-  UserX,
-  Search,
   Plus,
-  Trash2,
+  Search,
   ShieldAlert,
-  AlertTriangle,
+  Trash2,
+  UserX,
+  X,
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -53,7 +52,9 @@ export const Route = createFileRoute('/admin')({
 function AdminDashboard() {
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'condos' | 'providers' | 'blacklist'>('condos');
+  const [activeTab, setActiveTab] = useState<
+    'condos' | 'providers' | 'blacklist'
+  >('condos');
 
   // Search filter for providers
   const [providerSearch, setProviderSearch] = useState('');
@@ -202,32 +203,35 @@ function AdminDashboard() {
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Navigation Tabs */}
-        <div className="mb-8 border-slate-800 border-b flex space-x-8">
+        <div className="mb-8 flex space-x-8 border-slate-800 border-b">
           <button
+            type="button"
             onClick={() => setActiveTab('condos')}
-            className={`pb-4 font-semibold text-sm transition-all relative ${
+            className={`relative pb-4 font-semibold text-sm transition-all ${
               activeTab === 'condos'
-                ? 'text-indigo-400 border-b-2 border-indigo-400'
+                ? 'border-indigo-400 border-b-2 text-indigo-400'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             Condomínios Pendentes ({pendingCondos.length})
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('providers')}
-            className={`pb-4 font-semibold text-sm transition-all relative ${
+            className={`relative pb-4 font-semibold text-sm transition-all ${
               activeTab === 'providers'
-                ? 'text-indigo-400 border-b-2 border-indigo-400'
+                ? 'border-indigo-400 border-b-2 text-indigo-400'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             Diretório de Provedores
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('blacklist')}
-            className={`pb-4 font-semibold text-sm transition-all relative ${
+            className={`relative pb-4 font-semibold text-sm transition-all ${
               activeTab === 'blacklist'
-                ? 'text-indigo-400 border-b-2 border-indigo-400'
+                ? 'border-indigo-400 border-b-2 text-indigo-400'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -258,7 +262,8 @@ function AdminDashboard() {
                     Tudo limpo!
                   </h3>
                   <p className="mt-1 text-slate-500 text-sm">
-                    Não há nenhuma solicitação de condomínio pendente de aprovação.
+                    Não há nenhuma solicitação de condomínio pendente de
+                    aprovação.
                   </p>
                 </CardContent>
               </Card>
@@ -334,7 +339,9 @@ function AdminDashboard() {
                               Cancelar
                             </Button>
                             <Button
-                              disabled={rejectCondoMutation.isPending || !reason.trim()}
+                              disabled={
+                                rejectCondoMutation.isPending || !reason.trim()
+                              }
                               onClick={() =>
                                 rejectCondoMutation.mutate({
                                   id: condo.id,
@@ -351,7 +358,9 @@ function AdminDashboard() {
                         <div className="flex space-x-2 pt-2">
                           <Button
                             disabled={approveCondoMutation.isPending}
-                            onClick={() => approveCondoMutation.mutate({ id: condo.id })}
+                            onClick={() =>
+                              approveCondoMutation.mutate({ id: condo.id })
+                            }
                             className="flex-1 bg-indigo-600 text-white hover:bg-indigo-700"
                           >
                             {approveCondoMutation.isPending ? (
@@ -390,8 +399,9 @@ function AdminDashboard() {
                 <h2 className="font-bold text-2xl text-slate-100">
                   Diretório de Provedores
                 </h2>
-                <p className="text-slate-400 text-xs mt-1">
-                  Busque provedores cadastrados e gerencie suas permissões globais.
+                <p className="mt-1 text-slate-400 text-xs">
+                  Busque provedores cadastrados e gerencie suas permissões
+                  globais.
                 </p>
               </div>
               <div className="relative w-full max-w-sm">
@@ -400,7 +410,7 @@ function AdminDashboard() {
                   placeholder="Buscar por nome ou e-mail..."
                   value={providerSearch}
                   onChange={(e) => setProviderSearch(e.target.value)}
-                  className="pl-10 border-slate-850 bg-slate-900 text-slate-100 placeholder-slate-500"
+                  className="border-slate-850 bg-slate-900 pl-10 text-slate-100 placeholder-slate-500"
                 />
               </div>
             </div>
@@ -412,32 +422,39 @@ function AdminDashboard() {
             ) : providers.length === 0 ? (
               <Card className="border-slate-800 bg-slate-900/40 py-12 text-center backdrop-blur-md">
                 <CardContent>
-                  <Search className="mx-auto h-10 w-10 text-slate-600 mb-3" />
-                  <p className="text-slate-500 text-sm">Nenhum provedor encontrado.</p>
+                  <Search className="mx-auto mb-3 h-10 w-10 text-slate-600" />
+                  <p className="text-slate-500 text-sm">
+                    Nenhum provedor encontrado.
+                  </p>
                 </CardContent>
               </Card>
             ) : (
               <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/40 backdrop-blur-md">
-                <table className="w-full text-left border-collapse text-sm">
+                <table className="w-full border-collapse text-left text-sm">
                   <thead>
-                    <tr className="border-slate-850 border-b bg-slate-900/50 text-slate-400 font-semibold text-xs uppercase tracking-wider">
+                    <tr className="border-slate-850 border-b bg-slate-900/50 font-semibold text-slate-400 text-xs uppercase tracking-wider">
                       <th className="px-6 py-4">Nome</th>
                       <th className="px-6 py-4">E-mail</th>
                       <th className="px-6 py-4">Status</th>
                       <th className="px-6 py-4 text-right">Ações</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-slate-850 divide-y text-slate-300">
+                  <tbody className="divide-y divide-slate-850 text-slate-300">
                     {providers.map((p) => (
-                      <tr key={p.id} className="hover:bg-slate-900/30 transition-colors">
-                        <td className="px-6 py-4 font-medium text-slate-100">{p.name}</td>
+                      <tr
+                        key={p.id}
+                        className="transition-colors hover:bg-slate-900/30"
+                      >
+                        <td className="px-6 py-4 font-medium text-slate-100">
+                          {p.name}
+                        </td>
                         <td className="px-6 py-4">{p.email}</td>
                         <td className="px-6 py-4">
                           <span
-                            className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                            className={`rounded-full px-2.5 py-0.5 font-semibold text-xs ${
                               p.status === 'ACTIVE'
-                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                                : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                                ? 'border border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                                : 'border border-rose-500/20 bg-rose-500/10 text-rose-400'
                             }`}
                           >
                             {p.status === 'ACTIVE' ? 'Ativo' : 'Banido'}
@@ -446,14 +463,17 @@ function AdminDashboard() {
                         <td className="px-6 py-4 text-right">
                           {p.status === 'ACTIVE' ? (
                             banningUserId === p.id ? (
-                              <div className="inline-flex flex-col gap-2 bg-red-950/20 border border-red-900/30 rounded-xl p-3 text-left w-64 max-w-xs">
-                                <Label htmlFor={`ban-reason-${p.id}`} className="text-xs text-red-400">
+                              <div className="inline-flex w-64 max-w-xs flex-col gap-2 rounded-xl border border-red-900/30 bg-red-950/20 p-3 text-left">
+                                <Label
+                                  htmlFor={`ban-reason-${p.id}`}
+                                  className="text-red-400 text-xs"
+                                >
                                   Motivo do Banimento *
                                 </Label>
                                 <Input
                                   id={`ban-reason-${p.id}`}
                                   placeholder="Ex: Fraude ou spam recorrente"
-                                  className="h-8 text-xs border-red-950 bg-slate-950"
+                                  className="h-8 border-red-950 bg-slate-950 text-xs"
                                   value={banReason}
                                   onChange={(e) => setBanReason(e.target.value)}
                                 />
@@ -466,14 +486,17 @@ function AdminDashboard() {
                                     Cancelar
                                   </Button>
                                   <Button
-                                    disabled={banProviderMutation.isPending || !banReason.trim()}
+                                    disabled={
+                                      banProviderMutation.isPending ||
+                                      !banReason.trim()
+                                    }
                                     onClick={() =>
                                       banProviderMutation.mutate({
                                         id: p.id,
                                         reason: banReason.trim(),
                                       })
                                     }
-                                    className="h-6 px-2 text-[10px] bg-rose-600 text-white hover:bg-rose-700"
+                                    className="h-6 bg-rose-600 px-2 text-[10px] text-white hover:bg-rose-700"
                                   >
                                     Confirmar Ban
                                   </Button>
@@ -485,14 +508,16 @@ function AdminDashboard() {
                                   setBanningUserId(p.id);
                                   setBanReason('');
                                 }}
-                                className="bg-rose-600/10 hover:bg-rose-600 hover:text-white border border-rose-500/20 text-rose-500 hover:border-transparent rounded-lg px-3 py-1.5 h-8 font-medium text-xs active:scale-95 transition-all"
+                                className="h-8 rounded-lg border border-rose-500/20 bg-rose-600/10 px-3 py-1.5 font-medium text-rose-500 text-xs transition-all hover:border-transparent hover:bg-rose-600 hover:text-white active:scale-95"
                               >
-                                <UserX className="mr-1.5 h-3.5 w-3.5 inline" />
+                                <UserX className="mr-1.5 inline h-3.5 w-3.5" />
                                 Banir Provedor
                               </Button>
                             )
                           ) : (
-                            <span className="text-slate-600 text-xs italic">Ações desabilitadas</span>
+                            <span className="text-slate-600 text-xs italic">
+                              Ações desabilitadas
+                            </span>
                           )}
                         </td>
                       </tr>
@@ -511,14 +536,18 @@ function AdminDashboard() {
             <div className="lg:col-span-1">
               <Card className="border-slate-800 bg-slate-900/60 backdrop-blur-md">
                 <CardHeader>
-                  <CardTitle className="font-semibold text-lg text-slate-100">Adicionar CPF Blacklist</CardTitle>
+                  <CardTitle className="font-semibold text-lg text-slate-100">
+                    Adicionar CPF Blacklist
+                  </CardTitle>
                   <CardDescription className="text-slate-400 text-xs">
                     Bloqueie um CPF informando seu Hash SHA-256 e o motivo.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-1.5">
-                    <Label className="text-slate-300 text-xs font-medium">CPF Hash (SHA-256) *</Label>
+                    <Label className="font-medium text-slate-300 text-xs">
+                      CPF Hash (SHA-256) *
+                    </Label>
                     <Input
                       placeholder="Ex: 85afb35c0245a49..."
                       value={newCpfHash}
@@ -527,7 +556,9 @@ function AdminDashboard() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-slate-300 text-xs font-medium">Motivo do Bloqueio *</Label>
+                    <Label className="font-medium text-slate-300 text-xs">
+                      Motivo do Bloqueio *
+                    </Label>
                     <Input
                       placeholder="Ex: Histórico de golpes em outros sistemas"
                       value={blacklistReason}
@@ -536,7 +567,11 @@ function AdminDashboard() {
                     />
                   </div>
                   <Button
-                    disabled={addBlacklistMutation.isPending || !newCpfHash.trim() || !blacklistReason.trim()}
+                    disabled={
+                      addBlacklistMutation.isPending ||
+                      !newCpfHash.trim() ||
+                      !blacklistReason.trim()
+                    }
                     onClick={() =>
                       addBlacklistMutation.mutate({
                         cpfHash: newCpfHash.trim(),
@@ -560,8 +595,12 @@ function AdminDashboard() {
             {/* Blacklist records table */}
             <div className="lg:col-span-2">
               <div className="mb-4">
-                <h3 className="font-bold text-lg text-slate-100">CPFs Bloqueados</h3>
-                <p className="text-slate-500 text-xs">Lista global de hashes de CPF impedidos de se cadastrar.</p>
+                <h3 className="font-bold text-lg text-slate-100">
+                  CPFs Bloqueados
+                </h3>
+                <p className="text-slate-500 text-xs">
+                  Lista global de hashes de CPF impedidos de se cadastrar.
+                </p>
               </div>
 
               {blacklistQuery.isPending ? (
@@ -571,33 +610,45 @@ function AdminDashboard() {
               ) : blacklist.length === 0 ? (
                 <Card className="border-slate-800 bg-slate-900/40 py-12 text-center backdrop-blur-md">
                   <CardContent>
-                    <ShieldAlert className="mx-auto h-10 w-10 text-slate-600 mb-3" />
-                    <p className="text-slate-500 text-sm">Nenhum CPF na lista negra.</p>
+                    <ShieldAlert className="mx-auto mb-3 h-10 w-10 text-slate-600" />
+                    <p className="text-slate-500 text-sm">
+                      Nenhum CPF na lista negra.
+                    </p>
                   </CardContent>
                 </Card>
               ) : (
                 <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/40 backdrop-blur-md">
-                  <table className="w-full text-left border-collapse text-sm">
+                  <table className="w-full border-collapse text-left text-sm">
                     <thead>
-                      <tr className="border-slate-850 border-b bg-slate-900/50 text-slate-400 font-semibold text-xs uppercase tracking-wider">
+                      <tr className="border-slate-850 border-b bg-slate-900/50 font-semibold text-slate-400 text-xs uppercase tracking-wider">
                         <th className="px-6 py-4">CPF Hash (SHA-256)</th>
                         <th className="px-6 py-4">Motivo</th>
                         <th className="px-6 py-4 text-right">Ações</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-slate-850 divide-y text-slate-300">
+                    <tbody className="divide-y divide-slate-850 text-slate-300">
                       {blacklist.map((b) => (
-                        <tr key={b.id} className="hover:bg-slate-900/30 transition-colors">
-                          <td className="px-6 py-4 font-mono text-slate-400 text-xs max-w-[180px] truncate" title={b.cpfHash}>
+                        <tr
+                          key={b.id}
+                          className="transition-colors hover:bg-slate-900/30"
+                        >
+                          <td
+                            className="max-w-[180px] truncate px-6 py-4 font-mono text-slate-400 text-xs"
+                            title={b.cpfHash}
+                          >
                             {b.cpfHash}
                           </td>
-                          <td className="px-6 py-4 text-xs text-slate-300">{b.reason}</td>
+                          <td className="px-6 py-4 text-slate-300 text-xs">
+                            {b.reason}
+                          </td>
                           <td className="px-6 py-4 text-right">
                             <Button
                               variant="ghost"
                               disabled={removeBlacklistMutation.isPending}
-                              onClick={() => removeBlacklistMutation.mutate({ id: b.id })}
-                              className="text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 p-1.5 h-8 w-8 rounded-lg cursor-pointer"
+                              onClick={() =>
+                                removeBlacklistMutation.mutate({ id: b.id })
+                              }
+                              className="h-8 w-8 cursor-pointer rounded-lg p-1.5 text-rose-500 hover:bg-rose-500/10 hover:text-rose-400"
                               title="Remover da Lista Negra"
                             >
                               <Trash2 className="h-4 w-4" />

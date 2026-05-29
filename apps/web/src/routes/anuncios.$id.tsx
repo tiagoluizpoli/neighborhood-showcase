@@ -35,7 +35,7 @@ function PublicAnnouncementDetailsComponent() {
     if (detailsQuery.data) {
       trackEventMutation.mutate({
         announcementId: id,
-        eventType: "IMPRESSION",
+        eventType: 'IMPRESSION',
       });
     }
   }, [id, detailsQuery.data, trackEventMutation]);

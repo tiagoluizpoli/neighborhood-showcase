@@ -29,6 +29,8 @@ export interface AnnouncementRepository {
   updateStatus(id: string, status: AnnouncementStatus): Promise<Announcement>;
   update(
     id: string,
-    input: Partial<Omit<Announcement, 'id' | 'providerId' | 'condominiumId' | 'createdAt'>>,
+    input: Partial<
+      Omit<Announcement, 'id' | 'providerId' | 'condominiumId' | 'createdAt'>
+    >,
   ): Promise<Announcement>;
 }

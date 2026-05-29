@@ -1,20 +1,20 @@
 import { db } from '@base-fullstack-template/db';
-import {
-  condominium as condominiumSchema,
-  assignment as assignmentSchema,
-  announcement as announcementSchema,
-} from '@base-fullstack-template/db/schema/showcase';
 import { user as userSchema } from '@base-fullstack-template/db/schema/auth';
+import {
+  announcement as announcementSchema,
+  assignment as assignmentSchema,
+  condominium as condominiumSchema,
+} from '@base-fullstack-template/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
 import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { CreateAnnouncement } from '../../application/use-cases/announcement/create-announcement';
-import { ListPublicAnnouncements } from '../../application/use-cases/announcement/list-public-announcements';
-import { TrackAnalyticsEvent } from '../../application/use-cases/announcement/track-analytics-event';
 import { GetProviderDashboardData } from '../../application/use-cases/announcement/get-provider-dashboard-data';
-import { GeneratePaymentIntent } from '../../application/use-cases/payment/generate-payment-intent';
-import { SuspendAnnouncement } from '../../application/use-cases/announcement/suspend-announcement';
+import { ListPublicAnnouncements } from '../../application/use-cases/announcement/list-public-announcements';
 import { ReinstateAnnouncement } from '../../application/use-cases/announcement/reinstate-announcement';
+import { SuspendAnnouncement } from '../../application/use-cases/announcement/suspend-announcement';
+import { TrackAnalyticsEvent } from '../../application/use-cases/announcement/track-analytics-event';
+import { GeneratePaymentIntent } from '../../application/use-cases/payment/generate-payment-intent';
 import { DrizzleAnnouncementRepository } from '../../infrastructure/db/announcement-repository';
 import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-repository';
 import { DrizzlePaymentRepository } from '../../infrastructure/db/payment-repository';
@@ -242,7 +242,12 @@ export const announcementRouter = router({
         tags: input.tags,
         contactLinks: input.contactLinks,
         showVerifiedBadge: input.showVerifiedBadge,
-        status: newStatus as any,
+        status: newStatus as
+          | 'DRAFT'
+          | 'PENDING_PAYMENT'
+          | 'ACTIVE'
+          | 'EXPIRED'
+          | 'SUSPENDED',
         flaggedForReview: true,
         suspensionReason: null,
       });
