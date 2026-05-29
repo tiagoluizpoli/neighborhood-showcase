@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TodosRouteImport } from './routes/todos'
+import { Route as ModerationRouteImport } from './routes/moderation'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -20,6 +21,11 @@ import { Route as DashboardCondoSetupRouteImport } from './routes/dashboard.cond
 const TodosRoute = TodosRouteImport.update({
   id: '/todos',
   path: '/todos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModerationRoute = ModerationRouteImport.update({
+  id: '/moderation',
+  path: '/moderation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/moderation': typeof ModerationRoute
   '/todos': typeof TodosRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/moderation': typeof ModerationRoute
   '/todos': typeof TodosRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/moderation': typeof ModerationRoute
   '/todos': typeof TodosRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/dashboard'
+    | '/moderation'
     | '/todos'
     | '/dashboard/condo-setup'
     | '/dashboard/'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/auth'
+    | '/moderation'
     | '/todos'
     | '/dashboard/condo-setup'
     | '/dashboard'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/dashboard'
+    | '/moderation'
     | '/todos'
     | '/dashboard/condo-setup'
     | '/dashboard/'
@@ -114,6 +126,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRouteWithChildren
+  ModerationRoute: typeof ModerationRoute
   TodosRoute: typeof TodosRoute
 }
 
@@ -124,6 +137,13 @@ declare module '@tanstack/react-router' {
       path: '/todos'
       fullPath: '/todos'
       preLoaderRoute: typeof TodosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moderation': {
+      id: '/moderation'
+      path: '/moderation'
+      fullPath: '/moderation'
+      preLoaderRoute: typeof ModerationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -190,6 +210,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRouteWithChildren,
+  ModerationRoute: ModerationRoute,
   TodosRoute: TodosRoute,
 }
 export const routeTree = rootRouteImport

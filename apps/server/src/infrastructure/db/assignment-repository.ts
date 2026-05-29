@@ -4,6 +4,7 @@ import { and, eq } from 'drizzle-orm';
 import type {
   Assignment,
   AssignmentWithCondo,
+  AssignmentWithUser,
 } from '../../domain/entities/assignment.entity';
 import type {
   AssignmentRepository,
@@ -61,17 +62,46 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
     return results as AssignmentWithCondo[];
   }
 
-  async findPendingByCondoId(condominiumId: string): Promise<Assignment[]> {
-    const results = await db
+  async findPendingByCondoId(
+    condominiumId: string,
+  ): Promise<AssignmentWithUser[]> {
+    const results = await db.query.assignment.findMany({
+      where: and(
+        eq(assignSchema.condominiumId, condominiumId),
+        eq(assignSchema.status, 'PENDING'),
+      ),
+      with: {
+        provider: true,
+      },
+    });
+
+    return results as AssignmentWithUser[];
+  }
+
+  async findById(id: string): Promise<Assignment | null> {
+    const [found] = await db
       .select()
       .from(assignSchema)
-      .where(
-        and(
-          eq(assignSchema.condominiumId, condominiumId),
-          eq(assignSchema.status, 'PENDING'),
-        ),
-      );
+      .where(eq(assignSchema.id, id))
+      .limit(1);
 
-    return results as Assignment[];
+    return (found as Assignment) || null;
+  }
+
+  async updateStatus(
+    id: string,
+    status: 'APPROVED' | 'REJECTED',
+  ): Promise<Assignment> {
+    const [updated] = await db
+      .update(assignSchema)
+      .set({ status })
+      .where(eq(assignSchema.id, id))
+      .returning();
+
+    if (!updated) {
+      throw new Error(`Failed to update assignment status for ${id}`);
+    }
+
+    return updated as Assignment;
   }
 }

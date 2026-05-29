@@ -1,10 +1,33 @@
+import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
+import { ApproveAssignment } from '../../application/use-cases/assignment/approve-assignment';
+import { RejectAssignment } from '../../application/use-cases/assignment/reject-assignment';
 import { RequestAssignment } from '../../application/use-cases/assignment/request-assignment';
 import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-repository';
 import { protectedProcedure, router } from '../trpc';
 
 const assignmentRepo = new DrizzleAssignmentRepository();
 const requestAssignmentUseCase = new RequestAssignment(assignmentRepo);
+const approveAssignmentUseCase = new ApproveAssignment(assignmentRepo);
+const rejectAssignmentUseCase = new RejectAssignment(assignmentRepo);
+
+const checkModerator = async (userId: string, condominiumId: string) => {
+  const existing = await assignmentRepo.findByProviderAndCondo(
+    userId,
+    condominiumId,
+  );
+  if (
+    !existing ||
+    existing.type !== 'MODERATOR' ||
+    existing.status !== 'APPROVED'
+  ) {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message:
+        'Apenas moderadores aprovados deste condomínio podem realizar esta ação.',
+    });
+  }
+};
 
 export const assignmentRouter = router({
   request: protectedProcedure
@@ -27,4 +50,42 @@ export const assignmentRouter = router({
   getMyAssignments: protectedProcedure.query(async ({ ctx }) => {
     return assignmentRepo.findByProviderId(ctx.session.user.id);
   }),
+
+  listPending: protectedProcedure
+    .input(z.object({ condominiumId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      await checkModerator(ctx.session.user.id, input.condominiumId);
+      return assignmentRepo.findPendingByCondoId(input.condominiumId);
+    }),
+
+  approve: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const assign = await assignmentRepo.findById(input.id);
+      if (!assign) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Solicitação não encontrada.',
+        });
+      }
+      await checkModerator(ctx.session.user.id, assign.condominiumId);
+      return approveAssignmentUseCase.execute({ id: input.id });
+    }),
+
+  reject: protectedProcedure
+    .input(z.object({ id: z.string(), reason: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const assign = await assignmentRepo.findById(input.id);
+      if (!assign) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Solicitação não encontrada.',
+        });
+      }
+      await checkModerator(ctx.session.user.id, assign.condominiumId);
+      return rejectAssignmentUseCase.execute({
+        id: input.id,
+        reason: input.reason,
+      });
+    }),
 });

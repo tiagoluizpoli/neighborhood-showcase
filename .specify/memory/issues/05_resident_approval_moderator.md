@@ -4,12 +4,13 @@ Implement the resident association approval interface for local Condo Moderators
 
 ## Acceptance criteria
 
-- [ ] Route loader / tRPC middleware limits access to `/moderation` to approved `MODERATOR` users of that specific condominium.
-- [ ] List page shows pending resident requests (`Assignments.status = PENDING` and `Assignments.type = RESIDENT`).
-- [ ] Safe image/document preview modal displaying the resident's legal name, unit number, and proof of residency.
-- [ ] Approve action changes assignment status to `APPROVED`.
-- [ ] Reject action prompts for a mandatory rejection reason, sets status to `REJECTED`, and logs reason.
-- [ ] Integration tests verify access guards and assignment status transitions.
+- [x] Route loader / tRPC middleware limits access to `/moderation` to approved `MODERATOR` users of that specific condominium.
+- [x] List page shows pending resident requests (`Assignments.status = PENDING` and `Assignments.type = RESIDENT`).
+- [x] Safe image/document preview modal displaying the resident's legal name, unit number, and proof of residency.
+- [x] Approve action changes assignment status to `APPROVED`.
+- [x] Reject action prompts for a mandatory rejection reason, sets status to `REJECTED`, and logs reason.
+- [x] Integration tests verify access guards and assignment status transitions.
+
 
 ## Blocked by
 

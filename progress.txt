@@ -6,7 +6,7 @@
 - [x] **Issue 02**: Condo Creation - Síndico (Completed: 2026-05-29)
 - [x] **Issue 03**: Condo Joining - Resident (Completed: 2026-05-29)
 - [x] **Issue 04**: Condo Approval - Admin (Completed: 2026-05-29)
-- [ ] **Issue 05**: Resident Approval - Moderator (Status: PENDING)
+- [x] **Issue 05**: Resident Approval - Moderator (Completed: 2026-05-29)
 - [ ] **Issue 06**: Announcement Draft Creation (Status: PENDING)
 - [ ] **Issue 07**: Payment Intent PIX (Status: PENDING)
 - [ ] **Issue 08**: Webhook Payment Resolution (Status: PENDING)
@@ -45,4 +45,14 @@
 - Implemented approve tRPC endpoint (updates status to `APPROVED` and grants pre-approved `MODERATOR` assignment to creator).
 - Implemented reject tRPC endpoint (updates status to `REJECTED` and dispatches mock email to creator).
 - Implemented integration tests.
+
+### Issue 05: Resident Approval - Moderator
+- Route beforeLoad guard restricting access to `/moderation` only to approved `MODERATOR` users of that condominium.
+- tRPC route `listPending` querying pending resident assignments (`type = 'RESIDENT' && status = 'PENDING'`) while joining user relation details.
+- Integrated inline checkModerator role validation check for tRPC endpoints.
+- Implemented approve assignment mutation (sets status to `APPROVED`).
+- Implemented reject assignment mutation (sets status to `REJECTED` and logs reason).
+- Moderation dashboard UI with condo selector context and resident info/comprovante preview modal.
+- Implemented integration tests.
+
 

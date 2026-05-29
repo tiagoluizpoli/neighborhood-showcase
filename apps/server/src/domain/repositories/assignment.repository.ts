@@ -3,6 +3,7 @@ import type {
   AssignmentStatus,
   AssignmentType,
   AssignmentWithCondo,
+  AssignmentWithUser,
 } from '../entities/assignment.entity';
 
 export interface CreateAssignmentRepositoryInput {
@@ -22,5 +23,10 @@ export interface AssignmentRepository {
     condominiumId: string,
   ): Promise<Assignment | null>;
   findByProviderId(providerId: string): Promise<AssignmentWithCondo[]>;
-  findPendingByCondoId(condominiumId: string): Promise<Assignment[]>;
+  findPendingByCondoId(condominiumId: string): Promise<AssignmentWithUser[]>;
+  findById(id: string): Promise<Assignment | null>;
+  updateStatus(
+    id: string,
+    status: 'APPROVED' | 'REJECTED',
+  ): Promise<Assignment>;
 }

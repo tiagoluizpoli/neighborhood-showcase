@@ -23,6 +23,13 @@ export interface AssignmentWithCondo extends Assignment {
   } | null;
 }
 
+export interface AssignmentWithUser extends Assignment {
+  provider?: {
+    name: string | null;
+    email: string;
+  } | null;
+}
+
 export function validateUnitInfo(unitInfo?: string): void {
   if (!unitInfo || unitInfo.trim().length === 0) {
     throw new TRPCError({
