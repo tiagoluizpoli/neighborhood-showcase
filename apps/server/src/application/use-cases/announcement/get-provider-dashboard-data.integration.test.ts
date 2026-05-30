@@ -4,7 +4,7 @@ import { user } from '@base-fullstack-template/db/schema/auth';
 import {
   analyticsEvent,
   announcement,
-  assignment,
+  providerLocation as assignment,
   condominium,
 } from '@base-fullstack-template/db/schema/showcase';
 import { GetProviderDashboardData } from './get-provider-dashboard-data';

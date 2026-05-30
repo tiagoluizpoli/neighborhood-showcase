@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { db } from '@base-fullstack-template/db';
 import { user } from '@base-fullstack-template/db/schema/auth';
 import {
-  assignment,
+  providerLocation as assignment,
   condominium,
 } from '@base-fullstack-template/db/schema/showcase';
 import { eq } from 'drizzle-orm';

@@ -9,11 +9,13 @@ import type {
 export interface CreateAssignmentRepositoryInput {
   id: string;
   providerId: string;
-  condominiumId: string;
+  condominiumId?: string | null;
+  addressId?: string | null;
+  number?: string | null;
   type: AssignmentType;
   status?: AssignmentStatus;
-  unitInfo?: string;
-  proofOfResidency?: string;
+  unitInfo?: string | null;
+  proofOfResidency?: string | null;
 }
 
 export interface AssignmentRepository {

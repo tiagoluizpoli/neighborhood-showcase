@@ -40,7 +40,10 @@ export const Route = createFileRoute('/moderation')({
     // Call tRPC client directly to verify moderator role
     const assignments = await trpcClient.assignment.getMyAssignments.query();
     const moderatorAssignments = assignments.filter(
-      (a) => a.type === 'MODERATOR' && a.status === 'APPROVED',
+      (a): a is typeof a & { condominiumId: string } =>
+        a.type === 'MODERATOR' &&
+        a.status === 'APPROVED' &&
+        a.condominiumId !== null,
     );
 
     if (moderatorAssignments.length === 0) {

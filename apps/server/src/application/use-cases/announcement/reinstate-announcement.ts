@@ -1,7 +1,7 @@
 import { db } from '@base-fullstack-template/db';
 import {
   announcement as announcementSchema,
-  assignment as assignmentSchema,
+  providerLocation as assignmentSchema,
 } from '@base-fullstack-template/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
 import { and, eq } from 'drizzle-orm';

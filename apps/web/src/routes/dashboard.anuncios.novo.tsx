@@ -65,7 +65,10 @@ function NewAnnouncementComponent() {
   const isLoadingAssignments = assignmentsQuery.isLoading;
 
   const approvedAssignments =
-    assignments?.filter((a) => a.status === 'APPROVED') || [];
+    assignments?.filter(
+      (a): a is typeof a & { condominiumId: string } =>
+        a.status === 'APPROVED' && a.condominiumId !== null,
+    ) || [];
 
   // Default select condo if only one is available
   useEffect(() => {

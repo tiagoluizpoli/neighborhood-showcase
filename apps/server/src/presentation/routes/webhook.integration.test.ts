@@ -4,7 +4,7 @@ import { db } from '@base-fullstack-template/db';
 import { user } from '@base-fullstack-template/db/schema/auth';
 import {
   announcement,
-  assignment,
+  providerLocation as assignment,
   condominium,
   payment,
 } from '@base-fullstack-template/db/schema/showcase';

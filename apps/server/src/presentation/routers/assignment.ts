@@ -1,6 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { ApproveAssignment } from '../../application/use-cases/assignment/approve-assignment';
+import { RegisterExternalLocation } from '../../application/use-cases/assignment/register-external-location';
 import { RejectAssignment } from '../../application/use-cases/assignment/reject-assignment';
 import { RequestAssignment } from '../../application/use-cases/assignment/request-assignment';
 import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-repository';
@@ -10,6 +11,7 @@ const assignmentRepo = new DrizzleAssignmentRepository();
 const requestAssignmentUseCase = new RequestAssignment(assignmentRepo);
 const approveAssignmentUseCase = new ApproveAssignment(assignmentRepo);
 const rejectAssignmentUseCase = new RejectAssignment(assignmentRepo);
+const registerExternalUseCase = new RegisterExternalLocation(assignmentRepo);
 
 const checkModerator = async (userId: string, condominiumId: string) => {
   const existing = await assignmentRepo.findByProviderAndCondo(
@@ -68,6 +70,12 @@ export const assignmentRouter = router({
           message: 'Solicitação não encontrada.',
         });
       }
+      if (!assign.condominiumId) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Solicitação não vinculada a um condomínio.',
+        });
+      }
       await checkModerator(ctx.session.user.id, assign.condominiumId);
       return approveAssignmentUseCase.execute({ id: input.id });
     }),
@@ -82,10 +90,41 @@ export const assignmentRouter = router({
           message: 'Solicitação não encontrada.',
         });
       }
+      if (!assign.condominiumId) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Solicitação não vinculada a um condomínio.',
+        });
+      }
       await checkModerator(ctx.session.user.id, assign.condominiumId);
       return rejectAssignmentUseCase.execute({
         id: input.id,
         reason: input.reason,
+      });
+    }),
+
+  registerExternal: protectedProcedure
+    .input(
+      z.object({
+        cep: z.string().min(8).max(9),
+        street: z.string().min(1),
+        neighborhood: z.string().min(1),
+        city: z.string().min(1),
+        state: z.string().length(2),
+        number: z.string().min(1),
+        complement: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return registerExternalUseCase.execute({
+        providerId: ctx.session.user.id,
+        cep: input.cep,
+        street: input.street,
+        neighborhood: input.neighborhood,
+        city: input.city,
+        state: input.state,
+        number: input.number,
+        complement: input.complement,
       });
     }),
 });

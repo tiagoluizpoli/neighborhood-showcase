@@ -1,5 +1,5 @@
 import { db } from '@base-fullstack-template/db';
-import { assignment as assignSchema } from '@base-fullstack-template/db/schema/showcase';
+import { providerLocation as assignSchema } from '@base-fullstack-template/db/schema/showcase';
 import { and, eq } from 'drizzle-orm';
 import type {
   Assignment,
@@ -18,7 +18,9 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
       .values({
         id: input.id,
         providerId: input.providerId,
-        condominiumId: input.condominiumId,
+        condominiumId: input.condominiumId || null,
+        addressId: input.addressId || null,
+        number: input.number || null,
         type: input.type,
         status: input.status || 'PENDING',
         unitInfo: input.unitInfo || null,
@@ -52,7 +54,7 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
   }
 
   async findByProviderId(providerId: string): Promise<AssignmentWithCondo[]> {
-    const results = await db.query.assignment.findMany({
+    const results = await db.query.providerLocation.findMany({
       where: eq(assignSchema.providerId, providerId),
       with: {
         condominium: true,
@@ -65,7 +67,7 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
   async findPendingByCondoId(
     condominiumId: string,
   ): Promise<AssignmentWithUser[]> {
-    const results = await db.query.assignment.findMany({
+    const results = await db.query.providerLocation.findMany({
       where: and(
         eq(assignSchema.condominiumId, condominiumId),
         eq(assignSchema.status, 'PENDING'),
