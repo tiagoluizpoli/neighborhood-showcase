@@ -9,10 +9,10 @@ Refactor the onboarding setup screen and guards:
 
 ## Acceptance criteria
 
-- [ ] Route guard does not redirect a user who has an approved external provider location.
-- [ ] Setup screen offers an "Independent/External" option that queries CEP using ViaCEP.
-- [ ] Submitting address details successfully registers the external location and grants access to the dashboard.
-- [ ] Integration tests verify the onboarding flow for external providers.
+- [x] Route guard does not redirect a user who has an approved external provider location.
+- [x] Setup screen offers an "Independent/External" option that queries CEP using ViaCEP.
+- [x] Submitting address details successfully registers the external location and grants access to the dashboard.
+- [x] Integration tests verify the onboarding flow for external providers.
 
 ## Blocked by
 

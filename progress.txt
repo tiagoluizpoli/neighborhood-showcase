@@ -14,7 +14,7 @@
 - [x] **Issue 10**: Provider Dashboard & LGPD (Completed: 2026-05-29)
 - [x] **Issue 11**: Moderator Suspension & Admin Blacklist (Completed: 2026-05-29)
 - [x] **Issue 12**: Database Migration for Address & Location Assignment (Completed: 2026-05-29)
-- [ ] **Issue 13**: Onboarding Setup Flow Refactoring (Pending)
+- [x] **Issue 13**: Onboarding Setup Flow Refactoring (Completed: 2026-05-30)
 - [ ] **Issue 14**: Announcement Creation & Editing Refactoring (Pending)
 - [ ] **Issue 15**: Public Showcase & Proximity Refactor (Pending)
 
@@ -113,6 +113,13 @@
 - Restored original `assignment` table schema definitions in parallel to allow non-interactive Drizzle-kit operations.
 - Successfully executed `db:push` and generated the catch-up SQL migration schema.
 - Added validation checks in moderation endpoints (`suspend` and `reinstate`) to assert non-null `condominiumId`.
+
+### Issue 13: Onboarding Setup Flow Refactoring
+- Created `RegisterExternalLocation` domain use-case and repository logic linking independent locations to an `address` registry (with ViaCEP address autofill and auto-approved location records).
+- Exposed `registerExternal` mutation in tRPC assignment router.
+- Updated dashboard route guard to query and allow any approved location contexts (`RESIDENT`, `MODERATOR`, or `EXTERNAL`).
+- Added "Prestador Autônomo" choice card in `/dashboard/condo-setup` selection screen leading to an address lookup/submit form.
+- Wrote integration tests verifying the onboarding flow for external providers (CEP validation, address registry/reuse, location auto-approval).
 
 ### Infrastructure Setup
 - Resolved port conflicts by mapping Postgres database service to port `5435`.
