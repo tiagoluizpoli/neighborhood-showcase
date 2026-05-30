@@ -19,6 +19,7 @@ import {
   FileText,
   Home,
   Loader2,
+  MapPin,
   Plus,
   Search,
   UploadCloud,
@@ -34,7 +35,7 @@ export const Route = createFileRoute('/dashboard/condo-setup')({
 
 function CondoSetupComponent() {
   const navigate = useNavigate();
-  const [flow, setFlow] = useState<'select' | 'sindico' | 'resident'>('select');
+  const [flow, setFlow] = useState<'select' | 'sindico' | 'resident' | 'external'>('select');
 
   // Query my created condo status
   const myCondoQuery = useQuery(trpc.condominium.myCreated.queryOptions());
@@ -69,6 +70,16 @@ function CondoSetupComponent() {
   const [unitInfo, setUnitInfo] = useState('');
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [isUploadingResident, setIsUploadingResident] = useState(false);
+
+  // Form states for External Provider
+  const [extCep, setExtCep] = useState('');
+  const [extStreet, setExtStreet] = useState('');
+  const [extNeighborhood, setExtNeighborhood] = useState('');
+  const [extCity, setExtCity] = useState('');
+  const [extState, setExtState] = useState('');
+  const [extNumber, setExtNumber] = useState('');
+  const [extComplement, setExtComplement] = useState('');
+  const [isSearchingExtCep, setIsSearchingExtCep] = useState(false);
 
   // Debounce search query
   useEffect(() => {
@@ -108,6 +119,69 @@ function CondoSetupComponent() {
       },
     }),
   );
+
+  // tRPC register external location mutation
+  const registerExternalMutation = useMutation(
+    trpc.assignment.registerExternal.mutationOptions({
+      onSuccess: () => {
+        toast.success('Localização registrada com sucesso!');
+        myAssignmentsQuery.refetch();
+        navigate({ to: '/dashboard' });
+      },
+      onError: (err) => {
+        toast.error(err.message || 'Erro ao registrar localização.');
+      },
+    }),
+  );
+
+  // External CEP Autofill Effect
+  useEffect(() => {
+    const cleanCep = extCep.replace(/\D/g, '');
+    if (cleanCep.length === 8) {
+      setIsSearchingExtCep(true);
+      fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.erro) {
+            toast.error('CEP não encontrado.');
+            setExtStreet('');
+            setExtNeighborhood('');
+            setExtCity('');
+            setExtState('');
+          } else {
+            setExtStreet(data.logradouro || '');
+            setExtNeighborhood(data.bairro || '');
+            setExtCity(data.localidade || '');
+            setExtState(data.uf || '');
+          }
+        })
+        .catch(() => {
+          toast.error('Erro ao buscar o CEP.');
+        })
+        .finally(() => {
+          setIsSearchingExtCep(false);
+        });
+    }
+  }, [extCep]);
+
+  const handleExternalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!extCep || !extStreet || !extNeighborhood || !extCity || !extState || !extNumber) {
+      toast.error('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    registerExternalMutation.mutate({
+      cep: extCep.replace(/\D/g, ''),
+      street: extStreet,
+      neighborhood: extNeighborhood,
+      city: extCity,
+      state: extState.toUpperCase(),
+      number: extNumber,
+      complement: extComplement || undefined,
+    });
+  };
 
   // CEP Autofill Effect
   useEffect(() => {
@@ -400,20 +474,20 @@ function CondoSetupComponent() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.12),transparent_45%)]" />
         </div>
 
-        <Card className="w-full max-w-2xl border-slate-800 bg-slate-900/60 p-6 shadow-2xl backdrop-blur-xl">
+        <Card className="w-full max-w-4xl border-slate-800 bg-slate-900/60 p-6 shadow-2xl backdrop-blur-xl">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400">
               <Home className="h-8 w-8" />
             </div>
             <CardTitle className="font-bold text-2xl text-slate-100">
-              Configuração de Condomínio
+              Configuração do Provedor
             </CardTitle>
             <CardDescription className="mt-2 text-slate-400">
-              Você ainda não está associado a nenhum condomínio. Escolha uma das
-              opções abaixo para começar.
+              Você ainda não possui uma localização cadastrada. Escolha uma das
+              opções abaixo para começar a anunciar seus serviços.
             </CardDescription>
           </CardHeader>
-          <CardContent className="mt-6 grid gap-6 md:grid-cols-2">
+          <CardContent className="mt-6 grid gap-6 md:grid-cols-3">
             <div className="flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-6 transition-all hover:border-slate-700">
               <div>
                 <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400">
@@ -425,7 +499,7 @@ function CondoSetupComponent() {
                 <p className="mt-2 text-slate-400 text-sm">
                   Cadastre um novo condomínio como{' '}
                   <strong>Síndico/Administrador</strong> para gerenciar
-                  moradores e anúncios.
+                  moradores e anúncios no local.
                 </p>
               </div>
               <Button
@@ -442,7 +516,7 @@ function CondoSetupComponent() {
                   <Users className="h-6 w-6" />
                 </div>
                 <h3 className="font-semibold text-lg text-slate-200">
-                  Participar de um Existente
+                  Morador de Condomínio
                 </h3>
                 <p className="mt-2 text-slate-400 text-sm">
                   Solicite associação a um condomínio existente informando sua
@@ -455,6 +529,27 @@ function CondoSetupComponent() {
                 className="mt-6 w-full cursor-pointer border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-slate-200"
               >
                 Solicitar Acesso
+              </Button>
+            </div>
+
+            <div className="flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-6 transition-all hover:border-slate-700">
+              <div>
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10 text-green-400">
+                  <MapPin className="h-6 w-6" />
+                </div>
+                <h3 className="font-semibold text-lg text-slate-200">
+                  Prestador Autônomo
+                </h3>
+                <p className="mt-2 text-slate-400 text-sm">
+                  Trabalha fora de condomínios? Registre o endereço de seu estabelecimento comercial ou residência para divulgar anúncios na região.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setFlow('external')}
+                className="mt-6 w-full cursor-pointer border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-slate-200"
+              >
+                Cadastrar Endereço
               </Button>
             </div>
           </CardContent>
@@ -710,6 +805,161 @@ function CondoSetupComponent() {
                 </Button>
               </form>
             )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // External Path Form
+  if (flow === 'external') {
+    return (
+      <div className="relative flex min-h-[85vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <div className="absolute inset-0 -z-10 bg-slate-950">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.12),transparent_45%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.12),transparent_45%)]" />
+        </div>
+
+        <Card className="w-full max-w-lg border-slate-800 bg-slate-900/60 shadow-2xl backdrop-blur-xl">
+          <CardHeader className="relative">
+            <Button
+              variant="ghost"
+              onClick={() => setFlow('select')}
+              className="absolute top-4 left-4 h-8 w-8 cursor-pointer p-0 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div className="pt-4 text-center">
+              <CardTitle className="font-bold text-2xl text-slate-100">
+                Prestador Autônomo / Externo
+              </CardTitle>
+              <CardDescription className="mt-1 text-slate-400">
+                Cadastre o endereço de atendimento do seu serviço autônomo
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleExternalSubmit} className="space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-1 space-y-2">
+                  <Label htmlFor="ext-cep" className="text-slate-300">
+                    CEP *
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="ext-cep"
+                      placeholder="00000-000"
+                      maxLength={9}
+                      className="border-slate-800 bg-slate-950 pr-8 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                      value={extCep}
+                      onChange={(e) => setExtCep(e.target.value)}
+                    />
+                    {isSearchingExtCep && (
+                      <Loader2 className="absolute top-2.5 right-2 h-4 w-4 animate-spin text-slate-500" />
+                    )}
+                  </div>
+                </div>
+
+                <div className="col-span-2 space-y-2">
+                  <Label htmlFor="ext-street" className="text-slate-300">
+                    Rua / Logradouro *
+                  </Label>
+                  <Input
+                    id="ext-street"
+                    placeholder="Rua, Avenida..."
+                    className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                    value={extStreet}
+                    onChange={(e) => setExtStreet(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="ext-neighborhood" className="text-slate-300">
+                    Bairro *
+                  </Label>
+                  <Input
+                    id="ext-neighborhood"
+                    placeholder="Bairro"
+                    className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                    value={extNeighborhood}
+                    onChange={(e) => setExtNeighborhood(e.target.value)}
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="col-span-2 space-y-2">
+                    <Label htmlFor="ext-city" className="text-slate-300">
+                      Cidade *
+                    </Label>
+                    <Input
+                      id="ext-city"
+                      placeholder="Cidade"
+                      disabled
+                      className="border-slate-800 bg-slate-900 text-slate-400"
+                      value={extCity}
+                    />
+                  </div>
+
+                  <div className="col-span-1 space-y-2">
+                    <Label htmlFor="ext-state" className="text-slate-300">
+                      UF *
+                    </Label>
+                    <Input
+                      id="ext-state"
+                      placeholder="UF"
+                      disabled
+                      className="border-slate-800 bg-slate-900 text-slate-400"
+                      value={extState}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-1 space-y-2">
+                  <Label htmlFor="ext-number" className="text-slate-300">
+                    Número *
+                  </Label>
+                  <Input
+                    id="ext-number"
+                    placeholder="123"
+                    className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                    value={extNumber}
+                    onChange={(e) => setExtNumber(e.target.value)}
+                  />
+                </div>
+
+                <div className="col-span-2 space-y-2">
+                  <Label htmlFor="ext-complement" className="text-slate-300">
+                    Complemento
+                  </Label>
+                  <Input
+                    id="ext-complement"
+                    placeholder="Sala, Apto, Bloco..."
+                    className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                    value={extComplement}
+                    onChange={(e) => setExtComplement(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={registerExternalMutation.isPending}
+                className="mt-6 w-full cursor-pointer rounded-lg bg-indigo-600 py-2 font-semibold text-white transition-colors hover:bg-indigo-700"
+              >
+                {registerExternalMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Registrando endereço...
+                  </>
+                ) : (
+                  'Confirmar Endereço'
+                )}
+              </Button>
+            </form>
           </CardContent>
         </Card>
       </div>
