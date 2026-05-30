@@ -37,7 +37,7 @@ function NewAnnouncementComponent() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // State for form fields
-  const [selectedCondoId, setSelectedCondoId] = useState<string>('');
+  const [selectedLocationId, setSelectedLocationId] = useState<string>('');
   const [category, setCategory] = useState<string>('');
   const [title, setTitle] = useState<string>('');
   const [subtitle, setSubtitle] = useState<string>('');
@@ -64,24 +64,21 @@ function NewAnnouncementComponent() {
   const assignments = assignmentsQuery.data;
   const isLoadingAssignments = assignmentsQuery.isLoading;
 
-  const approvedAssignments =
-    assignments?.filter(
-      (a): a is typeof a & { condominiumId: string } =>
-        a.status === 'APPROVED' && a.condominiumId !== null,
-    ) || [];
+  const approvedLocations =
+    assignments?.filter((a) => a.status === 'APPROVED') || [];
 
-  // Default select condo if only one is available
+  // Default select location if only one is available
   useEffect(() => {
-    if (approvedAssignments.length === 1 && !selectedCondoId) {
-      setSelectedCondoId(approvedAssignments[0].condominiumId);
+    if (approvedLocations.length === 1 && !selectedLocationId) {
+      setSelectedLocationId(approvedLocations[0].id);
     }
-  }, [approvedAssignments, selectedCondoId]);
+  }, [approvedLocations, selectedLocationId]);
 
-  // Update verified badge availability depending on the selected condo assignment
-  const selectedAssignment = approvedAssignments.find(
-    (a) => a.condominiumId === selectedCondoId,
+  // Update verified badge availability depending on the selected location type
+  const selectedAssignment = approvedLocations.find(
+    (a) => a.id === selectedLocationId,
   );
-  const canVerify = !!selectedAssignment;
+  const canVerify = selectedAssignment?.type === 'RESIDENT';
 
   // Handle file select
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,8 +201,8 @@ function NewAnnouncementComponent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedCondoId) {
-      toast.error('Por favor, selecione um condomínio.');
+    if (!selectedLocationId) {
+      toast.error('Por favor, selecione uma localização.');
       return;
     }
     if (!category) {
@@ -268,7 +265,7 @@ function NewAnnouncementComponent() {
 
       // Submit mutation
       createMutation.mutate({
-        condominiumId: selectedCondoId,
+        providerLocationId: selectedLocationId,
         title,
         subtitle: subtitle || null,
         description,
@@ -331,39 +328,54 @@ function NewAnnouncementComponent() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Condo Selector */}
-              <div className="space-y-2">
-                <Label
-                  htmlFor="condo-select"
-                  className="font-medium text-slate-350 text-sm"
-                >
-                  Condomínio
-                </Label>
-                {isLoadingAssignments ? (
+              {/* Location Selector */}
+              {isLoadingAssignments ? (
+                <div className="space-y-2">
+                  <Label className="font-medium text-slate-350 text-sm">
+                    Localização
+                  </Label>
                   <div className="h-10 w-full animate-pulse rounded bg-slate-850" />
-                ) : approvedAssignments.length === 0 ? (
+                </div>
+              ) : approvedLocations.length === 0 ? (
+                <div className="space-y-2">
+                  <Label className="font-medium text-slate-350 text-sm">
+                    Localização
+                  </Label>
                   <div className="rounded border border-amber-900/50 bg-amber-950/40 p-3 text-amber-300 text-sm">
-                    Você não possui nenhum condomínio associado e aprovado.
+                    Você não possui nenhuma localização aprovada. Cadastre-se em
+                    um condomínio ou registre-se de forma autônoma antes de
+                    anunciar.
                   </div>
-                ) : (
-                  <select
-                    id="condo-select"
-                    value={selectedCondoId}
-                    onChange={(e) => setSelectedCondoId(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-slate-800 bg-slate-950 px-3 py-2 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="" disabled>
-                      Selecione o condomínio...
-                    </option>
-                    {approvedAssignments.map((a) => (
-                      <option key={a.condominiumId} value={a.condominiumId}>
-                        {a.condominium?.name ?? ''} ({a.condominium?.city ?? ''}{' '}
-                        - {a.condominium?.state ?? ''})
+                </div>
+              ) : (
+                approvedLocations.length > 1 && (
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="location-select"
+                      className="font-medium text-slate-350 text-sm"
+                    >
+                      Localização do Anúncio *
+                    </Label>
+                    <select
+                      id="location-select"
+                      value={selectedLocationId}
+                      onChange={(e) => setSelectedLocationId(e.target.value)}
+                      className="flex h-10 w-full rounded-md border border-slate-800 bg-slate-950 px-3 py-2 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="" disabled>
+                        Selecione a localização...
                       </option>
-                    ))}
-                  </select>
-                )}
-              </div>
+                      {approvedLocations.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.type === 'EXTERNAL'
+                            ? `Atendimento Autônomo (${a.unitInfo ? `${a.unitInfo}, ` : ''}${a.number})`
+                            : `${a.condominium?.name ?? 'Condomínio'} (${a.condominium?.city ?? ''} - ${a.condominium?.state ?? ''})`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )
+              )}
 
               {/* Category selector */}
               <div className="space-y-2">
@@ -716,10 +728,10 @@ function NewAnnouncementComponent() {
                   />
                 </div>
               </div>
-              {!canVerify && selectedCondoId && (
+              {!canVerify && selectedLocationId && (
                 <p className="text-[10px] text-amber-500">
-                  Indisponível: Você não possui uma associação de morador
-                  aprovada para o condomínio selecionado.
+                  Indisponível: O selo de morador verificado está disponível
+                  apenas para moradores de condomínio aprovados.
                 </p>
               )}
             </CardContent>

@@ -47,7 +47,7 @@ export const announcementRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        condominiumId: z.string().min(1),
+        providerLocationId: z.string().min(1),
         title: z.string().min(3).max(100),
         subtitle: z.string().nullable().optional(),
         description: z.string().min(10).max(2000),
@@ -66,7 +66,7 @@ export const announcementRouter = router({
     .mutation(async ({ input, ctx }) => {
       return createAnnouncementUseCase.execute({
         providerId: ctx.session.user.id,
-        condominiumId: input.condominiumId,
+        providerLocationId: input.providerLocationId,
         title: input.title,
         subtitle: input.subtitle,
         description: input.description,
@@ -182,17 +182,28 @@ export const announcementRouter = router({
         });
       }
 
-      const [condo] = await db
-        .select()
-        .from(condominiumSchema)
-        .where(eq(condominiumSchema.id, ann.condominiumId))
-        .limit(1);
+      let condoName = '';
+      let condoCity = '';
+      let condoState = '';
+
+      if (ann.condominiumId) {
+        const [condo] = await db
+          .select()
+          .from(condominiumSchema)
+          .where(eq(condominiumSchema.id, ann.condominiumId))
+          .limit(1);
+        if (condo) {
+          condoName = condo.name;
+          condoCity = condo.city;
+          condoState = condo.state;
+        }
+      }
 
       return {
         ...ann,
-        condoName: condo?.name || '',
-        condoCity: condo?.city || '',
-        condoState: condo?.state || '',
+        condoName,
+        condoCity,
+        condoState,
       };
     }),
 

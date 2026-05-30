@@ -6,7 +6,8 @@ import type {
 export interface CreateAnnouncementRepositoryInput {
   id: string;
   providerId: string;
-  condominiumId: string;
+  condominiumId?: string | null;
+  providerLocationId?: string | null;
   title: string;
   subtitle?: string | null;
   description: string;
@@ -30,7 +31,14 @@ export interface AnnouncementRepository {
   update(
     id: string,
     input: Partial<
-      Omit<Announcement, 'id' | 'providerId' | 'condominiumId' | 'createdAt'>
+      Omit<
+        Announcement,
+        | 'id'
+        | 'providerId'
+        | 'condominiumId'
+        | 'providerLocationId'
+        | 'createdAt'
+      >
     >,
   ): Promise<Announcement>;
 }

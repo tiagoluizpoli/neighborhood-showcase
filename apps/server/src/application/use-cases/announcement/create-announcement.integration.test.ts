@@ -69,7 +69,7 @@ describe('Create Announcement Integration Test', () => {
 
     const res = await useCase.execute({
       providerId: testUserId,
-      condominiumId: testCondoId,
+      providerLocationId: assignId,
       title: 'Delicious Homemade Cakes',
       subtitle: 'Fresh every day',
       description: 'Order delicious cakes baked fresh daily in block B.',
@@ -111,7 +111,7 @@ describe('Create Announcement Integration Test', () => {
     expect(
       useCase.execute({
         providerId: testUserId,
-        condominiumId: testCondoId,
+        providerLocationId: 'non-existing-assign-id-6',
         title: 'Delicious Homemade Cakes',
         description: 'Order delicious cakes baked fresh daily in block B.',
         imageUrl: 'http://localhost:9000/showcase/cake.jpg',
@@ -121,7 +121,7 @@ describe('Create Announcement Integration Test', () => {
         showVerifiedBadge: false,
       }),
     ).rejects.toThrow(
-      'Você precisa ter uma associação aprovada com este condomínio para criar anúncios.',
+      'Você precisa ter uma localização aprovada para criar anúncios.',
     );
   });
 
@@ -140,7 +140,7 @@ describe('Create Announcement Integration Test', () => {
     expect(
       useCase.execute({
         providerId: testUserId,
-        condominiumId: testCondoId,
+        providerLocationId: assignId,
         title: 'Delicious Homemade Cakes',
         description: 'Order delicious cakes baked fresh daily in block B.',
         imageUrl: 'http://localhost:9000/showcase/cake.jpg',
@@ -150,7 +150,7 @@ describe('Create Announcement Integration Test', () => {
         showVerifiedBadge: false,
       }),
     ).rejects.toThrow(
-      'Você precisa ter uma associação aprovada com este condomínio para criar anúncios.',
+      'Você precisa ter uma localização aprovada para criar anúncios.',
     );
 
     await db.delete(assignment);
@@ -170,7 +170,7 @@ describe('Create Announcement Integration Test', () => {
     expect(
       useCase.execute({
         providerId: testUserId,
-        condominiumId: testCondoId,
+        providerLocationId: 'approved-assign-id-6-val',
         title: 'De', // < 3 chars
         description: 'Order delicious cakes baked fresh daily in block B.',
         imageUrl: 'http://localhost:9000/showcase/cake.jpg',

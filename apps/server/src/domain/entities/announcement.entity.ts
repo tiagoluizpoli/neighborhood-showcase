@@ -10,7 +10,8 @@ export type AnnouncementStatus =
 export interface Announcement {
   id: string;
   providerId: string;
-  condominiumId: string;
+  condominiumId: string | null;
+  providerLocationId: string | null;
   title: string;
   subtitle?: string | null;
   description: string;

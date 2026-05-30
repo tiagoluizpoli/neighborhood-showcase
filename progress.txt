@@ -15,7 +15,7 @@
 - [x] **Issue 11**: Moderator Suspension & Admin Blacklist (Completed: 2026-05-29)
 - [x] **Issue 12**: Database Migration for Address & Location Assignment (Completed: 2026-05-29)
 - [x] **Issue 13**: Onboarding Setup Flow Refactoring (Completed: 2026-05-30)
-- [ ] **Issue 14**: Announcement Creation & Editing Refactoring (Pending)
+- [x] **Issue 14**: Announcement Creation & Editing Refactoring (Completed: 2026-05-30)
 - [ ] **Issue 15**: Public Showcase & Proximity Refactor (Pending)
 
 ---
@@ -120,6 +120,13 @@
 - Updated dashboard route guard to query and allow any approved location contexts (`RESIDENT`, `MODERATOR`, or `EXTERNAL`).
 - Added "Prestador Autônomo" choice card in `/dashboard/condo-setup` selection screen leading to an address lookup/submit form.
 - Wrote integration tests verifying the onboarding flow for external providers (CEP validation, address registry/reuse, location auto-approval).
+
+### Issue 14: Announcement Creation & Editing Refactoring
+- Refactored `CreateAnnouncement` use case to validate and save `providerLocationId` and `condominiumId` associated with the location context.
+- Enforced constraint where the verified resident badge is only toggleable for `RESIDENT` location types.
+- Updated front-end `/dashboard/anuncios/novo` to auto-link the location if exactly 1 approved location exists, and show a selector dropdown if multiple approved locations exist.
+- Adapted domain interfaces, repositories, routers, and test cases to align with the new schema.
+- All frontend and backend typechecks, lint rules, and integration tests verified green.
 
 ### Infrastructure Setup
 - Resolved port conflicts by mapping Postgres database service to port `5435`.

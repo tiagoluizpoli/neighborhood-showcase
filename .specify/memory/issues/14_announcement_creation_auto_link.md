@@ -8,10 +8,10 @@ Refactor announcement creation and editing:
 
 ## Acceptance criteria
 
-- [ ] Announcements are saved in database with the correct `providerLocationId`.
-- [ ] Single-location providers are not prompted to choose a location context.
-- [ ] Multi-location providers are prompted to choose, and the selection is sent to the server.
-- [ ] Integration tests for creating/updating announcements with single/multiple locations.
+- [x] Announcements are saved in database with the correct `providerLocationId`.
+- [x] Single-location providers are not prompted to choose a location context.
+- [x] Multi-location providers are prompted to choose, and the selection is sent to the server.
+- [x] Integration tests for creating/updating announcements with single/multiple locations.
 
 ## Blocked by
 

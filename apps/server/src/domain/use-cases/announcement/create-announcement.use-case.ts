@@ -2,7 +2,7 @@ import type { Announcement } from '../../entities/announcement.entity';
 
 export interface CreateAnnouncementInput {
   providerId: string;
-  condominiumId: string;
+  providerLocationId: string;
   title: string;
   subtitle?: string | null;
   description: string;

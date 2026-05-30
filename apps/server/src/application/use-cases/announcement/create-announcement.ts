@@ -25,23 +25,28 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
       contactLinks: input.contactLinks,
     });
 
-    // Enforce that user must have an approved assignment for the condo
-    const assignment = await this.assignmentRepo.findByProviderAndCondo(
-      input.providerId,
-      input.condominiumId,
+    // Enforce that user must have an approved location context
+    const assignment = await this.assignmentRepo.findById(
+      input.providerLocationId,
     );
 
-    if (!assignment || assignment.status !== 'APPROVED') {
+    if (
+      !assignment ||
+      assignment.providerId !== input.providerId ||
+      assignment.status !== 'APPROVED'
+    ) {
       throw new TRPCError({
         code: 'FORBIDDEN',
         message:
-          'Você precisa ter uma associação aprovada com este condomínio para criar anúncios.',
+          'Você precisa ter uma localização aprovada para criar anúncios.',
       });
     }
 
-    // Verified Resident Badge toggle is only allowed if user has an approved assignment
-    // (which is already checked, but let's double check for verified badge toggle)
-    if (input.showVerifiedBadge && assignment.status !== 'APPROVED') {
+    // Verified Resident Badge toggle is only allowed if user has an approved Resident assignment
+    if (
+      input.showVerifiedBadge &&
+      (assignment.status !== 'APPROVED' || assignment.type !== 'RESIDENT')
+    ) {
       throw new TRPCError({
         code: 'BAD_REQUEST',
         message:
@@ -54,7 +59,8 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
     return this.announcementRepo.create({
       id,
       providerId: input.providerId,
-      condominiumId: input.condominiumId,
+      condominiumId: assignment.condominiumId,
+      providerLocationId: assignment.id,
       title: input.title,
       subtitle: input.subtitle || null,
       description: input.description,

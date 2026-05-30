@@ -35,7 +35,9 @@ export const Route = createFileRoute('/dashboard/condo-setup')({
 
 function CondoSetupComponent() {
   const navigate = useNavigate();
-  const [flow, setFlow] = useState<'select' | 'sindico' | 'resident' | 'external'>('select');
+  const [flow, setFlow] = useState<
+    'select' | 'sindico' | 'resident' | 'external'
+  >('select');
 
   // Query my created condo status
   const myCondoQuery = useQuery(trpc.condominium.myCreated.queryOptions());
@@ -167,7 +169,14 @@ function CondoSetupComponent() {
   const handleExternalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!extCep || !extStreet || !extNeighborhood || !extCity || !extState || !extNumber) {
+    if (
+      !extCep ||
+      !extStreet ||
+      !extNeighborhood ||
+      !extCity ||
+      !extState ||
+      !extNumber
+    ) {
       toast.error('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
@@ -541,7 +550,9 @@ function CondoSetupComponent() {
                   Prestador Autônomo
                 </h3>
                 <p className="mt-2 text-slate-400 text-sm">
-                  Trabalha fora de condomínios? Registre o endereço de seu estabelecimento comercial ou residência para divulgar anúncios na região.
+                  Trabalha fora de condomínios? Registre o endereço de seu
+                  estabelecimento comercial ou residência para divulgar anúncios
+                  na região.
                 </p>
               </div>
               <Button

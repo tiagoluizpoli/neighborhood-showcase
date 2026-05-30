@@ -19,7 +19,8 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
       .values({
         id: input.id,
         providerId: input.providerId,
-        condominiumId: input.condominiumId,
+        condominiumId: input.condominiumId || null,
+        providerLocationId: input.providerLocationId || null,
         title: input.title,
         subtitle: input.subtitle || null,
         description: input.description,
@@ -71,7 +72,14 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
   async update(
     id: string,
     input: Partial<
-      Omit<Announcement, 'id' | 'providerId' | 'condominiumId' | 'createdAt'>
+      Omit<
+        Announcement,
+        | 'id'
+        | 'providerId'
+        | 'condominiumId'
+        | 'providerLocationId'
+        | 'createdAt'
+      >
     >,
   ): Promise<Announcement> {
     const [updated] = await db
