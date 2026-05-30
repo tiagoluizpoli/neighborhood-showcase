@@ -9,8 +9,12 @@ A registered and authenticated user of the platform. Since visitors browse publi
 _Avoid_: User, resident, seller, vendor, store
 
 **Assignment**:
-A verified link or status connecting a Provider to a specific Condominium, approved by that Condominium's Moderator.
+A verified link, status, or location record connecting a Provider to a specific Condominium (requiring approval from that Condominium's Moderator) or to a physical Address (for independent/external listings).
 _Avoid_: Role, profile, status
+
+**Address**:
+A shared geographic location defined by a CEP, street, neighborhood, city, and state, which can be linked to multiple Condominiums or Providers.
+_Avoid_: Location, street info
 
 **Moderator**:
 A Provider authorized to verify Assignments and moderate active Announcements for their assigned Condominium (typically the Condominium Manager/Síndico or authorized administration staff).

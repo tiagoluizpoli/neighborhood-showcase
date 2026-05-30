@@ -35,7 +35,7 @@ A mobile-first, geolocation-driven showcase application for local businesses and
 ### Provider Stories
 9. As a provider, I want to register an account with my CPF, so that the system can validate my identity and ensure I am not blacklisted.
 10. As a provider, I want to register a public "Trading Name" (Nome Fantasia) separately from my legal name, so that I can protect my privacy on public listings.
-11. As a provider, I want to be blocked from creating announcements until I link my profile to a condominium (Setup flow), so that my posts are never orphan or out of scope.
+11. As a provider, I want to be blocked from creating announcements until I complete my profile setup flow (either linking my profile to a condominium or registering an external address), so that my posts are never orphan or out of scope.
 12. As a provider, I want to request to join an existing condominium by inputting my unit info and uploading proof of residency, so that the condominium moderator can verify my resident status.
 13. As a provider who represents a condominium (Síndico), I want to request to create a new condominium by uploading my election minutes (Ata), so that I can serve as the moderator once approved.
 14. As a provider, I want to create a service listing with a mandatory cover image cropped to 4:3, so that my post is visual and fits cleanly into the showcase grids.
