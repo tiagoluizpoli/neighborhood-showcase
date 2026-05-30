@@ -122,7 +122,13 @@ function PublicAnnouncementDetailsComponent() {
             </span>
             <span>•</span>
             <span>
-              {ad.condoName} ({ad.condoCity} - {ad.condoState})
+              {ad.condominiumId ? (
+                `${ad.condoName} (${ad.condoCity} - ${ad.condoState})`
+              ) : (
+                <span className="font-semibold text-amber-500">
+                  Prestador Externo ({ad.condoCity} - {ad.condoState})
+                </span>
+              )}
             </span>
           </div>
 

@@ -1,7 +1,9 @@
 import { db } from '@base-fullstack-template/db';
 import {
+  address as addressSchema,
   announcement as announcementSchema,
   condominium as condominiumSchema,
+  providerLocation as providerLocationSchema,
 } from '@base-fullstack-template/db/schema/showcase';
 import { and, eq, ilike, isNull, or, type SQL } from 'drizzle-orm';
 
@@ -16,8 +18,8 @@ export interface ListPublicAnnouncementsInput {
 export interface PublicAnnouncementItem {
   id: string;
   providerId: string;
-  condominiumId: string;
-  condoName: string;
+  condominiumId: string | null;
+  condoName: string | null;
   condoCity: string;
   condoState: string;
   title: string;
@@ -90,16 +92,26 @@ export class ListPublicAnnouncements {
       );
     }
 
-    // 3. Query from Drizzle with join
+    // 3. Query from Drizzle with left joins to retrieve both condominium and external addresses
     const rows = await db
       .select({
         announcement: announcementSchema,
         condominium: condominiumSchema,
+        providerLocation: providerLocationSchema,
+        providerAddress: addressSchema,
       })
       .from(announcementSchema)
-      .innerJoin(
+      .leftJoin(
         condominiumSchema,
         eq(announcementSchema.condominiumId, condominiumSchema.id),
+      )
+      .leftJoin(
+        providerLocationSchema,
+        eq(announcementSchema.providerLocationId, providerLocationSchema.id),
+      )
+      .leftJoin(
+        addressSchema,
+        eq(providerLocationSchema.addressId, addressSchema.id),
       )
       .where(and(...conditions));
 
@@ -113,14 +125,20 @@ export class ListPublicAnnouncements {
         if (!aExact && bExact) return 1;
       }
 
+      // Resolve city and state for comparison
+      const aCity = a.condominium?.city || a.providerAddress?.city || '';
+      const aState = a.condominium?.state || a.providerAddress?.state || '';
+      const bCity = b.condominium?.city || b.providerAddress?.city || '';
+      const bState = b.condominium?.state || b.providerAddress?.state || '';
+
       // Priority 2: City & State match
       if (userCity && userState) {
         const aCityMatch =
-          a.condominium.city.toLowerCase() === userCity.toLowerCase() &&
-          a.condominium.state.toLowerCase() === userState.toLowerCase();
+          aCity.toLowerCase() === userCity.toLowerCase() &&
+          aState.toLowerCase() === userState.toLowerCase();
         const bCityMatch =
-          b.condominium.city.toLowerCase() === userCity.toLowerCase() &&
-          b.condominium.state.toLowerCase() === userState.toLowerCase();
+          bCity.toLowerCase() === userCity.toLowerCase() &&
+          bState.toLowerCase() === userState.toLowerCase();
         if (aCityMatch && !bCityMatch) return -1;
         if (!aCityMatch && bCityMatch) return 1;
       }
@@ -132,24 +150,30 @@ export class ListPublicAnnouncements {
     });
 
     // 5. Map rows to output structure
-    return rows.map((row) => ({
-      id: row.announcement.id,
-      providerId: row.announcement.providerId,
-      condominiumId: row.announcement.condominiumId ?? '',
-      condoName: row.condominium.name,
-      condoCity: row.condominium.city,
-      condoState: row.condominium.state,
-      title: row.announcement.title,
-      subtitle: row.announcement.subtitle,
-      description: row.announcement.description,
-      priceCents: row.announcement.priceCents,
-      imageUrl: row.announcement.imageUrl,
-      category: row.announcement.category,
-      tags: row.announcement.tags,
-      contactLinks: row.announcement.contactLinks,
-      showVerifiedBadge: row.announcement.showVerifiedBadge,
-      status: row.announcement.status,
-      createdAt: row.announcement.createdAt,
-    }));
+    return rows.map((row) => {
+      const condoCity =
+        row.condominium?.city || row.providerAddress?.city || '';
+      const condoState =
+        row.condominium?.state || row.providerAddress?.state || '';
+      return {
+        id: row.announcement.id,
+        providerId: row.announcement.providerId,
+        condominiumId: row.announcement.condominiumId ?? null,
+        condoName: row.condominium?.name ?? null,
+        condoCity,
+        condoState,
+        title: row.announcement.title,
+        subtitle: row.announcement.subtitle,
+        description: row.announcement.description,
+        priceCents: row.announcement.priceCents,
+        imageUrl: row.announcement.imageUrl,
+        category: row.announcement.category,
+        tags: row.announcement.tags,
+        contactLinks: row.announcement.contactLinks,
+        showVerifiedBadge: row.announcement.showVerifiedBadge,
+        status: row.announcement.status,
+        createdAt: row.announcement.createdAt,
+      };
+    });
   }
 }

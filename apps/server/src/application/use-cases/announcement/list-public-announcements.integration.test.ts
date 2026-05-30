@@ -2,11 +2,13 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { db } from '@base-fullstack-template/db';
 import { user } from '@base-fullstack-template/db/schema/auth';
 import {
+  address,
   announcement,
   providerLocation as assignment,
   condominium,
   payment,
 } from '@base-fullstack-template/db/schema/showcase';
+import { eq } from 'drizzle-orm';
 import { ListPublicAnnouncements } from './list-public-announcements';
 
 describe('List Public Announcements Integration Test', () => {
@@ -176,5 +178,69 @@ describe('List Public Announcements Integration Test', () => {
     // Third element should be Condo C (different city Curitiba, PR)
     expect(list[2]).toBeDefined();
     expect(list[2]?.id).toBe('ann-burger-c');
+  });
+
+  test('includes external provider announcements, sorts by proximity, and handles filters correctly', async () => {
+    // 1. Create an address for the external provider
+    const addressId = 'ext-address-id';
+    await db.insert(address).values({
+      id: addressId,
+      cep: '88000003',
+      street: 'Rua das Ostras',
+      neighborhood: 'Coqueiros',
+      city: 'Florianópolis',
+      state: 'SC',
+    });
+
+    // 2. Create provider location (EXTERNAL)
+    const extLocationId = 'ext-location-id';
+    await db.insert(assignment).values({
+      id: extLocationId,
+      providerId,
+      type: 'EXTERNAL',
+      status: 'APPROVED',
+      addressId,
+      number: '42',
+    });
+
+    // 3. Create external announcement
+    await db.insert(announcement).values({
+      id: 'ann-ext-pizza',
+      providerId,
+      providerLocationId: extLocationId,
+      condominiumId: null,
+      title: 'Ext Pizza Delivery',
+      description: 'Best pizza delivery in Florianópolis',
+      imageUrl: 'http://localhost/ext-pizza.jpg',
+      category: 'Food',
+      showVerifiedBadge: false,
+      status: 'ACTIVE',
+      createdAt: new Date(),
+    });
+
+    // 4. Retrieve all announcements (no filters)
+    const listAll = await useCase.execute({});
+    expect(listAll.length).toBe(4);
+    const idsAll = listAll.map((x) => x.id);
+    expect(idsAll).toContain('ann-ext-pizza');
+
+    // 5. Test proximity sorting matching target condo in Florianópolis (condoBId)
+    const listSorted = await useCase.execute({ userCondoId: condoBId });
+    expect(listSorted.length).toBe(4);
+
+    // First should be B (exact condo match)
+    expect(listSorted[0]?.id).toBe('ann-cleaner-b');
+    // Curitiba (different city) should be at the end
+    expect(listSorted[3]?.id).toBe('ann-burger-c');
+
+    // 6. Filter by condo A (condoAId) - should exclude the external pizza ad
+    const listCondoA = await useCase.execute({ condominiumId: condoAId });
+    expect(listCondoA.length).toBe(1);
+    expect(listCondoA[0]?.id).toBe('ann-pizza-a');
+
+    // Cleanup
+    await db.delete(announcement).where(eq(announcement.id, 'ann-ext-pizza'));
+    await db.delete(assignment).where(eq(assignment.id, extLocationId));
+    await db.delete(address).where(eq(address.id, addressId));
   });
 });

@@ -16,7 +16,7 @@
 - [x] **Issue 12**: Database Migration for Address & Location Assignment (Completed: 2026-05-29)
 - [x] **Issue 13**: Onboarding Setup Flow Refactoring (Completed: 2026-05-30)
 - [x] **Issue 14**: Announcement Creation & Editing Refactoring (Completed: 2026-05-30)
-- [ ] **Issue 15**: Public Showcase & Proximity Refactor (Pending)
+- [x] **Issue 15**: Public Showcase & Proximity Refactor (Completed: 2026-05-30)
 
 ---
 
@@ -127,6 +127,14 @@
 - Updated front-end `/dashboard/anuncios/novo` to auto-link the location if exactly 1 approved location exists, and show a selector dropdown if multiple approved locations exist.
 - Adapted domain interfaces, repositories, routers, and test cases to align with the new schema.
 - All frontend and backend typechecks, lint rules, and integration tests verified green.
+
+### Issue 15: Public Showcase & Proximity Refactor
+- Refactored `ListPublicAnnouncements` use case to left-join `condominiumSchema`, `providerLocationSchema`, and `addressSchema`.
+- Implemented contextual extraction of city/state for both condominium-linked and external announcements.
+- Updated public showcase sorting: Priority 1 matching selected/geolocated `userCondoId` exact match, Priority 2 matching user city/state proximity, Priority 3 newest first.
+- Exposed a new "Apenas neste condomínio" switch filter in the vitrine UI, allowing visitors to filter by selected condo and exclude external or other condo listings.
+- Rendered visual styling badges ("Prestador Externo" and "Autônomo") on card previews and detail modals/standalone routes for external providers.
+- Added integration tests verifying showcase retrieval and sorting constraints.
 
 ### Infrastructure Setup
 - Resolved port conflicts by mapping Postgres database service to port `5435`.

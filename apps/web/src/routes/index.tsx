@@ -57,6 +57,7 @@ function PublicVitrineComponent() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('Todos');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [filterByCondo, setFilterByCondo] = useState(false);
 
   // Detail view state
   const [activeAdId, setActiveAdId] = useState<string | null>(null);
@@ -68,7 +69,8 @@ function PublicVitrineComponent() {
 
   const { data: announcements, isLoading: isLoadingAds } = useQuery(
     trpc.announcement.listPublic.queryOptions({
-      condominiumId: undefined, // list from all, sorted by proximity
+      condominiumId:
+        filterByCondo && selectedCondo ? selectedCondo.id : undefined,
       category,
       search,
       verifiedOnly,
@@ -273,6 +275,23 @@ function PublicVitrineComponent() {
               Apenas moradores verificados
             </label>
           </div>
+          {selectedCondo && (
+            <div className="flex items-center gap-2.5 self-start rounded-lg border bg-card/50 px-4 py-2 md:self-auto">
+              <input
+                type="checkbox"
+                id="condo-filter-switch"
+                checked={filterByCondo}
+                onChange={(e) => setFilterByCondo(e.target.checked)}
+                className="h-4.5 w-4.5 cursor-pointer rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <label
+                htmlFor="condo-filter-switch"
+                className="cursor-pointer select-none font-medium text-sm"
+              >
+                Apenas neste condomínio
+              </label>
+            </div>
+          )}
         </div>
 
         {/* Categories Tab Swiper */}
@@ -331,11 +350,15 @@ function PublicVitrineComponent() {
                       <span>Verificado</span>
                     </div>
                   )}
-                  {isLocal && (
+                  {isLocal ? (
                     <div className="absolute top-3 right-3 rounded bg-emerald-600/90 px-2 py-1 font-bold text-[10px] text-white shadow">
                       Aqui no condomínio
                     </div>
-                  )}
+                  ) : !ad.condominiumId ? (
+                    <div className="absolute top-3 right-3 rounded bg-amber-600/90 px-2 py-1 font-bold text-[10px] text-white shadow">
+                      Prestador Externo
+                    </div>
+                  ) : null}
                 </div>
 
                 <CardHeader className="p-4 pb-2">
@@ -344,7 +367,13 @@ function PublicVitrineComponent() {
                       {ad.category}
                     </span>
                     <span>
-                      {ad.condoName} ({ad.condoCity})
+                      {ad.condominiumId ? (
+                        `${ad.condoName} (${ad.condoCity})`
+                      ) : (
+                        <span className="font-semibold text-amber-500">
+                          Autônomo ({ad.condoCity})
+                        </span>
+                      )}
                     </span>
                   </div>
                   <CardTitle className="line-clamp-1 text-base transition-colors group-hover:text-primary">
@@ -503,9 +532,14 @@ function PublicVitrineComponent() {
                       </span>
                       <span>•</span>
                       <span>
-                        {activeAdQuery.data.condoName} (
-                        {activeAdQuery.data.condoCity} -{' '}
-                        {activeAdQuery.data.condoState})
+                        {activeAdQuery.data.condominiumId ? (
+                          `${activeAdQuery.data.condoName} (${activeAdQuery.data.condoCity} - ${activeAdQuery.data.condoState})`
+                        ) : (
+                          <span className="font-semibold text-amber-500">
+                            Prestador Externo ({activeAdQuery.data.condoCity} -{' '}
+                            {activeAdQuery.data.condoState})
+                          </span>
+                        )}
                       </span>
                     </div>
 

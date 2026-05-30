@@ -1,9 +1,11 @@
 import { db } from '@base-fullstack-template/db';
 import { user as userSchema } from '@base-fullstack-template/db/schema/auth';
 import {
+  address as addressSchema,
   announcement as announcementSchema,
   assignment as assignmentSchema,
   condominium as condominiumSchema,
+  providerLocation as providerLocationSchema,
 } from '@base-fullstack-template/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
 import { and, eq, inArray, isNull } from 'drizzle-orm';
@@ -196,6 +198,23 @@ export const announcementRouter = router({
           condoName = condo.name;
           condoCity = condo.city;
           condoState = condo.state;
+        }
+      } else if (ann.providerLocationId) {
+        const [loc] = await db
+          .select({
+            city: addressSchema.city,
+            state: addressSchema.state,
+          })
+          .from(providerLocationSchema)
+          .innerJoin(
+            addressSchema,
+            eq(providerLocationSchema.addressId, addressSchema.id),
+          )
+          .where(eq(providerLocationSchema.id, ann.providerLocationId))
+          .limit(1);
+        if (loc) {
+          condoCity = loc.city;
+          condoState = loc.state;
         }
       }
 

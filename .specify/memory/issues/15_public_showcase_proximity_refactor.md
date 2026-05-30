@@ -8,11 +8,11 @@ Refactor public showcase and discovery logic:
 
 ## Acceptance criteria
 
-- [ ] Public showcase includes both internal and external announcements for the target city.
-- [ ] Proximity sorting uses address details from either the condominium address or the provider address.
-- [ ] Condominium filters exclude external announcements correctly.
-- [ ] Visual styling badge displayed on external announcements.
-- [ ] E2E and integration tests verifying showcase retrieval and sorting constraints.
+- [x] Public showcase includes both internal and external announcements for the target city.
+- [x] Proximity sorting uses address details from either the condominium address or the provider address.
+- [x] Condominium filters exclude external announcements correctly.
+- [x] Visual styling badge displayed on external announcements.
+- [x] E2E and integration tests verifying showcase retrieval and sorting constraints.
 
 ## Blocked by
 
