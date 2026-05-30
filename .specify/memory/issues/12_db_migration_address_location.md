@@ -9,9 +9,9 @@ Refactor the database schema to support decoupled locations and addresses:
 
 ## Acceptance criteria
 
-- [ ] Drizzle migrations generated and applied successfully.
-- [ ] Verification tests for the new database schemas.
-- [ ] Database relationships and foreign keys correctly configured.
+- [x] Drizzle migrations generated and applied successfully.
+- [x] Verification tests for the new database schemas.
+- [x] Database relationships and foreign keys correctly configured.
 
 ## Blocked by
 

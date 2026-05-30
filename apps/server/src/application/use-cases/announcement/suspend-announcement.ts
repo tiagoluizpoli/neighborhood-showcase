@@ -30,6 +30,13 @@ export class SuspendAnnouncement {
       });
     }
 
+    if (!ann.condominiumId) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Anúncio não está associado a um condomínio.',
+      });
+    }
+
     // 2. Verify moderator permission for the announcement's condominium
     const [isMod] = await db
       .select()

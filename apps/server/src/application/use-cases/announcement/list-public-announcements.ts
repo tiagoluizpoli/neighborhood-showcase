@@ -135,7 +135,7 @@ export class ListPublicAnnouncements {
     return rows.map((row) => ({
       id: row.announcement.id,
       providerId: row.announcement.providerId,
-      condominiumId: row.announcement.condominiumId,
+      condominiumId: row.announcement.condominiumId ?? '',
       condoName: row.condominium.name,
       condoCity: row.condominium.city,
       condoState: row.condominium.state,

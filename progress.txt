@@ -13,6 +13,10 @@
 - [x] **Issue 09**: Public Showcase Discovery (Completed: 2026-05-29)
 - [x] **Issue 10**: Provider Dashboard & LGPD (Completed: 2026-05-29)
 - [x] **Issue 11**: Moderator Suspension & Admin Blacklist (Completed: 2026-05-29)
+- [x] **Issue 12**: Database Migration for Address & Location Assignment (Completed: 2026-05-29)
+- [ ] **Issue 13**: Onboarding Setup Flow Refactoring (Pending)
+- [ ] **Issue 14**: Announcement Creation & Editing Refactoring (Pending)
+- [ ] **Issue 15**: Public Showcase & Proximity Refactor (Pending)
 
 ---
 
@@ -101,6 +105,14 @@
 - Expanded global admin page `/admin` with tabs for Pending Condos, a registered Provider directory (with Search and Ban actions), and a Blacklist panel.
 - Implemented CPF blacklist addition and removal capabilities on both the backend and frontend.
 - Added comprehensive integration tests for moderator suspension/reinstatement and global admin banning.
+
+### Issue 12: Database Migration for Address & Location Assignment
+- Created the new `address` table mapping base street properties.
+- Introduced the `provider_location` table mapping resident, moderator, and external provider contexts.
+- Updated `condominium` and `announcement` tables, linking them to address and provider location.
+- Restored original `assignment` table schema definitions in parallel to allow non-interactive Drizzle-kit operations.
+- Successfully executed `db:push` and generated the catch-up SQL migration schema.
+- Added validation checks in moderation endpoints (`suspend` and `reinstate`) to assert non-null `condominiumId`.
 
 ### Infrastructure Setup
 - Resolved port conflicts by mapping Postgres database service to port `5435`.

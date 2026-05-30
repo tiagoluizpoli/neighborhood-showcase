@@ -9,12 +9,26 @@ import {
 } from 'drizzle-orm/pg-core';
 import { user } from './auth';
 
+export const address = pgTable('address', {
+  id: text('id').primaryKey(),
+  cep: text('cep').notNull(),
+  street: text('street').notNull(),
+  neighborhood: text('neighborhood').notNull(),
+  city: text('city').notNull(),
+  state: text('state').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 export const condominium = pgTable('condominium', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   city: text('city').notNull(),
   state: text('state').notNull(),
   cep: text('cep').notNull(),
+  addressId: text('address_id').references(() => address.id, {
+    onDelete: 'set null',
+  }),
+  number: text('number'),
   contactInfo: jsonb('contact_info')
     .$type<{
       website?: string;
@@ -34,6 +48,33 @@ export const condominium = pgTable('condominium', {
   proofUrl: text('proof_url'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
+});
+
+export const providerLocation = pgTable('provider_location', {
+  id: text('id').primaryKey(),
+  providerId: text('provider_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  type: text('type', { enum: ['RESIDENT', 'MODERATOR', 'EXTERNAL'] }).notNull(),
+  status: text('status', {
+    enum: ['PENDING', 'APPROVED', 'REJECTED'],
+  })
+    .default('PENDING')
+    .notNull(),
+  condominiumId: text('condominium_id').references(() => condominium.id, {
+    onDelete: 'cascade',
+  }),
+  addressId: text('address_id').references(() => address.id, {
+    onDelete: 'cascade',
+  }),
+  number: text('number'),
+  unitInfo: text('complement'),
+  proofOfResidency: text('proof_file'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at')
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
 export const assignment = pgTable('assignment', {
@@ -59,13 +100,41 @@ export const assignment = pgTable('assignment', {
     .notNull(),
 });
 
+export const addressRelations = relations(address, ({ many }) => ({
+  condominiums: many(condominium),
+  providerLocations: many(providerLocation),
+}));
+
 export const condominiumRelations = relations(condominium, ({ one, many }) => ({
   creator: one(user, {
     fields: [condominium.createdBy],
     references: [user.id],
   }),
+  address: one(address, {
+    fields: [condominium.addressId],
+    references: [address.id],
+  }),
+  providerLocations: many(providerLocation),
   assignments: many(assignment),
 }));
+
+export const providerLocationRelations = relations(
+  providerLocation,
+  ({ one }) => ({
+    provider: one(user, {
+      fields: [providerLocation.providerId],
+      references: [user.id],
+    }),
+    condominium: one(condominium, {
+      fields: [providerLocation.condominiumId],
+      references: [condominium.id],
+    }),
+    address: one(address, {
+      fields: [providerLocation.addressId],
+      references: [address.id],
+    }),
+  }),
+);
 
 export const assignmentRelations = relations(assignment, ({ one }) => ({
   provider: one(user, {
@@ -83,9 +152,13 @@ export const announcement = pgTable('announcement', {
   providerId: text('provider_id')
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
-  condominiumId: text('condominium_id')
-    .notNull()
-    .references(() => condominium.id, { onDelete: 'cascade' }),
+  providerLocationId: text('provider_location_id').references(
+    () => providerLocation.id,
+    { onDelete: 'cascade' },
+  ),
+  condominiumId: text('condominium_id').references(() => condominium.id, {
+    onDelete: 'cascade',
+  }),
   title: text('title').notNull(),
   subtitle: text('subtitle'),
   description: text('description').notNull(),
@@ -121,6 +194,10 @@ export const announcementRelations = relations(
     provider: one(user, {
       fields: [announcement.providerId],
       references: [user.id],
+    }),
+    providerLocation: one(providerLocation, {
+      fields: [announcement.providerLocationId],
+      references: [providerLocation.id],
     }),
     condominium: one(condominium, {
       fields: [announcement.condominiumId],
