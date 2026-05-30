@@ -49,6 +49,14 @@ bun run dev
 Open [http://localhost:5173](http://localhost:5173) in your browser to see the web application.
 The API is running at [http://localhost:3000](http://localhost:3000).
 
+## Promover para Administrador (SYSTEM_MANAGER)
+
+Para promover um usuário cadastrado para o papel de administrador global (`SYSTEM_MANAGER`), execute o seguinte comando a partir da raiz do projeto informando o e-mail do usuário:
+
+```bash
+bun run packages/db/src/promote-user.ts admin@example.com
+```
+
 ## UI Customization
 
 React web apps in this stack share shadcn/ui primitives through `packages/ui`.
