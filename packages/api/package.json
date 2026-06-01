@@ -1,5 +1,5 @@
 {
-  "name": "@base-fullstack-template/api",
+  "name": "@neighborhood-showcase/api",
   "type": "module",
   "exports": {
     ".": {
@@ -11,9 +11,9 @@
   },
   "scripts": {},
   "dependencies": {
-    "@base-fullstack-template/auth": "workspace:*",
-    "@base-fullstack-template/db": "workspace:*",
-    "@base-fullstack-template/env": "workspace:*",
+    "@neighborhood-showcase/auth": "workspace:*",
+    "@neighborhood-showcase/db": "workspace:*",
+    "@neighborhood-showcase/env": "workspace:*",
     "@trpc/client": "catalog:",
     "@trpc/server": "catalog:",
     "@types/pg": "catalog:",
@@ -23,7 +23,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@base-fullstack-template/config": "workspace:*",
+    "@neighborhood-showcase/config": "workspace:*",
     "server": "workspace:*",
     "typescript": "^5"
   }

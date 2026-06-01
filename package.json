@@ -1,5 +1,5 @@
 {
-  "name": "base-fullstack-template",
+  "name": "neighborhood-showcase",
   "private": true,
   "workspaces": {
     "packages": [
@@ -35,26 +35,26 @@
     "build:desktop": "turbo -F desktop build:stable",
     "build:desktop:canary": "turbo -F desktop build:canary",
     "dev:server": "turbo -F server dev",
-    "db:push": "turbo -F @base-fullstack-template/db db:push",
-    "db:studio": "turbo -F @base-fullstack-template/db db:studio",
-    "db:generate": "turbo -F @base-fullstack-template/db db:generate",
-    "db:migrate": "turbo -F @base-fullstack-template/db db:migrate",
-    "db:start": "turbo -F @base-fullstack-template/db db:start",
-    "db:watch": "turbo -F @base-fullstack-template/db db:watch",
-    "db:stop": "turbo -F @base-fullstack-template/db db:stop",
-    "db:down": "turbo -F @base-fullstack-template/db db:down",
+    "db:push": "turbo -F @neighborhood-showcase/db db:push",
+    "db:studio": "turbo -F @neighborhood-showcase/db db:studio",
+    "db:generate": "turbo -F @neighborhood-showcase/db db:generate",
+    "db:migrate": "turbo -F @neighborhood-showcase/db db:migrate",
+    "db:start": "turbo -F @neighborhood-showcase/db db:start",
+    "db:watch": "turbo -F @neighborhood-showcase/db db:watch",
+    "db:stop": "turbo -F @neighborhood-showcase/db db:stop",
+    "db:down": "turbo -F @neighborhood-showcase/db db:down",
     "db:promote-user": "bun run packages/db/src/promote-user.ts",
     "check": "biome check --write .",
     "commit": "cz",
     "test": "bun test"
   },
   "dependencies": {
-    "@base-fullstack-template/env": "workspace:*",
+    "@neighborhood-showcase/env": "workspace:*",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@base-fullstack-template/config": "workspace:*",
+    "@neighborhood-showcase/config": "workspace:*",
     "@biomejs/biome": "^2.2.0",
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",

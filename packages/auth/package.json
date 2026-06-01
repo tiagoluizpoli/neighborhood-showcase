@@ -1,5 +1,5 @@
 {
-  "name": "@base-fullstack-template/auth",
+  "name": "@neighborhood-showcase/auth",
   "type": "module",
   "exports": {
     ".": {
@@ -11,15 +11,15 @@
   },
   "scripts": {},
   "dependencies": {
-    "@base-fullstack-template/db": "workspace:*",
-    "@base-fullstack-template/env": "workspace:*",
+    "@neighborhood-showcase/db": "workspace:*",
+    "@neighborhood-showcase/env": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@base-fullstack-template/config": "workspace:*",
+    "@neighborhood-showcase/config": "workspace:*",
     "typescript": "^5"
   }
 }
