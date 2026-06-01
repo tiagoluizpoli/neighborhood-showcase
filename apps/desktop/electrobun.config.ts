@@ -4,8 +4,8 @@ const webBuildDir = '../web/dist';
 
 export default {
   app: {
-    name: 'base-fullstack-template',
-    identifier: 'dev.bettertstack.base-fullstack-template.desktop',
+    name: 'neighborhood-showcase',
+    identifier: 'dev.neighborhood-showcase.desktop',
     version: '0.0.1',
   },
   runtime: {

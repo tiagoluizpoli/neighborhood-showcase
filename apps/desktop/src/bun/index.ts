@@ -24,7 +24,7 @@ async function getMainViewUrl(): Promise<string> {
 const url = await getMainViewUrl();
 
 new BrowserWindow({
-  title: 'base-fullstack-template',
+  title: 'Neighborhood Showcase',
   url,
   frame: {
     width: 1280,
