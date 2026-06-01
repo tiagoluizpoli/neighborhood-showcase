@@ -1,12 +1,12 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
-import { db } from '@base-fullstack-template/db';
-import { user } from '@base-fullstack-template/db/schema/auth';
+import { db } from '@neighborhood-showcase/db';
+import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   analyticsEvent,
   announcement,
   providerLocation as assignment,
   condominium,
-} from '@base-fullstack-template/db/schema/showcase';
+} from '@neighborhood-showcase/db/schema/showcase';
 import { GetProviderDashboardData } from './get-provider-dashboard-data';
 
 describe('Get Provider Dashboard Data Integration Test', () => {

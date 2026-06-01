@@ -1,10 +1,10 @@
-import { db } from '@base-fullstack-template/db';
+import { db } from '@neighborhood-showcase/db';
 import {
   address as addressSchema,
   announcement as announcementSchema,
   condominium as condominiumSchema,
   providerLocation as providerLocationSchema,
-} from '@base-fullstack-template/db/schema/showcase';
+} from '@neighborhood-showcase/db/schema/showcase';
 import { and, eq, ilike, isNull, or, type SQL } from 'drizzle-orm';
 
 export interface ListPublicAnnouncementsInput {

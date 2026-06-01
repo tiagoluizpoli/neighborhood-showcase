@@ -1,9 +1,9 @@
-import { db } from '@base-fullstack-template/db';
+import { db } from '@neighborhood-showcase/db';
 import {
   analyticsEvent as analyticsEventSchema,
   announcement as announcementSchema,
   condominium as condominiumSchema,
-} from '@base-fullstack-template/db/schema/showcase';
+} from '@neighborhood-showcase/db/schema/showcase';
 import { and, eq, inArray, isNull } from 'drizzle-orm';
 
 export interface GetProviderDashboardDataInput {

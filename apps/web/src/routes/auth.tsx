@@ -1,5 +1,5 @@
-import { Card, CardContent } from '@base-fullstack-template/ui/components/card';
-import { cn } from '@base-fullstack-template/ui/lib/utils';
+import { Card, CardContent } from '@neighborhood-showcase/ui/components/card';
+import { cn } from '@neighborhood-showcase/ui/lib/utils';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import SignInForm from '@/components/sign-in-form';

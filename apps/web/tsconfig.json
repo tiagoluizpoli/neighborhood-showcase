@@ -13,7 +13,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@base-fullstack-template/ui/*": ["../../packages/ui/src/*"]
+      "@neighborhood-showcase/ui/*": ["../../packages/ui/src/*"]
     }
   },
   "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]

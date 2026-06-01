@@ -1,12 +1,12 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { db } from '@base-fullstack-template/db';
-import { user } from '@base-fullstack-template/db/schema/auth';
+import { db } from '@neighborhood-showcase/db';
+import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement,
   providerLocation as assignment,
   condominium,
   payment,
-} from '@base-fullstack-template/db/schema/showcase';
+} from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 import { DrizzleAnnouncementRepository } from '../../../infrastructure/db/announcement-repository';
 import { DrizzlePaymentRepository } from '../../../infrastructure/db/payment-repository';

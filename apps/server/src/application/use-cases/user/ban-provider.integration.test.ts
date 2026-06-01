@@ -1,16 +1,16 @@
 import crypto from 'node:crypto';
 import { beforeAll, describe, expect, test } from 'bun:test';
-import { db } from '@base-fullstack-template/db';
+import { db } from '@neighborhood-showcase/db';
 import {
   account,
   blacklistedIdentifier,
   session,
   user,
-} from '@base-fullstack-template/db/schema/auth';
+} from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement,
   condominium,
-} from '@base-fullstack-template/db/schema/showcase';
+} from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 
 describe('Ban Provider Integration Test', () => {

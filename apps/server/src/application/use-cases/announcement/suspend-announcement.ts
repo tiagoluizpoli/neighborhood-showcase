@@ -1,8 +1,8 @@
-import { db } from '@base-fullstack-template/db';
+import { db } from '@neighborhood-showcase/db';
 import {
   announcement as announcementSchema,
   providerLocation as assignmentSchema,
-} from '@base-fullstack-template/db/schema/showcase';
+} from '@neighborhood-showcase/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
 import { and, eq } from 'drizzle-orm';
 

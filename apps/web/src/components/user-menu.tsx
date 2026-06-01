@@ -1,4 +1,4 @@
-import { Button } from '@base-fullstack-template/ui/components/button';
+import { Button } from '@neighborhood-showcase/ui/components/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,8 +7,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@base-fullstack-template/ui/components/dropdown-menu';
-import { Skeleton } from '@base-fullstack-template/ui/components/skeleton';
+} from '@neighborhood-showcase/ui/components/dropdown-menu';
+import { Skeleton } from '@neighborhood-showcase/ui/components/skeleton';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { authClient } from '@/lib/auth-client';
 

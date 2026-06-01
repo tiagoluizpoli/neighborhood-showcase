@@ -1,4 +1,4 @@
-import { env } from '@base-fullstack-template/env/server';
+import { env } from '@neighborhood-showcase/env/server';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from './schema';
 

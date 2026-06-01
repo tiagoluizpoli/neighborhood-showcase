@@ -1,10 +1,10 @@
-import { Button } from '@base-fullstack-template/ui/components/button';
+import { Button } from '@neighborhood-showcase/ui/components/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@base-fullstack-template/ui/components/dropdown-menu';
+} from '@neighborhood-showcase/ui/components/dropdown-menu';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
 

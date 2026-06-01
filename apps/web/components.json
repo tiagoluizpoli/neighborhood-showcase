@@ -13,8 +13,8 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@/components",
-    "utils": "@base-fullstack-template/ui/lib/utils",
-    "ui": "@base-fullstack-template/ui/components",
+    "utils": "@neighborhood-showcase/ui/lib/utils",
+    "ui": "@neighborhood-showcase/ui/components",
     "lib": "@/lib",
     "hooks": "@/hooks"
   },

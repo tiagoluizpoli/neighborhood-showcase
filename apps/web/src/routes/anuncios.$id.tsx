@@ -1,5 +1,5 @@
-import { Button } from '@base-fullstack-template/ui/components/button';
-import { Card, CardContent } from '@base-fullstack-template/ui/components/card';
+import { Button } from '@neighborhood-showcase/ui/components/button';
+import { Card, CardContent } from '@neighborhood-showcase/ui/components/card';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import {

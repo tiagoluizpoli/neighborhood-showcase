@@ -1,10 +1,10 @@
-import { db } from '@base-fullstack-template/db';
+import { db } from '@neighborhood-showcase/db';
 import {
   account as accountSchema,
   session as sessionSchema,
   user as userSchema,
-} from '@base-fullstack-template/db/schema/auth';
-import { announcement as announcementSchema } from '@base-fullstack-template/db/schema/showcase';
+} from '@neighborhood-showcase/db/schema/auth';
+import { announcement as announcementSchema } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 
 export interface DeleteUserAccountInput {

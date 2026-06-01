@@ -1,5 +1,5 @@
-import { db } from '@base-fullstack-template/db';
-import { todo as todoSchema } from '@base-fullstack-template/db/schema/todo';
+import { db } from '@neighborhood-showcase/db';
+import { todo as todoSchema } from '@neighborhood-showcase/db/schema/todo';
 import { eq } from 'drizzle-orm';
 import type { Todo } from '../../domain/entities/todo.entity';
 import type {

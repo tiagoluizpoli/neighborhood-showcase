@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
-import { db } from '@base-fullstack-template/db';
-import { address as addressSchema } from '@base-fullstack-template/db/schema/showcase';
+import { db } from '@neighborhood-showcase/db';
+import { address as addressSchema } from '@neighborhood-showcase/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import type { Assignment } from '../../../domain/entities/assignment.entity';

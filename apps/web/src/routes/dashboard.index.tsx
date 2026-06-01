@@ -1,4 +1,4 @@
-import { env } from '@base-fullstack-template/env/web';
+import { env } from '@neighborhood-showcase/env/web';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import {

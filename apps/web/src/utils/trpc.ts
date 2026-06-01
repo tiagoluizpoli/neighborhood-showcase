@@ -1,5 +1,5 @@
-import type { AppRouter } from '@base-fullstack-template/api';
-import { env } from '@base-fullstack-template/env/web';
+import type { AppRouter } from '@neighborhood-showcase/api';
+import { env } from '@neighborhood-showcase/env/web';
 import { QueryCache, QueryClient } from '@tanstack/react-query';
 import { createTRPCClient, httpBatchLink } from '@trpc/client';
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query';

@@ -1,11 +1,11 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { db } from '@base-fullstack-template/db';
-import { user as userSchema } from '@base-fullstack-template/db/schema/auth';
+import { db } from '@neighborhood-showcase/db';
+import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement as announcementSchema,
   payment as paymentSchema,
-} from '@base-fullstack-template/db/schema/showcase';
-import { env } from '@base-fullstack-template/env/server';
+} from '@neighborhood-showcase/db/schema/showcase';
+import { env } from '@neighborhood-showcase/env/server';
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { Resend } from 'resend';

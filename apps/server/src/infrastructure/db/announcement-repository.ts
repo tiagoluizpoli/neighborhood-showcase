@@ -1,5 +1,5 @@
-import { db } from '@base-fullstack-template/db';
-import { announcement as announcementSchema } from '@base-fullstack-template/db/schema/showcase';
+import { db } from '@neighborhood-showcase/db';
+import { announcement as announcementSchema } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 import type {
   Announcement,

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { db } from '@base-fullstack-template/db';
-import { analyticsEvent } from '@base-fullstack-template/db/schema/showcase';
+import { db } from '@neighborhood-showcase/db';
+import { analyticsEvent } from '@neighborhood-showcase/db/schema/showcase';
 
 export interface TrackAnalyticsEventInput {
   announcementId: string;

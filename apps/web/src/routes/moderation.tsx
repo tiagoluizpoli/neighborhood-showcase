@@ -1,13 +1,13 @@
-import { Button } from '@base-fullstack-template/ui/components/button';
+import { Button } from '@neighborhood-showcase/ui/components/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@base-fullstack-template/ui/components/card';
-import { Input } from '@base-fullstack-template/ui/components/input';
-import { Label } from '@base-fullstack-template/ui/components/label';
+} from '@neighborhood-showcase/ui/components/card';
+import { Input } from '@neighborhood-showcase/ui/components/input';
+import { Label } from '@neighborhood-showcase/ui/components/label';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import {

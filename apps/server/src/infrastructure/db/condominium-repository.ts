@@ -1,5 +1,5 @@
-import { db } from '@base-fullstack-template/db';
-import { condominium as condoSchema } from '@base-fullstack-template/db/schema/showcase';
+import { db } from '@neighborhood-showcase/db';
+import { condominium as condoSchema } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 import type { Condominium } from '../../domain/entities/condominium.entity';
 import type {

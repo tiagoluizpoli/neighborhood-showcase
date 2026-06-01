@@ -1,4 +1,4 @@
-import { env } from '@base-fullstack-template/env/server';
+import { env } from '@neighborhood-showcase/env/server';
 
 export interface CreateTransparentCheckoutInput {
   announcementId: string;

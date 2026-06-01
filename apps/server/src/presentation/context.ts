@@ -1,4 +1,4 @@
-import { auth } from '@base-fullstack-template/auth';
+import { auth } from '@neighborhood-showcase/auth';
 import type { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify';
 import { fromNodeHeaders } from 'better-auth/node';
 

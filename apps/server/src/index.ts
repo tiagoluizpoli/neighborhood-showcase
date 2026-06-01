@@ -1,7 +1,7 @@
-import { auth } from '@base-fullstack-template/auth';
-import { env } from '@base-fullstack-template/env/server';
 import fastifyCors from '@fastify/cors';
 import fastifyMultipart from '@fastify/multipart';
+import { auth } from '@neighborhood-showcase/auth';
+import { env } from '@neighborhood-showcase/env/server';
 import {
   type FastifyTRPCPluginOptions,
   fastifyTRPCPlugin,

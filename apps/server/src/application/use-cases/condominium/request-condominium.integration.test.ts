@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { db } from '@base-fullstack-template/db';
-import { user } from '@base-fullstack-template/db/schema/auth';
-import { condominium } from '@base-fullstack-template/db/schema/showcase';
+import { db } from '@neighborhood-showcase/db';
+import { user } from '@neighborhood-showcase/db/schema/auth';
+import { condominium } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 import { DrizzleCondominiumRepository } from '../../../infrastructure/db/condominium-repository';
 import { storageClient } from '../../../infrastructure/storage/storage.client';

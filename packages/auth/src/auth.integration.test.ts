@@ -1,9 +1,9 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { db } from '@base-fullstack-template/db';
+import { db } from '@neighborhood-showcase/db';
 import {
   blacklistedIdentifier,
   user,
-} from '@base-fullstack-template/db/schema/auth';
+} from '@neighborhood-showcase/db/schema/auth';
 import { eq } from 'drizzle-orm';
 import { auth } from './index';
 import { hashCPF } from './utils/cpf';

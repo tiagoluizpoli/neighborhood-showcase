@@ -1,4 +1,4 @@
-import { auth } from '@base-fullstack-template/auth';
+import { auth } from '@neighborhood-showcase/auth';
 import type { FastifyInstance } from 'fastify';
 import { resizeTo43Webp } from '../../infrastructure/storage/image.utils';
 import { storageClient } from '../../infrastructure/storage/storage.client';

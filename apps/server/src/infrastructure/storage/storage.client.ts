@@ -6,7 +6,7 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { env } from '@base-fullstack-template/env/server';
+import { env } from '@neighborhood-showcase/env/server';
 
 export class StorageClient {
   private s3: S3Client;

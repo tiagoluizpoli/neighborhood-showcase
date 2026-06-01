@@ -1,12 +1,12 @@
-import { db } from '@base-fullstack-template/db';
-import { user as userSchema } from '@base-fullstack-template/db/schema/auth';
+import { db } from '@neighborhood-showcase/db';
+import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
 import {
   address as addressSchema,
   announcement as announcementSchema,
   assignment as assignmentSchema,
   condominium as condominiumSchema,
   providerLocation as providerLocationSchema,
-} from '@base-fullstack-template/db/schema/showcase';
+} from '@neighborhood-showcase/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
 import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { z } from 'zod';

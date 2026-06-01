@@ -1,7 +1,7 @@
 'use client';
 
-import { cn } from '@base-fullstack-template/ui/lib/utils';
 import { Checkbox as CheckboxPrimitive } from '@base-ui/react/checkbox';
+import { cn } from '@neighborhood-showcase/ui/lib/utils';
 import { CheckIcon } from 'lucide-react';
 
 function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {

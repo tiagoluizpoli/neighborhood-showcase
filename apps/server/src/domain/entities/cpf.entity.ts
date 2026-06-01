@@ -1,1 +1,1 @@
-export { hashCPF, isValidCPF } from '@base-fullstack-template/auth/utils/cpf';
+export { hashCPF, isValidCPF } from '@neighborhood-showcase/auth/utils/cpf';

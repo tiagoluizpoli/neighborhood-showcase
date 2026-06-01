@@ -1,12 +1,12 @@
 import crypto from 'node:crypto';
-import { db } from '@base-fullstack-template/db';
+import { db } from '@neighborhood-showcase/db';
 import {
   account as accountSchema,
   blacklistedIdentifier as blacklistSchema,
   session as sessionSchema,
   user as userSchema,
-} from '@base-fullstack-template/db/schema/auth';
-import { announcement as announcementSchema } from '@base-fullstack-template/db/schema/showcase';
+} from '@neighborhood-showcase/db/schema/auth';
+import { announcement as announcementSchema } from '@neighborhood-showcase/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
 import { and, eq, ilike, or } from 'drizzle-orm';
 import { z } from 'zod';

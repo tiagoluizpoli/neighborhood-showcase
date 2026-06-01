@@ -1,5 +1,5 @@
-import { db } from '@base-fullstack-template/db';
-import { user } from '@base-fullstack-template/db/schema/auth';
+import { db } from '@neighborhood-showcase/db';
+import { user } from '@neighborhood-showcase/db/schema/auth';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import type { Condominium } from '../../../domain/entities/condominium.entity';

@@ -1,5 +1,5 @@
-import { db } from '@base-fullstack-template/db';
-import { providerLocation as assignSchema } from '@base-fullstack-template/db/schema/showcase';
+import { db } from '@neighborhood-showcase/db';
+import { providerLocation as assignSchema } from '@neighborhood-showcase/db/schema/showcase';
 import { and, eq } from 'drizzle-orm';
 import type {
   Assignment,

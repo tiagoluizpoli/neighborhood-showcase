@@ -1,5 +1,5 @@
-import { db } from '@base-fullstack-template/db';
-import { payment as paymentSchema } from '@base-fullstack-template/db/schema/showcase';
+import { db } from '@neighborhood-showcase/db';
+import { payment as paymentSchema } from '@neighborhood-showcase/db/schema/showcase';
 import { desc, eq } from 'drizzle-orm';
 import type {
   Payment,

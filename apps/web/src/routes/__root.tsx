@@ -1,4 +1,4 @@
-import { Toaster } from '@base-fullstack-template/ui/components/sonner';
+import { Toaster } from '@neighborhood-showcase/ui/components/sonner';
 import type { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import {

@@ -1,12 +1,12 @@
-import { Button } from '@base-fullstack-template/ui/components/button';
+import { Button } from '@neighborhood-showcase/ui/components/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@base-fullstack-template/ui/components/card';
-import { Input } from '@base-fullstack-template/ui/components/input';
+} from '@neighborhood-showcase/ui/components/card';
+import { Input } from '@neighborhood-showcase/ui/components/input';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import {

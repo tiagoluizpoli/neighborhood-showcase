@@ -1,6 +1,6 @@
-import { createDb } from '@base-fullstack-template/db';
-import * as schema from '@base-fullstack-template/db/schema/auth';
-import { env } from '@base-fullstack-template/env/server';
+import { createDb } from '@neighborhood-showcase/db';
+import * as schema from '@neighborhood-showcase/db/schema/auth';
+import { env } from '@neighborhood-showcase/env/server';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { APIError, createAuthMiddleware } from 'better-auth/api';
