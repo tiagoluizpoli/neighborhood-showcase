@@ -1,6 +1,6 @@
 # Implementation Plan - Neighborhood Showcase (Guia Local de Condomínio)
 
-This implementation plan details the development roadmap, system architecture, database schema, and verification plan for the Neighborhood Showcase application, built on top of the `base-fullstack-template`.
+This implementation plan details the development roadmap, system architecture, database schema, and verification plan for the Neighborhood Showcase application, built on top of the `neighborhood-showcase`.
 
 ---
 

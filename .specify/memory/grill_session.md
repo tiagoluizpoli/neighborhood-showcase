@@ -109,7 +109,7 @@ This log tracks all questions, answers, and design choices resolved during the p
 
 ### Question 16: Core Technology Stack
 *   **Decided**:
-    *   **Template Source**: We will use the `base-fullstack-template` (Better-T-Stack) as our baseline.
+    *   **Template Source**: We will use the `neighborhood-showcase` (Better-T-Stack) as our baseline.
     *   **Frontend**: React + TanStack Router (fully type-safe, file-based routing) + TailwindCSS v4 + next-themes + packages/ui (shadcn/ui primitives).
     *   **Backend & API**: Fastify + tRPC (`@trpc/server`, `@trpc/client`).
     *   **Database**: PostgreSQL + Drizzle ORM.

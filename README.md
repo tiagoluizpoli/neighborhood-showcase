@@ -1,4 +1,4 @@
-# base-fullstack-template
+# Neighborhood Showcase
 
 This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines React, TanStack Router, Fastify, TRPC, and more.
 
@@ -76,7 +76,7 @@ npx shadcn@latest add accordion dialog popover sheet table -c packages/ui
 Import shared components like this:
 
 ```tsx
-import { Button } from "@base-fullstack-template/ui/components/button";
+import { Button } from "@neighborhood-showcase/ui/components/button";
 ```
 
 ### Add app-specific blocks
@@ -90,7 +90,7 @@ If you want to add app-specific blocks instead of shared primitives, run the sha
 ## Project Structure
 
 ```
-base-fullstack-template/
+neighborhood-showcase/
 ├── apps/
 │   ├── web/         # Frontend application (React + TanStack Router)
 │   └── server/      # Backend API (Fastify, TRPC)
