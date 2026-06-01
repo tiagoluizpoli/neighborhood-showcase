@@ -46,7 +46,7 @@
     "db:promote-user": "bun run packages/db/src/promote-user.ts",
     "check": "biome check --write .",
     "commit": "cz",
-    "test": "bun test"
+    "test": "NODE_ENV=test bun run packages/db/src/setup-test-db.ts && bun test"
   },
   "dependencies": {
     "@neighborhood-showcase/env": "workspace:*",
