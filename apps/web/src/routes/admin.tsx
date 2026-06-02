@@ -34,13 +34,16 @@ export const Route = createFileRoute('/admin')({
     const session = await authClient.getSession();
     if (!session.data) {
       throw redirect({
-        to: '/auth',
+        to: '/',
       });
     }
 
     if (session.data.user.role !== 'SYSTEM_MANAGER') {
       throw redirect({
         to: '/dashboard',
+        search: {
+          message: 'Página não encontrada',
+        },
       });
     }
 

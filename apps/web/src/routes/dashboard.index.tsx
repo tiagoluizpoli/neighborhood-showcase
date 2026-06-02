@@ -16,12 +16,18 @@ import {
   UserX,
   X,
 } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { z } from 'zod';
 import { authClient } from '@/lib/auth-client';
 import { trpc } from '@/utils/trpc';
 
+const dashboardSearchSchema = z.object({
+  message: z.string().optional(),
+});
+
 export const Route = createFileRoute('/dashboard/')({
+  validateSearch: (search) => dashboardSearchSchema.parse(search),
   component: DashboardIndexComponent,
 });
 
@@ -60,8 +66,20 @@ interface DashboardAnnouncementItem {
 
 function DashboardIndexComponent() {
   const { session } = Route.useRouteContext();
+  const { message } = Route.useSearch();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (message) {
+      toast.error(message);
+      navigate({
+        to: '/dashboard',
+        replace: true,
+      });
+    }
+  }, [message, navigate]);
+
   const [activeTab, setActiveTab] = useState<
     'active' | 'draft' | 'expired' | 'suspended'
   >('active');

@@ -33,7 +33,7 @@ export const Route = createFileRoute('/moderation')({
     const session = await authClient.getSession();
     if (!session.data) {
       throw redirect({
-        to: '/auth',
+        to: '/',
       });
     }
 
@@ -49,6 +49,9 @@ export const Route = createFileRoute('/moderation')({
     if (moderatorAssignments.length === 0) {
       throw redirect({
         to: '/dashboard',
+        search: {
+          message: 'Página não encontrada',
+        },
       });
     }
 

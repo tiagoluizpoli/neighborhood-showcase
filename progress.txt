@@ -21,7 +21,7 @@
 - [x] **Issue 17**: Draft Announcement Publish Button (Completed: 2026-06-01)
 - [x] **Issue 18**: Purge Legacy Todo Code (Completed: 2026-06-01)
 - [x] **Issue 19**: Styling Simplification (Completed: 2026-06-01)
-- [ ] **Issue 20**: Permission Navigation & Localization
+- [x] **Issue 20**: Permission Navigation & Localization (Completed: 2026-06-02)
 
 ---
 
@@ -170,4 +170,14 @@
 - Updated legacy project titles and descriptions to `"Neighborhood Showcase"` in `apps/web/index.html`, `apps/web/src/routes/__root.tsx`, `apps/web/vite.config.ts`, `apps/server/tsdown.config.ts`, and `packages/db/docker-compose.yml`.
 - Replaced dark-only slate classes with standard theme-aware tailwind styles (`bg-card`, `bg-background`, `border`, `text-foreground`, `text-muted-foreground`) across the dashboard layouts (`dashboard.tsx`, `dashboard.index.tsx`, `dashboard.condo-setup.tsx`, `dashboard.anuncios.novo.tsx`, `dashboard.anuncios.$id.pagamento.tsx`, `auth.tsx`, `sign-in-form.tsx`, `sign-up-form.tsx`).
 - Removed custom backgrounds, hover animations (`hover:-translate-y-1`), and background gradients, returning to default shadcn card styling rules.
+
+### Issue 20: Permission Navigation & Localization
+- Localized all header navigation labels in `header.tsx` to Portuguese (`Início`, `Painel`, `Moderação`, `Administração`).
+- Verified that `user-menu.tsx` options (`Entrar`, `Minha Conta`, `Sair`) were already translated.
+- Aligned theme switch and user menu actions on the right side of the navbar.
+- Secured visibility of menu links in the header, rendering them dynamically based on user session role and approved moderator assignments.
+- Implemented beforeLoad route guards redirecting unauthenticated requests directly to home `/`.
+- Redirected unauthorized authenticated users trying to access `/admin` or `/moderation` to `/dashboard`, rendering a query-parameter driven "Página não encontrada" toast.
+- Added comprehensive unit/integration test suite verifying all redirection guards and context loading in `apps/web/src/routes/-guards.test.ts`.
+
 

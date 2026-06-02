@@ -8,7 +8,7 @@ export const Route = createFileRoute('/dashboard')({
     const session = await authClient.getSession();
     if (!session.data) {
       redirect({
-        to: '/auth',
+        to: '/',
         throw: true,
       });
       throw new Error('Not authenticated');

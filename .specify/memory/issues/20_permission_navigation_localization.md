@@ -13,12 +13,12 @@ Localize navigation menus and enforce role-based access rules and route redirect
 
 ## Acceptance criteria
 
-- [ ] Header navbar and user menus are localized to Portuguese (pt-BR).
-- [ ] Sign-in button and user dropdown are placed on the right side of the header.
-- [ ] Navigation menu links dynamically render based on user role and assignment approvals.
-- [ ] URL direct access redirects unauthenticated requests back to home `/`.
-- [ ] URL direct access redirects unauthorized authenticated requests back to `/dashboard` rendering a generic page not found message.
-- [ ] Integration tests verify the redirection guard behavior.
+- [x] Header navbar and user menus are localized to Portuguese (pt-BR).
+- [x] Sign-in button and user dropdown are placed on the right side of the header.
+- [x] Navigation menu links dynamically render based on user role and assignment approvals.
+- [x] URL direct access redirects unauthenticated requests back to home `/`.
+- [x] URL direct access redirects unauthorized authenticated requests back to `/dashboard` rendering a generic page not found message.
+- [x] Integration tests verify the redirection guard behavior.
 
 ## Blocked by
 
