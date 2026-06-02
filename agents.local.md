@@ -82,5 +82,6 @@ Monorepo using Turborepo and Bun.
 
 ## Current Plan Reference
 - [Improvements & Bug Fixes Plan](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/improvements_plan.md)
+- [AbacatePay Webhook Security & Type Safety Fixes Plan](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/32_abacatepay_webhook_fixes.md)
 
 

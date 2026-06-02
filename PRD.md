@@ -68,6 +68,9 @@ A mobile-first, geolocation-driven showcase application for local businesses and
 35. As a developer, I want to manage feature toggles using Unleash, so that I can easily toggle new functionalities on/off per environment.
 36. As a user (English or Portuguese speaker), I want the application's interface to be available in both English and Portuguese, so that I can browse and interact in my preferred language.
 37. As a developer, I want all user-facing copy to be decoupled from the code and stored in translation JSON files, so that I can maintain translations without editing components directly.
+38. As a provider, I want the system to securely verify the signature of payment webhooks from AbacatePay using their public key and base64 digest, so that payment completions cannot be forged.
+39. As a system administrator, I want payment webhooks to validate the payload structure and request query parameters on entry, so that invalid or malicious requests are rejected before database transactions.
+40. As a provider, I want the system to confirm my payment status as 'PAID' and notify me of my active announcement asynchronously, so that the checkout webhook completes quickly without timeout delays.
 
 ---
 
@@ -100,7 +103,11 @@ A mobile-first, geolocation-driven showcase application for local businesses and
 - **DDD Entity Classes & Domain Error Decoupling**: Create the base `Entity` and `AuditableEntity` primitives under `apps/server/src/shared/base-entity.ts`. Decouple tRPC errors from the domain by throwing custom domain-specific `DomainError` subclasses, and map them using middleware to standard tRPC router codes.
 - **Concrete Db Mapper Isolation**: Concrete database `EntityMapper` classes will reside under `apps/server/src/infrastructure/db/mappers/` and map between Drizzle database rows and domain entity instances, keeping the domain isolated from persistence schemas.
 - **ADR for Payment Error Handling**: Document the trade-offs, retry rules, and error handling designs for the AbacatePay integration in a dedicated Architectural Decision Record (ADR).
-
+- **Webhook Signature Security**: Verify signature headers (`X-Webhook-Signature`) using `env.ABACATEPAY_PUBLIC_KEY` and a `base64` digest, aligned with the AbacatePay v2 API specifications.
+- **Payload Schema Validation**: Implement a Zod schema to strictly parse and validate webhook body payloads at the system boundary.
+- **Fastify Query Schema Validation**: Use Fastify schema validation to auto-type the request query `webhookSecret` securely and prevent manual casting.
+- **Webhook Fast-Reply (Background Notifications)**: Run the Resend email dispatch asynchronously in the background so that the webhook responds to AbacatePay immediately with `200 OK` after the transaction commits.
+- **Strict Status Check**: Assert that the webhook payload's `paymentStatus === 'PAID'` before triggering the database transaction to activate the announcement.
 
 ---
 
@@ -114,6 +121,9 @@ A mobile-first, geolocation-driven showcase application for local businesses and
   - Test that the backend `GeneratePaymentIntent` use case rejects requests with appropriate tRPC errors if the announcement is already `ACTIVE` or `SUSPENDED`.
   - Test that all routes correctly apply the dynamic permission route guards (redirecting unauthenticated users to `/`, and redirecting unauthorized users to `/dashboard` while rendering a generic not found state).
   - Verify that the test suite compiles with no references to the legacy Todo feature.
+  - Verify that the webhook signature validation works correctly with the public key and base64 format.
+  - Test that query schema validation rejects missing or invalid secrets at the Fastify level.
+  - Test that malformed bodies are blocked with appropriate `400 Bad Request` responses.
 
 ---
 
@@ -179,6 +189,17 @@ The following planning, specification, and test verification documents located i
 - [23 Unleash Feature Flagging](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/23_unleash_feature_flagging.md)
 - [24 i18n Localization (English & Portuguese)](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/24_i18n_localization_en_pt.md)
 - [25 Payment Error Handling ADR](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/25_payment_error_handling_adr.md)
+- [26 Analytics Impression Tracker](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/26_analytics_impression_tracker.md)
+- [27 Docker Compose Infrastructure](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/27_docker_compose_infrastructure.md)
+- [28 Native PG Enum Schema Migration](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/28_native_pg_enum_schema_migration.md)
+- [29 Feature Flags Shared Package](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/29_feature_flags_shared_package.md)
+- [30 Entity Validation Encapsulation](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/30_entity_validation_encapsulation.md)
+- [31 Resolve Dev Boot Errors](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/31_resolve_dev_boot_errors.md)
+- [32 AbacatePay Webhook Security & Type Safety Fixes](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/32_abacatepay_webhook_fixes.md)
+- [33 Fastify Query Schema Validation & rawBody Types](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/33_webhook_query_schema_and_types.md)
+- [34 Webhook Zod Payload Validation & Strict Status Check](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/34_webhook_zod_payload_and_status.md)
+- [35 Background Email Confirmation Dispatch](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/35_webhook_background_email.md)
+- [36 Webhook Integration Tests Alignment](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/36_webhook_integration_tests_alignment.md)
 
 
 
