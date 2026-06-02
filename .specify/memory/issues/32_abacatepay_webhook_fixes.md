@@ -10,10 +10,10 @@ Address security vulnerabilities, compiler blockers, lint errors, and type safet
 
 ## Acceptance criteria
 
-- [ ] Webhook query validation rejects requests with invalid or missing secrets at the Fastify level.
+- [x] Webhook query validation rejects requests with invalid or missing secrets at the Fastify level.
 - [ ] Zod schema validation blocks malformed request bodies with a `400 Bad Request`.
 - [ ] Payments are only marked as `PAID` and announcements activated if `paymentStatus` is verified as `"PAID"`.
 - [ ] Confirmation emails are dispatched asynchronously without blocking the client response.
-- [ ] No explicit `any` casts are used to retrieve the raw body, and all linting/format checks pass.
+- [x] No explicit `any` casts are used to retrieve the raw body, and all linting/format checks pass.
 - [ ] The `bun run check-types` and `bun run check` commands pass with zero warnings/errors.
 - [ ] All integration tests in `webhook.integration.test.ts` pass successfully.

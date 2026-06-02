@@ -10,6 +10,15 @@ import { eq } from 'drizzle-orm';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { Resend } from 'resend';
 
+interface WebhookQuery {
+  webhookSecret: string;
+}
+
+interface FastifyRequestWithRawBody
+  extends FastifyRequest<{ Querystring: WebhookQuery }> {
+  rawBody?: string | Buffer;
+}
+
 function verifySignature(body: string, signature: string): boolean {
   const computed = createHmac('sha256', env.ABACATEPAY_PUBLIC_KEY)
     .update(Buffer.from(body, 'utf8'))
@@ -25,24 +34,35 @@ function verifySignature(body: string, signature: string): boolean {
 }
 
 export async function webhookRoutes(fastify: FastifyInstance) {
-  fastify.post(
+  fastify.post<{
+    Querystring: WebhookQuery;
+  }>(
     '/api/webhooks/abacatepay',
     {
       config: {
         rawBody: true,
       },
+      schema: {
+        querystring: {
+          type: 'object',
+          required: ['webhookSecret'],
+          properties: {
+            webhookSecret: { type: 'string', minLength: 1 },
+          },
+        },
+      },
     },
-    async (request, reply) => {
+    async (request: FastifyRequestWithRawBody, reply) => {
       const signature = request.headers['x-webhook-signature'];
-      const { webhookSecret } = request.query as { webhookSecret?: string };
+      const { webhookSecret } = request.query;
+
+      const rawBodyStr = request.rawBody ? request.rawBody.toString() : '';
 
       request.log.info(
         {
           webhookSecretQuery: webhookSecret,
           headerSignature: signature,
-          rawBodyLength:
-            (request as FastifyRequest & { rawBody?: string }).rawBody
-              ?.length || 0,
+          rawBodyLength: rawBodyStr.length,
         },
         'AbacatePay Webhook Debug Values',
       );
@@ -72,9 +92,7 @@ export async function webhookRoutes(fastify: FastifyInstance) {
         }
 
         // 2. Verify HMAC Signature
-        const rawBody =
-          (request as FastifyRequest & { rawBody?: string }).rawBody || '';
-        const verified = verifySignature(rawBody, String(signature));
+        const verified = verifySignature(rawBodyStr, String(signature));
         if (!verified) {
           return reply
             .status(401)

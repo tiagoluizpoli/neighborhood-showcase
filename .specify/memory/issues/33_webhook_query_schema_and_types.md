@@ -11,9 +11,9 @@ Secure the AbacatePay webhook query parameters and types:
 
 ## Acceptance criteria
 
-- [ ] Webhook endpoint rejects requests with missing or mismatching `webhookSecret` query parameters at the Fastify level.
-- [ ] Query parameter retrieval does not use TypeScript type assertions (`as`).
-- [ ] Retrieval of `rawBody` does not use `any` casting and passes Biome lint checking.
+- [x] Webhook endpoint rejects requests with missing or mismatching `webhookSecret` query parameters at the Fastify level.
+- [x] Query parameter retrieval does not use TypeScript type assertions (`as`).
+- [x] Retrieval of `rawBody` does not use `any` casting and passes Biome lint checking.
 
 ## Blocked by
 

@@ -33,6 +33,7 @@
 - [x] **Issue 29**: Feature Flags Shared Package (Completed: 2026-06-02)
 - [x] **Issue 30**: Entity Validation Encapsulation (Completed: 2026-06-02)
 - [x] **Issue 31**: Resolve Dev Boot Errors (Completed: 2026-06-02)
+- [x] **Issue 33**: Fastify Query Schema Validation & rawBody Types (Completed: 2026-06-02)
 
 
 ---
@@ -250,6 +251,12 @@
 - Deleted the deprecated barrel file `cpf.entity.ts`.
 - Updated all CPF consumers to import utilities directly from `@neighborhood-showcase/auth/utils/cpf`.
 
+### Issue 33: Fastify Query Schema Validation & rawBody Types
+- Implemented Fastify route JSON Schema validation for the `webhookSecret` query parameter.
+- Removed inline `request.query as { webhookSecret?: string }` type assertion.
+- Defined localized `FastifyRequestWithRawBody` interface to securely fetch `request.rawBody` without explicit casting.
+- Updated integration test assertions to expect 400 on missing secret and 401 on mismatching secret.
+
 [2026-06-02 02:03:08] Iteration 1: Fixed double-impression tracking bug by making the details route component the single source of truth and adding a useRef guard. Status: 100% Complete.
 [2026-06-02 09:25:00] Iteration 2: Relocated compose config to root, added Unleash & Redis services, updated template, and fixed test isolation leak. Status: 100% Complete. Loop Terminated.
 [2026-06-02 09:28:00] Iteration 3: Migrated 11 schema columns to native pgEnums, reset and re-generated initial migration, and updated test database setup script. Status: 100% Complete. Loop Terminated.
@@ -260,3 +267,4 @@
 [2026-06-02 10:43:00] Iteration 2 | Worked: Updated INIT_ADMIN_API_TOKENS wildcard admin token in docker-compose.yml and checked off Unleash acceptance criterion | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
 [2026-06-02 10:53:00] Iteration 3 | Worked: Checked and confirmed that all acceptance criteria for Issue 31 are completed and all tests pass | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
 [2026-06-02 11:00:00] Iteration 1 | Worked: Added http/abacatepay.http file to simulate PIX payments via AbacatePay | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
+[2026-06-02 18:53:00] Iteration 2 | Worked: Configured Fastify JSON Schema validation for webhookSecret, defined FastifyRequestWithRawBody interface, and removed raw body casting | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>

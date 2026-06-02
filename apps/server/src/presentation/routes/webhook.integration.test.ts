@@ -148,7 +148,7 @@ describe('AbacatePay Webhook Integration Test', () => {
     expect(annRec?.status).toBe('PENDING_PAYMENT');
   });
 
-  test('returns 401 if webhookSecret query param is missing or invalid', async () => {
+  test('returns 400 if webhookSecret query param is missing and 401 if invalid', async () => {
     const payload = {
       id: 'evt_secret_fail',
       event: 'transparent.completed',
@@ -174,7 +174,7 @@ describe('AbacatePay Webhook Integration Test', () => {
       },
       payload: payloadStr,
     });
-    expect(responseMissing.statusCode).toBe(401);
+    expect(responseMissing.statusCode).toBe(400);
 
     // Invalid webhookSecret
     const responseInvalid = await app.inject({
