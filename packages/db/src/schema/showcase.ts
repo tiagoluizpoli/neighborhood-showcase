@@ -3,11 +3,67 @@ import {
   boolean,
   integer,
   jsonb,
+  pgEnum,
   pgTable,
   text,
   timestamp,
 } from 'drizzle-orm/pg-core';
 import { user } from './auth';
+
+export const condominiumStatusEnum = pgEnum('condominium_status', [
+  'PENDING_APPROVAL',
+  'APPROVED',
+  'REJECTED',
+]);
+
+export const providerLocationTypeEnum = pgEnum('provider_location_type', [
+  'RESIDENT',
+  'MODERATOR',
+  'EXTERNAL',
+]);
+
+export const providerLocationStatusEnum = pgEnum('provider_location_status', [
+  'PENDING',
+  'APPROVED',
+  'REJECTED',
+]);
+
+export const assignmentTypeEnum = pgEnum('assignment_type', [
+  'RESIDENT',
+  'MODERATOR',
+]);
+
+export const assignmentStatusEnum = pgEnum('assignment_status', [
+  'PENDING',
+  'APPROVED',
+  'REJECTED',
+]);
+
+export const announcementStatusEnum = pgEnum('announcement_status', [
+  'DRAFT',
+  'PENDING_PAYMENT',
+  'ACTIVE',
+  'EXPIRED',
+  'SUSPENDED',
+]);
+
+export const paymentStatusEnum = pgEnum('payment_status', [
+  'PENDING',
+  'PAID',
+  'EXPIRED',
+  'REFUNDED',
+]);
+
+export const analyticsEventTypeEnum = pgEnum('analytics_event_type', [
+  'IMPRESSION',
+  'CONTACT_CLICK',
+]);
+
+export const analyticsTargetTypeEnum = pgEnum('analytics_target_type', [
+  'WHATSAPP',
+  'INSTAGRAM',
+  'WEBSITE',
+]);
 
 export const address = pgTable('address', {
   id: text('id').primaryKey(),
@@ -37,11 +93,7 @@ export const condominium = pgTable('condominium', {
     }>()
     .notNull()
     .default({}),
-  status: text('status', {
-    enum: ['PENDING_APPROVAL', 'APPROVED', 'REJECTED'],
-  })
-    .default('PENDING_APPROVAL')
-    .notNull(),
+  status: condominiumStatusEnum('status').default('PENDING_APPROVAL').notNull(),
   createdBy: text('created_by')
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
@@ -55,12 +107,8 @@ export const providerLocation = pgTable('provider_location', {
   providerId: text('provider_id')
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
-  type: text('type', { enum: ['RESIDENT', 'MODERATOR', 'EXTERNAL'] }).notNull(),
-  status: text('status', {
-    enum: ['PENDING', 'APPROVED', 'REJECTED'],
-  })
-    .default('PENDING')
-    .notNull(),
+  type: providerLocationTypeEnum('type').notNull(),
+  status: providerLocationStatusEnum('status').default('PENDING').notNull(),
   condominiumId: text('condominium_id').references(() => condominium.id, {
     onDelete: 'cascade',
   }),
@@ -85,12 +133,8 @@ export const assignment = pgTable('assignment', {
   condominiumId: text('condominium_id')
     .notNull()
     .references(() => condominium.id, { onDelete: 'cascade' }),
-  type: text('type', { enum: ['RESIDENT', 'MODERATOR'] }).notNull(),
-  status: text('status', {
-    enum: ['PENDING', 'APPROVED', 'REJECTED'],
-  })
-    .default('PENDING')
-    .notNull(),
+  type: assignmentTypeEnum('type').notNull(),
+  status: assignmentStatusEnum('status').default('PENDING').notNull(),
   unitInfo: text('unit_info'),
   proofOfResidency: text('proof_of_residency'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -176,11 +220,7 @@ export const announcement = pgTable('announcement', {
     .default({}),
   showVerifiedBadge: boolean('show_verified_badge').default(false).notNull(),
   flaggedForReview: boolean('flagged_for_review').default(false).notNull(),
-  status: text('status', {
-    enum: ['DRAFT', 'PENDING_PAYMENT', 'ACTIVE', 'EXPIRED', 'SUSPENDED'],
-  })
-    .default('DRAFT')
-    .notNull(),
+  status: announcementStatusEnum('status').default('DRAFT').notNull(),
   paidAt: timestamp('paid_at'),
   expiresAt: timestamp('expires_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -215,11 +255,7 @@ export const payment = pgTable('payment', {
     .references(() => announcement.id, { onDelete: 'cascade' }),
   billingId: text('billing_id').notNull(),
   amountCents: integer('amount_cents').notNull(),
-  status: text('status', {
-    enum: ['PENDING', 'PAID', 'EXPIRED', 'REFUNDED'],
-  })
-    .default('PENDING')
-    .notNull(),
+  status: paymentStatusEnum('status').default('PENDING').notNull(),
   pixQrCode: text('pix_qr_code'),
   pixCopyPaste: text('pix_copy_paste'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -241,12 +277,8 @@ export const analyticsEvent = pgTable('analytics_event', {
   announcementId: text('announcement_id')
     .notNull()
     .references(() => announcement.id, { onDelete: 'cascade' }),
-  eventType: text('event_type', {
-    enum: ['IMPRESSION', 'CONTACT_CLICK'],
-  }).notNull(),
-  targetType: text('target_type', {
-    enum: ['WHATSAPP', 'INSTAGRAM', 'WEBSITE'],
-  }),
+  eventType: analyticsEventTypeEnum('event_type').notNull(),
+  targetType: analyticsTargetTypeEnum('target_type'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

@@ -1,3 +1,14 @@
+CREATE TYPE "public"."user_role" AS ENUM('PROVIDER', 'SYSTEM_MANAGER');--> statement-breakpoint
+CREATE TYPE "public"."user_status" AS ENUM('ACTIVE', 'BANNED');--> statement-breakpoint
+CREATE TYPE "public"."analytics_event_type" AS ENUM('IMPRESSION', 'CONTACT_CLICK');--> statement-breakpoint
+CREATE TYPE "public"."analytics_target_type" AS ENUM('WHATSAPP', 'INSTAGRAM', 'WEBSITE');--> statement-breakpoint
+CREATE TYPE "public"."announcement_status" AS ENUM('DRAFT', 'PENDING_PAYMENT', 'ACTIVE', 'EXPIRED', 'SUSPENDED');--> statement-breakpoint
+CREATE TYPE "public"."assignment_status" AS ENUM('PENDING', 'APPROVED', 'REJECTED');--> statement-breakpoint
+CREATE TYPE "public"."assignment_type" AS ENUM('RESIDENT', 'MODERATOR');--> statement-breakpoint
+CREATE TYPE "public"."condominium_status" AS ENUM('PENDING_APPROVAL', 'APPROVED', 'REJECTED');--> statement-breakpoint
+CREATE TYPE "public"."payment_status" AS ENUM('PENDING', 'PAID', 'EXPIRED', 'REFUNDED');--> statement-breakpoint
+CREATE TYPE "public"."provider_location_status" AS ENUM('PENDING', 'APPROVED', 'REJECTED');--> statement-breakpoint
+CREATE TYPE "public"."provider_location_type" AS ENUM('RESIDENT', 'MODERATOR', 'EXTERNAL');--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
 	"account_id" text NOT NULL,
@@ -41,8 +52,8 @@ CREATE TABLE "user" (
 	"email_verified" boolean DEFAULT false NOT NULL,
 	"image" text,
 	"cpf_hash" text,
-	"role" text DEFAULT 'PROVIDER' NOT NULL,
-	"status" text DEFAULT 'ACTIVE' NOT NULL,
+	"role" "user_role" DEFAULT 'PROVIDER' NOT NULL,
+	"status" "user_status" DEFAULT 'ACTIVE' NOT NULL,
 	"phone" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
@@ -73,8 +84,8 @@ CREATE TABLE "address" (
 CREATE TABLE "analytics_event" (
 	"id" text PRIMARY KEY NOT NULL,
 	"announcement_id" text NOT NULL,
-	"event_type" text NOT NULL,
-	"target_type" text,
+	"event_type" "analytics_event_type" NOT NULL,
+	"target_type" "analytics_target_type",
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -93,7 +104,7 @@ CREATE TABLE "announcement" (
 	"contact_links" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"show_verified_badge" boolean DEFAULT false NOT NULL,
 	"flagged_for_review" boolean DEFAULT false NOT NULL,
-	"status" text DEFAULT 'DRAFT' NOT NULL,
+	"status" "announcement_status" DEFAULT 'DRAFT' NOT NULL,
 	"paid_at" timestamp,
 	"expires_at" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -105,8 +116,8 @@ CREATE TABLE "assignment" (
 	"id" text PRIMARY KEY NOT NULL,
 	"provider_id" text NOT NULL,
 	"condominium_id" text NOT NULL,
-	"type" text NOT NULL,
-	"status" text DEFAULT 'PENDING' NOT NULL,
+	"type" "assignment_type" NOT NULL,
+	"status" "assignment_status" DEFAULT 'PENDING' NOT NULL,
 	"unit_info" text,
 	"proof_of_residency" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -122,7 +133,7 @@ CREATE TABLE "condominium" (
 	"address_id" text,
 	"number" text,
 	"contact_info" jsonb DEFAULT '{}'::jsonb NOT NULL,
-	"status" text DEFAULT 'PENDING_APPROVAL' NOT NULL,
+	"status" "condominium_status" DEFAULT 'PENDING_APPROVAL' NOT NULL,
 	"created_by" text NOT NULL,
 	"proof_url" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -134,7 +145,7 @@ CREATE TABLE "payment" (
 	"announcement_id" text NOT NULL,
 	"billing_id" text NOT NULL,
 	"amount_cents" integer NOT NULL,
-	"status" text DEFAULT 'PENDING' NOT NULL,
+	"status" "payment_status" DEFAULT 'PENDING' NOT NULL,
 	"pix_qr_code" text,
 	"pix_copy_paste" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -144,8 +155,8 @@ CREATE TABLE "payment" (
 CREATE TABLE "provider_location" (
 	"id" text PRIMARY KEY NOT NULL,
 	"provider_id" text NOT NULL,
-	"type" text NOT NULL,
-	"status" text DEFAULT 'PENDING' NOT NULL,
+	"type" "provider_location_type" NOT NULL,
+	"status" "provider_location_status" DEFAULT 'PENDING' NOT NULL,
 	"condominium_id" text,
 	"address_id" text,
 	"number" text,

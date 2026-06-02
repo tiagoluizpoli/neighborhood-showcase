@@ -1,5 +1,15 @@
 import { relations } from 'drizzle-orm';
-import { boolean, index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  index,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+} from 'drizzle-orm/pg-core';
+
+export const userRoleEnum = pgEnum('user_role', ['PROVIDER', 'SYSTEM_MANAGER']);
+export const userStatusEnum = pgEnum('user_status', ['ACTIVE', 'BANNED']);
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
@@ -9,12 +19,8 @@ export const user = pgTable('user', {
   image: text('image'),
   // Custom Extensions for Neighborhood Showcase
   cpfHash: text('cpf_hash').unique(),
-  role: text('role', { enum: ['PROVIDER', 'SYSTEM_MANAGER'] })
-    .default('PROVIDER')
-    .notNull(),
-  status: text('status', { enum: ['ACTIVE', 'BANNED'] })
-    .default('ACTIVE')
-    .notNull(),
+  role: userRoleEnum('role').default('PROVIDER').notNull(),
+  status: userStatusEnum('status').default('ACTIVE').notNull(),
   phone: text('phone'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')

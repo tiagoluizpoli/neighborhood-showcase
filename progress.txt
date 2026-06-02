@@ -29,7 +29,7 @@
 - [x] **Issue 25**: Payment Error Handling ADR (Completed: 2026-06-02)
 - [x] **Issue 26**: Analytics Impression Tracker (Completed: 2026-06-02)
 - [x] **Issue 27**: Root Docker Compose Infrastructure (Completed: 2026-06-02)
-- [ ] **Issue 28**: Native PG Enum Schema Migration (Pending)
+- [x] **Issue 28**: Native PG Enum Schema Migration (Completed: 2026-06-02)
 - [ ] **Issue 29**: Feature Flags Shared Package (Pending)
 - [ ] **Issue 30**: Entity Validation Encapsulation (Pending)
 
@@ -230,5 +230,11 @@
 - Added database initialization scripts to automatically create the unleash database schema.
 - Exposed local Unleash endpoints and tokens in .env and .env.template files.
 
+### Issue 28: Native PG Enum Schema Migration
+- Migrated 11 text-enum columns across 6 database tables to dedicated native PostgreSQL `pgEnum` schemas.
+- Removed legacy migration snapshots and generated a fresh clean initial migration.
+- Updated the test database setup script to drop and recreate the public schema on connection, ensuring a clean migration baseline.
+
 [2026-06-02 02:03:08] Iteration 1: Fixed double-impression tracking bug by making the details route component the single source of truth and adding a useRef guard. Status: 100% Complete.
 [2026-06-02 09:25:00] Iteration 2: Relocated compose config to root, added Unleash & Redis services, updated template, and fixed test isolation leak. Status: 100% Complete. Loop Terminated.
+[2026-06-02 09:28:00] Iteration 3: Migrated 11 schema columns to native pgEnums, reset and re-generated initial migration, and updated test database setup script. Status: 100% Complete. Loop Terminated.

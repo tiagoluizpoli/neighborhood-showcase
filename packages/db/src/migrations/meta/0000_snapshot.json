@@ -1,5 +1,5 @@
 {
-  "id": "fbaaa975-b5ad-4adf-afcd-89ecc443fa85",
+  "id": "625b6909-0bcb-4b43-917a-f8f78e444564",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -303,14 +303,16 @@
         },
         "role": {
           "name": "role",
-          "type": "text",
+          "type": "user_role",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'PROVIDER'"
         },
         "status": {
           "name": "status",
-          "type": "text",
+          "type": "user_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'ACTIVE'"
@@ -502,13 +504,15 @@
         },
         "event_type": {
           "name": "event_type",
-          "type": "text",
+          "type": "analytics_event_type",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
         "target_type": {
           "name": "target_type",
-          "type": "text",
+          "type": "analytics_target_type",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
@@ -632,7 +636,8 @@
         },
         "status": {
           "name": "status",
-          "type": "text",
+          "type": "announcement_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'DRAFT'"
@@ -729,13 +734,15 @@
         },
         "type": {
           "name": "type",
-          "type": "text",
+          "type": "assignment_type",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
         "status": {
           "name": "status",
-          "type": "text",
+          "type": "assignment_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'PENDING'"
@@ -849,7 +856,8 @@
         },
         "status": {
           "name": "status",
-          "type": "text",
+          "type": "condominium_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'PENDING_APPROVAL'"
@@ -937,7 +945,8 @@
         },
         "status": {
           "name": "status",
-          "type": "text",
+          "type": "payment_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'PENDING'"
@@ -1005,13 +1014,15 @@
         },
         "type": {
           "name": "type",
-          "type": "text",
+          "type": "provider_location_type",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
         "status": {
           "name": "status",
-          "type": "text",
+          "type": "provider_location_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'PENDING'"
@@ -1098,7 +1109,63 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.user_role": {
+      "name": "user_role",
+      "schema": "public",
+      "values": ["PROVIDER", "SYSTEM_MANAGER"]
+    },
+    "public.user_status": {
+      "name": "user_status",
+      "schema": "public",
+      "values": ["ACTIVE", "BANNED"]
+    },
+    "public.analytics_event_type": {
+      "name": "analytics_event_type",
+      "schema": "public",
+      "values": ["IMPRESSION", "CONTACT_CLICK"]
+    },
+    "public.analytics_target_type": {
+      "name": "analytics_target_type",
+      "schema": "public",
+      "values": ["WHATSAPP", "INSTAGRAM", "WEBSITE"]
+    },
+    "public.announcement_status": {
+      "name": "announcement_status",
+      "schema": "public",
+      "values": ["DRAFT", "PENDING_PAYMENT", "ACTIVE", "EXPIRED", "SUSPENDED"]
+    },
+    "public.assignment_status": {
+      "name": "assignment_status",
+      "schema": "public",
+      "values": ["PENDING", "APPROVED", "REJECTED"]
+    },
+    "public.assignment_type": {
+      "name": "assignment_type",
+      "schema": "public",
+      "values": ["RESIDENT", "MODERATOR"]
+    },
+    "public.condominium_status": {
+      "name": "condominium_status",
+      "schema": "public",
+      "values": ["PENDING_APPROVAL", "APPROVED", "REJECTED"]
+    },
+    "public.payment_status": {
+      "name": "payment_status",
+      "schema": "public",
+      "values": ["PENDING", "PAID", "EXPIRED", "REFUNDED"]
+    },
+    "public.provider_location_status": {
+      "name": "provider_location_status",
+      "schema": "public",
+      "values": ["PENDING", "APPROVED", "REJECTED"]
+    },
+    "public.provider_location_type": {
+      "name": "provider_location_type",
+      "schema": "public",
+      "values": ["RESIDENT", "MODERATOR", "EXTERNAL"]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

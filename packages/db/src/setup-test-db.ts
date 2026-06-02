@@ -49,6 +49,12 @@ async function setup() {
   const testClient = new Client({ connectionString: dbUrl });
   try {
     await testClient.connect();
+
+    // Reset public schema to guarantee a clean slate for the migrations
+    console.log('Resetting schema public...');
+    await testClient.query('DROP SCHEMA IF EXISTS public CASCADE');
+    await testClient.query('CREATE SCHEMA public');
+
     const db = drizzle(testClient);
     // Locate the migrations directory relative to this script
     const migrationsFolder = path.join(import.meta.dir, 'migrations');
