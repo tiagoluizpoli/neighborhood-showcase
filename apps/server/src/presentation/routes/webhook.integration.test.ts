@@ -8,6 +8,7 @@ import {
   condominium,
   payment,
 } from '@neighborhood-showcase/db/schema/showcase';
+import { env } from '@neighborhood-showcase/env/server';
 import { eq } from 'drizzle-orm';
 import Fastify, { type FastifyInstance } from 'fastify';
 import fastifyRawBody from 'fastify-raw-body';
@@ -19,7 +20,7 @@ describe('AbacatePay Webhook Integration Test', () => {
   const testCondoId = 'web-test-condo-id';
   const testAnnId = 'web-test-ann-id';
   const testBillingId = 'bill_test_webhook_123';
-  const webhookSecret = 'mock-webhook-secret';
+  const webhookSecret = env.ABACATEPAY_WEBHOOK_SECRET;
 
   beforeAll(async () => {
     // Setup Fastify instance
@@ -104,13 +105,18 @@ describe('AbacatePay Webhook Integration Test', () => {
     // To test signature failure, we send an incorrect signature.
     const payload = {
       id: 'evt_1',
-      event: 'billing.paid',
-      data: { id: testBillingId, status: 'PAID' },
+      event: 'transparent.completed',
+      data: {
+        transparent: {
+          id: testBillingId,
+          status: 'PAID',
+        },
+      },
     };
 
     const response = await app.inject({
       method: 'POST',
-      url: '/api/webhooks/abacatepay',
+      url: `/api/webhooks/abacatepay?webhookSecret=${webhookSecret}`,
       headers: {
         'x-webhook-signature': 'wrong-signature',
       },
@@ -142,16 +148,60 @@ describe('AbacatePay Webhook Integration Test', () => {
     expect(annRec?.status).toBe('PENDING_PAYMENT');
   });
 
+  test('returns 401 if webhookSecret query param is missing or invalid', async () => {
+    const payload = {
+      id: 'evt_secret_fail',
+      event: 'transparent.completed',
+      data: {
+        transparent: {
+          id: testBillingId,
+          status: 'PAID',
+        },
+      },
+    };
+    const payloadStr = JSON.stringify(payload);
+    const signature = createHmac('sha256', env.ABACATEPAY_PUBLIC_KEY)
+      .update(payloadStr)
+      .digest('base64');
+
+    // Missing webhookSecret
+    const responseMissing = await app.inject({
+      method: 'POST',
+      url: '/api/webhooks/abacatepay',
+      headers: {
+        'x-webhook-signature': signature,
+        'content-type': 'application/json',
+      },
+      payload: payloadStr,
+    });
+    expect(responseMissing.statusCode).toBe(401);
+
+    // Invalid webhookSecret
+    const responseInvalid = await app.inject({
+      method: 'POST',
+      url: '/api/webhooks/abacatepay?webhookSecret=wrong-secret',
+      headers: {
+        'x-webhook-signature': signature,
+        'content-type': 'application/json',
+      },
+      payload: payloadStr,
+    });
+    expect(responseInvalid.statusCode).toBe(401);
+    expect(JSON.parse(responseInvalid.body).error).toBe(
+      'Invalid webhook secret',
+    );
+  });
+
   test('returns 400 for invalid/malformed request body', async () => {
     const payload = {};
     const payloadStr = JSON.stringify(payload);
-    const signature = createHmac('sha256', webhookSecret)
+    const signature = createHmac('sha256', env.ABACATEPAY_PUBLIC_KEY)
       .update(payloadStr)
-      .digest('hex');
+      .digest('base64');
 
     const response = await app.inject({
       method: 'POST',
-      url: '/api/webhooks/abacatepay',
+      url: `/api/webhooks/abacatepay?webhookSecret=${webhookSecret}`,
       headers: {
         'x-webhook-signature': signature,
         'content-type': 'application/json',
@@ -165,17 +215,22 @@ describe('AbacatePay Webhook Integration Test', () => {
   test('returns 404 for valid signature but non-existent billingId', async () => {
     const payload = {
       id: 'evt_3',
-      event: 'billing.paid',
-      data: { id: 'non-existent-billing-id', status: 'PAID' },
+      event: 'transparent.completed',
+      data: {
+        transparent: {
+          id: 'non-existent-billing-id',
+          status: 'PAID',
+        },
+      },
     };
     const payloadStr = JSON.stringify(payload);
-    const signature = createHmac('sha256', webhookSecret)
+    const signature = createHmac('sha256', env.ABACATEPAY_PUBLIC_KEY)
       .update(payloadStr)
-      .digest('hex');
+      .digest('base64');
 
     const response = await app.inject({
       method: 'POST',
-      url: '/api/webhooks/abacatepay',
+      url: `/api/webhooks/abacatepay?webhookSecret=${webhookSecret}`,
       headers: {
         'x-webhook-signature': signature,
         'content-type': 'application/json',
@@ -190,17 +245,22 @@ describe('AbacatePay Webhook Integration Test', () => {
     // 1. Process paid event
     const payload = {
       id: 'evt_success',
-      event: 'billing.paid',
-      data: { id: testBillingId, status: 'PAID' },
+      event: 'transparent.completed',
+      data: {
+        transparent: {
+          id: testBillingId,
+          status: 'PAID',
+        },
+      },
     };
     const payloadStr = JSON.stringify(payload);
-    const signature = createHmac('sha256', webhookSecret)
+    const signature = createHmac('sha256', env.ABACATEPAY_PUBLIC_KEY)
       .update(payloadStr)
-      .digest('hex');
+      .digest('base64');
 
     const response = await app.inject({
       method: 'POST',
-      url: '/api/webhooks/abacatepay',
+      url: `/api/webhooks/abacatepay?webhookSecret=${webhookSecret}`,
       headers: {
         'x-webhook-signature': signature,
         'content-type': 'application/json',
@@ -241,7 +301,7 @@ describe('AbacatePay Webhook Integration Test', () => {
     // 2. Idempotency check: Process same event again
     const responseIdempotent = await app.inject({
       method: 'POST',
-      url: '/api/webhooks/abacatepay',
+      url: `/api/webhooks/abacatepay?webhookSecret=${webhookSecret}`,
       headers: {
         'x-webhook-signature': signature,
         'content-type': 'application/json',
