@@ -15,5 +15,5 @@ Address security vulnerabilities, compiler blockers, lint errors, and type safet
 - [x] Payments are only marked as `PAID` and announcements activated if `paymentStatus` is verified as `"PAID"`.
 - [x] Confirmation emails are dispatched asynchronously without blocking the client response.
 - [x] No explicit `any` casts are used to retrieve the raw body, and all linting/format checks pass.
-- [ ] The `bun run check-types` and `bun run check` commands pass with zero warnings/errors.
-- [ ] All integration tests in `webhook.integration.test.ts` pass successfully.
+- [x] The `bun run check-types` and `bun run check` commands pass with zero warnings/errors.
+- [x] All integration tests in `webhook.integration.test.ts` pass successfully.

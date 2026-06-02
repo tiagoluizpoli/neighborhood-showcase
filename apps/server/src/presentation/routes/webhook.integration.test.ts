@@ -314,4 +314,38 @@ describe('AbacatePay Webhook Integration Test', () => {
       'already_processed',
     );
   });
+
+  test('returns 200 ignored if paymentStatus is not PAID', async () => {
+    const payload = {
+      id: 'evt_not_paid',
+      event: 'transparent.completed',
+      data: {
+        transparent: {
+          id: testBillingId,
+          status: 'PENDING',
+        },
+      },
+    };
+    const payloadStr = JSON.stringify(payload);
+    const signature = createHmac('sha256', env.ABACATEPAY_PUBLIC_KEY)
+      .update(payloadStr)
+      .digest('base64');
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/webhooks/abacatepay?webhookSecret=${webhookSecret}`,
+      headers: {
+        'x-webhook-signature': signature,
+        'content-type': 'application/json',
+      },
+      payload: payloadStr,
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = JSON.parse(response.body);
+    expect(body.status).toBe('ignored');
+    expect(body.message).toContain(
+      "Payment status is 'PENDING', expecting 'PAID'",
+    );
+  });
 });

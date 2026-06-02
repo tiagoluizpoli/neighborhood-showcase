@@ -13,8 +13,8 @@ Realign the integration test suite to match the corrected webhook implementation
 
 ## Acceptance criteria
 
-- [ ] All tests in `webhook.integration.test.ts` pass successfully.
-- [ ] Test coverage includes invalid query parameters and malformed body validation cases.
+- [x] All tests in `webhook.integration.test.ts` pass successfully.
+- [x] Test coverage includes invalid query parameters and malformed body validation cases.
 
 ## Blocked by
 
