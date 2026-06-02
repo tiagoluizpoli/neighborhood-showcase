@@ -26,6 +26,7 @@
 - [x] **Issue 22**: DDD Domain Entity Class Refactoring (Completed: 2026-06-02)
 - [x] **Issue 23**: Unleash Feature Flagging (Completed: 2026-06-02)
 - [x] **Issue 24**: i18n Localization English & Portuguese (Completed: 2026-06-02)
+- [x] **Issue 25**: Payment Error Handling ADR (Completed: 2026-06-02)
 
 ---
 
@@ -208,6 +209,10 @@
 - Loaded i18n settings and imported the config in `main.tsx`.
 - Refactored the core header layout navigation labels and UserMenu action options to use the translation hook.
 - Implemented a language switcher select dropdown in the header next to the theme toggle.
+
+### Issue 25: Payment Error Handling ADR
+- Created `docs/adr/0003-abacatepay-payment-error-handling.md` documenting technical decisions, error codes, signature checks, and database transaction rules.
+
 
 
 
