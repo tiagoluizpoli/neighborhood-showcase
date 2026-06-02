@@ -103,7 +103,7 @@ function PublicAnnouncementDetailsComponent() {
 
       <Card className="overflow-hidden border bg-card/50 shadow-lg backdrop-blur-sm">
         {/* Cover image 4:3 */}
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+        <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
           <img
             src={ad.imageUrl}
             alt={ad.title}

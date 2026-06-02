@@ -212,7 +212,7 @@ function PublicVitrineComponent() {
   return (
     <div className="container mx-auto max-w-6xl px-4 py-6">
       {/* Geolocation / Selected Condo Bar */}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card bg-card/65 p-4 shadow-sm backdrop-blur-sm">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-4 shadow-sm backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <div className="rounded-lg bg-primary/10 p-2 text-primary">
             <MapPin className="h-5 w-5" />
@@ -334,7 +334,7 @@ function PublicVitrineComponent() {
                 onClick={() => openAdDetails(ad.id)}
                 className="group cursor-pointer overflow-hidden border bg-card/45 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
               >
-                <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
                   <img
                     src={ad.imageUrl}
                     alt={ad.title}
@@ -382,7 +382,7 @@ function PublicVitrineComponent() {
                   )}
                 </CardHeader>
 
-                <CardContent className="mt-3 flex items-center justify-between border-t p-4 pt-0 pt-3">
+                <CardContent className="mt-3 flex items-center justify-between border-t p-4 pt-3">
                   <span className="line-clamp-1 max-w-[60%] pr-2 text-muted-foreground text-xs">
                     {ad.description}
                   </span>
@@ -506,7 +506,7 @@ function PublicVitrineComponent() {
               ) : activeAdQuery.data ? (
                 <div>
                   {/* Cover Image */}
-                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                  <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
                     <img
                       src={activeAdQuery.data.imageUrl}
                       alt={activeAdQuery.data.title}
