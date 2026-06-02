@@ -19,7 +19,7 @@
 - [x] **Issue 15**: Public Showcase & Proximity Refactor (Completed: 2026-05-30)
 - [x] **Issue 16**: Project Rename to Neighborhood Showcase (Completed: 2026-06-01)
 - [x] **Issue 17**: Draft Announcement Publish Button (Completed: 2026-06-01)
-- [ ] **Issue 18**: Purge Legacy Todo Code
+- [x] **Issue 18**: Purge Legacy Todo Code (Completed: 2026-06-01)
 - [ ] **Issue 19**: Styling Simplification
 - [ ] **Issue 20**: Permission Navigation & Localization
 
@@ -159,4 +159,10 @@
 - Connected the button action to redirect the user to `/dashboard/anuncios/:id/pagamento` via the `onPay` callback.
 - Added status validation guards in backend use case `GeneratePaymentIntent` to reject payment intent generation with BAD_REQUEST tRPC errors if status is `ACTIVE` or `SUSPENDED`.
 - Added backend integration tests verifying these status constraints.
+
+### Issue 18: Purge Legacy Todo Code
+- Deleted all source directories and files associated with the legacy boilerplate Todo functionality (domain entities, use cases, repos, infrastructure handlers, tRPC router, and frontend components).
+- Removed all schema exports and routes references in `packages/db/src/schema/index.ts`, `apps/server/src/presentation/routers/index.ts`, and `apps/web/src/components/header.tsx`.
+- Reset and regenerated database migrations to start from a clean baseline PG schema without any `todo` table.
+- Cleaned the public schema in both dev and test PostgreSQL instances to cleanly align migrations.
 

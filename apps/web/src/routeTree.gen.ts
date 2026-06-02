@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TodosRouteImport } from './routes/todos'
 import { Route as ModerationRouteImport } from './routes/moderation'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -21,11 +20,6 @@ import { Route as AnunciosIdRouteImport } from './routes/anuncios.$id'
 import { Route as DashboardAnunciosNovoRouteImport } from './routes/dashboard.anuncios.novo'
 import { Route as DashboardAnunciosIdPagamentoRouteImport } from './routes/dashboard.anuncios.$id.pagamento'
 
-const TodosRoute = TodosRouteImport.update({
-  id: '/todos',
-  path: '/todos',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ModerationRoute = ModerationRouteImport.update({
   id: '/moderation',
   path: '/moderation',
@@ -84,7 +78,6 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/moderation': typeof ModerationRoute
-  '/todos': typeof TodosRoute
   '/anuncios/$id': typeof AnunciosIdRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -96,7 +89,6 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/moderation': typeof ModerationRoute
-  '/todos': typeof TodosRoute
   '/anuncios/$id': typeof AnunciosIdRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -110,7 +102,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/moderation': typeof ModerationRoute
-  '/todos': typeof TodosRoute
   '/anuncios/$id': typeof AnunciosIdRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -125,7 +116,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/moderation'
-    | '/todos'
     | '/anuncios/$id'
     | '/dashboard/condo-setup'
     | '/dashboard/'
@@ -137,7 +127,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/moderation'
-    | '/todos'
     | '/anuncios/$id'
     | '/dashboard/condo-setup'
     | '/dashboard'
@@ -150,7 +139,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/moderation'
-    | '/todos'
     | '/anuncios/$id'
     | '/dashboard/condo-setup'
     | '/dashboard/'
@@ -164,19 +152,11 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   ModerationRoute: typeof ModerationRoute
-  TodosRoute: typeof TodosRoute
   AnunciosIdRoute: typeof AnunciosIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/todos': {
-      id: '/todos'
-      path: '/todos'
-      fullPath: '/todos'
-      preLoaderRoute: typeof TodosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/moderation': {
       id: '/moderation'
       path: '/moderation'
@@ -274,7 +254,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRouteWithChildren,
   ModerationRoute: ModerationRoute,
-  TodosRoute: TodosRoute,
   AnunciosIdRoute: AnunciosIdRoute,
 }
 export const routeTree = rootRouteImport

@@ -21,11 +21,11 @@ Purge all code and configurations related to the legacy boilerplate Todo applica
 
 ## Acceptance criteria
 
-- [ ] All 8 todo directories and files are completely removed from the filesystem.
-- [ ] Schema export, appRouter, navigation links, and guides references are fully removed.
-- [ ] The `packages/db/src/migrations/` directory is cleared and regenerated with a clean base migration.
-- [ ] No compilation or TypeScript errors exist in the codebase.
-- [ ] The test suite passes completely (`bun run test`).
+- [x] All 8 todo directories and files are completely removed from the filesystem.
+- [x] Schema export, appRouter, navigation links, and guides references are fully removed.
+- [x] The `packages/db/src/migrations/` directory is cleared and regenerated with a clean base migration.
+- [x] No compilation or TypeScript errors exist in the codebase.
+- [x] The test suite passes completely (`bun run test`).
 
 ## Blocked by
 

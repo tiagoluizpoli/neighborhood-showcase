@@ -3,7 +3,6 @@ import { adminRouter } from './admin';
 import { announcementRouter } from './announcement';
 import { assignmentRouter } from './assignment';
 import { condominiumRouter } from './condominium';
-import { todoRouter } from './todo';
 import { userRouter } from './user';
 
 export const appRouter = router({
@@ -16,7 +15,6 @@ export const appRouter = router({
       user: ctx.session.user,
     };
   }),
-  todo: todoRouter,
   condominium: condominiumRouter,
   assignment: assignmentRouter,
   announcement: announcementRouter,

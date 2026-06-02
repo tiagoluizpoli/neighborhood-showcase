@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1775420578972,
-      "tag": "0000_dashing_madripoor",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1780023903746,
-      "tag": "0001_fearless_annihilus",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1780048129738,
-      "tag": "0002_glossy_zarda",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1780100174914,
-      "tag": "0003_romantic_forge",
+      "when": 1780359287624,
+      "tag": "0000_freezing_morph",
       "breakpoints": true
     }
   ]
