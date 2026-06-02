@@ -10,10 +10,12 @@ import {
 } from '@neighborhood-showcase/ui/components/dropdown-menu';
 import { Skeleton } from '@neighborhood-showcase/ui/components/skeleton';
 import { Link, useNavigate } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 
 export default function UserMenu() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data: session, isPending } = authClient.useSession();
 
   if (isPending) {
@@ -23,7 +25,7 @@ export default function UserMenu() {
   if (!session) {
     return (
       <Link to="/auth">
-        <Button variant="outline">Entrar</Button>
+        <Button variant="outline">{t('menu.login')}</Button>
       </Link>
     );
   }
@@ -35,7 +37,7 @@ export default function UserMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-card">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+          <DropdownMenuLabel>{t('menu.account')}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>{session.user.email}</DropdownMenuItem>
           <DropdownMenuItem
@@ -52,7 +54,7 @@ export default function UserMenu() {
               });
             }}
           >
-            Sair
+            {t('menu.logout')}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "moderation": "Moderation",
+    "admin": "Administration"
+  },
+  "menu": {
+    "account": "My Account",
+    "logout": "Sign Out",
+    "login": "Sign In"
+  },
+  "common": {
+    "page_not_found": "Page Not Found",
+    "publish_announcement": "Publish Announcement",
+    "pay": "Pay",
+    "active": "Active",
+    "draft": "Draft",
+    "expired": "Expired",
+    "suspended": "Suspended"
+  }
+}

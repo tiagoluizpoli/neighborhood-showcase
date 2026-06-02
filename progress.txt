@@ -25,6 +25,7 @@
 - [x] **Issue 21**: Fix Infinite Payment & Tracking Loop (Completed: 2026-06-02)
 - [x] **Issue 22**: DDD Domain Entity Class Refactoring (Completed: 2026-06-02)
 - [x] **Issue 23**: Unleash Feature Flagging (Completed: 2026-06-02)
+- [x] **Issue 24**: i18n Localization English & Portuguese (Completed: 2026-06-02)
 
 ---
 
@@ -200,5 +201,13 @@
 - Wrapped frontend TanStack root component inside `FlagProvider` using frontend config settings.
 - Built server-side `isFeatureEnabled` and `initUnleash` utilities.
 - Added and ran unit tests checking the fallback environment flag logic on the server.
+
+### Issue 24: i18n Localization English & Portuguese
+- Installed `i18next`, `react-i18next`, and `i18next-browser-languagedetector` in the frontend client.
+- Configured translation resource JSON catalogs for English (`en`) and Portuguese (`pt`).
+- Loaded i18n settings and imported the config in `main.tsx`.
+- Refactored the core header layout navigation labels and UserMenu action options to use the translation hook.
+- Implemented a language switcher select dropdown in the header next to the theme toggle.
+
 
 

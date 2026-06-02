@@ -1,11 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { ModeToggle } from './mode-toggle';
 import UserMenu from './user-menu';
 import { authClient } from '@/lib/auth-client';
 import { trpc } from '@/utils/trpc';
 
 export default function Header() {
+  const { t, i18n } = useTranslation();
   const { data: session } = authClient.useSession();
 
   const { data: assignments } = useQuery(
@@ -23,12 +25,16 @@ export default function Header() {
   const hasSystemManagerRole = session?.user.role === 'SYSTEM_MANAGER';
 
   const links = [
-    { to: '/' as const, label: 'Início', show: true },
-    { to: '/dashboard' as const, label: 'Painel', show: !!session },
-    { to: '/moderation' as const, label: 'Moderação', show: hasModeratorRole },
+    { to: '/' as const, label: t('nav.home'), show: true },
+    { to: '/dashboard' as const, label: t('nav.dashboard'), show: !!session },
+    {
+      to: '/moderation' as const,
+      label: t('nav.moderation'),
+      show: hasModeratorRole,
+    },
     {
       to: '/admin' as const,
-      label: 'Administração',
+      label: t('nav.admin'),
       show: hasSystemManagerRole,
     },
   ];
@@ -48,6 +54,18 @@ export default function Header() {
             })}
         </nav>
         <div className="flex items-center gap-2">
+          <select
+            value={i18n.language}
+            onChange={(e) => i18n.changeLanguage(e.target.value)}
+            className="cursor-pointer rounded border border-input bg-transparent px-2 py-1 text-foreground text-sm outline-none"
+          >
+            <option value="pt" className="bg-background text-foreground">
+              PT
+            </option>
+            <option value="en" className="bg-background text-foreground">
+              EN
+            </option>
+          </select>
           <ModeToggle />
           <UserMenu />
         </div>

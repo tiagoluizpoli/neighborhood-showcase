@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "home": "Início",
+    "dashboard": "Painel",
+    "moderation": "Moderação",
+    "admin": "Administração"
+  },
+  "menu": {
+    "account": "Minha Conta",
+    "logout": "Sair",
+    "login": "Entrar"
+  },
+  "common": {
+    "page_not_found": "Página não encontrada",
+    "publish_announcement": "Publicar Anúncio",
+    "pay": "Pagar",
+    "active": "Ativo",
+    "draft": "Rascunho",
+    "expired": "Expirado",
+    "suspended": "Suspenso"
+  }
+}

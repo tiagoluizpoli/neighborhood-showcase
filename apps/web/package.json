@@ -27,10 +27,13 @@
     "@unleash/proxy-client-react": "^5.0.1",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
+    "i18next": "^26.3.0",
+    "i18next-browser-languagedetector": "^8.2.1",
     "lucide-react": "catalog:",
     "next-themes": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "react-i18next": "^17.0.8",
     "sonner": "catalog:",
     "vite-plugin-pwa": "^1.0.1",
     "zod": "catalog:"
