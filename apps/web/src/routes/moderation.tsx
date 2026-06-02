@@ -9,14 +9,13 @@ import {
 import { Input } from '@neighborhood-showcase/ui/components/input';
 import { Label } from '@neighborhood-showcase/ui/components/label';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 import {
   AlertTriangle,
   Check,
   ExternalLink,
   FileText,
   Loader2,
-  LogOut,
   Megaphone,
   RefreshCw,
   ShieldAlert,
@@ -61,7 +60,6 @@ export const Route = createFileRoute('/moderation')({
 });
 
 function ModerationDashboard() {
-  const navigate = useNavigate();
   const { moderatorAssignments } = Route.useRouteContext();
 
   // Selected condo context state
@@ -149,11 +147,6 @@ function ModerationDashboard() {
   const [isSuspendingId, setIsSuspendingId] = useState<string | null>(null);
   const [suspensionReason, setSuspensionReason] = useState('');
 
-  const handleLogout = async () => {
-    await authClient.signOut();
-    navigate({ to: '/auth' });
-  };
-
   const currentCondo = moderatorAssignments.find(
     (a) => a.condominiumId === selectedCondoId,
   )?.condominium;
@@ -162,76 +155,53 @@ function ModerationDashboard() {
   const announcements = announcementsQuery.data || [];
 
   return (
-    <div className="relative min-h-screen bg-slate-950 text-slate-100">
-      {/* Background Gradients */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.08),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.08),transparent_50%)]" />
-      </div>
-
-      {/* Header */}
-      <header className="border-slate-800 border-b bg-slate-900/60 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center space-x-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400">
-              <Users className="h-6 w-6" />
-            </div>
-            <div>
-              <h1 className="font-bold text-lg text-slate-200">
-                Painel de Moderação
-              </h1>
-              <p className="text-slate-400 text-xs">
-                {currentCondo?.name || 'Carregando condomínio...'}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            {moderatorAssignments.length > 1 && (
-              <select
-                value={selectedCondoId}
-                onChange={(e) => {
-                  setSelectedCondoId(e.target.value);
-                  setIsRejectingId(null);
-                  setReason('');
-                  setIsSuspendingId(null);
-                  setSuspensionReason('');
-                }}
-                className="rounded-lg border border-slate-800 bg-slate-950 px-3 py-1.5 font-medium text-slate-300 text-sm focus:border-indigo-600 focus:outline-none"
-              >
-                {moderatorAssignments.map((a) => (
-                  <option key={a.condominiumId} value={a.condominiumId}>
-                    {a.condominium?.name}
-                  </option>
-                ))}
-              </select>
-            )}
-            <Button
-              variant="ghost"
-              onClick={handleLogout}
-              className="cursor-pointer text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-            >
-              <LogOut className="mr-2 h-4 w-4" /> Sair
-            </Button>
-          </div>
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-background text-foreground">
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <h1 className="font-bold text-3xl text-foreground tracking-tight">
+              Painel de Moderação
+            </h1>
+            <p className="mt-1 text-muted-foreground text-sm">
+              {currentCondo?.name || 'Carregando condomínio...'}
+            </p>
+          </div>
+          {moderatorAssignments.length > 1 && (
+            <select
+              value={selectedCondoId}
+              onChange={(e) => {
+                setSelectedCondoId(e.target.value);
+                setIsRejectingId(null);
+                setReason('');
+                setIsSuspendingId(null);
+                setSuspensionReason('');
+              }}
+              className="rounded-lg border border-input bg-background px-3 py-1.5 font-medium text-foreground text-sm focus:border-ring focus:outline-none"
+            >
+              {moderatorAssignments.map((a) => (
+                <option key={a.condominiumId} value={a.condominiumId}>
+                  {a.condominium?.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
         {/* Toggle Sub-Tabs */}
-        <div className="mb-8 flex space-x-8 border-slate-800 border-b">
+        <div className="mb-8 flex space-x-8 border-border border-b">
           <button
             type="button"
             onClick={() => setActiveSubTab('residents')}
             className={`relative pb-4 font-semibold text-sm transition-all ${
               activeSubTab === 'residents'
-                ? 'border-indigo-400 border-b-2 text-indigo-400'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'border-primary border-b-2 text-primary'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              Residentes Pendentes ({pendingResidents.length})
+              Moradores Pendentes ({pendingResidents.length})
             </div>
           </button>
           <button
@@ -239,8 +209,8 @@ function ModerationDashboard() {
             onClick={() => setActiveSubTab('announcements')}
             className={`relative pb-4 font-semibold text-sm transition-all ${
               activeSubTab === 'announcements'
-                ? 'border-indigo-400 border-b-2 text-indigo-400'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'border-primary border-b-2 text-primary'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <div className="flex items-center gap-2">
@@ -255,10 +225,10 @@ function ModerationDashboard() {
           <>
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h2 className="font-bold text-2xl text-slate-100">
+                <h2 className="font-bold text-2xl text-foreground">
                   Solicitações de Moradores
                 </h2>
-                <p className="mt-1 text-slate-400 text-xs">
+                <p className="mt-1 text-muted-foreground text-xs">
                   Aprove ou rejeite novas solicitações de moradores para a sua
                   comunidade
                 </p>
@@ -267,18 +237,18 @@ function ModerationDashboard() {
 
             {pendingResidentsQuery.isPending ? (
               <div className="flex min-h-[40vh] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : pendingResidents.length === 0 ? (
-              <Card className="border-slate-800 bg-slate-900/40 py-12 text-center backdrop-blur-md">
+              <Card className="py-12 text-center">
                 <CardContent>
-                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 text-slate-500">
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                     <Check className="h-6 w-6" />
                   </div>
-                  <h3 className="font-semibold text-lg text-slate-300">
+                  <h3 className="font-semibold text-foreground text-lg">
                     Tudo sob controle!
                   </h3>
-                  <p className="mt-1 text-slate-500 text-sm">
+                  <p className="mt-1 text-muted-foreground text-sm">
                     Nenhuma solicitação de morador pendente para este
                     condomínio.
                   </p>
@@ -289,22 +259,22 @@ function ModerationDashboard() {
                 {pendingResidents.map((resident) => (
                   <Card
                     key={resident.id}
-                    className="flex flex-col justify-between border-slate-800 bg-slate-900/60 transition-all hover:border-slate-700 hover:shadow-indigo-500/5 hover:shadow-lg"
+                    className="flex flex-col justify-between"
                   >
                     <CardHeader>
-                      <CardTitle className="font-semibold text-lg text-slate-200">
+                      <CardTitle className="font-semibold text-foreground text-lg">
                         {resident.provider?.name || 'Morador Sem Nome'}
                       </CardTitle>
-                      <CardDescription className="text-slate-400">
+                      <CardDescription className="text-muted-foreground">
                         Unidade: {resident.unitInfo || 'Não informada'}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {resident.proofOfResidency && (
-                        <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+                        <div className="rounded-lg border bg-muted/45 p-3">
                           <div className="flex items-center justify-between">
-                            <span className="flex items-center text-slate-400 text-xs">
-                              <FileText className="mr-1.5 h-4 w-4 text-indigo-400" />
+                            <span className="flex items-center text-muted-foreground text-xs">
+                              <FileText className="mr-1.5 h-4 w-4 text-primary" />
                               Comprovante
                             </span>
                             <div className="flex space-x-2">
@@ -315,7 +285,7 @@ function ModerationDashboard() {
                                     resident.proofOfResidency || null,
                                   )
                                 }
-                                className="cursor-pointer text-indigo-400 text-xs hover:underline"
+                                className="cursor-pointer text-primary text-xs hover:underline"
                               >
                                 Visualizar
                               </button>
@@ -323,7 +293,7 @@ function ModerationDashboard() {
                                 href={resident.proofOfResidency}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="flex items-center text-indigo-400 text-xs hover:underline"
+                                className="flex items-center text-primary text-xs hover:underline"
                               >
                                 <ExternalLink className="ml-1 h-3 w-3" />
                               </a>
@@ -333,18 +303,18 @@ function ModerationDashboard() {
                       )}
 
                       {isRejectingId === resident.id ? (
-                        <div className="space-y-3 rounded-lg border border-red-950/50 bg-red-950/10 p-3">
+                        <div className="space-y-3 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
                           <div className="space-y-1">
                             <Label
                               htmlFor={`reason-${resident.id}`}
-                              className="text-red-400 text-xs"
+                              className="text-destructive text-xs"
                             >
                               Motivo da Rejeição *
                             </Label>
                             <Input
                               id={`reason-${resident.id}`}
                               placeholder="Ex: Nome inválido ou comprovante ilegível"
-                              className="border-red-950/80 bg-slate-950 text-slate-100 text-xs placeholder:text-slate-700 focus-visible:ring-red-600"
+                              className="text-xs"
                               value={reason}
                               onChange={(e) => setReason(e.target.value)}
                             />
@@ -353,11 +323,12 @@ function ModerationDashboard() {
                             <Button
                               variant="ghost"
                               onClick={() => setIsRejectingId(null)}
-                              className="h-7 px-2 text-slate-400 text-xs hover:bg-slate-800"
+                              className="h-7 px-2 text-muted-foreground text-xs"
                             >
                               Cancelar
                             </Button>
                             <Button
+                              variant="destructive"
                               disabled={
                                 rejectMutation.isPending || !reason.trim()
                               }
@@ -367,7 +338,7 @@ function ModerationDashboard() {
                                   reason: reason.trim(),
                                 })
                               }
-                              className="h-7 bg-red-600 px-2 text-white text-xs hover:bg-red-700"
+                              className="h-7 px-2 text-xs"
                             >
                               Confirmar
                             </Button>
@@ -380,7 +351,7 @@ function ModerationDashboard() {
                             onClick={() =>
                               approveMutation.mutate({ id: resident.id })
                             }
-                            className="flex-1 bg-indigo-600 text-white hover:bg-indigo-700"
+                            className="flex-1"
                           >
                             {approveMutation.isPending ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
@@ -396,7 +367,7 @@ function ModerationDashboard() {
                               setIsRejectingId(resident.id);
                               setReason('');
                             }}
-                            className="border-slate-800 text-red-400 hover:bg-red-950/20 hover:text-red-300"
+                            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                           >
                             <X className="mr-1.5 h-4 w-4" /> Rejeitar
                           </Button>
@@ -414,28 +385,28 @@ function ModerationDashboard() {
         {activeSubTab === 'announcements' && (
           <>
             <div className="mb-6">
-              <h2 className="font-bold text-2xl text-slate-100">
+              <h2 className="font-bold text-2xl text-foreground">
                 Anúncios da Comunidade
               </h2>
-              <p className="mt-1 text-slate-400 text-xs">
+              <p className="mt-1 text-muted-foreground text-xs">
                 Gerencie e suspenda anúncios que violam as regras do condomínio.
               </p>
             </div>
 
             {announcementsQuery.isPending ? (
               <div className="flex min-h-[40vh] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : announcements.length === 0 ? (
-              <Card className="border-slate-800 bg-slate-900/40 py-12 text-center backdrop-blur-md">
+              <Card className="py-12 text-center">
                 <CardContent>
-                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 text-slate-500">
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                     <Megaphone className="h-6 w-6" />
                   </div>
-                  <h3 className="font-semibold text-lg text-slate-300">
+                  <h3 className="font-semibold text-foreground text-lg">
                     Nenhum anúncio
                   </h3>
-                  <p className="mt-1 text-slate-500 text-sm">
+                  <p className="mt-1 text-muted-foreground text-sm">
                     Não há anúncios ativos ou suspensos neste condomínio.
                   </p>
                 </CardContent>
@@ -445,10 +416,10 @@ function ModerationDashboard() {
                 {announcements.map((ad) => (
                   <Card
                     key={ad.id}
-                    className="flex flex-col justify-between overflow-hidden border-slate-800 bg-slate-900/60 transition-all hover:border-slate-700"
+                    className="flex flex-col justify-between overflow-hidden"
                   >
                     {/* Header Image */}
-                    <div className="relative aspect-[4/3] w-full bg-slate-950">
+                    <div className="relative aspect-[4/3] w-full bg-muted">
                       <img
                         src={ad.imageUrl}
                         alt={ad.title}
@@ -456,10 +427,10 @@ function ModerationDashboard() {
                       />
                       <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
                         <span
-                          className={`rounded-full px-2.5 py-1 font-semibold text-xs shadow-md backdrop-blur-md ${
+                          className={`rounded-full border px-2.5 py-1 font-semibold text-xs shadow-md backdrop-blur-md ${
                             ad.status === 'ACTIVE'
-                              ? 'border border-emerald-500/30 bg-emerald-500/20 text-emerald-300'
-                              : 'border border-rose-500/30 bg-rose-500/20 text-rose-300'
+                              ? 'border-emerald-500/30 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                              : 'border-rose-500/30 bg-rose-500/20 text-rose-600 dark:text-rose-400'
                           }`}
                         >
                           {ad.status === 'ACTIVE'
@@ -469,17 +440,17 @@ function ModerationDashboard() {
                             : 'Suspenso'}
                         </span>
                         {ad.flaggedForReview && (
-                          <span className="flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/20 px-2 py-0.5 font-semibold text-[9px] text-amber-300 backdrop-blur-md">
+                          <span className="flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/20 px-2 py-0.5 font-semibold text-[9px] text-amber-600 backdrop-blur-md dark:text-amber-400">
                             <ShieldAlert className="h-3 w-3" /> Alterado
                             recentemente
                           </span>
                         )}
                       </div>
-                      <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-slate-950/95 to-transparent p-4">
-                        <p className="font-medium text-indigo-300 text-xs uppercase tracking-wider">
+                      <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-background/95 to-transparent p-4">
+                        <p className="font-medium text-primary text-xs uppercase tracking-wider">
                           {ad.category}
                         </p>
-                        <h4 className="line-clamp-1 font-bold text-lg text-slate-100">
+                        <h4 className="line-clamp-1 font-bold text-foreground text-lg">
                           {ad.title}
                         </h4>
                       </div>
@@ -487,12 +458,12 @@ function ModerationDashboard() {
 
                     <CardContent className="flex flex-1 flex-col justify-between space-y-4 p-5">
                       <div>
-                        <p className="line-clamp-2 text-slate-400 text-sm">
+                        <p className="line-clamp-2 text-muted-foreground text-sm">
                           {ad.description}
                         </p>
-                        <div className="mt-4 flex items-center justify-between border-slate-800/80 border-t pt-3 text-slate-500 text-xs">
+                        <div className="mt-4 flex items-center justify-between border-border border-t pt-3 text-muted-foreground text-xs">
                           <span>Provedor:</span>
-                          <span className="font-medium text-slate-300">
+                          <span className="font-medium text-foreground">
                             {ad.providerName}
                           </span>
                         </div>
@@ -500,11 +471,11 @@ function ModerationDashboard() {
 
                       {/* Suspension reason if already suspended */}
                       {ad.status === 'SUSPENDED' && ad.suspensionReason && (
-                        <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-3 text-xs">
-                          <span className="mb-1 block font-bold text-rose-400">
+                        <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-xs">
+                          <span className="mb-1 block font-bold text-destructive">
                             Motivo da Suspensão:
                           </span>
-                          <p className="text-rose-300/90 italic">
+                          <p className="text-destructive/80 italic">
                             {ad.suspensionReason}
                           </p>
                         </div>
@@ -512,18 +483,18 @@ function ModerationDashboard() {
 
                       {/* Action forms */}
                       {isSuspendingId === ad.id ? (
-                        <div className="space-y-3 rounded-lg border border-red-950/50 bg-red-950/10 p-3">
+                        <div className="space-y-3 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
                           <div className="space-y-1">
                             <Label
                               htmlFor={`suspend-reason-${ad.id}`}
-                              className="text-red-400 text-xs"
+                              className="text-destructive text-xs"
                             >
                               Motivo da Suspensão *
                             </Label>
                             <Input
                               id={`suspend-reason-${ad.id}`}
                               placeholder="Ex: Conteúdo inadequado ou contato falso"
-                              className="border-red-950/80 bg-slate-950 text-slate-100 text-xs placeholder:text-slate-700 focus-visible:ring-red-600"
+                              className="text-xs"
                               value={suspensionReason}
                               onChange={(e) =>
                                 setSuspensionReason(e.target.value)
@@ -534,11 +505,12 @@ function ModerationDashboard() {
                             <Button
                               variant="ghost"
                               onClick={() => setIsSuspendingId(null)}
-                              className="h-7 px-2 text-slate-400 text-xs hover:bg-slate-800"
+                              className="h-7 px-2 text-muted-foreground text-xs"
                             >
                               Cancelar
                             </Button>
                             <Button
+                              variant="destructive"
                               disabled={
                                 suspendMutation.isPending ||
                                 !suspensionReason.trim()
@@ -549,7 +521,7 @@ function ModerationDashboard() {
                                   reason: suspensionReason.trim(),
                                 })
                               }
-                              className="h-7 bg-red-600 px-2 text-white text-xs hover:bg-red-700"
+                              className="h-7 px-2 text-xs"
                             >
                               Confirmar
                             </Button>
@@ -559,11 +531,12 @@ function ModerationDashboard() {
                         <div className="flex pt-2">
                           {ad.status === 'ACTIVE' ? (
                             <Button
+                              variant="destructive"
                               onClick={() => {
                                 setIsSuspendingId(ad.id);
                                 setSuspensionReason('');
                               }}
-                              className="w-full bg-red-600 text-white hover:bg-red-700"
+                              className="w-full"
                             >
                               <AlertTriangle className="mr-1.5 h-4 w-4" />{' '}
                               Suspender Anúncio
@@ -574,7 +547,7 @@ function ModerationDashboard() {
                               onClick={() =>
                                 reinstateMutation.mutate({ id: ad.id })
                               }
-                              className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
+                              className="w-full bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700"
                             >
                               {reinstateMutation.isPending ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -600,11 +573,11 @@ function ModerationDashboard() {
       {/* Document Preview Modal */}
       {previewUrl && (
         <div className="fixed inset-0 z-50 flex animate-fade-in items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="relative flex h-[85vh] w-full max-w-4xl flex-col rounded-xl border border-slate-800 bg-slate-900 shadow-2xl">
+          <div className="relative flex h-[85vh] w-full max-w-4xl flex-col rounded-xl border bg-card shadow-2xl">
             <button
               type="button"
               onClick={() => setPreviewUrl(null)}
-              className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+              className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-accent"
             >
               <X className="h-5 w-5" />
             </button>
