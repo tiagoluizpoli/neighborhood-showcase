@@ -41,10 +41,7 @@ export class AbacatePayClient {
         amount: input.amountCents,
         description: `Taxa de Publicacao - Anuncio ${input.announcementId}`,
         expiresIn: 600, // 10 minutes
-        customer: {
-          name: input.customerName,
-          email: input.customerEmail,
-        },
+        externalId: input.announcementId,
         metadata: {
           announcementId: input.announcementId,
         },

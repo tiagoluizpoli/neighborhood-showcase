@@ -10,21 +10,18 @@ import { eq } from 'drizzle-orm';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { Resend } from 'resend';
 
-function verifySignature(
-  body: string,
-  signature: string,
-  secret: string,
-): boolean {
-  const computed = createHmac('sha256', secret).update(body).digest('hex');
+function verifySignature(body: string, signature: string): boolean {
+  const computed = createHmac('sha256', env.ABACATEPAY_PUBLIC_KEY)
+    .update(Buffer.from(body, 'utf8'))
+    .digest('base64');
 
-  if (computed.length !== signature.length) {
+  try {
+    const A = Buffer.from(computed);
+    const B = Buffer.from(signature);
+    return A.length === B.length && timingSafeEqual(A, B);
+  } catch {
     return false;
   }
-
-  return timingSafeEqual(
-    Buffer.from(computed, 'utf-8'),
-    Buffer.from(signature, 'utf-8'),
-  );
 }
 
 export async function webhookRoutes(fastify: FastifyInstance) {
@@ -37,22 +34,47 @@ export async function webhookRoutes(fastify: FastifyInstance) {
     },
     async (request, reply) => {
       const signature = request.headers['x-webhook-signature'];
+      const { webhookSecret } = request.query as { webhookSecret?: string };
 
-      // Signature validation
-      if (!signature) {
-        if (env.NODE_ENV !== 'development' && env.NODE_ENV !== 'test') {
-          return reply
-            .status(401)
-            .send({ error: 'Missing x-webhook-signature header' });
+      request.log.info(
+        {
+          webhookSecretQuery: webhookSecret,
+          headerSignature: signature,
+          rawBodyLength:
+            (request as FastifyRequest & { rawBody?: string }).rawBody
+              ?.length || 0,
+        },
+        'AbacatePay Webhook Debug Values',
+      );
+
+      const isDev = env.NODE_ENV === 'development';
+
+      // Secret and Signature validation
+      if (!signature || !webhookSecret) {
+        if (!isDev) {
+          return reply.status(401).send({
+            error: 'Missing authentication credentials (signature or secret)',
+          });
         }
         request.log.warn(
-          'Bypassing signature validation in non-production environment',
+          'Bypassing verification in development environment due to missing signature or secret',
         );
       } else {
-        const secret = env.ABACATEPAY_WEBHOOK_SECRET;
+        // 1. Verify URL secret
+        const expectedSecretBuf = Buffer.from(env.ABACATEPAY_WEBHOOK_SECRET);
+        const receivedSecretBuf = Buffer.from(webhookSecret);
+        const isSecretValid =
+          expectedSecretBuf.length === receivedSecretBuf.length &&
+          timingSafeEqual(expectedSecretBuf, receivedSecretBuf);
+
+        if (!isSecretValid) {
+          return reply.status(401).send({ error: 'Invalid webhook secret' });
+        }
+
+        // 2. Verify HMAC Signature
         const rawBody =
           (request as FastifyRequest & { rawBody?: string }).rawBody || '';
-        const verified = verifySignature(rawBody, String(signature), secret);
+        const verified = verifySignature(rawBody, String(signature));
         if (!verified) {
           return reply
             .status(401)
@@ -65,8 +87,14 @@ export async function webhookRoutes(fastify: FastifyInstance) {
         id?: string;
         event?: string;
         data?: {
-          id?: string;
-          status?: string;
+          transparent?: {
+            id: string;
+            status: string;
+          };
+          checkout?: {
+            id: string;
+            status: string;
+          };
         };
       };
 
@@ -76,21 +104,38 @@ export async function webhookRoutes(fastify: FastifyInstance) {
 
       const { event, data } = payload;
 
-      if (!event || !data?.id) {
+      if (!event || !data) {
         return reply
           .status(400)
           .send({ error: 'Missing required webhook fields' });
       }
 
-      // If the event is not billing.paid, acknowledge and ignore
-      if (event !== 'billing.paid') {
+      let billingId: string | undefined;
+      let paymentStatus: string | undefined;
+
+      if (event === 'transparent.completed' && data.transparent) {
+        billingId = data.transparent.id;
+        paymentStatus = data.transparent.status;
+      } else if (event === 'checkout.completed' && data.checkout) {
+        billingId = data.checkout.id;
+        paymentStatus = data.checkout.status;
+      }
+
+      // If we cannot extract billingId, acknowledge and ignore
+      if (!billingId) {
         return reply.status(200).send({
           status: 'ignored',
-          message: `Webhook event '${event}' is ignored`,
+          message: `Webhook event '${event}' is ignored or has no billing data`,
         });
       }
 
-      const billingId = data.id;
+      // Assert that the webhook payload status is PAID
+      if (paymentStatus !== 'PAID') {
+        return reply.status(200).send({
+          status: 'ignored',
+          message: `Payment status is '${paymentStatus}', expecting 'PAID'`,
+        });
+      }
 
       // Find the payment record
       const paymentRecord = await db
