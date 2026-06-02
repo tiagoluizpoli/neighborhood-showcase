@@ -8,10 +8,10 @@ Fix the double-visualization analytics bug where clicking an announcement in the
 
 ## Acceptance criteria
 
-- [ ] The `trackEvent` call with event `IMPRESSION` is removed from `openAdDetails` or onClick grid card handlers.
-- [ ] Direct page load or modal open of an announcement triggers exactly one `IMPRESSION` event.
-- [ ] A `useRef` guard prevents double-counting due to React.StrictMode in development mode.
-- [ ] Unit/integration tests are written to verify that the detail component mount tracks the event exactly once, and click handlers do not track it.
+- [x] The `trackEvent` call with event `IMPRESSION` is removed from `openAdDetails` or onClick grid card handlers.
+- [x] Direct page load or modal open of an announcement triggers exactly one `IMPRESSION` event.
+- [x] A `useRef` guard prevents double-counting due to React.StrictMode in development mode.
+- [x] Unit/integration tests are written to verify that the detail component mount tracks the event exactly once, and click handlers do not track it.
 
 ## Blocked by
 

@@ -18,11 +18,11 @@ Migrate all 11 text-enum columns across 6 database tables to native PostgreSQL `
 
 ## Acceptance criteria
 
-- [ ] All 11 enum columns are converted to independent native `pgEnum` definitions in Drizzle.
-- [ ] Legacy migrations are deleted, and a new initial migration is cleanly generated.
-- [ ] Running `bun run db:push` or schema sync completes without error against both dev and test DBs.
-- [ ] Database validation rules/constraints reject invalid enum inserts directly at the PG level.
-- [ ] All 134 existing integration tests pass successfully with the native DB enums.
+- [x] All 11 enum columns are converted to independent native `pgEnum` definitions in Drizzle.
+- [x] Legacy migrations are deleted, and a new initial migration is cleanly generated.
+- [x] Running `bun run db:push` or schema sync completes without error against both dev and test DBs.
+- [x] Database validation rules/constraints reject invalid enum inserts directly at the PG level.
+- [x] All 134 existing integration tests pass successfully with the native DB enums.
 
 ## Blocked by
 

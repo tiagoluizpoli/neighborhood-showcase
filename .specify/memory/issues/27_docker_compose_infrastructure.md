@@ -9,11 +9,11 @@ Relocate and enhance the Docker Compose configuration to support project-wide lo
 
 ## Acceptance criteria
 
-- [ ] `docker-compose.yml` is located at the project root directory.
-- [ ] Scripts in `packages/db/package.json` successfully run compose commands referencing `../../docker-compose.yml`.
-- [ ] Running `docker compose config` parses without errors.
-- [ ] Local Unleash server and Redis containers are defined and start successfully when running `docker compose up`.
-- [ ] Default Unleash configurations are exposed in `.env.template` and initialized in `.env`.
+- [x] `docker-compose.yml` is located at the project root directory.
+- [x] Scripts in `packages/db/package.json` successfully run compose commands referencing `../../docker-compose.yml`.
+- [x] Running `docker compose config` parses without errors.
+- [x] Local Unleash server and Redis containers are defined and start successfully when running `docker compose up`.
+- [x] Default Unleash configurations are exposed in `.env.template` and initialized in `.env`.
 
 ## Blocked by
 
