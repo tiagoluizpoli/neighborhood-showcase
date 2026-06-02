@@ -58,6 +58,14 @@ A mobile-first, geolocation-driven showcase application for local businesses and
 27. As a system manager, I want to manage a global CPF blacklist, so that banned users are locked out from ever registering again.
 28. As a system manager, I want to search and ban violating providers, so that all their active listings are immediately expunged.
 
+### Refactoring & Improvement Stories
+29. As a provider, I want to see a "Publicar Anúncio" action button on my draft announcements, so that I can initiate the payment checkout flow directly.
+30. As a visitor or user, I want the web application's page title and metadata to display "Neighborhood Showcase", so that I know what platform I am visiting.
+31. As a logged-in provider, I want the header navigation menu to show "Painel" only when I am signed in, so that I can access my settings securely.
+32. As a condominium moderator, I want to see the "Moderação" link in the header menu only if my moderator assignment is approved, so that I can access my moderation panel.
+33. As a system manager, I want to see the "Administração" link in the header menu only if I have the admin role, so that I can access global settings.
+34. As a user, I want direct URL access to protected routes (e.g. `/admin`) to redirect me to `/` (Início) if unauthenticated, or to `/dashboard` (Painel) with a generic page not found state if authenticated, so that unauthorized layout pages are kept hidden for safety.
+
 ---
 
 ## Implementation Decisions
@@ -77,6 +85,14 @@ A mobile-first, geolocation-driven showcase application for local businesses and
 ### Payment Workflow
 - Integrates AbacatePay API. Checkouts initiate a dynamic `POST` to AbacatePay. Webhook requests arrive at Fastify raw router `POST /api/webhooks/abacatepay`, verifying signature headers before transitioning announcements to `ACTIVE` and updating expiration dates.
 
+### Improvements & Refactoring Decisions
+- **Draft Publication Flow**: Expose a button on the provider panel for `DRAFT` announcements that redirects to the Pix paywall checkout route `/dashboard/anuncios/:id/pagamento`.
+- **Backend Status Verification**: Add status verification guards to `GeneratePaymentIntent` preventing duplicate Pix checkout QR codes for `ACTIVE` or `SUSPENDED` announcements.
+- **Todo Cleanup**: Delete all files and exports related to the legacy Todo feature, purge the migration files, and regenerate the base schema initial migration from scratch.
+- **Layout and Styling Standardization**: Replace custom dark slate styles and radial background gradients with default shadcn themes and spacing/padding utilities. Change metadata name variables and docker configurations to use the `neighborhood-showcase` namespace.
+- **Dynamic Permission-Based Navigation**: Render header menus (Início, Painel, Moderação, Administração) dynamically based on auth session and assignment checks. Group user menu options on the right side of the navbar.
+- **URL Access Route Guards**: Unauthenticated users trying to access protected paths directly will be redirected to `/`. Authenticated users attempting to access routes above their permissions will be redirected to `/dashboard` and shown a generic page not found layout.
+
 ---
 
 ## Testing Decisions
@@ -85,6 +101,10 @@ A mobile-first, geolocation-driven showcase application for local businesses and
 - **Unit Testing**: Validate CPF mathematical checking algorithms, image crop validators, and announcement state machine expiration calculations.
 - **Integration Testing**: Execute tests against a real test PostgreSQL instance and a local MinIO bucket to verify repository adapters, authorization middleware, and webhook signatures.
 - **End-to-End Testing**: Test entire user journeys (registration $\rightarrow$ block setup $\rightarrow$ checkout redirect $\rightarrow$ webhook payment $\rightarrow$ showcase listing) in a simulated browser state.
+- **Refactoring & Guard Testing**:
+  - Test that the backend `GeneratePaymentIntent` use case rejects requests with appropriate tRPC errors if the announcement is already `ACTIVE` or `SUSPENDED`.
+  - Test that all routes correctly apply the dynamic permission route guards (redirecting unauthenticated users to `/`, and redirecting unauthorized users to `/dashboard` while rendering a generic not found state).
+  - Verify that the test suite compiles with no references to the legacy Todo feature.
 
 ---
 
@@ -133,4 +153,14 @@ The following planning, specification, and test verification documents located i
 - [09 Public Showcase & Discovery](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/09_public_showcase_discovery.md)
 - [10 Provider Dashboard & LGPD](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/10_provider_dashboard_lgpd.md)
 - [11 Moderator Suspension & Admin Blacklist](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/11_moderator_suspension_admin_blacklist.md)
+- [12 DB Migration for Address & Location Assignment](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/12_db_migration_address_location.md)
+- [13 Onboarding Setup Flow Refactoring](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/13_onboarding_setup_flow_external.md)
+- [14 Announcement Creation & Editing Refactoring](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/14_announcement_creation_auto_link.md)
+- [15 Public Showcase & Proximity Refactor](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/15_public_showcase_proximity_refactor.md)
+- [16 Project Rename to Neighborhood Showcase](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/16_rename_project_references.md)
+- [17 Draft Announcement Publish Button](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/17_draft_announcement_publish_button.md)
+- [18 Purge Legacy Todo Code](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/18_purge_legacy_todo_code.md)
+- [19 Legacy Sync & Styling Simplification](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/19_styling_simplification.md)
+- [20 Secure Permission-Based Navigation & Localization](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/20_permission_navigation_localization.md)
+
 
