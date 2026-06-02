@@ -65,6 +65,9 @@ A mobile-first, geolocation-driven showcase application for local businesses and
 32. As a condominium moderator, I want to see the "Moderação" link in the header menu only if my moderator assignment is approved, so that I can access my moderation panel.
 33. As a system manager, I want to see the "Administração" link in the header menu only if I have the admin role, so that I can access global settings.
 34. As a user, I want direct URL access to protected routes (e.g. `/admin`) to redirect me to `/` (Início) if unauthenticated, or to `/dashboard` (Painel) with a generic page not found state if authenticated, so that unauthorized layout pages are kept hidden for safety.
+35. As a developer, I want to manage feature toggles using Unleash, so that I can easily toggle new functionalities on/off per environment.
+36. As a user (English or Portuguese speaker), I want the application's interface to be available in both English and Portuguese, so that I can browse and interact in my preferred language.
+37. As a developer, I want all user-facing copy to be decoupled from the code and stored in translation JSON files, so that I can maintain translations without editing components directly.
 
 ---
 
@@ -92,6 +95,12 @@ A mobile-first, geolocation-driven showcase application for local businesses and
 - **Layout and Styling Standardization**: Replace custom dark slate styles and radial background gradients with default shadcn themes and spacing/padding utilities. Change metadata name variables and docker configurations to use the `neighborhood-showcase` namespace.
 - **Dynamic Permission-Based Navigation**: Render header menus (Início, Painel, Moderação, Administração) dynamically based on auth session and assignment checks. Group user menu options on the right side of the navbar.
 - **URL Access Route Guards**: Unauthenticated users trying to access protected paths directly will be redirected to `/`. Authenticated users attempting to access routes above their permissions will be redirected to `/dashboard` and shown a generic page not found layout.
+- **Unleash Feature Flagging**: Implement the Unleash SDK on the server and client to toggle features on and off dynamically based on user environment or toggle status.
+- **Internationalization (i18n)**: Fully localize the client to both English (`en`) and Portuguese (`pt`). Implement `react-i18next` with JSON files. All user-facing labels, headings, error messages, and descriptions must be loaded through translation files; inline hardcoded strings are prohibited.
+- **DDD Entity Classes & Domain Error Decoupling**: Create the base `Entity` and `AuditableEntity` primitives under `apps/server/src/shared/base-entity.ts`. Decouple tRPC errors from the domain by throwing custom domain-specific `DomainError` subclasses, and map them using middleware to standard tRPC router codes.
+- **Concrete Db Mapper Isolation**: Concrete database `EntityMapper` classes will reside under `apps/server/src/infrastructure/db/mappers/` and map between Drizzle database rows and domain entity instances, keeping the domain isolated from persistence schemas.
+- **ADR for Payment Error Handling**: Document the trade-offs, retry rules, and error handling designs for the AbacatePay integration in a dedicated Architectural Decision Record (ADR).
+
 
 ---
 
@@ -134,6 +143,9 @@ The following planning, specification, and test verification documents located i
 - [Grill Session Log](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/grill_session.md)
 - [Architecture Grilling Log](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/architecture_grilling.md)
 - [Screen Grilling Log](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/screen_grilling.md)
+- [Improvements Implementation Plan](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/improvements_plan.md)
+- [Improvements Grilling Log](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/improvements_grilling.md)
+
 
 ### Diagrams
 - [Database ERD](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/diagrams/database-erd.md)
@@ -162,5 +174,11 @@ The following planning, specification, and test verification documents located i
 - [18 Purge Legacy Todo Code](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/18_purge_legacy_todo_code.md)
 - [19 Legacy Sync & Styling Simplification](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/19_styling_simplification.md)
 - [20 Secure Permission-Based Navigation & Localization](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/20_permission_navigation_localization.md)
+- [21 Fix Infinite Payment Tracking Loop](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/21_fix_infinite_payment_tracking_loop.md)
+- [22 DDD Domain Entity Class Refactoring](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/22_ddd_domain_entity_class_refactoring.md)
+- [23 Unleash Feature Flagging](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/23_unleash_feature_flagging.md)
+- [24 i18n Localization (English & Portuguese)](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/24_i18n_localization_en_pt.md)
+- [25 Payment Error Handling ADR](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/25_payment_error_handling_adr.md)
+
 
 

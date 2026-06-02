@@ -9,8 +9,11 @@ import type {
   CreatePaymentRepositoryInput,
   PaymentRepository,
 } from '../../domain/repositories/payment.repository';
+import { PaymentMapper } from './mappers/payment.mapper';
 
 export class DrizzlePaymentRepository implements PaymentRepository {
+  private readonly mapper = new PaymentMapper();
+
   async create(input: CreatePaymentRepositoryInput): Promise<Payment> {
     const [inserted] = await db
       .insert(paymentSchema)
@@ -29,7 +32,7 @@ export class DrizzlePaymentRepository implements PaymentRepository {
       throw new Error('Failed to create payment record');
     }
 
-    return inserted as Payment;
+    return this.mapper.toDomain(inserted);
   }
 
   async findByAnnouncementId(announcementId: string): Promise<Payment | null> {
@@ -40,7 +43,7 @@ export class DrizzlePaymentRepository implements PaymentRepository {
       .orderBy(desc(paymentSchema.createdAt))
       .limit(1);
 
-    return (found as Payment) || null;
+    return found ? this.mapper.toDomain(found) : null;
   }
 
   async findByBillingId(billingId: string): Promise<Payment | null> {
@@ -50,7 +53,7 @@ export class DrizzlePaymentRepository implements PaymentRepository {
       .where(eq(paymentSchema.billingId, billingId))
       .limit(1);
 
-    return (found as Payment) || null;
+    return found ? this.mapper.toDomain(found) : null;
   }
 
   async updateStatus(id: string, status: PaymentStatus): Promise<Payment> {
@@ -64,6 +67,6 @@ export class DrizzlePaymentRepository implements PaymentRepository {
       throw new Error(`Failed to update payment status for payment ${id}`);
     }
 
-    return updated as Payment;
+    return this.mapper.toDomain(updated);
   }
 }

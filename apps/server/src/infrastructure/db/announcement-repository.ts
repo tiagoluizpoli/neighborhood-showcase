@@ -8,9 +8,13 @@ import type {
 import type {
   AnnouncementRepository,
   CreateAnnouncementRepositoryInput,
+  UpdateAnnouncementRepositoryInput,
 } from '../../domain/repositories/announcement.repository';
+import { AnnouncementMapper } from './mappers/announcement.mapper';
 
 export class DrizzleAnnouncementRepository implements AnnouncementRepository {
+  private readonly mapper = new AnnouncementMapper();
+
   async create(
     input: CreateAnnouncementRepositoryInput,
   ): Promise<Announcement> {
@@ -39,7 +43,7 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
       throw new Error('Failed to create announcement');
     }
 
-    return inserted as Announcement;
+    return this.mapper.toDomain(inserted);
   }
 
   async findById(id: string): Promise<Announcement | null> {
@@ -49,7 +53,7 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
       .where(eq(announcementSchema.id, id))
       .limit(1);
 
-    return (found as Announcement) || null;
+    return found ? this.mapper.toDomain(found) : null;
   }
 
   async updateStatus(
@@ -66,21 +70,12 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
       throw new Error(`Failed to update announcement status for ${id}`);
     }
 
-    return updated as Announcement;
+    return this.mapper.toDomain(updated);
   }
 
   async update(
     id: string,
-    input: Partial<
-      Omit<
-        Announcement,
-        | 'id'
-        | 'providerId'
-        | 'condominiumId'
-        | 'providerLocationId'
-        | 'createdAt'
-      >
-    >,
+    input: UpdateAnnouncementRepositoryInput,
   ): Promise<Announcement> {
     const [updated] = await db
       .update(announcementSchema)
@@ -92,6 +87,6 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
       throw new Error(`Failed to update announcement for ${id}`);
     }
 
-    return updated as Announcement;
+    return this.mapper.toDomain(updated);
   }
 }

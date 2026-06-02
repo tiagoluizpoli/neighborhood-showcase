@@ -73,3 +73,33 @@ This plan details the task breakdown and verification steps for implementing the
     5.  **Configure global tRPC Error Formatting**:
         *   Modify the server setup/context/router configuration to capture caught `DomainError` exceptions and format them into bad-request `TRPCError` instances, decoupling the domain logic from the delivery mechanism.
     6.  **Verification**: Confirm the test suite compiles and succeeds, ensuring database rows do not leak beyond persistence boundaries and entities validate their invariants correctly.
+
+---
+
+## Task 6: Unleash Feature Flagging Integration (Item 6)
+*   **Objective**: Integrate Unleash SDK to manage environment-specific feature flags dynamically.
+*   **Tasks**:
+    1.  **Install SDKs**: Install the server-side SDK `unleash-client` and client-side SDK for Unleash.
+    2.  **Client/Server Init**: Configure proxy/API endpoints via environment variables. Initialize Unleash Provider in `apps/web/src/routes/__root.tsx`.
+    3.  **Toggle Helper**: Add server-side feature toggle checker and wraps new modules under these checks.
+    4.  **Verification**: Write integration tests asserting that feature flags accurately toggle mock route/action paths.
+
+---
+
+## Task 7: Complete i18n Localization (English & Portuguese) (Item 7)
+*   **Objective**: Localize the application to both English and Portuguese using translation JSON files without hardcoded components text.
+*   **Tasks**:
+    1.  **Install packages**: Add `i18next`, `react-i18next`, and language detector in `apps/web/`.
+    2.  **Resource JSONs**: Set up locale translation JSONs in English (`en`) and Portuguese (`pt`).
+    3.  **Translation Hook Integration**: Walk through all client pages, modals, headers, sidebars, and forms, replacing text with localized keys via `useTranslation()`.
+    4.  **Language switcher switcher**: Implement language switch buttons/dropdown in the header menu.
+    5.  **Verification**: Confirm that selecting a different language dynamically translates all elements in real-time, and run a static code scan to verify no raw user-facing strings are hardcoded in the codebase.
+
+---
+
+## Task 8: ADR for Payment Error Handling (Item 8)
+*   **Objective**: Document architectural decisions and trade-offs of integration and webhook retries with AbacatePay.
+*   **Tasks**:
+    1.  **Create ADR**: Create `docs/adr/0004-abacatepay-payment-error-handling.md` mapping the Pix paywall flows, exceptions (ACTIVE, SUSPENDED, EXPIRED), and webhook signature validation methods.
+    2.  **Verification**: Verify the document is cleanly rendered and readable, and matches repository conventions.
+

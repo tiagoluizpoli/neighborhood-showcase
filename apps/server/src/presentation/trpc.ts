@@ -1,7 +1,29 @@
 import { initTRPC, TRPCError } from '@trpc/server';
+import { DomainError } from '../shared/domain-error';
 import type { Context } from './context';
 
-export const t = initTRPC.context<Context>().create();
+export const t = initTRPC.context<Context>().create({
+  errorFormatter({ shape, error }) {
+    const isDomainError =
+      error.cause instanceof DomainError || error instanceof DomainError;
+    if (isDomainError) {
+      const message =
+        error.cause instanceof DomainError
+          ? error.cause.message
+          : error.message;
+      return {
+        ...shape,
+        message,
+        data: {
+          ...shape.data,
+          code: 'BAD_REQUEST',
+          httpStatus: 400,
+        },
+      };
+    }
+    return shape;
+  },
+});
 
 export const router = t.router;
 export const publicProcedure = t.procedure;

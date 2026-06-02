@@ -10,8 +10,11 @@ import type {
   AssignmentRepository,
   CreateAssignmentRepositoryInput,
 } from '../../domain/repositories/assignment.repository';
+import { AssignmentMapper } from './mappers/assignment.mapper';
 
 export class DrizzleAssignmentRepository implements AssignmentRepository {
+  private readonly mapper = new AssignmentMapper();
+
   async create(input: CreateAssignmentRepositoryInput): Promise<Assignment> {
     const [inserted] = await db
       .insert(assignSchema)
@@ -32,7 +35,7 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
       throw new Error('Failed to create assignment');
     }
 
-    return inserted as Assignment;
+    return this.mapper.toDomain(inserted);
   }
 
   async findByProviderAndCondo(
@@ -50,7 +53,7 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
       )
       .limit(1);
 
-    return (found as Assignment) || null;
+    return found ? this.mapper.toDomain(found) : null;
   }
 
   async findByProviderId(providerId: string): Promise<AssignmentWithCondo[]> {
@@ -61,7 +64,11 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
       },
     });
 
-    return results as AssignmentWithCondo[];
+    return results.map((row) => {
+      const entity = this.mapper.toDomain(row);
+      Object.assign(entity, { condominium: row.condominium });
+      return entity as AssignmentWithCondo;
+    });
   }
 
   async findPendingByCondoId(
@@ -77,7 +84,11 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
       },
     });
 
-    return results as AssignmentWithUser[];
+    return results.map((row) => {
+      const entity = this.mapper.toDomain(row);
+      Object.assign(entity, { provider: row.provider });
+      return entity as AssignmentWithUser;
+    });
   }
 
   async findById(id: string): Promise<Assignment | null> {
@@ -87,7 +98,7 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
       .where(eq(assignSchema.id, id))
       .limit(1);
 
-    return (found as Assignment) || null;
+    return found ? this.mapper.toDomain(found) : null;
   }
 
   async updateStatus(
@@ -104,6 +115,6 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
       throw new Error(`Failed to update assignment status for ${id}`);
     }
 
-    return updated as Assignment;
+    return this.mapper.toDomain(updated);
   }
 }

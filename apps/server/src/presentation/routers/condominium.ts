@@ -35,7 +35,7 @@ export const condominiumRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      return requestCondoUseCase.execute({
+      const condo = await requestCondoUseCase.execute({
         name: input.name,
         city: input.city,
         state: input.state,
@@ -44,34 +44,40 @@ export const condominiumRouter = router({
         createdBy: ctx.session.user.id,
         proofUrl: input.proofUrl,
       });
+      return condo.toDTO();
     }),
 
   myCreated: protectedProcedure.query(async ({ ctx }) => {
-    return condoRepo.findByCreatorId(ctx.session.user.id);
+    const condo = await condoRepo.findByCreatorId(ctx.session.user.id);
+    return condo ? condo.toDTO() : null;
   }),
 
   listApproved: publicProcedure
     .input(z.object({ query: z.string().default('') }))
     .query(async ({ input }) => {
-      return condoRepo.searchApproved(input.query);
+      const results = await condoRepo.searchApproved(input.query);
+      return results.map((condo) => condo.toDTO());
     }),
 
   listPending: adminProcedure.query(async () => {
-    return condoRepo.listPending();
+    const results = await condoRepo.listPending();
+    return results.map((condo) => condo.toDTO());
   }),
 
   approve: adminProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
-      return approveCondoUseCase.execute({ id: input.id });
+      const condo = await approveCondoUseCase.execute({ id: input.id });
+      return condo.toDTO();
     }),
 
   reject: adminProcedure
     .input(z.object({ id: z.string(), reason: z.string() }))
     .mutation(async ({ input }) => {
-      return rejectCondoUseCase.execute({
+      const condo = await rejectCondoUseCase.execute({
         id: input.id,
         reason: input.reason,
       });
+      return condo.toDTO();
     }),
 });

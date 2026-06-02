@@ -66,7 +66,7 @@ export const announcementRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      return createAnnouncementUseCase.execute({
+      const ann = await createAnnouncementUseCase.execute({
         providerId: ctx.session.user.id,
         providerLocationId: input.providerLocationId,
         title: input.title,
@@ -79,6 +79,7 @@ export const announcementRouter = router({
         contactLinks: input.contactLinks,
         showVerifiedBadge: input.showVerifiedBadge,
       });
+      return ann.toDTO();
     }),
 
   getPaymentDetails: protectedProcedure
@@ -219,7 +220,7 @@ export const announcementRouter = router({
       }
 
       return {
-        ...ann,
+        ...ann.toDTO(),
         condoName,
         condoCity,
         condoState,
@@ -262,7 +263,7 @@ export const announcementRouter = router({
 
       const newStatus = ann.status === 'SUSPENDED' ? 'ACTIVE' : ann.status;
 
-      return announcementRepo.update(input.id, {
+      const updatedAnn = await announcementRepo.update(input.id, {
         title: input.title,
         subtitle: input.subtitle,
         description: input.description,
@@ -281,6 +282,8 @@ export const announcementRouter = router({
         flaggedForReview: true,
         suspensionReason: null,
       });
+
+      return updatedAnn.toDTO();
     }),
 
   listForModeration: protectedProcedure

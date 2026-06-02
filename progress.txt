@@ -23,6 +23,7 @@
 - [x] **Issue 19**: Styling Simplification (Completed: 2026-06-01)
 - [x] **Issue 20**: Permission Navigation & Localization (Completed: 2026-06-02)
 - [x] **Issue 21**: Fix Infinite Payment & Tracking Loop (Completed: 2026-06-02)
+- [x] **Issue 22**: DDD Domain Entity Class Refactoring (Completed: 2026-06-02)
 
 ---
 
@@ -184,3 +185,11 @@
 ### Issue 21: Fix Infinite Payment & Tracking Loop
 - Replaced unstable mutation reference dependency with referentially stable destructured mutate callback in Payment and Impression tracking components.
 - Eliminated infinite loop of request mutations triggering on every component render.
+
+### Issue 22: DDD Domain Entity Class Refactoring
+- Created `base-entity.ts` containing the abstract `Entity` and `AuditableEntity` classes, and `domain-error.ts` for the base `DomainError` exception.
+- Refactored domain interfaces (`Condominium`, `Announcement`, `Assignment`, `Payment`) to classes with getter encapsulation and invariant validations.
+- Created `EntityMapper` interface and concrete Drizzle mappers in `apps/server/src/infrastructure/db/mappers/`.
+- Updated tRPC procedures and mappers to return serialized `.toDTO()` plain JSON objects, preventing domain class getters from breaking client network payloads.
+- Verified that all type-checks, biome checks, and 128 tests pass successfully.
+

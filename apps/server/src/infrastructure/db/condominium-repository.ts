@@ -6,8 +6,11 @@ import type {
   CondominiumRepository,
   CreateCondominiumRepositoryInput,
 } from '../../domain/repositories/condominium.repository';
+import { CondominiumMapper } from './mappers/condominium.mapper';
 
 export class DrizzleCondominiumRepository implements CondominiumRepository {
+  private readonly mapper = new CondominiumMapper();
+
   async create(input: CreateCondominiumRepositoryInput): Promise<Condominium> {
     const [inserted] = await db
       .insert(condoSchema)
@@ -28,7 +31,7 @@ export class DrizzleCondominiumRepository implements CondominiumRepository {
       throw new Error('Failed to create condominium');
     }
 
-    return inserted as Condominium;
+    return this.mapper.toDomain(inserted);
   }
 
   async findById(id: string): Promise<Condominium | null> {
@@ -38,7 +41,7 @@ export class DrizzleCondominiumRepository implements CondominiumRepository {
       .where(eq(condoSchema.id, id))
       .limit(1);
 
-    return (found as Condominium) || null;
+    return found ? this.mapper.toDomain(found) : null;
   }
 
   async findByCEP(cep: string): Promise<Condominium[]> {
@@ -47,7 +50,7 @@ export class DrizzleCondominiumRepository implements CondominiumRepository {
       .from(condoSchema)
       .where(eq(condoSchema.cep, cep));
 
-    return results as Condominium[];
+    return results.map((row) => this.mapper.toDomain(row));
   }
 
   async findByCreatorId(userId: string): Promise<Condominium | null> {
@@ -57,7 +60,7 @@ export class DrizzleCondominiumRepository implements CondominiumRepository {
       .where(eq(condoSchema.createdBy, userId))
       .limit(1);
 
-    return (found as Condominium) || null;
+    return found ? this.mapper.toDomain(found) : null;
   }
 
   async searchApproved(query: string): Promise<Condominium[]> {
@@ -77,7 +80,7 @@ export class DrizzleCondominiumRepository implements CondominiumRepository {
         ),
       );
 
-    return results as Condominium[];
+    return results.map((row) => this.mapper.toDomain(row));
   }
 
   async listPending(): Promise<Condominium[]> {
@@ -86,7 +89,7 @@ export class DrizzleCondominiumRepository implements CondominiumRepository {
       .from(condoSchema)
       .where(eq(condoSchema.status, 'PENDING_APPROVAL'));
 
-    return results as Condominium[];
+    return results.map((row) => this.mapper.toDomain(row));
   }
 
   async updateStatus(
@@ -103,6 +106,6 @@ export class DrizzleCondominiumRepository implements CondominiumRepository {
       throw new Error(`Failed to update status of condominium ${id}`);
     }
 
-    return updated as Condominium;
+    return this.mapper.toDomain(updated);
   }
 }

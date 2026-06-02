@@ -1,10 +1,12 @@
-import { TRPCError } from '@trpc/server';
+import { AuditableEntity, type AuditableProps } from '../../shared/base-entity';
+import { DomainError } from '../../shared/domain-error';
 
 export type AssignmentType = 'RESIDENT' | 'MODERATOR' | 'EXTERNAL';
 export type AssignmentStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
-export interface Assignment {
-  id: string;
+export class InvalidUnitInfoError extends DomainError {}
+
+export interface AssignmentProps extends AuditableProps {
   providerId: string;
   condominiumId: string | null;
   addressId?: string | null;
@@ -13,8 +15,72 @@ export interface Assignment {
   status: AssignmentStatus;
   unitInfo?: string | null;
   proofOfResidency?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+}
+
+export function validateUnitInfo(unitInfo?: string | null): void {
+  if (!unitInfo || unitInfo.trim().length === 0) {
+    throw new InvalidUnitInfoError(
+      'Informações da unidade são obrigatórias para moradores.',
+    );
+  }
+  if (unitInfo.length > 100) {
+    throw new InvalidUnitInfoError(
+      'Informações da unidade não podem exceder 100 caracteres.',
+    );
+  }
+}
+
+export class Assignment extends AuditableEntity<AssignmentProps> {
+  constructor(props: AssignmentProps, id?: string) {
+    super(props, id);
+    this.validate();
+  }
+
+  private validate(): void {
+    if (this.props.type === 'RESIDENT') {
+      validateUnitInfo(this.props.unitInfo);
+    }
+  }
+
+  get providerId(): string {
+    return this.props.providerId;
+  }
+
+  get condominiumId(): string | null {
+    return this.props.condominiumId;
+  }
+
+  get addressId(): string | null | undefined {
+    return this.props.addressId;
+  }
+
+  get number(): string | null | undefined {
+    return this.props.number;
+  }
+
+  get type(): AssignmentType {
+    return this.props.type;
+  }
+
+  get status(): AssignmentStatus {
+    return this.props.status;
+  }
+
+  get unitInfo(): string | null | undefined {
+    return this.props.unitInfo;
+  }
+
+  get proofOfResidency(): string | null | undefined {
+    return this.props.proofOfResidency;
+  }
+
+  public approve(): void {
+    this.props.status = 'APPROVED';
+  }
+
+  public reject(): void {
+    this.props.status = 'REJECTED';
+  }
 }
 
 export interface AssignmentWithCondo extends Assignment {
@@ -30,19 +96,4 @@ export interface AssignmentWithUser extends Assignment {
     name: string | null;
     email: string;
   } | null;
-}
-
-export function validateUnitInfo(unitInfo?: string): void {
-  if (!unitInfo || unitInfo.trim().length === 0) {
-    throw new TRPCError({
-      code: 'BAD_REQUEST',
-      message: 'Informações da unidade são obrigatórias para moradores.',
-    });
-  }
-  if (unitInfo.length > 100) {
-    throw new TRPCError({
-      code: 'BAD_REQUEST',
-      message: 'Informações da unidade não podem exceder 100 caracteres.',
-    });
-  }
 }

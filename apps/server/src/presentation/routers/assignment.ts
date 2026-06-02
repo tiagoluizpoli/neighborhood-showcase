@@ -41,23 +41,34 @@ export const assignmentRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      return requestAssignmentUseCase.execute({
+      const assign = await requestAssignmentUseCase.execute({
         providerId: ctx.session.user.id,
         condominiumId: input.condominiumId,
         unitInfo: input.unitInfo,
         proofOfResidency: input.proofOfResidency,
       });
+      return assign.toDTO();
     }),
 
   getMyAssignments: protectedProcedure.query(async ({ ctx }) => {
-    return assignmentRepo.findByProviderId(ctx.session.user.id);
+    const results = await assignmentRepo.findByProviderId(ctx.session.user.id);
+    return results.map((assign) => ({
+      ...assign.toDTO(),
+      condominium: assign.condominium,
+    }));
   }),
 
   listPending: protectedProcedure
     .input(z.object({ condominiumId: z.string() }))
     .query(async ({ input, ctx }) => {
       await checkModerator(ctx.session.user.id, input.condominiumId);
-      return assignmentRepo.findPendingByCondoId(input.condominiumId);
+      const results = await assignmentRepo.findPendingByCondoId(
+        input.condominiumId,
+      );
+      return results.map((assign) => ({
+        ...assign.toDTO(),
+        provider: assign.provider,
+      }));
     }),
 
   approve: protectedProcedure
@@ -77,7 +88,8 @@ export const assignmentRouter = router({
         });
       }
       await checkModerator(ctx.session.user.id, assign.condominiumId);
-      return approveAssignmentUseCase.execute({ id: input.id });
+      const result = await approveAssignmentUseCase.execute({ id: input.id });
+      return result.toDTO();
     }),
 
   reject: protectedProcedure
@@ -97,10 +109,11 @@ export const assignmentRouter = router({
         });
       }
       await checkModerator(ctx.session.user.id, assign.condominiumId);
-      return rejectAssignmentUseCase.execute({
+      const result = await rejectAssignmentUseCase.execute({
         id: input.id,
         reason: input.reason,
       });
+      return result.toDTO();
     }),
 
   registerExternal: protectedProcedure
@@ -116,7 +129,7 @@ export const assignmentRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      return registerExternalUseCase.execute({
+      const result = await registerExternalUseCase.execute({
         providerId: ctx.session.user.id,
         cep: input.cep,
         street: input.street,
@@ -126,5 +139,6 @@ export const assignmentRouter = router({
         number: input.number,
         complement: input.complement,
       });
+      return result.toDTO();
     }),
 });
