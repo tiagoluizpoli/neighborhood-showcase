@@ -1,9 +1,9 @@
-name: base-fullstack-template
+name: neighborhood-showcase
 
 services:
   postgres:
     image: postgres
-    container_name: base-fullstack-template-postgres
+    container_name: neighborhood-showcase-postgres
     environment:
       POSTGRES_DB: neighborhood_showcase
       POSTGRES_USER: postgres
@@ -11,7 +11,7 @@ services:
     ports:
       - "5435:5432"
     volumes:
-      - base-fullstack-template_postgres_data:/var/lib/postgresql
+      - neighborhood-showcase_postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d neighborhood_showcase"]
       interval: 10s
@@ -34,5 +34,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  base-fullstack-template_postgres_data:
+  neighborhood-showcase_postgres_data:
   minio_data:

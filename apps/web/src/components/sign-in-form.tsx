@@ -55,10 +55,10 @@ export default function SignInForm({
   return (
     <div className="w-full space-y-6 p-6">
       <div className="space-y-2 text-center">
-        <h2 className="font-bold text-2xl text-slate-100 tracking-tight">
+        <h2 className="font-bold text-2xl text-foreground tracking-tight">
           Entrar
         </h2>
-        <p className="text-slate-400 text-sm">
+        <p className="text-muted-foreground text-sm">
           Entre com seu e-mail e senha cadastrados
         </p>
       </div>
@@ -75,7 +75,7 @@ export default function SignInForm({
           <form.Field name="email">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="text-slate-300">
+                <Label htmlFor={field.name} className="text-foreground">
                   E-mail
                 </Label>
                 <Input
@@ -83,13 +83,13 @@ export default function SignInForm({
                   name={field.name}
                   type="email"
                   placeholder="exemplo@email.com"
-                  className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                  className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-red-400 text-xs">
+                  <p key={error?.message} className="text-destructive text-xs">
                     {error?.message}
                   </p>
                 ))}
@@ -102,7 +102,7 @@ export default function SignInForm({
           <form.Field name="password">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="text-slate-300">
+                <Label htmlFor={field.name} className="text-foreground">
                   Senha
                 </Label>
                 <Input
@@ -110,13 +110,13 @@ export default function SignInForm({
                   name={field.name}
                   type="password"
                   placeholder="Sua senha secreta"
-                  className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                  className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-red-400 text-xs">
+                  <p key={error?.message} className="text-destructive text-xs">
                     {error?.message}
                   </p>
                 ))}
@@ -134,7 +134,7 @@ export default function SignInForm({
           {({ canSubmit, isSubmitting }) => (
             <Button
               type="submit"
-              className="w-full cursor-pointer rounded-lg bg-indigo-600 py-2 font-semibold text-white transition-colors hover:bg-indigo-700"
+              className="w-full cursor-pointer rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
               disabled={!canSubmit || isSubmitting}
             >
               {isSubmitting ? 'Entrando...' : 'Entrar'}
@@ -147,7 +147,7 @@ export default function SignInForm({
         <Button
           variant="link"
           onClick={onSwitchToSignUp}
-          className="cursor-pointer text-indigo-400 text-sm hover:text-indigo-300"
+          className="cursor-pointer text-primary text-sm hover:text-primary/90"
         >
           Não tem uma conta? Cadastre-se
         </Button>

@@ -68,10 +68,10 @@ export default function SignUpForm({
   return (
     <div className="w-full space-y-6 p-6">
       <div className="space-y-2 text-center">
-        <h2 className="font-bold text-2xl text-slate-100 tracking-tight">
+        <h2 className="font-bold text-2xl text-foreground tracking-tight">
           Criar Conta
         </h2>
-        <p className="text-slate-400 text-sm">
+        <p className="text-muted-foreground text-sm">
           Preencha os dados abaixo para se cadastrar
         </p>
       </div>
@@ -88,20 +88,20 @@ export default function SignUpForm({
           <form.Field name="name">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="text-slate-300">
+                <Label htmlFor={field.name} className="text-foreground">
                   Nome Completo
                 </Label>
                 <Input
                   id={field.name}
                   name={field.name}
                   placeholder="Seu nome legal completo"
-                  className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                  className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-red-400 text-xs">
+                  <p key={error?.message} className="text-destructive text-xs">
                     {error?.message}
                   </p>
                 ))}
@@ -114,7 +114,7 @@ export default function SignUpForm({
           <form.Field name="email">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="text-slate-300">
+                <Label htmlFor={field.name} className="text-foreground">
                   E-mail
                 </Label>
                 <Input
@@ -122,13 +122,13 @@ export default function SignUpForm({
                   name={field.name}
                   type="email"
                   placeholder="exemplo@email.com"
-                  className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                  className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-red-400 text-xs">
+                  <p key={error?.message} className="text-destructive text-xs">
                     {error?.message}
                   </p>
                 ))}
@@ -141,7 +141,7 @@ export default function SignUpForm({
           <form.Field name="password">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="text-slate-300">
+                <Label htmlFor={field.name} className="text-foreground">
                   Senha
                 </Label>
                 <Input
@@ -149,13 +149,13 @@ export default function SignUpForm({
                   name={field.name}
                   type="password"
                   placeholder="Mínimo 8 caracteres"
-                  className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                  className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-red-400 text-xs">
+                  <p key={error?.message} className="text-destructive text-xs">
                     {error?.message}
                   </p>
                 ))}
@@ -168,7 +168,7 @@ export default function SignUpForm({
           <form.Field name="phone">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="text-slate-300">
+                <Label htmlFor={field.name} className="text-foreground">
                   Telefone
                 </Label>
                 <Input
@@ -176,13 +176,13 @@ export default function SignUpForm({
                   name={field.name}
                   type="tel"
                   placeholder="(11) 99999-9999"
-                  className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                  className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-red-400 text-xs">
+                  <p key={error?.message} className="text-destructive text-xs">
                     {error?.message}
                   </p>
                 ))}
@@ -195,7 +195,7 @@ export default function SignUpForm({
           <form.Field name="cpf">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="text-slate-300">
+                <Label htmlFor={field.name} className="text-foreground">
                   CPF
                 </Label>
                 <Input
@@ -203,7 +203,7 @@ export default function SignUpForm({
                   name={field.name}
                   type="text"
                   placeholder="000.000.000-00"
-                  className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus-visible:ring-indigo-600"
+                  className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) =>
@@ -211,7 +211,7 @@ export default function SignUpForm({
                   }
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-red-400 text-xs">
+                  <p key={error?.message} className="text-destructive text-xs">
                     {error?.message}
                   </p>
                 ))}
@@ -229,7 +229,7 @@ export default function SignUpForm({
           {({ canSubmit, isSubmitting }) => (
             <Button
               type="submit"
-              className="w-full cursor-pointer rounded-lg bg-indigo-600 py-2 font-semibold text-white transition-colors hover:bg-indigo-700"
+              className="w-full cursor-pointer rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
               disabled={!canSubmit || isSubmitting}
             >
               {isSubmitting ? 'Cadastrando...' : 'Criar Conta'}
@@ -242,7 +242,7 @@ export default function SignUpForm({
         <Button
           variant="link"
           onClick={onSwitchToSignIn}
-          className="cursor-pointer text-indigo-400 text-sm hover:text-indigo-300"
+          className="cursor-pointer text-primary text-sm hover:text-primary/90"
         >
           Já tem uma conta? Entrar
         </Button>

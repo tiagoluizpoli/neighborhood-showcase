@@ -20,7 +20,7 @@
 - [x] **Issue 16**: Project Rename to Neighborhood Showcase (Completed: 2026-06-01)
 - [x] **Issue 17**: Draft Announcement Publish Button (Completed: 2026-06-01)
 - [x] **Issue 18**: Purge Legacy Todo Code (Completed: 2026-06-01)
-- [ ] **Issue 19**: Styling Simplification
+- [x] **Issue 19**: Styling Simplification (Completed: 2026-06-01)
 - [ ] **Issue 20**: Permission Navigation & Localization
 
 ---
@@ -165,4 +165,9 @@
 - Removed all schema exports and routes references in `packages/db/src/schema/index.ts`, `apps/server/src/presentation/routers/index.ts`, and `apps/web/src/components/header.tsx`.
 - Reset and regenerated database migrations to start from a clean baseline PG schema without any `todo` table.
 - Cleaned the public schema in both dev and test PostgreSQL instances to cleanly align migrations.
+
+### Issue 19: Styling Simplification
+- Updated legacy project titles and descriptions to `"Neighborhood Showcase"` in `apps/web/index.html`, `apps/web/src/routes/__root.tsx`, `apps/web/vite.config.ts`, `apps/server/tsdown.config.ts`, and `packages/db/docker-compose.yml`.
+- Replaced dark-only slate classes with standard theme-aware tailwind styles (`bg-card`, `bg-background`, `border`, `text-foreground`, `text-muted-foreground`) across the dashboard layouts (`dashboard.tsx`, `dashboard.index.tsx`, `dashboard.condo-setup.tsx`, `dashboard.anuncios.novo.tsx`, `dashboard.anuncios.$id.pagamento.tsx`, `auth.tsx`, `sign-in-form.tsx`, `sign-up-form.tsx`).
+- Removed custom backgrounds, hover animations (`hover:-translate-y-1`), and background gradients, returning to default shadcn card styling rules.
 

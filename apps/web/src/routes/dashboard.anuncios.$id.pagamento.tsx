@@ -130,7 +130,7 @@ function PaymentComponent() {
           onClick={() =>
             getPaymentDetailsMutation.mutate({ announcementId: id })
           }
-          className="bg-indigo-650 text-white hover:bg-indigo-600"
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <RefreshCw className="mr-2 h-4 w-4" /> Tentar Novamente
         </Button>
@@ -142,25 +142,25 @@ function PaymentComponent() {
   if (currentStatus === 'PAID') {
     return (
       <div className="mx-auto flex min-h-[80vh] max-w-md flex-col items-center justify-center p-4 md:p-8">
-        <div className="relative flex w-full flex-col items-center justify-center space-y-6 rounded-2xl border border-emerald-900/40 bg-slate-900/50 p-8 text-center shadow-2xl shadow-emerald-950/20 backdrop-blur-xl">
+        <div className="relative flex w-full flex-col items-center justify-center space-y-6 rounded-2xl border bg-card p-8 text-center text-card-foreground shadow-lg">
           {/* Custom Success Checkmark Animation */}
           <div className="relative">
             <div className="absolute inset-0 animate-pulse rounded-full bg-emerald-500/20 blur-xl" />
             <CheckCircle2 className="relative z-10 h-20 w-20 animate-scale-up text-emerald-500" />
           </div>
           <div>
-            <h1 className="font-bold text-2xl text-white">
+            <h1 className="font-bold text-2xl text-foreground">
               Pagamento Confirmado!
             </h1>
-            <p className="mt-2 text-slate-400 text-sm">
+            <p className="mt-2 text-muted-foreground text-sm">
               Seu anúncio foi publicado com sucesso e estará ativo pelos
               próximos 30 dias.
             </p>
           </div>
-          <div className="h-1 w-full overflow-hidden rounded-full bg-slate-800">
+          <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
             <div className="h-full animate-loading-bar bg-emerald-500" />
           </div>
-          <p className="text-slate-500 text-xs">
+          <p className="text-muted-foreground text-xs">
             Redirecionando para o dashboard em instantes...
           </p>
         </div>
@@ -170,22 +170,22 @@ function PaymentComponent() {
 
   return (
     <div className="mx-auto max-w-md space-y-6 p-4 md:p-8">
-      <Card className="border-slate-850 bg-slate-900/60 shadow-2xl backdrop-blur-xl">
+      <Card className="shadow-lg">
         <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2 font-bold text-white text-xl">
-            Pagamento Pix <Timer className="h-5 w-5 text-indigo-400" />
+          <CardTitle className="flex items-center justify-center gap-2 font-bold text-foreground text-xl">
+            Pagamento Pix <Timer className="h-5 w-5 text-primary" />
           </CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardDescription className="text-muted-foreground">
             Pague a taxa única de R$ 2,00 para ativar o seu anúncio por 30 dias.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center space-y-6">
           {/* Value display */}
-          <div className="w-full rounded-lg border border-slate-850 bg-slate-950/60 py-4 text-center">
-            <span className="block font-semibold text-slate-400 text-xs uppercase tracking-wider">
+          <div className="w-full rounded-lg border bg-muted/50 py-4 text-center">
+            <span className="block font-semibold text-muted-foreground text-xs uppercase tracking-wider">
               Valor a pagar
             </span>
-            <span className="mt-1 block font-extrabold text-3xl text-white">
+            <span className="mt-1 block font-extrabold text-3xl text-foreground">
               R$ 2,00
             </span>
           </div>
@@ -194,9 +194,9 @@ function PaymentComponent() {
           {payment?.pixQrCode ? (
             <div className="relative rounded-xl border border-slate-200 bg-white p-3 shadow-inner">
               {timeLeft <= 0 ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-slate-950/90 p-4 text-center">
-                  <Timer className="mb-2 h-8 w-8 text-red-500" />
-                  <p className="font-semibold text-white text-xs">
+                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-background/90 p-4 text-center">
+                  <Timer className="mb-2 h-8 w-8 text-destructive" />
+                  <p className="font-semibold text-foreground text-xs">
                     QR Code Expirado
                   </p>
                   <Button
@@ -204,7 +204,7 @@ function PaymentComponent() {
                     onClick={() =>
                       getPaymentDetailsMutation.mutate({ announcementId: id })
                     }
-                    className="mt-1 text-indigo-400 text-xs"
+                    className="mt-1 text-primary text-xs"
                   >
                     Gerar novo código
                   </Button>
@@ -217,18 +217,20 @@ function PaymentComponent() {
               />
             </div>
           ) : (
-            <div className="flex h-48 w-48 animate-pulse items-center justify-center rounded-xl bg-slate-850">
-              <Loader2 className="h-6 w-6 animate-spin text-slate-600" />
+            <div className="flex h-48 w-48 animate-pulse items-center justify-center rounded-xl bg-muted">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           )}
 
           {/* Timer Display */}
-          <div className="flex items-center gap-2 text-slate-350 text-sm">
-            <Timer className="h-4 w-4 text-indigo-400" />
+          <div className="flex items-center gap-2 text-muted-foreground text-sm">
+            <Timer className="h-4 w-4 text-primary" />
             <span>Código expira em: </span>
             <span
               className={`font-bold font-mono ${
-                timeLeft < 60 ? 'animate-pulse text-red-500' : 'text-white'
+                timeLeft < 60
+                  ? 'animate-pulse text-destructive'
+                  : 'text-foreground'
               }`}
             >
               {timeLeft > 0 ? formatTime(timeLeft) : 'Expirado'}
@@ -240,7 +242,7 @@ function PaymentComponent() {
             <div className="w-full space-y-2">
               <Label
                 htmlFor="pix-copia-cola"
-                className="font-medium text-slate-350 text-xs"
+                className="font-medium text-muted-foreground text-xs"
               >
                 Pix Copia e Cola
               </Label>
@@ -250,12 +252,12 @@ function PaymentComponent() {
                   type="text"
                   readOnly
                   value={payment.pixCopyPaste}
-                  className="w-full overflow-ellipsis rounded-md border border-slate-800 bg-slate-950 py-2.5 pr-10 pl-3 text-slate-300 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full overflow-ellipsis rounded-md border bg-background py-2.5 pr-10 pl-3 text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                 />
                 <button
                   type="button"
                   onClick={handleCopyCode}
-                  className="absolute right-2 text-slate-500 transition-colors hover:text-white"
+                  className="absolute right-2 text-muted-foreground transition-colors hover:text-foreground"
                   title="Copiar código"
                 >
                   <Copy className="h-4 w-4" />
@@ -264,7 +266,7 @@ function PaymentComponent() {
               <Button
                 type="button"
                 onClick={handleCopyCode}
-                className="mt-2 w-full bg-indigo-650 font-semibold text-white hover:bg-indigo-600"
+                className="mt-2 w-full bg-primary font-semibold text-primary-foreground hover:bg-primary/90"
               >
                 {copied ? 'Copiado!' : 'Copiar Código Pix'}
               </Button>
@@ -272,8 +274,8 @@ function PaymentComponent() {
           )}
 
           {/* Bottom helper info */}
-          <div className="flex items-center justify-center gap-2 text-center text-[10px] text-slate-500">
-            <RefreshCw className="h-3 w-3 animate-spin text-slate-600" />
+          <div className="flex items-center justify-center gap-2 text-center text-[10px] text-muted-foreground">
+            <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground" />
             <span>Aguardando confirmação do pagamento pelo seu banco...</span>
           </div>
         </CardContent>

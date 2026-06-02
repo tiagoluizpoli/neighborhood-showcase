@@ -16,11 +16,11 @@ Clean up template metadata titles and simplify layouts to standard shadcn/Tailwi
 
 ## Acceptance criteria
 
-- [ ] Page document titles, PWA config, tsdown, and Docker compose namespaces are updated to `neighborhood-showcase`.
-- [ ] Hardcoded dark slate colors, hover scales, and background gradients are removed from dashboard, setup, checkout, and authentication forms.
-- [ ] Layout containers use standard themes, default borders, and standard shadcn Card/Button spacing.
-- [ ] Theme switching (Light / Dark) operates seamlessly on the dashboard.
-- [ ] Code passes checks (`bun run check`, `bun run check-types`, and `bun run test`).
+- [x] Page document titles, PWA config, tsdown, and Docker compose namespaces are updated to `neighborhood-showcase`.
+- [x] Hardcoded dark slate colors, hover scales, and background gradients are removed from dashboard, setup, checkout, and authentication forms.
+- [x] Layout containers use standard themes, default borders, and standard shadcn Card/Button spacing.
+- [x] Theme switching (Light / Dark) operates seamlessly on the dashboard.
+- [x] Code passes checks (`bun run check`, `bun run check-types`, and `bun run test`).
 
 ## Blocked by
 

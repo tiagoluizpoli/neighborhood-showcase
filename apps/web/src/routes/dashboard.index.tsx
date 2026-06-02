@@ -152,12 +152,12 @@ function DashboardIndexComponent() {
       {/* Header */}
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="font-bold text-3xl text-slate-100 tracking-tight">
+          <h1 className="font-bold text-3xl text-foreground tracking-tight">
             Painel do Provedor
           </h1>
-          <p className="mt-1 text-slate-400 text-sm">
+          <p className="mt-1 text-muted-foreground text-sm">
             Bem-vindo de volta,{' '}
-            <span className="font-medium text-slate-200">
+            <span className="font-medium text-foreground">
               {session.data?.user.name}
             </span>
             . Gerencie seus anúncios e analise suas conversões.
@@ -166,7 +166,7 @@ function DashboardIndexComponent() {
         <div className="flex flex-wrap items-center gap-3">
           <Link
             to="/dashboard/anuncios/novo"
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 font-medium text-sm text-white transition-all hover:from-indigo-500 hover:to-violet-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 active:scale-95"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-medium text-primary-foreground text-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
             <Plus className="h-4 w-4" />
             Criar Anúncio
@@ -174,7 +174,7 @@ function DashboardIndexComponent() {
           <button
             type="button"
             onClick={() => setShowDeleteModal(true)}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 font-medium text-rose-500 text-sm transition-all hover:bg-rose-500/10 hover:text-rose-400 active:scale-95"
+            className="inline-flex items-center gap-2 rounded-xl border bg-background px-4 py-2.5 font-medium text-destructive text-sm transition-all hover:bg-destructive/10 hover:text-destructive-foreground"
           >
             <UserX className="h-4 w-4" />
             Excluir Conta
@@ -185,65 +185,65 @@ function DashboardIndexComponent() {
       {/* Stats Cards */}
       <div className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
         {/* Impressions */}
-        <div className="relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/50 p-6 backdrop-blur-md">
+        <div className="relative overflow-hidden rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="font-medium text-slate-400 text-sm">
+            <span className="font-medium text-muted-foreground text-sm">
               Visualizações
             </span>
-            <div className="rounded-lg bg-indigo-500/10 p-2 text-indigo-400">
+            <div className="rounded-lg bg-primary/10 p-2 text-primary">
               <Eye className="h-5 w-5" />
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="font-bold text-3xl text-slate-100">
+            <h3 className="font-bold text-3xl text-foreground">
               {stats.totalImpressions}
             </h3>
-            <p className="mt-1 text-slate-500 text-xs">
+            <p className="mt-1 text-muted-foreground text-xs">
               Exibições na vitrine pública
             </p>
           </div>
         </div>
 
         {/* Interactions */}
-        <div className="relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/50 p-6 backdrop-blur-md">
+        <div className="relative overflow-hidden rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="font-medium text-slate-400 text-sm">
+            <span className="font-medium text-muted-foreground text-sm">
               Interações
             </span>
-            <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-400">
+            <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-600 dark:text-emerald-400">
               <MousePointerClick className="h-5 w-5" />
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="font-bold text-3xl text-slate-100">
+            <h3 className="font-bold text-3xl text-foreground">
               {stats.totalInteractions}
             </h3>
-            <p className="mt-1 text-slate-500 text-xs">
+            <p className="mt-1 text-muted-foreground text-xs">
               Cliques em WhatsApp/Instagram/Site
             </p>
           </div>
         </div>
 
         {/* Conversion Rate */}
-        <div className="relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/50 p-6 backdrop-blur-md">
+        <div className="relative overflow-hidden rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="font-medium text-slate-400 text-sm">
+            <span className="font-medium text-muted-foreground text-sm">
               Taxa de Conversão
             </span>
-            <div className="rounded-lg bg-violet-500/10 p-2 text-violet-400">
+            <div className="rounded-lg bg-violet-500/10 p-2 text-violet-600 dark:text-violet-400">
               <TrendingUp className="h-5 w-5" />
             </div>
           </div>
           <div className="mt-4">
             <div className="flex items-baseline gap-2">
-              <h3 className="font-bold text-3xl text-slate-100">
+              <h3 className="font-bold text-3xl text-foreground">
                 {stats.conversionRate}%
               </h3>
             </div>
             {/* Visual Progress Bar */}
-            <div className="mt-3 h-1.5 w-full rounded-full bg-slate-800">
+            <div className="mt-3 h-1.5 w-full rounded-full bg-muted">
               <div
-                className="h-1.5 rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-500"
+                className="h-1.5 rounded-full bg-primary transition-all duration-500"
                 style={{ width: `${Math.min(stats.conversionRate, 100)}%` }}
               />
             </div>
@@ -252,15 +252,15 @@ function DashboardIndexComponent() {
       </div>
 
       {/* Tabs list Navigation */}
-      <div className="mb-6 border-slate-800 border-b">
+      <div className="mb-6 border-border border-b">
         <div className="flex space-x-8">
           <button
             type="button"
             onClick={() => setActiveTab('active')}
             className={`relative pb-4 font-semibold text-sm transition-all ${
               activeTab === 'active'
-                ? 'border-indigo-400 border-b-2 text-indigo-400'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'border-primary border-b-2 text-primary'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             Ativos ({announcements.active.length})
@@ -270,8 +270,8 @@ function DashboardIndexComponent() {
             onClick={() => setActiveTab('draft')}
             className={`relative pb-4 font-semibold text-sm transition-all ${
               activeTab === 'draft'
-                ? 'border-indigo-400 border-b-2 text-indigo-400'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'border-primary border-b-2 text-primary'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             Rascunhos & Pendentes ({announcements.draft.length})
@@ -281,8 +281,8 @@ function DashboardIndexComponent() {
             onClick={() => setActiveTab('expired')}
             className={`relative pb-4 font-semibold text-sm transition-all ${
               activeTab === 'expired'
-                ? 'border-indigo-400 border-b-2 text-indigo-400'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'border-primary border-b-2 text-primary'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             Expirados ({announcements.expired.length})
@@ -292,8 +292,8 @@ function DashboardIndexComponent() {
             onClick={() => setActiveTab('suspended')}
             className={`relative pb-4 font-semibold text-sm transition-all ${
               activeTab === 'suspended'
-                ? 'border-indigo-400 border-b-2 text-indigo-400'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'border-primary border-b-2 text-primary'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             Suspensos ({announcements.suspended.length})
@@ -439,7 +439,7 @@ function EmptyState({
       {!hideButton && link && buttonText && (
         <Link
           to={link}
-          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 font-medium text-slate-200 text-sm transition-colors hover:bg-slate-800"
+          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/90"
         >
           {buttonText}
         </Link>
@@ -466,9 +466,9 @@ function AnnouncementCard({
   isRenewing?: boolean;
 }) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40 transition-all duration-300 hover:border-slate-700/60">
+    <div className="flex flex-col overflow-hidden rounded-2xl border bg-card text-card-foreground shadow-sm">
       {/* Cover Image */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-950">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
         <img
           src={ad.imageUrl}
           alt={ad.title}
@@ -477,16 +477,16 @@ function AnnouncementCard({
         <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5">
           {/* Status Badge */}
           <span
-            className={`rounded-full px-2.5 py-1 font-semibold text-xs shadow-md backdrop-blur-md ${
+            className={`rounded-full px-2.5 py-1 font-semibold text-xs shadow-sm backdrop-blur-sm ${
               ad.status === 'ACTIVE'
-                ? 'border border-emerald-500/30 bg-emerald-500/20 text-emerald-300'
+                ? 'border border-emerald-500/30 bg-emerald-500/20 text-emerald-600 dark:text-emerald-300'
                 : ad.status === 'PENDING_PAYMENT'
-                  ? 'border border-amber-500/30 bg-amber-500/20 text-amber-300'
+                  ? 'border border-amber-500/30 bg-amber-500/20 text-amber-600 dark:text-amber-300'
                   : ad.status === 'DRAFT'
-                    ? 'border border-slate-500/30 bg-slate-500/20 text-slate-300'
+                    ? 'border bg-secondary text-secondary-foreground'
                     : ad.status === 'EXPIRED'
-                      ? 'border border-rose-500/30 bg-rose-500/20 text-rose-300'
-                      : 'border border-rose-600/40 bg-rose-600/30 text-rose-200'
+                      ? 'border border-rose-500/30 bg-rose-500/20 text-rose-600 dark:text-rose-300'
+                      : 'border border-rose-600/40 bg-rose-600/30 text-rose-600 dark:text-rose-200'
             }`}
           >
             {ad.status === 'ACTIVE'
@@ -503,47 +503,49 @@ function AnnouncementCard({
           </span>
           {/* Verified Badge */}
           {ad.showVerifiedBadge && (
-            <span className="flex items-center gap-1 rounded-full border border-indigo-500/30 bg-indigo-500/20 px-2 py-0.5 font-semibold text-[10px] text-indigo-300 backdrop-blur-md">
+            <span className="flex items-center gap-1 rounded-full border border-indigo-500/30 bg-indigo-500/20 px-2 py-0.5 font-semibold text-[10px] text-indigo-600 backdrop-blur-sm dark:text-indigo-300">
               <ShieldCheck className="h-3 w-3" /> Morador Verificado
             </span>
           )}
-        </div>
-        <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-slate-950/80 to-transparent p-4">
-          <p className="font-semibold text-indigo-300 text-xs uppercase tracking-wider">
-            {ad.category}
-          </p>
-          <h4 className="line-clamp-1 font-bold text-lg text-slate-100">
-            {ad.title}
-          </h4>
         </div>
       </div>
 
       {/* Body Content */}
       <div className="flex flex-1 flex-col p-5">
-        <p className="mb-4 line-clamp-2 text-slate-400 text-sm">
+        <div className="mb-3">
+          <p className="font-semibold text-indigo-600 text-xs uppercase tracking-wider dark:text-indigo-400">
+            {ad.category}
+          </p>
+          <h4 className="line-clamp-1 font-bold text-foreground text-lg">
+            {ad.title}
+          </h4>
+        </div>
+
+        <p className="mb-4 line-clamp-2 text-muted-foreground text-sm">
           {ad.description}
         </p>
 
         {/* Meta Info */}
-        <div className="mt-auto space-y-2 border-slate-800/80 border-t pt-4">
-          <div className="flex items-center justify-between text-slate-500 text-xs">
+        <div className="mt-auto space-y-2 border-t pt-4">
+          <div className="flex items-center justify-between text-muted-foreground text-xs">
             <span>Preço:</span>
-            <span className="font-bold text-slate-200 text-sm">
+            <span className="font-bold text-foreground text-sm">
               {formatPrice(ad.priceCents)}
             </span>
           </div>
 
-          <div className="flex items-center justify-between text-slate-500 text-xs">
+          <div className="flex items-center justify-between text-muted-foreground text-xs">
             <span>Condomínio:</span>
-            <span className="text-slate-300">{ad.condoName}</span>
+            <span className="text-foreground">{ad.condoName}</span>
           </div>
 
           {ad.status === 'ACTIVE' && ad.expiresAt && (
-            <div className="flex items-center justify-between text-slate-500 text-xs">
+            <div className="flex items-center justify-between text-muted-foreground text-xs">
               <span className="flex items-center gap-1">
-                <Calendar className="h-3.5 w-3.5 text-indigo-400" /> Expira em:
+                <Calendar className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />{' '}
+                Expira em:
               </span>
-              <span className="font-medium text-slate-300">
+              <span className="font-medium text-foreground">
                 {formatDate(ad.expiresAt)}
               </span>
             </div>
@@ -552,11 +554,11 @@ function AnnouncementCard({
 
         {/* Suspended Reason Banner */}
         {ad.status === 'SUSPENDED' && ad.suspensionReason && (
-          <div className="mt-4 rounded-xl border border-rose-500/20 bg-rose-500/5 p-3 text-xs">
-            <span className="mb-1 block font-bold text-rose-400">
+          <div className="mt-4 rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-xs">
+            <span className="mb-1 block font-bold text-destructive">
               Motivo da Suspensão:
             </span>
-            <p className="text-rose-300/90 italic">{ad.suspensionReason}</p>
+            <p className="text-destructive italic">{ad.suspensionReason}</p>
           </div>
         )}
 
@@ -603,7 +605,7 @@ function AnnouncementCard({
           <button
             type="button"
             onClick={onEdit}
-            className={`inline-flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-900/40 py-2.5 font-medium text-slate-300 text-sm transition-colors hover:bg-slate-800 hover:text-white ${
+            className={`inline-flex items-center justify-center gap-2 rounded-xl border bg-background py-2.5 font-medium text-foreground text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${
               ad.status === 'PENDING_PAYMENT' ||
               ad.status === 'EXPIRED' ||
               ad.status === 'DRAFT'
@@ -615,6 +617,7 @@ function AnnouncementCard({
             <Edit className="h-4 w-4" />
             {ad.status !== 'PENDING_PAYMENT' &&
               ad.status !== 'EXPIRED' &&
+              ad.status !== 'DRAFT' &&
               'Editar'}
           </button>
         </div>

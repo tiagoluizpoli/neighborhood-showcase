@@ -298,7 +298,7 @@ function NewAnnouncementComponent() {
           variant="outline"
           size="icon"
           onClick={() => navigate({ to: '/dashboard' })}
-          className="border-slate-800 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+          className="border bg-card text-muted-foreground hover:bg-accent hover:text-foreground"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -306,7 +306,7 @@ function NewAnnouncementComponent() {
           <h1 className="flex items-center gap-2 font-bold text-2xl text-white tracking-tight">
             Novo Anúncio <Sparkles className="h-5 w-5 text-amber-500" />
           </h1>
-          <p className="text-slate-400 text-sm">
+          <p className="text-muted-foreground text-sm">
             Crie um rascunho da sua oferta e publique para seus vizinhos.
           </p>
         </div>
@@ -318,12 +318,12 @@ function NewAnnouncementComponent() {
       >
         {/* Form Fields Column */}
         <div className="space-y-6 md:col-span-2">
-          <Card className="border-slate-850 bg-slate-900/60 backdrop-blur-xl">
+          <Card className="border bg-card">
             <CardHeader>
               <CardTitle className="text-lg text-white">
                 Detalhes do Anúncio
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 Insira as informações gerais sobre seu produto ou serviço.
               </CardDescription>
             </CardHeader>
@@ -334,7 +334,7 @@ function NewAnnouncementComponent() {
                   <Label className="font-medium text-slate-350 text-sm">
                     Localização
                   </Label>
-                  <div className="h-10 w-full animate-pulse rounded bg-slate-850" />
+                  <div className="h-10 w-full animate-pulse rounded bg-muted" />
                 </div>
               ) : approvedLocations.length === 0 ? (
                 <div className="space-y-2">
@@ -360,7 +360,7 @@ function NewAnnouncementComponent() {
                       id="location-select"
                       value={selectedLocationId}
                       onChange={(e) => setSelectedLocationId(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-slate-800 bg-slate-950 px-3 py-2 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="flex h-10 w-full rounded-md border border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     >
                       <option value="" disabled>
                         Selecione a localização...
@@ -391,7 +391,7 @@ function NewAnnouncementComponent() {
                       className={`rounded-md border px-3 py-2 font-semibold text-xs transition-all ${
                         category === cat
                           ? 'border-indigo-500 bg-indigo-650 text-white shadow-indigo-900/30 shadow-lg'
-                          : 'border-slate-800 bg-slate-950 text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+                          : 'border bg-background text-muted-foreground hover:bg-card hover:text-foreground'
                       }`}
                     >
                       {cat}
@@ -416,9 +416,9 @@ function NewAnnouncementComponent() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
-                  className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus:ring-indigo-500"
+                  className="border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring"
                 />
-                <div className="flex justify-end text-[10px] text-slate-500">
+                <div className="flex justify-end text-[10px] text-muted-foreground">
                   {title.length}/100 caracteres
                 </div>
               </div>
@@ -437,7 +437,7 @@ function NewAnnouncementComponent() {
                   placeholder="Ex: Entregas gratuitas às sextas-feiras"
                   value={subtitle}
                   onChange={(e) => setSubtitle(e.target.value)}
-                  className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus:ring-indigo-500"
+                  className="border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring"
                 />
               </div>
 
@@ -457,9 +457,9 @@ function NewAnnouncementComponent() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   required
-                  className="flex min-h-[100px] w-full rounded-md border border-slate-800 bg-slate-950 px-3 py-2 text-slate-100 text-sm placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flex min-h-[100px] w-full rounded-md border border bg-background px-3 py-2 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
-                <div className="flex justify-between text-[10px] text-slate-500">
+                <div className="flex justify-between text-[10px] text-muted-foreground">
                   <span>Mínimo 10 caracteres</span>
                   <span>{description.length}/2000 caracteres</span>
                 </div>
@@ -480,7 +480,7 @@ function NewAnnouncementComponent() {
                     placeholder="Ex: R$ 45,00"
                     value={priceStr}
                     onChange={(e) => setPriceStr(e.target.value)}
-                    className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus:ring-indigo-500"
+                    className="border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring"
                   />
                 </div>
 
@@ -497,9 +497,9 @@ function NewAnnouncementComponent() {
                     placeholder="Ex: bolo doce festa caseiro"
                     value={tagsStr}
                     onChange={(e) => setTagsStr(e.target.value)}
-                    className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus:ring-indigo-500"
+                    className="border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring"
                   />
-                  <p className="text-[10px] text-slate-500">
+                  <p className="text-[10px] text-muted-foreground">
                     Separe por espaço ou vírgula.
                   </p>
                 </div>
@@ -508,12 +508,12 @@ function NewAnnouncementComponent() {
           </Card>
 
           {/* Contact Links Card */}
-          <Card className="border-slate-850 bg-slate-900/60 backdrop-blur-xl">
+          <Card className="border bg-card">
             <CardHeader>
               <CardTitle className="text-lg text-white">
                 Canais de Contato
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 Forneça pelo menos uma opção para os vizinhos entrarem em
                 contato.
               </CardDescription>
@@ -532,7 +532,7 @@ function NewAnnouncementComponent() {
                   placeholder="Ex: 11999999999"
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
-                  className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus:ring-indigo-500"
+                  className="border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring"
                 />
               </div>
 
@@ -549,7 +549,7 @@ function NewAnnouncementComponent() {
                   placeholder="Ex: @seu_negocio"
                   value={instagram}
                   onChange={(e) => setInstagram(e.target.value)}
-                  className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus:ring-indigo-500"
+                  className="border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring"
                 />
               </div>
 
@@ -566,7 +566,7 @@ function NewAnnouncementComponent() {
                   placeholder="Ex: https://meusite.com.br"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
-                  className="border-slate-800 bg-slate-950 text-slate-100 placeholder:text-slate-600 focus:ring-indigo-500"
+                  className="border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring"
                 />
               </div>
             </CardContent>
@@ -576,12 +576,12 @@ function NewAnnouncementComponent() {
         {/* Media & Cropper Column */}
         <div className="space-y-6">
           {/* Cropper Card */}
-          <Card className="border-slate-850 bg-slate-900/60 backdrop-blur-xl">
+          <Card className="border bg-card">
             <CardHeader>
               <CardTitle className="text-lg text-white">
                 Imagem de Capa
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 Imagens são obrigatórias e devem possuir a proporção 4:3.
               </CardDescription>
             </CardHeader>
@@ -590,20 +590,20 @@ function NewAnnouncementComponent() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="group flex aspect-[4/3] w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-slate-800 border-dashed bg-slate-950 p-6 transition-all hover:bg-slate-900/50"
+                  className="group flex aspect-[4/3] w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-2 border-dashed bg-background p-6 transition-all hover:bg-card/50"
                 >
-                  <UploadCloud className="mb-3 h-10 w-10 animate-bounce text-slate-500 transition-colors group-hover:text-indigo-400" />
-                  <p className="font-semibold text-slate-300 text-xs">
+                  <UploadCloud className="mb-3 h-10 w-10 animate-bounce text-muted-foreground transition-colors group-hover:text-primary" />
+                  <p className="font-semibold text-foreground text-xs">
                     Escolher imagem
                   </p>
-                  <p className="mt-1 text-[10px] text-slate-600">
+                  <p className="mt-1 text-[10px] text-muted-foreground">
                     PNG, JPG, WEBP de até 5MB
                   </p>
                 </button>
               ) : (
                 <div className="space-y-4">
                   {/* Viewport Cropper container */}
-                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-slate-800 bg-slate-950">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border bg-background">
                     <img
                       ref={imageRef}
                       src={imageSrc}
@@ -620,7 +620,7 @@ function NewAnnouncementComponent() {
 
                   {/* Zoom controls */}
                   <div className="space-y-1">
-                    <div className="flex justify-between text-slate-400 text-xs">
+                    <div className="flex justify-between text-muted-foreground text-xs">
                       <Label htmlFor="zoom-slider">Zoom</Label>
                       <span>{zoom.toFixed(1)}x</span>
                     </div>
@@ -634,14 +634,14 @@ function NewAnnouncementComponent() {
                       onChange={(e) =>
                         setZoom(Number.parseFloat(e.target.value))
                       }
-                      className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-slate-850 accent-indigo-500"
+                      className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-indigo-500"
                     />
                   </div>
 
                   {/* Positioning controls */}
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
-                      <div className="flex justify-between text-slate-400 text-xs">
+                      <div className="flex justify-between text-muted-foreground text-xs">
                         <Label htmlFor="xoffset-slider">Posição X</Label>
                       </div>
                       <input
@@ -653,11 +653,11 @@ function NewAnnouncementComponent() {
                         onChange={(e) =>
                           setXOffset(Number.parseInt(e.target.value, 10))
                         }
-                        className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-slate-850 accent-indigo-500"
+                        className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-indigo-500"
                       />
                     </div>
                     <div className="space-y-1">
-                      <div className="flex justify-between text-slate-400 text-xs">
+                      <div className="flex justify-between text-muted-foreground text-xs">
                         <Label htmlFor="yoffset-slider">Posição Y</Label>
                       </div>
                       <input
@@ -669,7 +669,7 @@ function NewAnnouncementComponent() {
                         onChange={(e) =>
                           setYOffset(Number.parseInt(e.target.value, 10))
                         }
-                        className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-slate-850 accent-indigo-500"
+                        className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-indigo-500"
                       />
                     </div>
                   </div>
@@ -682,7 +682,7 @@ function NewAnnouncementComponent() {
                       setCroppedBlob(null);
                       if (fileInputRef.current) fileInputRef.current.value = '';
                     }}
-                    className="h-8 w-full border-slate-800 bg-slate-950 py-1 text-slate-400 text-xs hover:bg-slate-900"
+                    className="h-8 w-full border bg-background py-1 text-muted-foreground text-xs hover:bg-card"
                   >
                     Trocar imagem
                   </Button>
@@ -700,19 +700,19 @@ function NewAnnouncementComponent() {
           </Card>
 
           {/* Badge & Trust Card */}
-          <Card className="border-slate-850 bg-slate-900/60 backdrop-blur-xl">
+          <Card className="border bg-card">
             <CardHeader>
               <CardTitle className="text-lg text-white">
                 Confiança & Selos
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 p-3">
+              <div className="flex items-center justify-between rounded-lg border border bg-background/60 p-3">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-1.5 font-semibold text-sm text-white">
                     Selo Morador Verificado
                   </div>
-                  <p className="text-slate-500 text-xs">
+                  <p className="text-muted-foreground text-xs">
                     Exibe um selo para vizinhos de que você realmente mora neste
                     condomínio.
                   </p>
@@ -742,7 +742,7 @@ function NewAnnouncementComponent() {
             <Button
               type="submit"
               disabled={isUploading || createMutation.isPending}
-              className="w-full bg-indigo-650 py-3 font-semibold text-white shadow-indigo-900/30 shadow-lg hover:bg-indigo-600"
+              className="w-full bg-indigo-650 py-3 font-semibold text-white shadow-indigo-900/30 shadow-lg hover:bg-primary"
             >
               {isUploading ? (
                 <span className="flex items-center gap-2">
@@ -764,7 +764,7 @@ function NewAnnouncementComponent() {
               type="button"
               variant="outline"
               onClick={() => navigate({ to: '/dashboard' })}
-              className="w-full border-slate-800 text-slate-400 hover:bg-slate-900/50"
+              className="w-full border text-muted-foreground hover:bg-card/50"
             >
               Cancelar
             </Button>

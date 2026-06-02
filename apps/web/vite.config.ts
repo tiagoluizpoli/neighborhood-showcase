@@ -13,9 +13,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'base-fullstack-template',
-        short_name: 'base-fullstack-template',
-        description: 'base-fullstack-template - PWA Application',
+        name: 'Neighborhood Showcase',
+        short_name: 'Showcase',
+        description: 'Neighborhood Showcase - PWA Application',
         theme_color: '#0c0c0c',
       },
       pwaAssets: { disabled: false, config: true },
