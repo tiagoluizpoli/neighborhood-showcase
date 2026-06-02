@@ -1,15 +1,14 @@
 @baseUrl = https://api.abacatepay.com/v2
 
 # Define API key. Replace this placeholder with your actual dev key (e.g. from your local .env file).
-@apiKey = YOUR_ABACATEPAY_DEV_API_KEY
+@apiKey = abc_dev_JLLTNBMj0wMtAxXA6d2tcGuB
+
+# Define the billing ID returned when clicking "Publicar Anúncio" in the app.
+@billingId = pix_char_jYtdp1SGEBFjJUWk2X4feFzw
 
 ### Simulate Payment
 # Simulates approval of a PIX payment for a Transparent Checkout in Dev Mode.
-# Replace the "id" value with the billingId (e.g. bill_...) returned when generating the payment intent.
-POST {{baseUrl}}/transparents/simulate-payment
+# Flow: Publish an announcement in the app → copy the billingId from the payment screen → paste above → run this.
+POST {{baseUrl}}/transparents/simulate-payment?id={{billingId}}
 Authorization: Bearer {{apiKey}}
 Content-Type: application/json
-
-{
-  "id": "bill_YOUR_BILLING_ID_HERE"
-}
