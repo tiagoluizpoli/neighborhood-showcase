@@ -22,7 +22,7 @@ export const env = createEnv({
     UNLEASH_URL: z.string().url().default('http://localhost:4242/api'),
     UNLEASH_API_TOKEN: z
       .string()
-      .default('default:development.unleash-insecure-api-token'),
+      .default('default:development.unleash-insecure-client-token'),
     UNLEASH_APP_NAME: z.string().default('neighborhood-showcase'),
   },
   runtimeEnv: process.env,

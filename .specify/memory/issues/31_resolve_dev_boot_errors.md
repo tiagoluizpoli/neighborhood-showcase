@@ -1,13 +1,23 @@
 ## What to build
 
 Resolve the local development and compilation errors:
-1. Update `INIT_ADMIN_API_TOKENS` environment setting in the `unleash` service configuration inside `docker-compose.yml` to change `default:development.unleash-insecure-api-token` to `*:*.unleash-insecure-admin-token` to ensure the server starts without validation errors.
-2. Force Unleash to re-initialize and accept the new tokens by dropping and recreating the `unleash` database inside the PostgreSQL container:
+1. Update Unleash initialization tokens in the `unleash` service configuration inside `docker-compose.yml` to support distinct Client and Frontend token types:
+   ```yaml
+   - INIT_ADMIN_API_TOKENS=*:*.unleash-insecure-admin-token
+   - INIT_CLIENT_API_TOKENS=default:development.unleash-insecure-client-token
+   - INIT_FRONTEND_API_TOKENS=default:development.unleash-insecure-frontend-token
+   ```
+2. Update the default values for `UNLEASH_API_TOKEN` and `VITE_UNLEASH_CLIENT_KEY` in:
+   - `.env.template`
+   - `packages/env/src/server.ts`
+   - `packages/env/src/web.ts`
+   to match the new tokens.
+3. Force Unleash to re-initialize and accept the new tokens by dropping and recreating the `unleash` database inside the PostgreSQL container:
    `docker exec -i neighborhood-showcase-postgres psql -U postgres -c "DROP DATABASE IF EXISTS unleash; CREATE DATABASE unleash;"`
    Then restart the Unleash docker container.
-3. Move the translation folder `locales/` from `apps/web/public/locales` to `apps/web/src/locales`.
-4. Update the JSON imports in `apps/web/src/i18n.ts` to reference `./locales/` instead of `../public/locales/` to satisfy Vite asset import restrictions.
-5. Run `bun run db:push` to ensure all Drizzle tables (`condominium`, `announcement`, etc.) are synchronized with the local PostgreSQL database.
+4. Move the translation folder `locales/` from `apps/web/public/locales` to `apps/web/src/locales`.
+5. Update the JSON imports in `apps/web/src/i18n.ts` to reference `./locales/` instead of `../public/locales/` to satisfy Vite asset import restrictions.
+6. Run `bun run db:push` to ensure all Drizzle tables (`condominium`, `announcement`, etc.) are synchronized with the local PostgreSQL database.
 
 ## Acceptance criteria
 

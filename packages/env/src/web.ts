@@ -11,7 +11,7 @@ export const env = createEnv({
       .default('http://localhost:4242/api/frontend'),
     VITE_UNLEASH_CLIENT_KEY: z
       .string()
-      .default('default:development.unleash-insecure-api-token'),
+      .default('default:development.unleash-insecure-frontend-token'),
   },
   runtimeEnv: (
     import.meta as unknown as { env: Record<string, string | undefined> }
