@@ -166,4 +166,38 @@ describe('Generate Payment Intent Integration Test', () => {
       'Acesso negado. Você não é o proprietário deste anúncio.',
     );
   });
+
+  test('fails if announcement is already ACTIVE', async () => {
+    // Update status to ACTIVE
+    await db
+      .update(announcement)
+      .set({ status: 'ACTIVE' })
+      .where(eq(announcement.id, testAnnId));
+
+    expect(
+      useCase.execute({
+        announcementId: testAnnId,
+        providerId: testUserId,
+        customerName: 'John Payment Provider',
+        customerEmail: 'john-payment@example.com',
+      }),
+    ).rejects.toThrow('Este anúncio já está ativo e publicado.');
+  });
+
+  test('fails if announcement is SUSPENDED', async () => {
+    // Update status to SUSPENDED
+    await db
+      .update(announcement)
+      .set({ status: 'SUSPENDED' })
+      .where(eq(announcement.id, testAnnId));
+
+    expect(
+      useCase.execute({
+        announcementId: testAnnId,
+        providerId: testUserId,
+        customerName: 'John Payment Provider',
+        customerEmail: 'john-payment@example.com',
+      }),
+    ).rejects.toThrow('Anúncios suspensos não podem receber pagamentos.');
+  });
 });

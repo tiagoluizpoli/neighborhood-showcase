@@ -9,10 +9,10 @@ Expose a publish action for draft announcements and implement backend safeguards
 
 ## Acceptance criteria
 
-- [ ] `AnnouncementCard` displays a `"Publicar Anúncio"` button when `ad.status === 'DRAFT'`.
-- [ ] Clicking `"Publicar Anúncio"` successfully redirects the provider to `/dashboard/anuncios/:id/pagamento`, triggering checkout generation.
-- [ ] Backend use case `GeneratePaymentIntent` rejects payment generation if the announcement is already `ACTIVE` or `SUSPENDED`.
-- [ ] Integration tests verify the backend guards throw the expected bad request tRPC errors.
+- [x] `AnnouncementCard` displays a `"Publicar Anúncio"` button when `ad.status === 'DRAFT'`.
+- [x] Clicking `"Publicar Anúncio"` successfully redirects the provider to `/dashboard/anuncios/:id/pagamento`, triggering checkout generation.
+- [x] Backend use case `GeneratePaymentIntent` rejects payment generation if the announcement is already `ACTIVE` or `SUSPENDED`.
+- [x] Integration tests verify the backend guards throw the expected bad request tRPC errors.
 
 ## Blocked by
 

@@ -36,6 +36,21 @@ export class GeneratePaymentIntent implements GeneratePaymentIntentUseCase {
       });
     }
 
+    // Validate announcement status
+    if (announcement.status === 'ACTIVE') {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Este anúncio já está ativo e publicado.',
+      });
+    }
+
+    if (announcement.status === 'SUSPENDED') {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Anúncios suspensos não podem receber pagamentos.',
+      });
+    }
+
     // Return existing pending payment if it exists
     const existingPayment = await this.paymentRepo.findByAnnouncementId(
       input.announcementId,

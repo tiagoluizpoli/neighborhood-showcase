@@ -18,6 +18,10 @@
 - [x] **Issue 14**: Announcement Creation & Editing Refactoring (Completed: 2026-05-30)
 - [x] **Issue 15**: Public Showcase & Proximity Refactor (Completed: 2026-05-30)
 - [x] **Issue 16**: Project Rename to Neighborhood Showcase (Completed: 2026-06-01)
+- [x] **Issue 17**: Draft Announcement Publish Button (Completed: 2026-06-01)
+- [ ] **Issue 18**: Purge Legacy Todo Code
+- [ ] **Issue 19**: Styling Simplification
+- [ ] **Issue 20**: Permission Navigation & Localization
 
 ---
 
@@ -149,4 +153,10 @@
 ### Issue 16: Project Rename to Neighborhood Showcase
 - Renamed root package and internal workspace modules from `@base-fullstack-template/*` to `@neighborhood-showcase/*`.
 - Updated all source files, desktop configs, and documentation.
+
+### Issue 17: Draft Announcement Publish Button
+- Exposed a `"Publicar Anúncio"` action button on dashboard announcement cards for `DRAFT` status.
+- Connected the button action to redirect the user to `/dashboard/anuncios/:id/pagamento` via the `onPay` callback.
+- Added status validation guards in backend use case `GeneratePaymentIntent` to reject payment intent generation with BAD_REQUEST tRPC errors if status is `ACTIVE` or `SUSPENDED`.
+- Added backend integration tests verifying these status constraints.
 

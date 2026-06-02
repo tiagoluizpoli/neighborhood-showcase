@@ -562,6 +562,17 @@ function AnnouncementCard({
 
         {/* Buttons / Actions */}
         <div className="mt-5 flex gap-2">
+          {ad.status === 'DRAFT' && onPay && (
+            <button
+              type="button"
+              onClick={onPay}
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 font-semibold text-sm text-white transition-colors hover:bg-emerald-500"
+            >
+              Publicar Anúncio
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          )}
+
           {ad.status === 'PENDING_PAYMENT' && onPay && (
             <button
               type="button"
@@ -593,7 +604,9 @@ function AnnouncementCard({
             type="button"
             onClick={onEdit}
             className={`inline-flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-900/40 py-2.5 font-medium text-slate-300 text-sm transition-colors hover:bg-slate-800 hover:text-white ${
-              ad.status === 'PENDING_PAYMENT' || ad.status === 'EXPIRED'
+              ad.status === 'PENDING_PAYMENT' ||
+              ad.status === 'EXPIRED' ||
+              ad.status === 'DRAFT'
                 ? 'px-3'
                 : 'flex-1'
             }`}
