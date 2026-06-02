@@ -29,16 +29,17 @@ function PublicAnnouncementDetailsComponent() {
   const trackEventMutation = useMutation(
     trpc.announcement.trackEvent.mutationOptions(),
   );
+  const { mutate: trackEvent } = trackEventMutation;
 
   // Track impression on load
   useEffect(() => {
     if (detailsQuery.data) {
-      trackEventMutation.mutate({
+      trackEvent({
         announcementId: id,
         eventType: 'IMPRESSION',
       });
     }
-  }, [id, detailsQuery.data, trackEventMutation]);
+  }, [id, detailsQuery.data, trackEvent]);
 
   const handleContactClick = (
     targetType: 'WHATSAPP' | 'INSTAGRAM' | 'WEBSITE',

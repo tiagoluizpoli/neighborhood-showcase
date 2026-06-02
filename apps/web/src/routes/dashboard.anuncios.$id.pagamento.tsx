@@ -37,11 +37,12 @@ function PaymentComponent() {
   const getPaymentDetailsMutation = useMutation(
     trpc.announcement.getPaymentDetails.mutationOptions(),
   );
+  const { mutate: getPaymentDetails } = getPaymentDetailsMutation;
 
   // Trigger payment generation on mount
   useEffect(() => {
-    getPaymentDetailsMutation.mutate({ announcementId: id });
-  }, [id, getPaymentDetailsMutation]);
+    getPaymentDetails({ announcementId: id });
+  }, [id, getPaymentDetails]);
 
   const payment = getPaymentDetailsMutation.data;
   const isGenerating = getPaymentDetailsMutation.isPending;

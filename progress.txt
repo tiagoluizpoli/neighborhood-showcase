@@ -22,6 +22,7 @@
 - [x] **Issue 18**: Purge Legacy Todo Code (Completed: 2026-06-01)
 - [x] **Issue 19**: Styling Simplification (Completed: 2026-06-01)
 - [x] **Issue 20**: Permission Navigation & Localization (Completed: 2026-06-02)
+- [x] **Issue 21**: Fix Infinite Payment & Tracking Loop (Completed: 2026-06-02)
 
 ---
 
@@ -180,4 +181,6 @@
 - Redirected unauthorized authenticated users trying to access `/admin` or `/moderation` to `/dashboard`, rendering a query-parameter driven "Página não encontrada" toast.
 - Added comprehensive unit/integration test suite verifying all redirection guards and context loading in `apps/web/src/routes/-guards.test.ts`.
 
-
+### Issue 21: Fix Infinite Payment & Tracking Loop
+- Replaced unstable mutation reference dependency with referentially stable destructured mutate callback in Payment and Impression tracking components.
+- Eliminated infinite loop of request mutations triggering on every component render.
