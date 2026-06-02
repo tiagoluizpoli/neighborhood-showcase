@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { hashCPF, isValidCPF } from './cpf.entity';
+import { hashCPF, isValidCPF } from '@neighborhood-showcase/auth/utils/cpf';
 
 test('CPF validation correctly validates valid CPFs', () => {
   // Test valid CPFs

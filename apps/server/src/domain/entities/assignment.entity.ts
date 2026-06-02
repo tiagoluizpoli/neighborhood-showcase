@@ -17,19 +17,6 @@ export interface AssignmentProps extends AuditableProps {
   proofOfResidency?: string | null;
 }
 
-export function validateUnitInfo(unitInfo?: string | null): void {
-  if (!unitInfo || unitInfo.trim().length === 0) {
-    throw new InvalidUnitInfoError(
-      'Informações da unidade são obrigatórias para moradores.',
-    );
-  }
-  if (unitInfo.length > 100) {
-    throw new InvalidUnitInfoError(
-      'Informações da unidade não podem exceder 100 caracteres.',
-    );
-  }
-}
-
 export class Assignment extends AuditableEntity<AssignmentProps> {
   constructor(props: AssignmentProps, id?: string) {
     super(props, id);
@@ -38,7 +25,20 @@ export class Assignment extends AuditableEntity<AssignmentProps> {
 
   private validate(): void {
     if (this.props.type === 'RESIDENT') {
-      validateUnitInfo(this.props.unitInfo);
+      Assignment.validateUnitInfo(this.props.unitInfo);
+    }
+  }
+
+  private static validateUnitInfo(unitInfo?: string | null): void {
+    if (!unitInfo || unitInfo.trim().length === 0) {
+      throw new InvalidUnitInfoError(
+        'Informações da unidade são obrigatórias para moradores.',
+      );
+    }
+    if (unitInfo.length > 100) {
+      throw new InvalidUnitInfoError(
+        'Informações da unidade não podem exceder 100 caracteres.',
+      );
     }
   }
 

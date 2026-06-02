@@ -37,28 +37,6 @@ export interface CondominiumProps extends AuditableProps {
   number?: string | null;
 }
 
-export function validateCondominiumName(name: string): void {
-  if (!name || name.trim().length < 3) {
-    throw new InvalidCondominiumNameError();
-  }
-}
-
-export function validateCEP(cep: string): void {
-  const cleanCep = cep.replace(/\D/g, '');
-  if (cleanCep.length !== 8) {
-    throw new InvalidCEPError();
-  }
-}
-
-export function validateContactInfo(info: CondominiumContactInfo): void {
-  if (info.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.email)) {
-    throw new InvalidContactInfoError('E-mail administrativo inválido.');
-  }
-  if (info.phone && info.phone.replace(/\D/g, '').length < 10) {
-    throw new InvalidContactInfoError('Telefone administrativo inválido.');
-  }
-}
-
 export class Condominium extends AuditableEntity<CondominiumProps> {
   constructor(props: CondominiumProps, id?: string) {
     super(props, id);
@@ -66,9 +44,31 @@ export class Condominium extends AuditableEntity<CondominiumProps> {
   }
 
   private validate(): void {
-    validateCondominiumName(this.props.name);
-    validateCEP(this.props.cep);
-    validateContactInfo(this.props.contactInfo);
+    Condominium.validateCondominiumName(this.props.name);
+    Condominium.validateCEP(this.props.cep);
+    Condominium.validateContactInfo(this.props.contactInfo);
+  }
+
+  private static validateCondominiumName(name: string): void {
+    if (!name || name.trim().length < 3) {
+      throw new InvalidCondominiumNameError();
+    }
+  }
+
+  private static validateCEP(cep: string): void {
+    const cleanCep = cep.replace(/\D/g, '');
+    if (cleanCep.length !== 8) {
+      throw new InvalidCEPError();
+    }
+  }
+
+  private static validateContactInfo(info: CondominiumContactInfo): void {
+    if (info.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.email)) {
+      throw new InvalidContactInfoError('E-mail administrativo inválido.');
+    }
+    if (info.phone && info.phone.replace(/\D/g, '').length < 10) {
+      throw new InvalidContactInfoError('Telefone administrativo inválido.');
+    }
   }
 
   get name(): string {

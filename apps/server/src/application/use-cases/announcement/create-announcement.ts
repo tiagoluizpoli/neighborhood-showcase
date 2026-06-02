@@ -1,7 +1,6 @@
 import crypto from 'node:crypto';
 import { TRPCError } from '@trpc/server';
-import type { Announcement } from '../../../domain/entities/announcement.entity';
-import { validateAnnouncement } from '../../../domain/entities/announcement.entity';
+import { Announcement } from '../../../domain/entities/announcement.entity';
 import type { AnnouncementRepository } from '../../../domain/repositories/announcement.repository';
 import type { AssignmentRepository } from '../../../domain/repositories/assignment.repository';
 import type {
@@ -16,15 +15,6 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
   ) {}
 
   async execute(input: CreateAnnouncementInput): Promise<Announcement> {
-    // Validate announcement details using domain entity validations
-    validateAnnouncement({
-      title: input.title,
-      description: input.description,
-      category: input.category,
-      imageUrl: input.imageUrl,
-      contactLinks: input.contactLinks,
-    });
-
     // Enforce that user must have an approved location context
     const assignment = await this.assignmentRepo.findById(
       input.providerLocationId,
@@ -41,6 +31,28 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
           'Você precisa ter uma localização aprovada para criar anúncios.',
       });
     }
+
+    // Validate announcement details using domain entity constructor
+    new Announcement({
+      providerId: input.providerId,
+      condominiumId: assignment.condominiumId,
+      providerLocationId: assignment.id,
+      title: input.title,
+      subtitle: input.subtitle || null,
+      description: input.description,
+      priceCents: input.priceCents || null,
+      imageUrl: input.imageUrl,
+      category: input.category,
+      tags: input.tags,
+      contactLinks: {
+        whatsapp: input.contactLinks.whatsapp || undefined,
+        instagram: input.contactLinks.instagram || undefined,
+        website: input.contactLinks.website || undefined,
+      },
+      showVerifiedBadge: input.showVerifiedBadge,
+      flaggedForReview: false,
+      status: 'DRAFT',
+    });
 
     // Verified Resident Badge toggle is only allowed if user has an approved Resident assignment
     if (

@@ -4,7 +4,7 @@ import { address as addressSchema } from '@neighborhood-showcase/db/schema/showc
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import type { Assignment } from '../../../domain/entities/assignment.entity';
-import { validateCEP } from '../../../domain/entities/condominium.entity';
+import { Condominium } from '../../../domain/entities/condominium.entity';
 import type { AssignmentRepository } from '../../../domain/repositories/assignment.repository';
 import type {
   RegisterExternalLocationInput,
@@ -17,8 +17,16 @@ export class RegisterExternalLocation
   constructor(private readonly assignmentRepo: AssignmentRepository) {}
 
   async execute(input: RegisterExternalLocationInput): Promise<Assignment> {
-    // 1. Validate inputs
-    validateCEP(input.cep);
+    // 1. Validate inputs via Condominium entity CEP validation
+    new Condominium({
+      name: 'Dummy Condominium',
+      city: 'Dummy City',
+      state: 'SC',
+      cep: input.cep,
+      contactInfo: {},
+      status: 'PENDING_APPROVAL',
+      createdBy: 'dummy-creator',
+    });
 
     if (!input.street.trim()) {
       throw new TRPCError({

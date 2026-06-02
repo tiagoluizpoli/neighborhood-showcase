@@ -31,7 +31,7 @@
 - [x] **Issue 27**: Root Docker Compose Infrastructure (Completed: 2026-06-02)
 - [x] **Issue 28**: Native PG Enum Schema Migration (Completed: 2026-06-02)
 - [x] **Issue 29**: Feature Flags Shared Package (Completed: 2026-06-02)
-- [ ] **Issue 30**: Entity Validation Encapsulation (Pending)
+- [x] **Issue 30**: Entity Validation Encapsulation (Completed: 2026-06-02)
 
 ---
 
@@ -242,7 +242,14 @@
 - Implemented type-safe `FLAGS` registry and `FlagName` constraint ensuring unregistered keys fail compiler checks.
 - Updated database integration test setup script to clean both `public` and `drizzle` schemas, restoring test stability.
 
+### Issue 30: Entity Validation Encapsulation
+- Relocated all standalone validation functions as private static class methods inside `Announcement`, `Assignment`, and `Condominium` classes.
+- Ensured validation occurs strictly during class constructor validation checks to preserve domain integrity.
+- Deleted the deprecated barrel file `cpf.entity.ts`.
+- Updated all CPF consumers to import utilities directly from `@neighborhood-showcase/auth/utils/cpf`.
+
 [2026-06-02 02:03:08] Iteration 1: Fixed double-impression tracking bug by making the details route component the single source of truth and adding a useRef guard. Status: 100% Complete.
 [2026-06-02 09:25:00] Iteration 2: Relocated compose config to root, added Unleash & Redis services, updated template, and fixed test isolation leak. Status: 100% Complete. Loop Terminated.
 [2026-06-02 09:28:00] Iteration 3: Migrated 11 schema columns to native pgEnums, reset and re-generated initial migration, and updated test database setup script. Status: 100% Complete. Loop Terminated.
 [2026-06-02 09:40:00] Iteration 2 | Worked: Consolidated Unleash feature flagging logic into type-safe shared workspace package @neighborhood-showcase/feature-flags, and fixed integration test database reset schema baseline | Failed: None | Status: 100% Complete. Loop Terminated.
+[2026-06-02 09:45:00] Iteration 3 | Worked: Encapsulated domain validation methods as private static class methods, deleted cpf.entity.ts, and updated CPF imports | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>

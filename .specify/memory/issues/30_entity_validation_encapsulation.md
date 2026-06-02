@@ -13,11 +13,11 @@ Encapsulate entity validation methods and purge domain directory pollution:
 
 ## Acceptance criteria
 
-- [ ] Unused standalone validation functions are relocated as `private static` class methods and are no longer exported.
-- [ ] Invariants validation remains fully operational via entity constructors, throwing standard domain errors.
-- [ ] File `cpf.entity.ts` is deleted.
-- [ ] CPF consumers import `{ hashCPF, isValidCPF }` from the correct auth utility path.
-- [ ] Project compiles and the entire test suite passes.
+- [x] Unused standalone validation functions are relocated as `private static` class methods and are no longer exported.
+- [x] Invariants validation remains fully operational via entity constructors, throwing standard domain errors.
+- [x] File `cpf.entity.ts` is deleted.
+- [x] CPF consumers import `{ hashCPF, isValidCPF }` from the correct auth utility path.
+- [x] Project compiles and the entire test suite passes.
 
 ## Blocked by
 

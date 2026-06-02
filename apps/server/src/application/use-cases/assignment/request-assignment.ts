@@ -1,7 +1,6 @@
 import crypto from 'node:crypto';
 import { TRPCError } from '@trpc/server';
-import type { Assignment } from '../../../domain/entities/assignment.entity';
-import { validateUnitInfo } from '../../../domain/entities/assignment.entity';
+import { Assignment } from '../../../domain/entities/assignment.entity';
 import type { AssignmentRepository } from '../../../domain/repositories/assignment.repository';
 import type {
   RequestAssignmentInput,
@@ -12,7 +11,15 @@ export class RequestAssignment implements RequestAssignmentUseCase {
   constructor(private readonly assignmentRepo: AssignmentRepository) {}
 
   async execute(input: RequestAssignmentInput): Promise<Assignment> {
-    validateUnitInfo(input.unitInfo);
+    // Validate unitInfo using Assignment domain entity constructor rules
+    new Assignment({
+      providerId: input.providerId,
+      condominiumId: input.condominiumId,
+      type: 'RESIDENT',
+      status: 'PENDING',
+      unitInfo: input.unitInfo,
+      proofOfResidency: input.proofOfResidency,
+    });
 
     // Check if duplicate assignment exists
     const existing = await this.assignmentRepo.findByProviderAndCondo(

@@ -57,50 +57,6 @@ export interface AnnouncementProps extends AuditableProps {
   suspensionReason?: string | null;
 }
 
-export function validateAnnouncement(input: {
-  title: string;
-  description: string;
-  category: string;
-  imageUrl: string;
-  contactLinks: {
-    whatsapp?: string;
-    instagram?: string;
-    website?: string;
-  };
-}): void {
-  if (!input.title || input.title.trim().length < 3) {
-    throw new InvalidAnnouncementTitleError(
-      'O título do anúncio deve ter pelo menos 3 caracteres.',
-    );
-  }
-  if (input.title.length > 100) {
-    throw new InvalidAnnouncementTitleError(
-      'O título do anúncio não pode exceder 100 caracteres.',
-    );
-  }
-  if (!input.description || input.description.trim().length < 10) {
-    throw new InvalidAnnouncementDescriptionError(
-      'A descrição do anúncio deve ter pelo menos 10 caracteres.',
-    );
-  }
-  if (input.description.length > 2000) {
-    throw new InvalidAnnouncementDescriptionError(
-      'A descrição do anúncio não pode exceder 2000 caracteres.',
-    );
-  }
-  if (!input.category || input.category.trim().length === 0) {
-    throw new AnnouncementCategoryRequiredError();
-  }
-  if (!input.imageUrl || input.imageUrl.trim().length === 0) {
-    throw new AnnouncementImageRequiredError();
-  }
-
-  const { whatsapp, instagram, website } = input.contactLinks;
-  if (!whatsapp?.trim() && !instagram?.trim() && !website?.trim()) {
-    throw new AnnouncementContactRequiredError();
-  }
-}
-
 export class Announcement extends AuditableEntity<AnnouncementProps> {
   constructor(props: AnnouncementProps, id?: string) {
     super(props, id);
@@ -108,13 +64,57 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
   }
 
   private validate(): void {
-    validateAnnouncement({
+    Announcement.validate({
       title: this.props.title,
       description: this.props.description,
       category: this.props.category,
       imageUrl: this.props.imageUrl,
       contactLinks: this.props.contactLinks,
     });
+  }
+
+  private static validate(input: {
+    title: string;
+    description: string;
+    category: string;
+    imageUrl: string;
+    contactLinks: {
+      whatsapp?: string;
+      instagram?: string;
+      website?: string;
+    };
+  }): void {
+    if (!input.title || input.title.trim().length < 3) {
+      throw new InvalidAnnouncementTitleError(
+        'O título do anúncio deve ter pelo menos 3 caracteres.',
+      );
+    }
+    if (input.title.length > 100) {
+      throw new InvalidAnnouncementTitleError(
+        'O título do anúncio não pode exceder 100 caracteres.',
+      );
+    }
+    if (!input.description || input.description.trim().length < 10) {
+      throw new InvalidAnnouncementDescriptionError(
+        'A descrição do anúncio deve ter pelo menos 10 caracteres.',
+      );
+    }
+    if (input.description.length > 2000) {
+      throw new InvalidAnnouncementDescriptionError(
+        'A descrição do anúncio não pode exceder 2000 caracteres.',
+      );
+    }
+    if (!input.category || input.category.trim().length === 0) {
+      throw new AnnouncementCategoryRequiredError();
+    }
+    if (!input.imageUrl || input.imageUrl.trim().length === 0) {
+      throw new AnnouncementImageRequiredError();
+    }
+
+    const { whatsapp, instagram, website } = input.contactLinks;
+    if (!whatsapp?.trim() && !instagram?.trim() && !website?.trim()) {
+      throw new AnnouncementContactRequiredError();
+    }
   }
 
   get providerId(): string {
