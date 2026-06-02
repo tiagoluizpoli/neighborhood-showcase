@@ -27,6 +27,11 @@
 - [x] **Issue 23**: Unleash Feature Flagging (Completed: 2026-06-02)
 - [x] **Issue 24**: i18n Localization English & Portuguese (Completed: 2026-06-02)
 - [x] **Issue 25**: Payment Error Handling ADR (Completed: 2026-06-02)
+- [ ] **Issue 26**: Analytics Impression Tracker (Pending)
+- [ ] **Issue 27**: Root Docker Compose Infrastructure (Pending)
+- [ ] **Issue 28**: Native PG Enum Schema Migration (Pending)
+- [ ] **Issue 29**: Feature Flags Shared Package (Pending)
+- [ ] **Issue 30**: Entity Validation Encapsulation (Pending)
 
 ---
 
