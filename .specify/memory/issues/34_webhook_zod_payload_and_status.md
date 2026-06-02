@@ -12,9 +12,9 @@ Implement strict validation and type safety for the webhook request body payload
 
 ## Acceptance criteria
 
-- [ ] Webhook endpoint returns `400 Bad Request` if the incoming request body does not match the Zod payload schema.
-- [ ] Database updates are bypassed if the payload's `paymentStatus` is not `"PAID"`.
-- [ ] Unused variable compiler errors (TS6133) on `paymentStatus` are fully resolved.
+- [x] Webhook endpoint returns `400 Bad Request` if the incoming request body does not match the Zod payload schema.
+- [x] Database updates are bypassed if the payload's `paymentStatus` is not `"PAID"`.
+- [x] Unused variable compiler errors (TS6133) on `paymentStatus` are fully resolved.
 
 ## Blocked by
 

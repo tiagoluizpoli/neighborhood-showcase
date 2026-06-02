@@ -9,6 +9,26 @@ import { env } from '@neighborhood-showcase/env/server';
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { Resend } from 'resend';
+import { z } from 'zod';
+
+const abacatePayWebhookPayloadSchema = z.object({
+  id: z.string(),
+  event: z.string(),
+  data: z.object({
+    transparent: z
+      .object({
+        id: z.string(),
+        status: z.string(),
+      })
+      .optional(),
+    checkout: z
+      .object({
+        id: z.string(),
+        status: z.string(),
+      })
+      .optional(),
+  }),
+});
 
 interface WebhookQuery {
   webhookSecret: string;
@@ -100,33 +120,16 @@ export async function webhookRoutes(fastify: FastifyInstance) {
         }
       }
 
-      // Parse the webhook payload
-      const payload = request.body as {
-        id?: string;
-        event?: string;
-        data?: {
-          transparent?: {
-            id: string;
-            status: string;
-          };
-          checkout?: {
-            id: string;
-            status: string;
-          };
-        };
-      };
+      // Parse the webhook payload using Zod schema
+      const parseResult = abacatePayWebhookPayloadSchema.safeParse(
+        request.body,
+      );
 
-      if (!payload || typeof payload !== 'object') {
+      if (!parseResult.success) {
         return reply.status(400).send({ error: 'Invalid request body' });
       }
 
-      const { event, data } = payload;
-
-      if (!event || !data) {
-        return reply
-          .status(400)
-          .send({ error: 'Missing required webhook fields' });
-      }
+      const { event, data } = parseResult.data;
 
       let billingId: string | undefined;
       let paymentStatus: string | undefined;
@@ -146,6 +149,12 @@ export async function webhookRoutes(fastify: FastifyInstance) {
           message: `Webhook event '${event}' is ignored or has no billing data`,
         });
       }
+
+      // Log the extracted paymentStatus and billingId to satisfy TS compiler constraints
+      request.log.info(
+        { billingId, paymentStatus },
+        'Processing verified AbacatePay webhook payment event',
+      );
 
       // Assert that the webhook payload status is PAID
       if (paymentStatus !== 'PAID') {

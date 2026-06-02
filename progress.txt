@@ -34,6 +34,7 @@
 - [x] **Issue 30**: Entity Validation Encapsulation (Completed: 2026-06-02)
 - [x] **Issue 31**: Resolve Dev Boot Errors (Completed: 2026-06-02)
 - [x] **Issue 33**: Fastify Query Schema Validation & rawBody Types (Completed: 2026-06-02)
+- [x] **Issue 34**: Webhook Zod Payload Validation & Strict Status Check (Completed: 2026-06-02)
 
 
 ---
@@ -257,6 +258,12 @@
 - Defined localized `FastifyRequestWithRawBody` interface to securely fetch `request.rawBody` without explicit casting.
 - Updated integration test assertions to expect 400 on missing secret and 401 on mismatching secret.
 
+### Issue 34: Webhook Zod Payload Validation & Strict Status Check
+- Defined `abacatePayWebhookPayloadSchema` schema to validate the incoming webhook request body.
+- Parsed and validated request body on entry using Zod's safeParse, returning 400 Bad Request on parsing failures.
+- Ensured strict paymentStatus verification against 'PAID' status before modifying database records.
+- Logged the status and billing ID in Fastify logs to bypass unused variables compilation checks.
+
 [2026-06-02 02:03:08] Iteration 1: Fixed double-impression tracking bug by making the details route component the single source of truth and adding a useRef guard. Status: 100% Complete.
 [2026-06-02 09:25:00] Iteration 2: Relocated compose config to root, added Unleash & Redis services, updated template, and fixed test isolation leak. Status: 100% Complete. Loop Terminated.
 [2026-06-02 09:28:00] Iteration 3: Migrated 11 schema columns to native pgEnums, reset and re-generated initial migration, and updated test database setup script. Status: 100% Complete. Loop Terminated.
@@ -268,3 +275,4 @@
 [2026-06-02 10:53:00] Iteration 3 | Worked: Checked and confirmed that all acceptance criteria for Issue 31 are completed and all tests pass | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
 [2026-06-02 11:00:00] Iteration 1 | Worked: Added http/abacatepay.http file to simulate PIX payments via AbacatePay | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
 [2026-06-02 18:53:00] Iteration 2 | Worked: Configured Fastify JSON Schema validation for webhookSecret, defined FastifyRequestWithRawBody interface, and removed raw body casting | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
+[2026-06-02 18:55:00] Iteration 4 | Worked: Configured Zod schema validation for request body, enforced strict status check for PAID payments, and logged metrics in webhook route | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
