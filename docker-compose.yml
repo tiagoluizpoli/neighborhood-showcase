@@ -49,7 +49,7 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/unleash
       - DATABASE_SSL=false
-      - INIT_ADMIN_API_TOKENS=default:development.unleash-insecure-api-token
+      - INIT_ADMIN_API_TOKENS=*:development.unleash-insecure-api-token
       - INIT_FRONTEND_API_TOKENS=default:development.unleash-insecure-api-token
       - REDIS_URL=redis://redis:6379
     depends_on:
