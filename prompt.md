@@ -75,6 +75,13 @@ Before committing, run the feedback loops:
 - `bun run check-types` to run the type checker
 - `bun run test` to run the test suite
 
+# PROGRESS LOGGING
+
+After completing your task (or if you are aborting/blocking), you MUST:
+1. Append a single-line log entry to `/progress.txt` in this exact format:
+   `[YYYY-MM-DD HH:MM:SS] Iteration X | Worked: [list what was implemented/passed] | Failed: [list any errors, failures, warnings, or write 'None'] | Status: [Y]% Complete. [If finished: "Loop Terminated. <promise>NO MORE TASKS</promise>", If aborted: "Loop Terminated. <promise>ABORT</promise>"]`
+2. Update the active issue markdown file in `.specify/memory/issues/` by marking the completed tasks as checked (`[x]`) and adding any relevant notes regarding failed attempts or current status.
+
 # COMMIT
 
 Make a git commit. The commit message must:

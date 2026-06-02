@@ -5,6 +5,7 @@ import { Client } from 'pg';
 
 async function setup() {
   const dbUrl = process.env.DATABASE_URL;
+  console.log('DEBUG: DATABASE_URL inside setup-test-db is:', dbUrl);
   if (!dbUrl) {
     console.error('❌ DATABASE_URL environment variable is not defined!');
     process.exit(1);
@@ -50,10 +51,11 @@ async function setup() {
   try {
     await testClient.connect();
 
-    // Reset public schema to guarantee a clean slate for the migrations
-    console.log('Resetting schema public...');
+    // Reset public and drizzle schemas to guarantee a clean slate for the migrations
+    console.log('Resetting schemas public and drizzle...');
     await testClient.query('DROP SCHEMA IF EXISTS public CASCADE');
     await testClient.query('CREATE SCHEMA public');
+    await testClient.query('DROP SCHEMA IF EXISTS drizzle CASCADE');
 
     const db = drizzle(testClient);
     // Locate the migrations directory relative to this script

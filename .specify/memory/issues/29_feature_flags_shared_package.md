@@ -11,11 +11,11 @@ Consolidate Unleash feature flagging logic into a type-safe shared workspace pac
 
 ## Acceptance criteria
 
-- [ ] A new package `@neighborhood-showcase/feature-flags` exists under `packages/feature-flags`.
-- [ ] Unleash configuration and checking are unified in this package.
-- [ ] Entrypoints `/server` and `/client` are correctly resolved.
-- [ ] Feature toggle check APIs accept only registered keys of the `FlagName` type.
-- [ ] Compilation, typing, and tests verify feature flags function correctly.
+- [x] A new package `@neighborhood-showcase/feature-flags` exists under `packages/feature-flags`.
+- [x] Unleash configuration and checking are unified in this package.
+- [x] Entrypoints `/server` and `/client` are correctly resolved.
+- [x] Feature toggle check APIs accept only registered keys of the `FlagName` type.
+- [x] Compilation, typing, and tests verify feature flags function correctly.
 
 ## Blocked by
 

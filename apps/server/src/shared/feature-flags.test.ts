@@ -14,17 +14,21 @@ describe('Feature Flags Unit Test', () => {
 
   test('should return default value if environment variable is not defined', () => {
     delete process.env.FLAG_MY_TEST_FEATURE;
+    // @ts-expect-error my_test_feature is not registered in FLAGS registry
     expect(isFeatureEnabled('my_test_feature', true)).toBe(true);
+    // @ts-expect-error my_test_feature is not registered in FLAGS registry
     expect(isFeatureEnabled('my_test_feature', false)).toBe(false);
   });
 
   test('should return true if environment variable is set to true', () => {
     process.env.FLAG_MY_TEST_FEATURE = 'true';
+    // @ts-expect-error my_test_feature is not registered in FLAGS registry
     expect(isFeatureEnabled('my_test_feature', false)).toBe(true);
   });
 
   test('should return false if environment variable is set to false', () => {
     process.env.FLAG_MY_TEST_FEATURE = 'false';
+    // @ts-expect-error my_test_feature is not registered in FLAGS registry
     expect(isFeatureEnabled('my_test_feature', true)).toBe(false);
   });
 });

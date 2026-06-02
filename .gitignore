@@ -63,3 +63,6 @@ SKILLS_OVERVIEW.md
 .specify/init-options.json
 .antigravitycli/
 ralph-loop.sh
+cache/
+progress.bkp.txt
+

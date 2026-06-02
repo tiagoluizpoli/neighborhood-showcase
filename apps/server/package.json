@@ -17,6 +17,7 @@
     "@neighborhood-showcase/auth": "workspace:*",
     "@neighborhood-showcase/db": "workspace:*",
     "@neighborhood-showcase/env": "workspace:*",
+    "@neighborhood-showcase/feature-flags": "workspace:*",
     "@trpc/server": "catalog:",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
@@ -25,7 +26,6 @@
     "fastify-raw-body": "^5.0.0",
     "resend": "^6.12.4",
     "sharp": "^0.34.5",
-    "unleash-client": "^6.11.0",
     "zod": "catalog:"
   },
   "devDependencies": {

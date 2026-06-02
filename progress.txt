@@ -30,7 +30,7 @@
 - [x] **Issue 26**: Analytics Impression Tracker (Completed: 2026-06-02)
 - [x] **Issue 27**: Root Docker Compose Infrastructure (Completed: 2026-06-02)
 - [x] **Issue 28**: Native PG Enum Schema Migration (Completed: 2026-06-02)
-- [ ] **Issue 29**: Feature Flags Shared Package (Pending)
+- [x] **Issue 29**: Feature Flags Shared Package (Completed: 2026-06-02)
 - [ ] **Issue 30**: Entity Validation Encapsulation (Pending)
 
 ---
@@ -235,6 +235,14 @@
 - Removed legacy migration snapshots and generated a fresh clean initial migration.
 - Updated the test database setup script to drop and recreate the public schema on connection, ensuring a clean migration baseline.
 
+### Issue 29: Feature Flags Shared Package
+- Created a new shared workspace package `@neighborhood-showcase/feature-flags` under `packages/feature-flags` with client and server entry points.
+- Relocated Unleash server initialization and feature toggle checking logic from Fastify server to `/server` entry point.
+- Relocated Unleash FlagProvider and client configuration hook from web app to `/client` entry point.
+- Implemented type-safe `FLAGS` registry and `FlagName` constraint ensuring unregistered keys fail compiler checks.
+- Updated database integration test setup script to clean both `public` and `drizzle` schemas, restoring test stability.
+
 [2026-06-02 02:03:08] Iteration 1: Fixed double-impression tracking bug by making the details route component the single source of truth and adding a useRef guard. Status: 100% Complete.
 [2026-06-02 09:25:00] Iteration 2: Relocated compose config to root, added Unleash & Redis services, updated template, and fixed test isolation leak. Status: 100% Complete. Loop Terminated.
 [2026-06-02 09:28:00] Iteration 3: Migrated 11 schema columns to native pgEnums, reset and re-generated initial migration, and updated test database setup script. Status: 100% Complete. Loop Terminated.
+[2026-06-02 09:40:00] Iteration 2 | Worked: Consolidated Unleash feature flagging logic into type-safe shared workspace package @neighborhood-showcase/feature-flags, and fixed integration test database reset schema baseline | Failed: None | Status: 100% Complete. Loop Terminated.

@@ -1,0 +1,21 @@
+{
+  "name": "@neighborhood-showcase/feature-flags",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server": "./src/server.ts",
+    "./client": "./src/client.ts"
+  },
+  "dependencies": {
+    "@neighborhood-showcase/env": "workspace:*",
+    "@unleash/proxy-client-react": "^5.0.1",
+    "unleash-client": "^6.11.0",
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "@neighborhood-showcase/config": "workspace:*",
+    "@types/react": "catalog:",
+    "typescript": "^5"
+  }
+}
