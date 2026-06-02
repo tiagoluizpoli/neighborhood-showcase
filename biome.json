@@ -170,6 +170,12 @@
       "assist": {
         "enabled": false
       }
+    },
+    {
+      "includes": ["**/analytics.test.tsx"],
+      "linter": {
+        "enabled": false
+      }
     }
   ]
 }

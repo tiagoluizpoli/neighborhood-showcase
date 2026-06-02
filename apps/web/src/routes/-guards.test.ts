@@ -9,6 +9,8 @@ mock.module('../lib/auth-client', () => ({
   },
 }));
 
+import { trpc } from '../utils/trpc';
+
 const mockGetMyAssignments = mock(() => Promise.resolve([]));
 const mockMyCreatedCondo = mock(() => Promise.resolve(null));
 mock.module('../utils/trpc', () => ({
@@ -24,7 +26,7 @@ mock.module('../utils/trpc', () => ({
       },
     },
   },
-  trpc: {},
+  trpc,
 }));
 
 import { Route as AdminRoute } from './admin';

@@ -1,6 +1,6 @@
 # PRD
 
-Pull @PRD.md into your context.
+Pull @PRD.md into your context. (Make sure to verify if PRD.md, prod.md, PROD.md, or prd.md is present in the repository root and pull the correct one).
 
 You've been passed a file containing the last 10 RALPH commits (SHA, date, full message). Review these to understand what work has been done.
 
@@ -12,7 +12,15 @@ Break down the PRD and the issues into small, fine-grained tasks. Make each task
 
 # TASK SELECTION
 
-Pick the next task.
+Pick the next task. Prioritize tasks in this order:
+
+1. Critical bugfixes
+2. Development infrastructure
+   Getting development infrastructure like tests and types and dev scripts ready is an important precursor to building features.
+3. Tracer bullets for new features
+   A tracer bullet is a small, end-to-end slice of functionality that goes through all layers of the system (database, backend, frontend, presentation), allowing you to test and validate your approach early. Build a tiny, end-to-end slice of the feature first, then expand it out.
+4. Polish and quick wins
+5. Refactors
 
 If there are no more tasks, emit <promise>NO MORE TASKS</promise>.
 
@@ -20,29 +28,44 @@ If there are no more tasks, emit <promise>NO MORE TASKS</promise>.
 
 Explore the repo and fill your context window with relevant information that will allow you to complete the task.
 
-# EXECUTION
+# EXECUTION: RED
 
-Complete the task.
+First, write tests that fail because the feature is not yet implemented.
 
-If anything blocks your completion of the task, output <promise>ABORT</promise>.
+Run the tests to check that they fail using `bun run test`.
 
-# TEST ENFORCEMENT & INTEGRITY
+Tests should focus on the publicly accessible interface of the system. They should test user behavior, not internal implementation details.
 
-To ensure correctness and prevent regressions, you must follow these strict rules:
-
+### Test Integrity Rules:
 1. **Mandatory Test Implementation**: You must write corresponding test cases (unit, integration, or component as defined in the Test Coverage Plan) along with the code for the task at hand. Do not write feature code without accompanying tests.
 2. **Test-Driven Integrity**: Tests must represent the correct behavior of the specification. You are strictly forbidden from modifying or deleting existing tests to make a new implementation pass.
 3. **Approval for Changing Tests**: If you believe a change to an existing test is absolutely necessary, you must stop immediately, document the options, rationale, and "whys", and ask the user for approval. Do not modify existing tests without explicit instruction.
 4. **Additions Allowed**: You may append new tests to existing test files to increase coverage, but the existing tests must remain unchanged.
 
-# FRONTEND & UI IMPLEMENTATION RULES
+# EXECUTION: GREEN
 
-For all frontend/UI tasks, you must strictly adhere to these rules:
+Next, implement the minimum amount of code necessary to make the tests pass.
 
+# EXECUTION: REFACTOR
+
+Finally, ALWAYS refactor the code to improve its structure. Adhere to the following guidelines:
+
+- Code is clear and readable
+- Functions and variables are well-named
+- No duplicated code
+- Proper error handling
+- No exposed secrets or API keys
+- Input validation implemented
+- Good test coverage
+- Performance considerations addressed
+
+### Frontend & UI Implementation Rules (if applicable):
 1. **Base Shadcn/ui Only**: Everything must be built using the base shadcn/ui components. Check if a component exists first and use it. Do not invent new components from scratch.
 2. **Prioritize Composition**: If you must build a custom component, compose it strictly using existing shadcn/ui components.
 3. **Avoid Raw HTML**: Avoid using raw HTML tags unless strictly necessary (e.g. wrapper `div`s for layout positioning, or when no shadcn/ui alternative exists). Otherwise, compose with base components.
 4. **Consistency**: Ensure all components match the typography, shapes, and colors of the defined design system.
+
+If anything blocks your completion of the task, output <promise>ABORT</promise>.
 
 # FEEDBACK LOOPS
 
