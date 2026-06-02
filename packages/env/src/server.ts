@@ -19,6 +19,11 @@ export const env = createEnv({
     ABACATEPAY_API_KEY: z.string().default('mock-abacatepay-key'),
     ABACATEPAY_WEBHOOK_SECRET: z.string().default('mock-webhook-secret'),
     RESEND_API_KEY: z.string().optional(),
+    UNLEASH_URL: z.string().url().default('http://localhost:4242/api'),
+    UNLEASH_API_TOKEN: z
+      .string()
+      .default('default:development.unleash-insecure-api-token'),
+    UNLEASH_APP_NAME: z.string().default('neighborhood-showcase'),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

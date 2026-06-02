@@ -24,6 +24,7 @@
 - [x] **Issue 20**: Permission Navigation & Localization (Completed: 2026-06-02)
 - [x] **Issue 21**: Fix Infinite Payment & Tracking Loop (Completed: 2026-06-02)
 - [x] **Issue 22**: DDD Domain Entity Class Refactoring (Completed: 2026-06-02)
+- [x] **Issue 23**: Unleash Feature Flagging (Completed: 2026-06-02)
 
 ---
 
@@ -192,4 +193,12 @@
 - Created `EntityMapper` interface and concrete Drizzle mappers in `apps/server/src/infrastructure/db/mappers/`.
 - Updated tRPC procedures and mappers to return serialized `.toDTO()` plain JSON objects, preventing domain class getters from breaking client network payloads.
 - Verified that all type-checks, biome checks, and 128 tests pass successfully.
+
+### Issue 23: Unleash Feature Flagging Integration
+- Added Unleash server SDK `unleash-client` and client SDK `@unleash/proxy-client-react` to server and web apps.
+- Configured environment variables validator schemas in `packages/env` and `.env.template`.
+- Wrapped frontend TanStack root component inside `FlagProvider` using frontend config settings.
+- Built server-side `isFeatureEnabled` and `initUnleash` utilities.
+- Added and ran unit tests checking the fallback environment flag logic on the server.
+
 

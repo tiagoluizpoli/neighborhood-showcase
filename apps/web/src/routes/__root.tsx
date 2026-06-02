@@ -1,3 +1,4 @@
+import { env } from '@neighborhood-showcase/env/web';
 import { Toaster } from '@neighborhood-showcase/ui/components/sonner';
 import type { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -7,11 +8,18 @@ import {
   Outlet,
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+import FlagProvider from '@unleash/proxy-client-react';
 import Header from '@/components/header';
 import { ThemeProvider } from '@/components/theme-provider';
 import type { trpc } from '@/utils/trpc';
 
 import '../index.css';
+
+const unleashConfig = {
+  url: env.VITE_UNLEASH_URL,
+  clientKey: env.VITE_UNLEASH_CLIENT_KEY,
+  appName: 'neighborhood-showcase',
+};
 
 export interface RouterAppContext {
   trpc: typeof trpc;
@@ -41,7 +49,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 
 function RootComponent() {
   return (
-    <>
+    <FlagProvider config={unleashConfig}>
       <HeadContent />
       <ThemeProvider
         attribute="class"
@@ -57,6 +65,6 @@ function RootComponent() {
       </ThemeProvider>
       <TanStackRouterDevtools position="bottom-left" />
       <ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
-    </>
+    </FlagProvider>
   );
 }

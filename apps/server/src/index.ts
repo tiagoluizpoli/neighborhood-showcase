@@ -86,10 +86,13 @@ fastify.get('/', async () => {
   return 'OK';
 });
 
-fastify.listen({ port: 3000 }, (err) => {
+import { initUnleash } from './shared/feature-flags';
+
+fastify.listen({ port: 3000 }, async (err) => {
   if (err) {
     fastify.log.error(err);
     process.exit(1);
   }
+  await initUnleash();
   console.log('Server running on port 3000');
 });
