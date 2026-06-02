@@ -1,6 +1,6 @@
 # PRD: Technical Debt & Architectural Improvements — Round 2
 
-This PRD covers the second wave of architectural refinements, bug fixes, and infrastructure hardening for the Neighborhood Showcase platform. All decisions were resolved through a 26-question grilling session documented in `improvements_grilling.md`.
+This PRD covers the second wave of architectural refinements, bug fixes, and infrastructure hardening for the Neighborhood Showcase platform. All decisions were resolved through a 26-question grilling session documented in [Grilling History (Session 4: Improvements & Fixes)](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/grilling_history.md#session-4-improvements--fixes).
 
 ---
 
@@ -153,5 +153,5 @@ Tests should verify **external behavior and contracts**, not implementation deta
 
 - **Dependency order**: Module 3 (Docker Compose) should be implemented before Module 2 (feature-flags package) so that the Unleash container is available for integration testing. Module 4 (pgEnum) should be implemented before Module 5 (entity encapsulation) to avoid two consecutive destructive migration resets.
 - **Recommended implementation order**: Module 1 → Module 3 → Module 4 → Module 2 → Module 5.
-- **ADR reference**: Payment error handling decisions are documented in `docs/adr/0003-abacatepay-payment-error-handling.md`. No new ADR is needed for this round — the decisions are recorded in `improvements_grilling.md` (Q17–Q26).
-- **Grilling session reference**: All 26 resolved decisions are documented in `.specify/memory/improvements_grilling.md`.
+- **ADR reference**: Payment error handling decisions are documented in `docs/adr/0003-abacatepay-payment-error-handling.md`. No new ADR is needed for this round — the decisions are recorded in [Grilling History (Session 4: Improvements & Fixes)](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/grilling_history.md#session-4-improvements--fixes) (Q17–Q26).
+- **Grilling session reference**: All 26 resolved decisions are documented in [Grilling History (Session 4: Improvements & Fixes)](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/grilling_history.md#session-4-improvements--fixes).

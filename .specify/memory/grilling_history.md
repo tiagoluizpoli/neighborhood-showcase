@@ -1,0 +1,605 @@
+# Grilling Sessions History
+
+This document consolidates all planning, architectural, UI/screen design, improvements, and code review grilling sessions in chronological order for the Neighborhood Showcase project.
+
+---
+
+## Session 1: Product & Domain (Initial Planning)
+
+This log tracks all questions, answers, and design choices resolved during the planning phase.
+
+### Resolved Decisions
+
+#### Question 1: Domain Mapping of Users, Residents, and Providers
+*   **Decided**: 
+    *   Since visitors browse publicly and do not need to sign in, every registered user account in the system is a **Provider** (or Moderator/Admin).
+    *   We don't need a separate "User" vs "Resident" model; the Provider is the base user account.
+    *   A Provider can hold one or more **Assignments** to represent different relationships with condominiums or the neighborhood.
+
+#### Question 2: Relationship between Announcements and Products/Services
+*   **Decided**:
+    *   Strict 1-to-1 relationship between an Announcement and its flyer banner content. The application does not manage a reusable "Product Catalog".
+    *   A Provider creates an Announcement directly, indicating its type (Service, Product, or Donation) and optional value.
+    *   For multi-product showcases, Providers utilize a PDF link (menu/catalog) or external link (Instagram/Facebook) inside a single general Announcement.
+
+#### Question 3: Announcement Creation and Moderation Workflow
+*   **Decided**:
+    *   **Self-Service**: Providers register themselves and create their own Announcements.
+    *   **Paywall**: Providers must pay a publication fee to set the Announcement to live.
+
+#### Question 4: Payment Integration
+*   **Decided**:
+    *   **Automated Pix**: Dynamic Pix QR code integration using **AbacatePay**.
+    *   Payments are verified via HMAC-SHA256 signature webhooks, which automatically set the Announcement to `Active` and configure `ExpiredAt` (30 days).
+
+#### Question 5: Classification (Categories and Tags)
+*   **Decided**:
+    *   **Predefined Categories**: Clean navigation categories managed by the system.
+    *   **Dynamic Tags**: Free-text keywords entered by the Provider on creation.
+    *   **Source Filter**: Automatically populated or chosen based on the selected Assignment.
+
+#### Question 6: Managing Multiple Roles / Non-duplication of Users
+*   **Decided**:
+    *   A Provider (user account) can hold multiple **Assignments** (e.g. living in Villa Bella as an internal neighbor, while managing a store outside).
+    *   When creating an Announcement, the Provider selects which Assignment it belongs to, prompting them if they have multiple.
+
+#### Question 7: Moderator Scope and Target Audience
+*   **Decided**:
+    *   **Post-Moderation Queue**: Paid Announcements go live immediately, but are added to a Moderator's review list. The Moderator can suspend/delete them if they violate rules.
+    *   **Moderator Scope**: Moderators are tied to a specific Condominium. A Moderator can only approve/verify `INTERNAL_NEIGHBOR` Assignments for their own Condominium.
+    *   **Neighborhood Providers**: Loose providers (e.g., houses on neighboring streets) register without being tied to a specific condominium.
+    *   **Announcement Targeting**: When publishing, a Provider can choose the target audience/visibility:
+        *   Only their own Condominium.
+        *   Specific neighboring Condominiums.
+        *   Public (the whole neighborhood).
+
+### Deferred & Refined Decisions
+
+#### Question 8: Visibility Filters and "Loose" Neighborhood Providers (Simplified for MVP)
+*   **Decided**:
+    *   **Deferred Complexity**: We will leave the complex `INTERNAL_NEIGHBOR`, `EXTERNAL_NEIGHBOR`, and `LOCAL_COMMERCE` target routing and filters for a future version to ensure a faster MVP launch.
+    *   **Simple Self-Registration**: Providers register easily.
+    *   **System Managers vs. Condo Moderators**: 
+        *   System Managers (global admins) can manage, block, or expel any provider who violates the community code of conduct.
+        *   Each Condominium has its own Moderator(s) who only verify the local internal neighbors claiming association with that specific condominium.
+    *   **Moderation Focus**: The main moderation effort is localized: Condo Moderators verify who is allowed to be labeled as a verified resident for their specific condo.
+
+#### Question 9: Condominium Creation and Discovery
+*   **Decided**:
+    *   **Controlled Registry**: To prevent duplicate or typo-ridden entries, only System Managers (global admins) can create a new Condominium.
+    *   **Provider Discovery**: Providers search from the verified list of Condominiums when adding Assignments.
+    *   **Missing Request**: Providers can submit a request to add a new Condominium, which System Managers review and approve/create.
+
+#### Question 10: Modifying an Active Announcement
+*   **Decided**:
+    *   **Payment & Expiration**: Editing an Active Announcement does not require a new payment and does not extend the 30-day publication period. The original `ExpiredAt` remains unchanged.
+    *   **Moderation Flow**: Edits go live immediately. However, modifying key fields (title, subtitle, description, value, image, contact links) automatically re-flags the Announcement in the Moderator review queue to prevent misuse.
+
+#### Question 11: Announcement Expiration and Renewal Flow
+*   **Decided**:
+    *   **State Transition**: Expired Announcements are not deleted. They transition to the `Expired` state, hiding them from Visitors while remaining visible to the Provider on their dashboard.
+    *   **Renewal**: The Provider can renew an Announcement via a new Pix payment.
+    *   **Early Renewal Stacking**: If a renewal payment is completed before expiration, the 30 days stack: `New ExpiredAt = Current ExpiredAt + 30 days`. If it is already expired, the new expiration is `Payment Confirmation Time + 30 days`.
+
+#### Question 12: Visitor Contact & Analytics Tracking
+*   **Decided**:
+    *   **Multiple Contact Methods**: An Announcement can support multiple contact methods. The Provider can configure any combination of:
+        *   **WhatsApp**: Direct wa.me link.
+        *   **External URL**: Instagram, website, or social page link.
+        *   **PDF Download**: Link or file upload for menus, catalogs, or additional info.
+    *   **Redirect Tracking**: Contact buttons point to redirect routes (e.g., `/api/announcements/:id/contact?type=whatsapp|external|pdf`) to register the click event before redirecting the Visitor.
+    *   **Analytics Dashboard**: The Provider's dashboard displays:
+        *   **Impressions**: Total views in listing/showcase pages.
+        *   **Interaction Counters**: Breakdown of clicks for each contact type (WhatsApp, External URL, PDF), showing which method performs best.
+
+#### Question 13: File & Media Storage (Images and PDF Catalogs)
+*   **Decided**:
+    *   **Unified Storage Abstraction**: The application will support two storage backends, switchable via environment variables:
+        *   **Local Disk Storage**: Uploads saved directly to `public/uploads/` for zero-configuration local development.
+        *   **S3-Compatible Storage**: Uploads saved to Cloudflare R2, AWS S3, or MinIO for stateless, serverless-friendly production environments.
+
+#### Question 14: Authentication Method and Providers
+*   **Decided**:
+    *   **Better Auth Engine**: Use Better Auth to power registration and logins.
+    *   **Auth Methods**:
+        *   **Email & Password**: Primary method for local development and base security.
+        *   **Social OAuth (Google/GitHub)**: Configurable optionally in production via environment variables.
+    *   **Verification & Reset Emails**: Integrated via a mock/console mailer locally and Resend (or another SMTP client) in production.
+
+#### Question 15: Primary Language & Localization
+*   **Decided**:
+    *   **Portuguese (pt-BR)**: The platform will be built entirely in Portuguese (pt-BR) to match the target audience (Brazilian condominiums) and integrations (Pix/AbacatePay).
+    *   **No i18n Translation Overhead**: Copy will be written directly in pt-BR, avoiding translation library overhead for the MVP.
+
+#### Question 16: Core Technology Stack
+*   **Decided**:
+    *   **Template Source**: We will use the `neighborhood-showcase` (Better-T-Stack) as our baseline.
+    *   **Frontend**: React + TanStack Router (fully type-safe, file-based routing) + TailwindCSS v4 + next-themes + packages/ui (shadcn/ui primitives).
+    *   **Backend & API**: Fastify + tRPC (`@trpc/server`, `@trpc/client`).
+    *   **Database**: PostgreSQL + Drizzle ORM.
+    *   **Auth**: Better-Auth.
+    *   **Runtime & Tooling**: Bun, Turborepo, Biome, Lefthook.
+
+#### Question 17: Local Webhook testing & AbacatePay integration flow
+*   **Decided**:
+    *   **Mock Dev Endpoint**: Expose a development-only endpoint/flag when `NODE_ENV === 'development'` to allow developers to simulate Pix payments locally using curl/Postman without signature checks.
+    *   **Tunneling Guidelines**: Document in the README how to run tunneling tools like `localtunnel` or `ngrok` for testing the live AbacatePay webhook flow.
+
+#### Question 18: Notification Mechanisms for Providers
+*   **Decided**:
+    *   **Transactional Emails (via Resend)**:
+        *   **Expiration Warning**: Sent 3 days before expiration with a renew link.
+        *   **Expiration Confirmation**: Sent when the Announcement expires.
+        *   **Moderator Actions**: Sent when a Moderator suspends or deletes the Announcement, explaining the reason.
+    *   **In-App Alerts**: Simple notification badge/inbox on the Provider's dashboard.
+    *   **Deferred SMS/WhatsApp**: SMS and WhatsApp gateway notifications are deferred for the MVP to minimize costs.
+
+#### Question 19: Image Optimization & Constraints
+*   **Decided**:
+    *   **Format & Size Limits**: Cap maximum initial upload size at **10MB** (providing convenience for raw mobile photos) and limit formats to standard images (WebP, PNG, JPG/JPEG).
+    *   **Server-Side Optimization**: Process all uploads via `sharp` before saving: convert to WebP, resize to a max resolution of 1200x800px, and compress at quality level 80 to minimize final storage consumption.
+
+#### Question 20: Moderator Alerting and Moderation Dashboard
+*   **Decided**:
+    *   **Moderator Dashboard**: Specialized workspace for Condo Moderators to review pending Assignments and flagged Announcements for their specific Condominium.
+    *   **Alerting Channels**:
+        *   **In-App Badges**: Real-time pending count badges on their header navigation.
+        *   **Daily Digest Email**: A daily compiled mail of pending tasks to avoid instant email overload.
+        *   **Telegram Bot Integration**: Free, optional integration where Condo Moderators and System Managers can link their Telegram account/Chat ID to receive instant Telegram notifications when a new moderation task arises.
+
+#### Question 21: Condominium Selection & Request Flow
+*   **Decided**:
+    *   **Onboarding & Verification Details**: When requesting a new Condominium, we collect:
+        *   **Condominium Name** and **Location Details** (City, State, CEP/ZIP).
+        *   **Contact Info**: Website link, phone, or email.
+    *   **Síndico (Condominium Manager) Link**: The registration flow is designed so the person requesting the creation is typically the **Síndico** (or an authorized administrative manager). They provide proof of representation or contact info.
+    *   **Verification Workflow**: 
+        *   A System Manager manually verifies the request (confirming the Condominium is real and the applicant is indeed the Síndico/authorized manager).
+        *   Upon approval, the Condominium is activated (`Approved`), and the requesting user is automatically granted the **Moderator** role for that Condominium, serving as its primary administrator.
+
+#### Question 22: Provider Verification Status & Public Badging
+*   **Decided**:
+    *   **Opt-in Trust Badge**: If a Provider has an approved `INTERNAL_NEIGHBOR` Assignment, they can choose whether to display the `"Morador Verificado de [Condomínio Name]"` trust badge on a per-Announcement basis.
+    *   **Privacy Control**: Displaying the badge is optional to protect the Provider's privacy (e.g. they might not want to publicize where they live until contacting a buyer).
+
+#### Question 23: Deletion Policy & LGPD Anonymization
+*   **Decided**:
+    *   **Right to be Forgotten (LGPD Compliance)**: When a Provider requests account deletion, we soft-delete the account row (`deletedAt`) and **immediately scrub/anonymize all Personally Identifiable Information (PII)**:
+        *   Replace Name with `[Usuário Deletado]`.
+        *   Clear or cryptographically hash the Email.
+        *   Clear phone number, WhatsApp links, and delete uploaded files (profile image, PDF catalogs).
+    *   **Data Retention**: We retain only the anonymized transaction records (Pix payment logs and amounts) for fiscal/accounting audits and global metrics, fully complying with Brazil's General Personal Data Protection Law (LGPD).
+
+#### Question 24: Dynamic Pricing / Announcement Publication Fees
+*   **Decided**:
+    *   **Environment Configuration**: For the MVP, the publication fee (e.g., R$ 2,00) is defined as a global constant or environment variable (`PUBLICATION_FEE_CENTS=200`). This keeps database schemas and configuration UIs simple.
+    *   **Future Migration**: If dynamic/geographical pricing is required later, it can be refactored into a dynamic system configuration table.
+
+#### Question 25: Moderator Violation Enforcement & Banning
+*   **Decided**:
+    *   **CPF Identity Verification**: During registration, all Providers must supply their CPF (Cadastro de Pessoas Físicas), which is validated using the standard mathematical validation algorithm.
+    *   **Unique CPF Enforcement**: Each CPF must be unique across the platform database.
+    *   **Enforcement & Banning Behavior**:
+        *   Condo Moderators can suspend specific violating Announcements.
+        *   Only **System Managers** (global admins) can ban a Provider account.
+        *   Banning updates the account status to `Banned`, immediately revokes all authentication sessions, hides all of their active Announcements, and prevents them from registering another account using the same email or CPF.
+    *   **LGPD-Compliant Ban Evading Prevention**:
+        *   If a Provider is banned, we store a cryptographic hash of their CPF (`sha256(cpf)`) in a `blacklisted_identifiers` table.
+        *   If a normal user deletes their account (Question 23), their CPF is scrubbed completely from the system. But if a banned user requests deletion or is banned, the cryptographic hash of their CPF is retained to permanently block them from registering again, satisfying LGPD's fraud-prevention/compliance retention exemptions.
+
+---
+
+## Session 2: Architecture (Initial Planning)
+
+This log tracks all questions, answers, and structural decisions resolved during the architecture review phase. Focus: Clean Architecture, feature-sliced backend, Bulletproof React frontend, Karpathy simplicity.
+
+### Resolved Decisions
+
+#### Question 1: Where does domain logic live?
+*   **Context**: The plan originally listed tRPC procedures under `packages/api/src/routers/` implying domain logic lives in shared packages. The template confirms this pattern — `todoRouter` has Drizzle queries directly inside tRPC procedures.
+*   **Decided**:
+    *   **Packages are shared infrastructure** that serve apps — DB client config, auth setup, base entity classes, UI components, env validation. They do NOT hold domain logic, entities, use cases, or repository implementations.
+    *   **Apps own their domain logic.** `apps/server/` internally follows Clean Architecture. Entities, use cases, repository interfaces, repository implementations (Drizzle adapters), and tRPC routers all live inside the app.
+    *   Packages hand tools to apps (DB connection, auth session, base abstractions). Apps use those tools to implement business rules.
+    *   If a second backend ever exists, it shares the packages but owns its own domain layer.
+
+#### Question 2: Internal structure of `apps/server/` — classic layers vs feature-sliced?
+*   **Context**: Two options were presented:
+    *   **Option A (Classic)**: Top-level `domain/`, `application/`, `infrastructure/`, `presentation/` directories.
+    *   **Option B (Feature-sliced)**: Each feature folder (`condominium/`, `announcement/`, etc.) owns its entity, repository interface, Drizzle adapter, use cases, and tRPC router. Cross-cutting infra services live in a shared `infra/` folder.
+*   **Decided**: **Option B — Feature-sliced with internal layering.**
+    *   Rationale: Karpathy's "no abstractions for single-use code" — with one backend, we don't need the ceremony of 4 top-level directories. Locality wins: everything about "Condominium" is in one folder. The dependency rule (Clean Architecture) still holds via the import graph, not the folder tree.
+    *   Aligns with Bulletproof React on the frontend — both sides use feature-sliced organization.
+    *   **Proposed structure**:
+        ```
+        apps/server/src/
+        ├── features/
+        │   ├── condominium/
+        │   │   ├── condominium.entity.ts
+        │   │   ├── condominium.repository.ts     ← interface (port)
+        │   │   ├── condominium.drizzle-repo.ts   ← adapter
+        │   │   ├── condominium.use-cases.ts      ← all use cases
+        │   │   └── condominium.router.ts         ← thin tRPC shell
+        │   ├── announcement/
+        │   ├── provider/
+        │   └── assignment/
+        ├── shared/
+        │   ├── cpf-validator.ts
+        │   ├── anonymizer.ts
+        │   └── base-entity.ts
+        ├── infra/
+        │   ├── abacatepay.client.ts
+        │   ├── telegram.client.ts
+        │   ├── sharp.processor.ts
+        │   └── storage.adapter.ts
+        └── index.ts
+        ```
+    *   **ADR candidate**: This is hard to reverse, surprising without context ("why feature-sliced instead of classic layered for Clean Architecture?"), and the result of a real trade-off. ADR recommended.
+
+#### Question 3: The `role` field on Users — global role vs scoped relationship
+*   **Context**: The plan had a single `role` enum on the `Users` table: `VISITOR`, `PROVIDER`, `MODERATOR`, `SYSTEM_MANAGER`. But CONTEXT.md defines Moderator as scoped to a specific Condominium. A flat `role: 'MODERATOR'` on Users can't answer "Moderator of *which* Condominium?"
+*   **Decided**:
+    *   **Users.role** becomes a two-value enum: `PROVIDER` | `SYSTEM_MANAGER`.
+        *   `VISITOR` removed — visitors don't have accounts (CONTEXT.md: "unauthenticated person").
+        *   `MODERATOR` removed — it's a scoped relationship, not a global identity.
+    *   **Assignments.type** gains a new field: `RESIDENT` | `MODERATOR`.
+        *   This models the scoped relationship: "Maria has an Assignment of type MODERATOR for Villa Bella."
+        *   A Provider can be a `MODERATOR` of one Condominium and a `RESIDENT` of another simultaneously.
+    *   Field named `type` (not `role`) on Assignments to avoid overloading the word "role" across two tables.
+    *   Authorization check for moderation endpoints: `SELECT 1 FROM assignments WHERE provider_id = :callerId AND condominium_id = :targetId AND type = 'MODERATOR' AND status = 'APPROVED'`.
+
+#### Question 4: Should Announcements have a direct FK to Condominium or Assignment?
+*   **Context**: The ERD has `Announcement.providerId → Users.id` but no link to a Condominium. The plan says Visitors can filter by Condominium and Moderators can suspend Announcements within their Condominium. Grill session Q6 says Providers select which Assignment to publish under.
+*   **Options considered**:
+    *   Add `assignmentId` FK to Announcements (derives both Provider and Condominium).
+    *   Keep `providerId` only, trace to Condominium via joins (Provider → Assignments → Condominium).
+*   **Decided**: **Keep `providerId` on Announcements. No direct FK to Condominium or Assignment.**
+    *   The Announcement can be traced back to a Condominium through joins when needed: `Announcement.providerId → Assignments.providerId → Assignments.condominiumId`.
+    *   This avoids coupling Announcements to a specific Assignment (which may change) and keeps the schema simpler.
+    *   "Loose" neighborhood Providers without any Assignment can still publish — no orphan constraint violations.
+
+#### Question 5: The `packages/api` package — does it still exist?
+*   **Context**: The template has `packages/api/` holding tRPC router definitions, `initTRPC`, context creation, and the `AppRouter` type export. With feature-sliced architecture inside `apps/server/`, there's a question of what stays in the package.
+*   **Decided**: **Absorb `packages/api/` entirely into `apps/server/`.**
+    *   `initTRPC`, base procedures (`publicProcedure`, `protectedProcedure`), `createContext`, and the `appRouter` composition all live in `apps/server/src/`.
+    *   The frontend (`apps/web`) imports the `AppRouter` type directly from `apps/server` via Turborepo's cross-app type resolution.
+    *   `packages/api/` is deleted. No package-level tRPC code.
+    *   Rationale: with one backend, a separate package for tRPC plumbing is a pass-through (fails the deletion test). If a second backend appears, extract then — not now.
+
+#### Question 6: Schema ownership — where do Drizzle table definitions live?
+*   **Context**: `packages/db/src/schema/` currently holds auth tables and a todo table. Our domain tables (condominiums, announcements, etc.) are app-specific.
+*   **Decided**: **Keep all table schemas in `packages/db/src/schema/`.**
+	*   Auth schemas and custom domain schemas will remain in the shared database package. This ensures Drizzle migrations remain unified under one package and one set of migration files.
+	*   **CRITICAL RULE**: The repository interfaces (ports) and actual Drizzle repository implementations/mappers must live inside the application itself (`apps/server/src/features/`), NOT in the package. The package only houses the low-level SQL tables/definitions.
+	*   For example:
+		*   `packages/db/src/schema/condominium.ts` defines the PG Table.
+		*   `apps/server/src/features/condominium/condominium.repository.ts` defines the TypeScript interface/contract.
+		*   `apps/server/src/features/condominium/condominium.drizzle-repo.ts` implements the interface using the Drizzle schema and client.
+
+#### Question 7: Dependency injection strategy for use cases
+*   **Context**: How do use cases get their repository and infra dependencies? Constructor injection, function parameters, or a lightweight DI container?
+*   **Decided**: **Option A — Class-based Constructor Injection.**
+	*   Use cases are implemented as classes with constructor parameters for repositories/interfaces (ports).
+	*   This is the standard Object-Oriented Clean Architecture approach, keeping domain/application code independent of the concrete implementations.
+	*   Example:
+		```typescript
+		export class ApproveCondominium {
+		  constructor(
+			private condominiumRepo: CondominiumRepository,
+			private telegramClient: TelegramClient
+		  ) {}
+
+		  async execute(input: ApproveInput): Promise<ApproveOutput> { ... }
+		}
+		```
+
+#### Question 8: Storage abstraction — interface/adapter or env-config switch?
+*   **Context**: The plan mentioned local disk vs S3-compatible storage.
+*   **Decided**: **S3-Compatible Storage only (MinIO). No local disk implementation.**
+	*   We will only write a single S3-compatible storage helper/service (`apps/server/src/infra/storage.client.ts`).
+	*   For local development, we will run a **MinIO container** via Docker/Docker-compose.
+	*   For production/VPS deployment, we will connect to the VPS MinIO instance or any standard cloud S3-compatible bucket (like Cloudflare R2).
+	*   Rationale: YAGNI. Writing a second file-system local storage adapter is redundant. Using MinIO locally guarantees that the dev environment uses the exact same APIs and configurations as production, changing only the endpoint, bucket name, and credentials via environment variables.
+
+#### Question 9: Frontend structure — Bulletproof React inside `apps/web/`
+*   **Context**: How do we organize the frontend feature folders? Do they mirror the backend features? Where do shared components, hooks, and providers live?
+*   **Decided**: **Feature-Sliced Architecture (Bulletproof React style) aligned with TanStack Router.**
+	*   We will structure `apps/web/src/features/` with logical domains: `auth` (auth pages/better-auth APIs), `condominiums` (condo directory & submission), `announcements` (showcase & search), `dashboard` (provider management panel), and `moderation` (moderator tools).
+	*   **Route Isolation**: `apps/web/src/routes/` acts as thin shells. Router files only handle URLs, query parameters, loaders, and import page components from `src/features/`.
+	*   **Boundary Enforcement**: Feature folders are self-contained. Features cannot import internal modules from other features directly; they must only reference them via an explicit public api (e.g. `index.ts` baril export) of that feature.
+	*   **Shared Infrastructure**: Root-level directories `src/components/` (pure layout primitives), `src/hooks/` (generic hooks), `src/lib/` (clients like tRPC/auth), and `src/providers/` (root layout wrappers) contain all cross-cutting concerns.
+
+#### Question 10: Testing seams and strategy
+*   **Context**: What's testable through what interface? Unit tests for use cases (mocked repos), integration tests for routers (real DB), or both? What's the minimum test surface for the MVP?
+*   **Decided**: **Targeted Hybrid Strategy (In-Memory Unit Tests + Real DB Integration).**
+	*   **Unit Testing Use Cases**: We will test core business use cases using lightweight, in-memory implementations of our repository interfaces (e.g. `InMemoryCondominiumRepository` using simple arrays) rather than complex mock frameworks. This keeps tests ultra fast and focused on pure business logic.
+	*   **Integration Testing DB & Webhooks**: Drizzle repository implementations (`*.drizzle-repo.ts`) and payment webhook route handlers will be tested against a real PostgreSQL test database (wiped/seeded between runs) to guarantee correct SQL query generation, constraints, and webhooks signature behaviors.
+	*   **Minimal MVP Test Surface**:
+		*   `cpf-validator.test.ts` (mathematical correctness & validation).
+		*   `anonymizer.test.ts` (PII removal verification for LGPD compliance).
+		*   `announcement.use-cases.test.ts` (announcement lifecycle state transitions: Draft -> Active -> Expired).
+		*   `abacatepay-webhook.test.ts` (HMAC signature validation and state transition triggers).
+
+#### Question 11: The webhook handler — Fastify route or tRPC mutation?
+*   **Context**: AbacatePay hits a raw HTTP endpoint with a signature. tRPC expects its own protocol. Does the webhook handler live as a raw Fastify route in `infra/`, or in the `announcement` feature folder?
+*   **Decided**: **Coexistence (Standard Fastify HTTP Route for Webhooks; tRPC for client-server communication).**
+	*   We will **keep tRPC** for all communication between `apps/web` and `apps/server`. This ensures type safety and autocompletion for frontend queries and mutations.
+	*   The webhook endpoint cannot be a tRPC mutation because AbacatePay sends a standard HTTP POST request. We will implement it as a raw Fastify route (`POST /api/webhooks/abacatepay`).
+	*   To maintain feature cohesion, the webhook handler will live in `apps/server/src/features/announcement/announcement.webhook.ts` and will be registered in Fastify alongside the tRPC middleware in `index.ts`.
+
+#### Question 12: Announcement state transitions — who owns the state machine?
+*   **Context**: The lifecycle diagram shows 8+ transitions. Are these enforced in the entity (domain layer), in the use case, or just as DB status updates in the repository? How strict is the state machine?
+*   **Decided**: **Domain Entity Encapsulated State Machine.**
+	*   The `Announcement` entity class (`apps/server/src/features/announcement/announcement.entity.ts`) owns and guards the state transitions.
+	*   Methods such as `checkout()`, `confirmPayment()`, `suspend()`, and `reinstate()` are defined directly on the entity. They validate that the requested transition is legal according to the lifecycle diagram and throw custom domain errors (e.g., `InvalidStateTransitionError`) when violated.
+	*   Implicit business side-effects, such as automatically setting `paidAt = now` and `expiresAt = now + 30 days` when payment is confirmed, are handled inside the transition method to guarantee domain invariant consistency.
+	*   The application use cases simply load the entity via the repository port, execute the domain transition method, and save the updated entity back to the database.
+
+---
+
+## Session 3: Screen & UI Design (Initial Planning)
+
+This log tracks all questions, answers, and screen-wise content mapping choices resolved during the screen-mapping planning phase.
+
+### Resolved Decisions
+
+#### Question 1: Public Showcase (`/`) — Entry Point and Discovery
+*   **Context**: How do we handle screen behavior, initial state, and sorting for first-time visitors (especially on mobile)?
+*   **Decided**: **Mobile-First & Geolocation-Sorted Entry.**
+	*   **Responsive Priority**: The showcase and detail views are designed strictly **mobile-first**, as most visitors access the guide on mobile devices via links shared in condo groups.
+	*   **Discovery Flow**:
+		*   Upon first load, the browser requests geolocation permission.
+		*   **Allowed**: The application calculates distance and lists announcements from the nearest condominiums and local providers first.
+		*   **Denied / Unavailable**: A fallback prompt (modal/header banner) asks the user to choose their city/condominium manually. Their choice is stored in LocalStorage for subsequent visits.
+	*   **Mobile Showcase Layout**:
+		*   **Sticky Header**: Search bar, quick seletor for Condominium/City, and a collapsible Category ribbon (horizontal swipe).
+		*   **Showcase Grid**: Single-column (mobile) or multi-column (tablet/desktop) feed of announcements. Each card shows: Cover Image, Title, Price (optional), Category tag, Provider name, and a "Verified Resident of [Condo]" badge (if opted-in by the resident).
+		*   **Quick Filter**: A clear toggle switch for "Apenas Moradores Verificados" (Verified Residents Only) is pinned to the header filter menu.
+
+#### Question 2: Announcement Detail View (`/announcements/:id` or modal)
+*   **Context**: How do visitors view the full details of an announcement?
+*   **Decided**: **Hybrid Contextual Presentation.**
+	*   **Direct Link (Shared)**: If accessed via a shared link (e.g. from WhatsApp), the announcement renders as a dedicated full-page route, fully optimized for mobile browsers.
+	*   **Vitrine Navigation**: If clicked from the Showcase (`/`):
+		*   **Mobile**: Renders as a sliding **Bottom Sheet / Drawer** (giving a native app feel) which can be swiped down to close.
+		*   **Desktop**: Renders as a centered **Modal Dialog** overlay.
+		*   **URL Sync**: In both overlay modes, the URL updates to `/announcements/:id` without triggering a full page reload, enabling easy copying and sharing of the link.
+	*   **Interactions & Tracking**: A floating action button/bar is sticky to the bottom of the screen. Any click to WhatsApp, External URL, or PDF redirects through `/api/announcements/:id/contact?type=...` to record the analytics click event first.
+
+#### Question 3: Mandatory Image Upload & Aspect Ratio Enforcement
+*   **Context**: How do we handle announcement images in terms of schema validation, creation form constraints, and performance?
+*   **Decided**: **Mandatory Fixed Aspect Ratio Upload.**
+	*   **Enforcement**: The cover image is **strictly mandatory** for all announcements (`imageUrl` is a NOT NULL column in the DB schema). Creating an announcement without an image is blocked.
+	*   **Frontend Aspect Ratio**: The creation form enforces a **fixed 4:3 aspect ratio** via a client-side cropper widget (e.g., `react-image-crop`). Users can upload files up to 10MB (PNG, JPG, WebP) and crop them to 4:3 before uploading.
+	*   **Server Processing & Constraints**: The server processes the uploaded file via `sharp`, resizing it to a fixed **800x600px WebP** at quality 80. This minimizes disk space usage and guarantees consistent layout alignment across the public showcase cards and detail views.
+
+#### Question 4: Onboarding & Authentication (`/auth`)
+*   **Context**: The sign-up/login screen experience for Providers.
+*   **Decided**: **Standardized Dual Tabs & Enforced Setup Redirect.**
+	*   **Layout**: Swappable tabs ("Entrar" and "Criar Conta") in a clean, centered card. Social login (Google) button is located below the tab forms.
+	*   **Registration Inputs**: Full Legal Name (Nome Civil), Email, Password, Phone Number (WhatsApp format with auto-masking), and CPF (with auto-masking and instant client-side validation).
+	*   **Security Separation (Public vs Legal Identity)**:
+		*   **Public Exhibition**: Providers can set a public "Nome Fantasia" (Trading/Exhibition Name) for their announcements.
+		*   **Legal Identity**: The user's Full Legal Name, CPF, and Phone are stored securely. These details are hidden from the public and are only queryable under strict backend role-based access control (RBAC) by approved Condo Moderators (for residents of their condo) and System Managers (global audit/abuse tracking).
+	*   **Safety checks**: On submit, the system hashes the CPF. If it is blacklisted, it displays: *"Este CPF está impedido de realizar novos cadastros na plataforma."*
+	*   **Setup Enforcement**: Newly registered providers who do not have any condo assignment are immediately redirected to the Condominium Setup screen (`/dashboard/condo-setup`) to link their account before accessing the main dashboard.
+
+#### Question 5: Condominium Creation & Join Requests (`/dashboard/condo-setup`)
+*   **Context**: The step where a provider links themselves to a condominium (either creating a new one as a manager or joining as a resident).
+*   **Decided**: **Tabbed Split Flow (Resident search vs Síndico creation).**
+	*   **Resident / Local Provider Flow**:
+		*   **Condominium Search**: Auto-suggest input searching by Name, City, or CEP.
+		*   **Residency Details (Secured)**: Unit identification (e.g. "Apto 302, Bloco C" - private to moderators) and an optional Comprovante de Residência upload (PDF/Image) to expedite moderation. These values are tied to the secured Resident Assignment profile.
+		*   **Action**: "Solicitar Associação". Puts the page in a pending state: *"Aguardando aprovação do Moderador do Condomínio X"*.
+	*   **Síndico / Admin Flow**:
+		*   **Form fields**: Condominium Name, ZIP Code (CEP - with auto-address fill), City/State, official Administrative Contact Phone/Email.
+		*   **Verification document**: A **mandatory upload** of the Ata de Eleição/Convenção (PDF/Image) to prove status as the condo representative.
+		*   **Action**: "Cadastrar Condomínio". Puts the page in a pending validation state for global System Managers. Once approved, the condo is created, and the user is granted a `MODERATOR` assignment for it.
+	*   **Blocker**: Users with pending requests are kept on this screen and cannot create announcements until at least one assignment is approved.
+
+#### Question 6: Provider Dashboard (`/dashboard`)
+*   **Context**: The primary management screen for logged-in providers.
+*   **Decided**: **Consolidated Metrics & Tabbed Status Listing.**
+	*   **Metrics (Consolidated)**: Displays total impressions (views), total interactions (clicks), and conversion rate (%) for active ads at the top.
+	*   **Announcements Tabbed Views**:
+		*   **Ativos**: Lists active ads. Shows thumbnail, statistics, remaining days, with quick actions to *Editar*, *Pausar* (archive to draft).
+		*   **Aguardando Pagamento**: Lists drafts/checkouts. Features a prominent **"Pagar com Pix"** button.
+		*   **Expirados**: Ads older than 30 days. Features a **"Renovar Anúncio"** button (triggers checkout billing flow).
+		*   **Suspensos**: Ads suspended by moderators. Displays a warning banner with the **suspension reason** and actions to *Editar* (to correct and submit back to queue) or *Excluir*.
+	*   **Profile & LGPD Deletion**: Exposes a "Minha Conta" sub-view allowing profile updates (Name, WhatsApp number) and a destructive styled "Excluir Conta" button which triggers a confirmation modal to permanently anonymize data.
+
+#### Question 7: Announcement Creation/Edition Form (`/dashboard/announcements/new` or `/edit/:id`)
+*   **Context**: The form where providers fill announcement details and upload images.
+*   **Decided**: **Mandatory Cropped 4:3 Image Form.**
+	*   **Inputs**:
+		*   **Mandatory Cover Image**: Dashed dropzone opening a client-side crop tool locked at **4:3 aspect ratio**. The 4:3 cropped result is saved to state and shown as a card preview.
+		*   **Category**: Dropdown list of system categories.
+		*   **Title**: Max 50 chars, character counter.
+		*   **Subtitle**: Max 100 chars, character counter.
+		*   **Description**: Max 1000 chars, text area.
+		*   **Price**: Optional numeric input with BRL currency mask (`R$ 0,00`).
+		*   **Tags**: Key-value pill inputs (max 5 tags).
+		*   **Contact links**: WhatsApp (pre-filled, editable), Instagram/Website link (optional), and Menu/Catalog PDF file upload (optional, max 5MB).
+		*   **Verified Badge Toggle**: Switch displaying "Exibir Selo de Morador Verificado". Only active if the provider holds an approved resident assignment for the condo.
+	*   **Auditing warning**: Displaying warning banner notifying that edits on active announcements immediately go live but trigger a re-audit in the moderation queue.
+
+#### Question 8: Pix Payment Screen (`/dashboard/announcements/:id/payment`)
+*   **Context**: The payment screen displaying the Pix billing details.
+*   **Decided**: **Dual-State Dynamic QR & Polling UI.**
+	*   **Awaiting Payment State**:
+		*   **Summary**: Clear billing details showing description (*"Publicação do Anúncio"*), amount (*R$ 2,00*), and dynamic 10-minute expiration timer.
+		*   **QR Code**: Center high-contrast Pix QR code block.
+		*   **Copia e Cola**: Large primary action button copying the Pix raw text string, with a "Copiado!" tooltip feedback.
+		*   **Status check**: Pulse animation indicating *"Aguardando confirmação do banco..."* which polls the backend database every 5 seconds.
+	*   **Payment Confirmed State**:
+		*   Once verified, instantly triggers client-side confetti micro-animation and shows a green checkmark.
+		*   Displays buttons to *"Ver meu Anúncio"* (public detail view) or *"Ir para o Dashboard"*.
+
+#### Question 9: Condo Moderation Panel (`/moderation`)
+*   **Context**: The dashboard for users assigned as local condominium moderators.
+*   **Decided**: **Gated Auditing Panel & Local Suspension Controls.**
+	*   **Security & Data Privacy**:
+		*   Access to sensitive provider identity details (Full Legal Name, CPF hash lookup, Phone, Unit ID, and proof documents) is strictly gated on the API. Only the approved Moderator assigned to the *specific* condominium of the request can fetch this data.
+	*   **Tab 1: Resident Requests (Associações)**:
+		*   Lists pending requests (`status = PENDING`) for the condo.
+		*   Displays the provider's **Full Legal Name** (Nome Civil), Unit ID, and a button to view their proof of residency in a secure preview modal.
+		*   Actions:
+			*   **Aprovar**: Activates their resident assignment (status = `APPROVED`), enabling resident verification badges for their ads.
+			*   **Rejeitar**: Prompts for a rejection reason (e.g., *"Comprovante ilegível"*), setting status to `REJECTED` and notifying the user.
+	*   **Tab 2: Local Announcements (Controle de Conteúdo)**:
+		*   Lists active announcements associated with their condo.
+		*   Actions:
+			*   **Suspender Anúncio**: If an ad violates community guidelines. Prompts for a suspension reason (e.g., *"Atividade inadequada"*), changes status to `SUSPENDED` (hiding it from the vitrine), and notifies the provider.
+
+#### Question 10: System Manager Portal (`/admin`)
+*   **Context**: The administrative dashboard for global System Managers.
+*   **Decided**: **Multi-Tabbed Admin Portal.**
+	*   **Condominium Requests**: Lists pending condos (`PENDING_APPROVAL`). System managers audit ZIP codes, contact info, and review the uploaded election document. Upon approval, condo status becomes `APPROVED` and the creator receives a `MODERATOR` assignment.
+	*   **Blacklist Manager**: Form to add CPF hashes to the blacklist (`blacklisted_identifiers`). If a matching account is active, it is immediately banned. Includes access to search and remove hashes.
+	*   **Providers Directory**: Searchable list of all platform users. Allows System Managers to ban any user, which immediately removes all their active announcements, revokes active sessions, and hashes their CPF into the global blacklist.
+
+---
+
+## Session 4: Improvements & Fixes
+
+This log tracks all questions, answers, and decisions resolved during the planning phase for the improvements and bug fixes.
+
+### Resolved Decisions
+
+#### Question 1: Payment Generation Guards for Non-Draft/Non-Expired Announcements
+* **Decided**: We will add a guard in the `GeneratePaymentIntent` use case on the backend:
+    * If the announcement status is already `ACTIVE`, throw an error (e.g., "Este anúncio já está ativo e publicado.").
+    * If the announcement is `SUSPENDED`, throw an error (e.g., "Anúncios suspensos não podem receber pagamentos.").
+    * This prevents duplicate charges and ensures users cannot pay for already active or moderator‑suspended posts.
+
+#### Question 2: Database Migration Strategy for Dropping the `todo` Table
+* **Decided**: Since the project is at its starting point and has not yet released a v1, we will delete the existing migrations folder and recreate the schema from scratch. We will delete the todo table schema definition, wipe the `packages/db/src/migrations/` directory, and generate a new initial base migration from scratch.
+
+#### Question 3: Redirection and Session Expiration for Navigation Links
+* **Decided**: To protect against information disclosure and maintain a friendly user flow:
+    * **Unauthenticated users** navigating directly to `/dashboard/*`, `/moderation`, or `/admin` via URL will be redirected back to the public homepage `/` (Início), where they can sign in voluntarily using the header action.
+    * **Authenticated users** attempting to access routes above their privilege level (e.g. a standard provider accessing `/admin` or `/moderation`) will be redirected to `/dashboard` (Painel) and shown a generic *"Página não encontrada"* (Page Not Found) notification, treating the page as non‑existent for their security level.
+
+#### Question 4: Theme Adaptation in the Simplified Styling
+* **Decided**: Keep the `ThemeProvider` and support both Light and Dark modes. By using semantic classes (`bg-background`, `text-foreground`, `border`), the interface will adapt automatically to whichever theme is chosen by the visitor/provider.
+
+#### Question 5: DDD Domain Entity Classes and Base Entity Structure
+* **Decided**: We will implement a refined abstract inheritance structure for our domain models:
+    * **Base `Entity<TProps>`**: Created in `apps/server/src/shared/base-entity.ts` containing only `_id`, `_props`, the `.id` getter, and the `.equals()` comparison method.
+    * **`AuditableEntity<TProps>`**: Extends `Entity<TProps>` and adds `_createdAt: Date` and `_updatedAt: Date` properties (with corresponding getters).
+    * Entities like `Condominium` and `Address` (no update time tracking in DB) will extend `Entity` directly.
+    * Entities like `Announcement`, `Assignment`, and `Payment` will extend `AuditableEntity`.
+    * Domain invariants, state transitions, and parameters validation will be self‑contained within each entity class.
+
+#### Question 6: Decoupling Validators (tRPC Errors) and Concrete Mapper Locations
+* **Decided**:
+    * **Domain Errors**: We will create a shared `DomainError` base class (extending native `Error`) in `apps/server/src/shared/domain-error.ts`. Entities will throw custom domain exceptions (e.g., `InvalidCEPError`) instead of framework‑specific `TRPCError` exceptions. tRPC middleware/formatters will map standard domain error classes into standard bad‑request tRPC errors before formatting responses.
+    * **Mapper Locality & Multi‑Layer Mapping**:
+        * **Infrastructure Layer**: Concrete database `EntityMapper` classes will reside under `apps/server/src/infrastructure/db/mappers/` and map between Drizzle database rows and domain entity instances, keeping the domain isolated from persistence schemas.
+        * **Presentation Layer**: The tRPC router validates incoming payloads using Zod and maps them directly to Domain Entity instances before calling the use cases. Outgoing domain entities are serialized back into plain DTO objects (via a `.toJSON()` instance method or presentation presenter) for network transport.
+
+#### Question 7: Payment guard UI for ACTIVE
+* **Description**: UI should show a toast error message and keep the user on the same page when payment is blocked because the announcement is ACTIVE.
+* **Answer**: Show a toast error and stay on the same page.
+
+#### Question 8: Payment guard UI for SUSPENDED
+* **Description**: UI should show a distinct toast error indicating suspension and suggest contacting support when payment is blocked because the announcement is SUSPENDED.
+* **Answer**: Show a distinct toast error with a support suggestion.
+
+#### Question 9: tRPC error identifiers
+* **Description**: Use distinct identifiers for each blocked state.
+* **Answer**: Use `ANNOUNCEMENT_ALREADY_ACTIVE`, `ANNOUNCEMENT_SUSPENDED`, and `ANNOUNCEMENT_EXPIRED`.
+
+#### Question 10: Legacy Todo cleanup
+* **Description**: Confirmation that no additional files remain to be deleted.
+* **Answer**: No additional files discovered; the existing list is complete.
+
+#### Question 11: Styling refactor
+* **Description**: Adopt full shadcn design tokens across the UI.
+* **Answer**: Fully adopt shadcn design tokens.
+
+#### Question 12: Moderação link visibility
+* **Description**: Show the "Moderação" link only for users with a MODERATOR assignment.
+* **Answer**: Only users with a MODERATOR assignment see the link.
+
+#### Question 13: ADR for payment error handling
+* **Description**: Create an ADR documenting the trade‑offs for payment error handling.
+* **Answer**: An ADR will be created.
+
+#### Question 14: Announcement states not yet covered
+* **Description**: You indicated uncertainty about any additional announcement states (e.g., EXPIRED, ARCHIVED). Which states, if any, require special UI or backend handling beyond those already defined (`DRAFT`, `ACTIVE`, `SUSPENDED`, `EXPIRED`)?
+* **Answer**: No additional states; the current list is sufficient.
+
+#### Question 15: Feature Flagging for New Functionalities
+* **Description**: As you expand the platform, you may need to toggle new features on/off per environment or user group. Do you want to implement a feature flag system?
+* **Answer**: Adopt Unleash for feature flagging to support learning and alignment with the user's work.
+
+#### Question 16: Internationalization (i18n) Strategy
+* **Description**: As the platform grows, you may need to support multiple languages. Which approach would you prefer for handling i18n?
+* **Answer**: Use a lightweight i18n library (e.g., react-i18next) with translation JSON files for each locale. We will support both English (en) and Portuguese (pt), ensuring all user-facing strings are stored in translation files instead of being hardcoded in code.
+
+#### Question 17: Double-Visualization — Dedup Strategy or Eliminate Duplicate Trigger?
+* **Description**: Clicking an announcement registers two IMPRESSION events because tracking fires from two code paths: `openAdDetails()` in `index.tsx` (card click, modal-only) and a `useEffect` in `anuncios.$id.tsx` (data load, covers modal + direct URL). React.StrictMode also double-fires the effect in dev.
+* **Answer**: Eliminate the redundant trigger (Option B). Remove the `trackEvent` call from `openAdDetails()` in `index.tsx` since it only covers the modal path. Keep the `useEffect` in `anuncios.$id.tsx` as the **single source of truth** for impressions (covers both modal and direct URL navigation). Add a `useRef` guard inside the effect to prevent StrictMode double-fires. This is simpler than adding dedup infrastructure and follows single-responsibility.
+
+#### Question 18: Double-Visualization — Dedup Scope (Module vs SessionStorage)
+* **Description**: After eliminating the redundant trigger (Q17), we need a guard against `React.StrictMode` double-firing the `useEffect`. Options were: `useRef` only, module-level `Set`, or `sessionStorage`.
+* **Answer**: `useRef` guard only (Option A). A `useRef(false)` inside the `useEffect` prevents the StrictMode double-fire while preserving correct analytics semantics. Re-visits should count as new impressions (industry standard behavior matching Google Analytics, Meta Pixel, etc.). Adding a `Set` or `sessionStorage` would artificially deflate metrics.
+
+#### Question 19: Shared Unleash Package — Extract or Keep Inline?
+* **Description**: Unleash integration is scattered across `apps/server/src/shared/feature-flags.ts`, `apps/web/src/routes/__root.tsx`, and `packages/env/`. No actual feature flags are consumed anywhere yet.
+* **Answer**: Extract now into `packages/feature-flags` (Option B). Create a shared workspace package containing server-side init/check helpers, client-side config factory, typed flag name constants, and shared env schema references. Establishes the pattern cleanly before it gets harder to refactor later.
+
+#### Question 20: Shared Unleash Package — Typed Flag Names
+* **Description**: Since we're extracting into `packages/feature-flags` (Q19), should we pre-define a typed flag name registry (`FLAGS` const map + `FlagName` type)?
+* **Answer**: Define the registry shape but leave it empty (Option B). Create the `FLAGS` const map and the `FlagName` type with zero entries. The type system enforces the pattern when the first flag is added — you can't pass an arbitrary string, you must add it to the registry first. No placeholder names cluttering the codebase.
+
+#### Question 21: Docker Compose — Relocate to Project Root?
+* **Description**: The sole `docker-compose.yml` lives at `packages/db/`. If we add Unleash + Redis, it outgrows its `db` package scope.
+* **Answer**: Move to project root (Option A). Relocate `packages/db/docker-compose.yml` to the project root. Update `packages/db/package.json` scripts (`db:start`, `db:stop`, `db:down`) to reference `../../docker-compose.yml`. All infrastructure in one place. Root-level `docker compose up` starts everything.
+
+#### Question 22: Docker Compose — Add Unleash + Redis Containers?
+* **Description**: Should we add Unleash server and Redis containers to the root docker-compose for local development?
+* **Answer**: Add Unleash + Redis containers now (Option A). Add `unleash-server` (official Docker image, uses the existing Postgres instance with a separate DB) and `redis` to the root compose. Wire `.env.template` defaults to point at these local containers. The dev environment becomes fully self-contained — `docker compose up` gives you everything.
+
+#### Question 23: PG Enum Migration — All at Once or Incremental?
+* **Description**: 11 text-enum columns across 6 tables, zero `pgEnum` definitions exist. Project is pre-v1.
+* **Answer**: Single batch — all 11 columns at once (Option A). Destructive schema regeneration (delete migrations, `db:generate` fresh). All `text({ enum })` columns become `pgEnum` in one pass. One task, one commit, one migration reset. Mechanical, low-risk transformation with no production data at stake.
+
+#### Question 24: PG Enum Migration — Shared Enum Types Across Tables?
+* **Description**: Some enum values overlap between tables (e.g., `PENDING/APPROVED/REJECTED` used by `assignment.status`, `providerLocation.status`, `condominium.status`). Should they share a single `pgEnum` or be independent?
+* **Answer**: Independent enums per table (Option A). Each table gets its own `pgEnum`: `userRoleEnum`, `userStatusEnum`, `condominiumStatusEnum`, `providerLocationTypeEnum`, `providerLocationStatusEnum`, `assignmentTypeEnum`, `assignmentStatusEnum`, `announcementStatusEnum`, `paymentStatusEnum`, `analyticsEventTypeEnum`, `analyticsTargetTypeEnum`. DDD-correct approach — each bounded context owns its vocabulary and can evolve independently.
+
+#### Question 25: Entity Function Encapsulation — Static Methods vs Private
+* **Description**: Standalone exported validation functions (`validateAnnouncement`, `validateUnitInfo`, `validateCondominiumName`, `validateCEP`, `validateContactInfo`) exist outside their entity classes. Should they become `private static` or `public static` methods on the class?
+* **Answer**: `private static` — fully hidden (Option A). Move functions inside the class as `private static` methods. No external code uses them. Maximum encapsulation, enforces that validation lives in the domain only. If the presentation layer needs validation, it goes through the entity constructor.
+
+#### Question 26: Entity Function Encapsulation — CPF Re-export
+* **Description**: `cpf.entity.ts` is a 2-line barrel re-export of `{ hashCPF, isValidCPF }` from `@neighborhood-showcase/auth/utils/cpf`. It's not a class or entity — it lives in `entities/` by convention only.
+* **Answer**: Delete it — import directly from `@neighborhood-showcase/auth` (Option B). Remove the file and update all consumers to import `{ hashCPF, isValidCPF }` directly from `@neighborhood-showcase/auth/utils/cpf`. The domain `entities/` folder should only contain actual domain entities.
+
+---
+
+## Session 5: AbacatePay Webhook Code Review
+
+This log tracks all questions, answers, and decisions resolved during the grilling session for the AbacatePay webhook code review.
+
+### Resolved Decisions
+
+#### Question 1: Signature Verification Key (Public Key vs Webhook Secret)
+* **Decided**: Keep the implementation using `env.ABACATEPAY_PUBLIC_KEY` and `base64` digest encoding. The official AbacatePay v2 documentation specifies using the public key as the HMAC-SHA256 key and digesting as `base64`.
+
+#### Question 2: TypeScript Compiler Blocker (`paymentStatus` unused)
+* **Decided**: Option B (Use for Validation & Logging). We will validate that `paymentStatus === 'PAID'` and log it before updating the database, preserving the variable for safety and observability.
+
+#### Question 3: Input Payload Validation (Zod Schema vs Raw Casting)
+* **Decided**: Option B (Zod Validation). Define a Zod schema to parse and validate the request body payload structure. This ensures type safety at the application boundary and prevents runtime/TypeError exceptions if AbacatePay updates their payload format.
+
+#### Question 4: Fastify Query Schema Integration
+* **Decided**: Option B (Fastify Schema validation). Configure a Fastify query schema on the route definition and leverage Fastify's native generic types to automatically type `request.query` securely.
+
+#### Question 5: Background Email Dispatching (Resend block)
+* **Decided**: Option B (Asynchronous Fire-and-Forget). Trigger the Resend email call asynchronously in the background with local error catching so that the webhook responds immediately. We will preserve the mock fallback (`mock-resend-key`) so that local development does not require a Resend API key.
+
+#### Question 6: Explicit `any` Type Cast for `rawBody`
+* **Decided**: Option A (Inline Type Casting). Define a typed interface locally inside the file: `interface FastifyRequestWithRawBody extends FastifyRequest { rawBody?: string; }` and cast using it instead of `any` to keep type checking localized and resolve Biome linting violations.

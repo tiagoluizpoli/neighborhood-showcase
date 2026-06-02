@@ -150,11 +150,11 @@ The following planning, specification, and test verification documents located i
 - [Implementation Plan](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/plan.md)
 - [Test Coverage Plan](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/test_coverage_plan.md)
 - [Project Constitution](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/constitution.md)
-- [Grill Session Log](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/grill_session.md)
-- [Architecture Grilling Log](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/architecture_grilling.md)
-- [Screen Grilling Log](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/screen_grilling.md)
+- [Grilling History (Session 1: Product & Domain)](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/grilling_history.md#session-1-product--domain-initial-planning)
+- [Grilling History (Session 2: Architecture)](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/grilling_history.md#session-2-architecture-initial-planning)
+- [Grilling History (Session 3: Screen & UI Design)](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/grilling_history.md#session-3-screen--ui-design-initial-planning)
 - [Improvements Implementation Plan](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/improvements_plan.md)
-- [Improvements Grilling Log](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/improvements_grilling.md)
+- [Grilling History (Session 4: Improvements & Fixes)](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/grilling_history.md#session-4-improvements--fixes)
 
 
 ### Diagrams

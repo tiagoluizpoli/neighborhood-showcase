@@ -135,7 +135,7 @@ We will implement the following procedures inside the feature folders under `app
 
 ## Phase 3: Frontend Interfaces & Portals (TanStack Router)
 
-All screens are designed **mobile-first** for viewers and fully responsive for dashboards. Access-gated features are validated via client-side router loaders and backend tRPC guards. Refer to [Screen Grilling Log](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/screen_grilling.md) for full mapping details.
+All screens are designed **mobile-first** for viewers and fully responsive for dashboards. Access-gated features are validated via client-side router loaders and backend tRPC guards. Refer to [Grilling History (Session 3: Screen & UI Design)](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/grilling_history.md#session-3-screen--ui-design-initial-planning) for full mapping details.
 
 ### 1. Vitrine Pública (`/`)
 *   **Behavior**: Browser requests geolocation on first load. If allowed, sorts announcements by proximity (nearest condos first). Fallback prompts manual condo/city selection.
