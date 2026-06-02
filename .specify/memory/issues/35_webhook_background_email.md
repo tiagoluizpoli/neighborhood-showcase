@@ -12,8 +12,8 @@ Refactor email dispatches to prevent blocking webhook responses:
 
 ## Acceptance criteria
 
-- [ ] Webhook endpoint returns `200 OK` immediately after database updates succeed, without waiting for the Resend email dispatch API call to resolve.
-- [ ] Email dispatch failures are logged correctly in the background, without causing the webhook request to fail or crash.
+- [x] Webhook endpoint returns `200 OK` immediately after database updates succeed, without waiting for the Resend email dispatch API call to resolve.
+- [x] Email dispatch failures are logged correctly in the background, without causing the webhook request to fail or crash.
 
 ## Blocked by
 

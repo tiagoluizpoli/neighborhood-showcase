@@ -249,9 +249,9 @@ export async function webhookRoutes(fastify: FastifyInstance) {
             `[MOCK EMAIL (Resend)] Body: Olá ${customerName}, seu anúncio "${announcementTitle}" foi publicado com sucesso.`,
           );
         } else {
-          try {
-            const resend = new Resend(env.RESEND_API_KEY);
-            await resend.emails.send({
+          const resend = new Resend(env.RESEND_API_KEY);
+          resend.emails
+            .send({
               from: 'onboarding@resend.dev',
               to: provider.email,
               subject: `Seu anúncio "${announcementTitle}" está ativo!`,
@@ -264,11 +264,11 @@ export async function webhookRoutes(fastify: FastifyInstance) {
                 <p>Atenciosamente,</p>
                 <p>Administração - Neighborhood Showcase</p>
               `,
+            })
+            .catch((error) => {
+              // Log error but do not fail the request
+              request.log.error(error, 'Resend email dispatch failed');
             });
-          } catch (error) {
-            // Log error but do not fail the request
-            request.log.error(error, 'Resend email dispatch failed');
-          }
         }
       }
 

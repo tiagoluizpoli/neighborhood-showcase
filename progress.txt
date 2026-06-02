@@ -35,6 +35,7 @@
 - [x] **Issue 31**: Resolve Dev Boot Errors (Completed: 2026-06-02)
 - [x] **Issue 33**: Fastify Query Schema Validation & rawBody Types (Completed: 2026-06-02)
 - [x] **Issue 34**: Webhook Zod Payload Validation & Strict Status Check (Completed: 2026-06-02)
+- [x] **Issue 35**: Background Email Confirmation Dispatch (Completed: 2026-06-02)
 
 
 ---
@@ -264,6 +265,12 @@
 - Ensured strict paymentStatus verification against 'PAID' status before modifying database records.
 - Logged the status and billing ID in Fastify logs to bypass unused variables compilation checks.
 
+### Issue 35: Background Email Confirmation Dispatch
+- Refactored Resend email dispatch code to run asynchronously in the background.
+- Removed the await keyword from the email promise so the handler returns 200 OK immediately after the db transaction commits.
+- Added a Promise .catch block to log any background dispatch failures using Fastify request logs.
+- Maintained the local developer email mock fallback configuration.
+
 [2026-06-02 02:03:08] Iteration 1: Fixed double-impression tracking bug by making the details route component the single source of truth and adding a useRef guard. Status: 100% Complete.
 [2026-06-02 09:25:00] Iteration 2: Relocated compose config to root, added Unleash & Redis services, updated template, and fixed test isolation leak. Status: 100% Complete. Loop Terminated.
 [2026-06-02 09:28:00] Iteration 3: Migrated 11 schema columns to native pgEnums, reset and re-generated initial migration, and updated test database setup script. Status: 100% Complete. Loop Terminated.
@@ -276,3 +283,4 @@
 [2026-06-02 11:00:00] Iteration 1 | Worked: Added http/abacatepay.http file to simulate PIX payments via AbacatePay | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
 [2026-06-02 18:53:00] Iteration 2 | Worked: Configured Fastify JSON Schema validation for webhookSecret, defined FastifyRequestWithRawBody interface, and removed raw body casting | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
 [2026-06-02 18:55:00] Iteration 4 | Worked: Configured Zod schema validation for request body, enforced strict status check for PAID payments, and logged metrics in webhook route | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
+[2026-06-02 18:57:00] Iteration 6 | Worked: Dispatched Resend emails asynchronously in the background and removed wait keyword on email promise in webhook route | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
