@@ -171,10 +171,6 @@ function PublicVitrineComponent() {
   const openAdDetails = (id: string) => {
     setActiveAdId(id);
     window.history.pushState(null, '', `/anuncios/${id}`);
-    trackEventMutation.mutate({
-      announcementId: id,
-      eventType: 'IMPRESSION',
-    });
   };
 
   const closeAdDetails = () => {

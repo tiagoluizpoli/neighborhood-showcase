@@ -10,7 +10,7 @@ import {
   Loader2,
   MessageCircle,
 } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { trpc } from '@/utils/trpc';
 
 export const Route = createFileRoute('/anuncios/$id')({
@@ -32,8 +32,10 @@ function PublicAnnouncementDetailsComponent() {
   const { mutate: trackEvent } = trackEventMutation;
 
   // Track impression on load
+  const hasTracked = useRef<string | null>(null);
   useEffect(() => {
-    if (detailsQuery.data) {
+    if (detailsQuery.data && hasTracked.current !== id) {
+      hasTracked.current = id;
       trackEvent({
         announcementId: id,
         eventType: 'IMPRESSION',
