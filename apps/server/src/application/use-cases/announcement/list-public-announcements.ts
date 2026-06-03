@@ -5,9 +5,11 @@ import {
   condominium as condominiumSchema,
   providerLocation as providerLocationSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
-import { and, eq, ilike, isNull, or, type SQL } from 'drizzle-orm';
+import { and, desc, eq, ilike, isNull, or, type SQL, sql } from 'drizzle-orm';
 
 export interface ListPublicAnnouncementsInput {
+  latitude?: number;
+  longitude?: number;
   condominiumId?: string;
   category?: string;
   search?: string;
@@ -43,6 +45,9 @@ export class ListPublicAnnouncements {
   async execute(
     input: ListPublicAnnouncementsInput,
   ): Promise<PublicAnnouncementItem[]> {
+    const hasCoordinates =
+      typeof input.latitude === 'number' && typeof input.longitude === 'number';
+
     // 1. Fetch user's geolocated or selected condo info
     let userCity = '';
     let userState = '';
@@ -93,7 +98,7 @@ export class ListPublicAnnouncements {
     }
 
     // 3. Query from Drizzle with left joins to retrieve both condominium and external addresses
-    const rows = await db
+    const query = db
       .select({
         announcement: announcementSchema,
         condominium: condominiumSchema,
@@ -114,6 +119,17 @@ export class ListPublicAnnouncements {
         eq(providerLocationSchema.addressId, addressSchema.id),
       )
       .where(and(...conditions));
+
+    if (hasCoordinates) {
+      const visitorPoint = sql`ST_SetSRID(ST_MakePoint(${input.longitude}, ${input.latitude}), 4326)::geography`;
+      const rows = await query.orderBy(
+        sql`ST_Distance(COALESCE(${condominiumSchema.geog}, ${providerLocationSchema.geog}), ${visitorPoint})`,
+        desc(announcementSchema.createdAt),
+      );
+      return rows.map(mapRow);
+    }
+
+    const rows = await query;
 
     // 4. Sort results by proximity in-memory
     rows.sort((a, b) => {
@@ -150,30 +166,36 @@ export class ListPublicAnnouncements {
     });
 
     // 5. Map rows to output structure
-    return rows.map((row) => {
-      const condoCity =
-        row.condominium?.city || row.providerAddress?.city || '';
-      const condoState =
-        row.condominium?.state || row.providerAddress?.state || '';
-      return {
-        id: row.announcement.id,
-        providerId: row.announcement.providerId,
-        condominiumId: row.announcement.condominiumId ?? null,
-        condoName: row.condominium?.name ?? null,
-        condoCity,
-        condoState,
-        title: row.announcement.title,
-        subtitle: row.announcement.subtitle,
-        description: row.announcement.description,
-        priceCents: row.announcement.priceCents,
-        imageUrl: row.announcement.imageUrl,
-        category: row.announcement.category,
-        tags: row.announcement.tags,
-        contactLinks: row.announcement.contactLinks,
-        showVerifiedBadge: row.announcement.showVerifiedBadge,
-        status: row.announcement.status,
-        createdAt: row.announcement.createdAt,
-      };
-    });
+    return rows.map(mapRow);
   }
+}
+
+function mapRow(row: {
+  announcement: typeof announcementSchema.$inferSelect;
+  condominium: typeof condominiumSchema.$inferSelect | null;
+  providerLocation: typeof providerLocationSchema.$inferSelect | null;
+  providerAddress: typeof addressSchema.$inferSelect | null;
+}): PublicAnnouncementItem {
+  const condoCity = row.condominium?.city || row.providerAddress?.city || '';
+  const condoState = row.condominium?.state || row.providerAddress?.state || '';
+
+  return {
+    id: row.announcement.id,
+    providerId: row.announcement.providerId,
+    condominiumId: row.announcement.condominiumId ?? null,
+    condoName: row.condominium?.name ?? null,
+    condoCity,
+    condoState,
+    title: row.announcement.title,
+    subtitle: row.announcement.subtitle,
+    description: row.announcement.description,
+    priceCents: row.announcement.priceCents,
+    imageUrl: row.announcement.imageUrl,
+    category: row.announcement.category,
+    tags: row.announcement.tags,
+    contactLinks: row.announcement.contactLinks,
+    showVerifiedBadge: row.announcement.showVerifiedBadge,
+    status: row.announcement.status,
+    createdAt: row.announcement.createdAt,
+  };
 }

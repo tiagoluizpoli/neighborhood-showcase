@@ -138,6 +138,8 @@ export const announcementRouter = router({
   listPublic: publicProcedure
     .input(
       z.object({
+        latitude: z.number().optional(),
+        longitude: z.number().optional(),
         condominiumId: z.string().optional(),
         category: z.string().optional(),
         search: z.string().optional(),
@@ -147,6 +149,8 @@ export const announcementRouter = router({
     )
     .query(async ({ input }) => {
       return listPublicAnnouncementsUseCase.execute({
+        latitude: input.latitude,
+        longitude: input.longitude,
         condominiumId: input.condominiumId,
         category: input.category,
         search: input.search,

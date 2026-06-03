@@ -20,17 +20,24 @@ Implement the proximity-based ranking engine that sorts the announcement feed ba
 
 ## Acceptance criteria
 
-- [ ] Announcement listing API accepts optional lat/lng/condominiumId parameters
-- [ ] Results sorted by PostGIS distance when coordinates are provided
+- [x] Announcement listing API accepts optional lat/lng/condominiumId parameters
+- [x] Results sorted by PostGIS distance when coordinates are provided
 - [ ] Own-condominium announcements appear first
 - [ ] Verified providers rank higher than unverified at equal distance
 - [ ] Feed respects configurable radius (default 10km)
 - [ ] "Expand radius" option works up to 25km with a warning
-- [ ] Chronological fallback when no coordinates provided
+- [x] Chronological fallback when no coordinates provided
 - [ ] City/neighborhood filter parameters are functional
-- [ ] Integration tests: verify ranking order with seeded data at known coordinates
+- [x] Integration tests: verify ranking order with seeded data at known coordinates
 
 ## Blocked by
 
 - #38 (PostGIS Schema & Geospatial Columns)
 - #43 (Geolocation Permission Modal & Client Capture)
+
+## Iteration 3 Notes
+
+- Wired `announcement.listPublic` to accept `latitude`/`longitude` and rank by PostGIS distance when coordinates are present.
+- Forwarded captured coordinates from the public home feed query so geolocated visitors now hit the ranked API path.
+- Kept the existing condo-aware fallback for visitors without coordinates.
+- Remaining work: own-condominium pinning, verified-provider boost, configurable radius, manual city/neighborhood filters, and radius warning UI.

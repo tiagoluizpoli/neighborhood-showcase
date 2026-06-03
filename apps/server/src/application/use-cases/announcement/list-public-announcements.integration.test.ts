@@ -8,7 +8,7 @@ import {
   condominium,
   payment,
 } from '@neighborhood-showcase/db/schema/showcase';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { ListPublicAnnouncements } from './list-public-announcements';
 
 describe('List Public Announcements Integration Test', () => {
@@ -47,6 +47,9 @@ describe('List Public Announcements Integration Test', () => {
         cep: '88000001',
         createdBy: providerId,
         status: 'APPROVED',
+        latitude: '-27.5965',
+        longitude: '-48.5495',
+        geog: sql`ST_SetSRID(ST_MakePoint(-48.5495, -27.5965), 4326)::geography`,
       },
       {
         id: condoBId,
@@ -56,6 +59,9 @@ describe('List Public Announcements Integration Test', () => {
         cep: '88000002',
         createdBy: providerId,
         status: 'APPROVED',
+        latitude: '-27.5925',
+        longitude: '-48.5495',
+        geog: sql`ST_SetSRID(ST_MakePoint(-48.5495, -27.5925), 4326)::geography`,
       },
       {
         id: condoCId,
@@ -65,6 +71,9 @@ describe('List Public Announcements Integration Test', () => {
         cep: '80000001',
         createdBy: providerId,
         status: 'APPROVED',
+        latitude: '-27.5500',
+        longitude: '-48.5495',
+        geog: sql`ST_SetSRID(ST_MakePoint(-48.5495, -27.5500), 4326)::geography`,
       },
     ]);
 
@@ -177,6 +186,18 @@ describe('List Public Announcements Integration Test', () => {
 
     // Third element should be Condo C (different city Curitiba, PR)
     expect(list[2]).toBeDefined();
+    expect(list[2]?.id).toBe('ann-burger-c');
+  });
+
+  test('sorts by coordinates when latitude and longitude are provided', async () => {
+    const list = await useCase.execute({
+      latitude: -27.5969,
+      longitude: -48.5495,
+    });
+
+    expect(list.length).toBe(3);
+    expect(list[0]?.id).toBe('ann-pizza-a');
+    expect(list[1]?.id).toBe('ann-cleaner-b');
     expect(list[2]?.id).toBe('ann-burger-c');
   });
 

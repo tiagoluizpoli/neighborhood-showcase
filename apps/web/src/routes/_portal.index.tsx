@@ -123,6 +123,8 @@ function PublicVitrineComponent() {
 
   const { data: announcements, isLoading: isLoadingAds } = useQuery(
     trpc.announcement.listPublic.queryOptions({
+      latitude: coords?.latitude,
+      longitude: coords?.longitude,
       condominiumId:
         filterByCondo && selectedCondo ? selectedCondo.id : undefined,
       category,
