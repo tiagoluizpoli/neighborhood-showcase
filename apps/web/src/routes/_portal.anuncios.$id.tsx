@@ -1,3 +1,8 @@
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@neighborhood-showcase/ui/components/avatar';
 import { Button } from '@neighborhood-showcase/ui/components/button';
 import { Card, CardContent } from '@neighborhood-showcase/ui/components/card';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -5,13 +10,32 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import {
   ArrowLeft,
   CheckCircle2,
+  Facebook,
   Globe,
   Instagram,
   Loader2,
+  Mail,
   MessageCircle,
+  Phone,
 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { trpc } from '@/utils/trpc';
+
+// Custom SVG Tiktok Icon
+const TiktokIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <title>TikTok</title>
+    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+  </svg>
+);
 
 export const Route = createFileRoute('/_portal/anuncios/$id')({
   component: PublicAnnouncementDetailsComponent,
@@ -43,13 +67,28 @@ function PublicAnnouncementDetailsComponent() {
     }
   }, [id, detailsQuery.data, trackEvent]);
 
+  // Update page metadata for SEO
+  const ad = detailsQuery.data;
+  useEffect(() => {
+    if (typeof document !== 'undefined' && ad) {
+      document.title = `${ad.title} | Neighborhood Showcase`;
+      let metaDesc = document.querySelector('meta[name="description"]');
+      if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.setAttribute('name', 'description');
+        document.head.appendChild(metaDesc);
+      }
+      metaDesc.setAttribute('content', ad.description.slice(0, 160));
+    }
+  }, [ad]);
+
   const handleContactClick = (
-    targetType: 'WHATSAPP' | 'INSTAGRAM' | 'WEBSITE',
+    targetType?: 'WHATSAPP' | 'INSTAGRAM' | 'WEBSITE' | null,
   ) => {
     trackEventMutation.mutate({
       announcementId: id,
       eventType: 'CONTACT_CLICK',
-      targetType,
+      targetType: targetType || null,
     });
   };
 
@@ -63,8 +102,6 @@ function PublicAnnouncementDetailsComponent() {
       </div>
     );
   }
-
-  const ad = detailsQuery.data;
 
   if (!ad) {
     return (
@@ -164,7 +201,7 @@ function PublicAnnouncementDetailsComponent() {
           </div>
 
           {ad.tags && ad.tags.length > 0 && (
-            <div className="mb-8 flex flex-wrap gap-1.5">
+            <div className="mb-6 flex flex-wrap gap-1.5">
               {ad.tags.map((tag) => (
                 <span
                   key={tag}
@@ -175,6 +212,42 @@ function PublicAnnouncementDetailsComponent() {
               ))}
             </div>
           )}
+
+          {/* Provider Identity Card */}
+          <div className="mb-8 rounded-xl border border-muted bg-muted/20 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-12 w-12 border">
+                  {ad.providerAvatarUrl ? (
+                    <AvatarImage
+                      src={ad.providerAvatarUrl}
+                      alt={ad.providerName}
+                    />
+                  ) : null}
+                  <AvatarFallback className="bg-primary/10 font-semibold text-base text-primary">
+                    {ad.providerName
+                      ? ad.providerName.substring(0, 2).toUpperCase()
+                      : 'PR'}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h4 className="font-semibold text-foreground text-sm">
+                    {ad.providerName}
+                  </h4>
+                  <p className="text-muted-foreground text-xs">
+                    Anunciante no Neighborhood Showcase
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/prestadores/$id"
+                params={{ id: ad.providerId }}
+                className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-3 py-1.5 font-medium text-muted-foreground text-xs transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <span>Ver perfil completo</span>
+              </Link>
+            </div>
+          </div>
 
           {/* Contact Actions */}
           <div>
@@ -196,6 +269,40 @@ function PublicAnnouncementDetailsComponent() {
                 </a>
               )}
 
+              {ad.contactLinks.phone && (
+                <a
+                  href={`tel:${ad.contactLinks.phone.replace(/\D/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => handleContactClick(null)}
+                >
+                  <Button
+                    variant="outline"
+                    className="flex w-full items-center justify-center gap-2 py-6 font-medium"
+                  >
+                    <Phone className="h-5 w-5" />
+                    Ligar
+                  </Button>
+                </a>
+              )}
+
+              {ad.contactLinks.email && (
+                <a
+                  href={`mailto:${ad.contactLinks.email}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => handleContactClick(null)}
+                >
+                  <Button
+                    variant="outline"
+                    className="flex w-full items-center justify-center gap-2 py-6 font-medium"
+                  >
+                    <Mail className="h-5 w-5" />
+                    Enviar E-mail
+                  </Button>
+                </a>
+              )}
+
               {ad.contactLinks.instagram && (
                 <a
                   href={`https://instagram.com/${ad.contactLinks.instagram.replace(/@/g, '')}`}
@@ -213,6 +320,40 @@ function PublicAnnouncementDetailsComponent() {
                 </a>
               )}
 
+              {ad.contactLinks.tiktok && (
+                <a
+                  href={`https://tiktok.com/@${ad.contactLinks.tiktok.replace(/@/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => handleContactClick(null)}
+                >
+                  <Button
+                    variant="outline"
+                    className="flex w-full items-center justify-center gap-2 border-slate-500/30 py-6 font-medium hover:bg-slate-50/10"
+                  >
+                    <TiktokIcon className="h-5 w-5 text-foreground" />
+                    Ver TikTok
+                  </Button>
+                </a>
+              )}
+
+              {ad.contactLinks.facebook && (
+                <a
+                  href={`https://facebook.com/${ad.contactLinks.facebook}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => handleContactClick(null)}
+                >
+                  <Button
+                    variant="outline"
+                    className="flex w-full items-center justify-center gap-2 border-blue-500/30 py-6 font-medium hover:bg-blue-50/10"
+                  >
+                    <Facebook className="h-5 w-5 text-blue-600" />
+                    Ver Facebook
+                  </Button>
+                </a>
+              )}
+
               {ad.contactLinks.website && (
                 <a
                   href={
@@ -223,7 +364,6 @@ function PublicAnnouncementDetailsComponent() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => handleContactClick('WEBSITE')}
-                  className="sm:col-span-2"
                 >
                   <Button
                     variant="secondary"

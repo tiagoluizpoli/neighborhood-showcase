@@ -25,6 +25,7 @@ import { Route as PortalAuthRouteImport } from './routes/_portal.auth'
 import { Route as PanelDashboardIndexRouteImport } from './routes/panel.dashboard.index'
 import { Route as PanelDashboardCondoSetupRouteImport } from './routes/panel.dashboard.condo-setup'
 import { Route as DashboardAnunciosNovoRouteImport } from './routes/dashboard.anuncios.novo'
+import { Route as PortalPrestadoresIdRouteImport } from './routes/_portal.prestadores.$id'
 import { Route as PortalAnunciosIdRouteImport } from './routes/_portal.anuncios.$id'
 import { Route as PanelDashboardAnunciosNovoRouteImport } from './routes/panel.dashboard.anuncios.novo'
 import { Route as DashboardAnunciosIdPagamentoRouteImport } from './routes/dashboard.anuncios.$id.pagamento'
@@ -110,6 +111,11 @@ const DashboardAnunciosNovoRoute = DashboardAnunciosNovoRouteImport.update({
   path: '/anuncios/novo',
   getParentRoute: () => DashboardRoute,
 } as any)
+const PortalPrestadoresIdRoute = PortalPrestadoresIdRouteImport.update({
+  id: '/prestadores/$id',
+  path: '/prestadores/$id',
+  getParentRoute: () => PortalRoute,
+} as any)
 const PortalAnunciosIdRoute = PortalAnunciosIdRouteImport.update({
   id: '/anuncios/$id',
   path: '/anuncios/$id',
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/panel/moderation': typeof PanelModerationRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/anuncios/$id': typeof PortalAnunciosIdRoute
+  '/prestadores/$id': typeof PortalPrestadoresIdRoute
   '/dashboard/anuncios/novo': typeof DashboardAnunciosNovoRoute
   '/panel/dashboard/condo-setup': typeof PanelDashboardCondoSetupRoute
   '/panel/dashboard/': typeof PanelDashboardIndexRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/': typeof PortalIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/anuncios/$id': typeof PortalAnunciosIdRoute
+  '/prestadores/$id': typeof PortalPrestadoresIdRoute
   '/dashboard/anuncios/novo': typeof DashboardAnunciosNovoRoute
   '/panel/dashboard/condo-setup': typeof PanelDashboardCondoSetupRoute
   '/panel/dashboard': typeof PanelDashboardIndexRoute
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/_portal/': typeof PortalIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/_portal/anuncios/$id': typeof PortalAnunciosIdRoute
+  '/_portal/prestadores/$id': typeof PortalPrestadoresIdRoute
   '/dashboard/anuncios/novo': typeof DashboardAnunciosNovoRoute
   '/panel/dashboard/condo-setup': typeof PanelDashboardCondoSetupRoute
   '/panel/dashboard/': typeof PanelDashboardIndexRoute
@@ -213,6 +222,7 @@ export interface FileRouteTypes {
     | '/panel/moderation'
     | '/dashboard/'
     | '/anuncios/$id'
+    | '/prestadores/$id'
     | '/dashboard/anuncios/novo'
     | '/panel/dashboard/condo-setup'
     | '/panel/dashboard/'
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/anuncios/$id'
+    | '/prestadores/$id'
     | '/dashboard/anuncios/novo'
     | '/panel/dashboard/condo-setup'
     | '/panel/dashboard'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/_portal/'
     | '/dashboard/'
     | '/_portal/anuncios/$id'
+    | '/_portal/prestadores/$id'
     | '/dashboard/anuncios/novo'
     | '/panel/dashboard/condo-setup'
     | '/panel/dashboard/'
@@ -384,6 +396,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAnunciosNovoRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_portal/prestadores/$id': {
+      id: '/_portal/prestadores/$id'
+      path: '/prestadores/$id'
+      fullPath: '/prestadores/$id'
+      preLoaderRoute: typeof PortalPrestadoresIdRouteImport
+      parentRoute: typeof PortalRoute
+    }
     '/_portal/anuncios/$id': {
       id: '/_portal/anuncios/$id'
       path: '/anuncios/$id'
@@ -419,12 +438,14 @@ interface PortalRouteChildren {
   PortalAuthRoute: typeof PortalAuthRoute
   PortalIndexRoute: typeof PortalIndexRoute
   PortalAnunciosIdRoute: typeof PortalAnunciosIdRoute
+  PortalPrestadoresIdRoute: typeof PortalPrestadoresIdRoute
 }
 
 const PortalRouteChildren: PortalRouteChildren = {
   PortalAuthRoute: PortalAuthRoute,
   PortalIndexRoute: PortalIndexRoute,
   PortalAnunciosIdRoute: PortalAnunciosIdRoute,
+  PortalPrestadoresIdRoute: PortalPrestadoresIdRoute,
 }
 
 const PortalRouteWithChildren =

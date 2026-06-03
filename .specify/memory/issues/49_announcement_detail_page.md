@@ -24,11 +24,11 @@ Create a dedicated, SEO-friendly detail page for each announcement at `/anuncios
 ## Acceptance criteria
 
 - [x] `/anuncios/:id` route exists under the portal layout
-- [ ] Detail page shows all announcement fields (image, title, description, price, category, tags)
-- [ ] All configured contact channels are displayed as interactive buttons
-- [ ] Provider identity card links to `/prestadores/:id`
-- [ ] Verified badge renders conditionally
-- [ ] SEO: proper title, meta description, h1 structure
+- [x] Detail page shows all announcement fields (image, title, description, price, category, tags)
+- [x] All configured contact channels are displayed as interactive buttons
+- [x] Provider identity card links to `/prestadores/:id`
+- [x] Verified badge renders conditionally
+- [x] SEO: proper title, meta description, h1 structure
 - [x] IMPRESSION analytics event recorded on page view
 - [x] 404 handling for non-existent announcement IDs
 
