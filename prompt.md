@@ -1,5 +1,5 @@
 ---
-issueId: 47_verified_badge_enforcement.md
+issueId: 48_announcement_card_redesign.md
 ---
 
 # PRD

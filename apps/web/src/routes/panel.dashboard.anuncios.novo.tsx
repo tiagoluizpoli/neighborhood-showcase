@@ -1,12 +1,6 @@
 import { env } from '@neighborhood-showcase/env/web';
 import { Button } from '@neighborhood-showcase/ui/components/button';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@neighborhood-showcase/ui/components/tooltip';
-import {
   Card,
   CardContent,
   CardDescription,
@@ -15,6 +9,12 @@ import {
 } from '@neighborhood-showcase/ui/components/card';
 import { Input } from '@neighborhood-showcase/ui/components/input';
 import { Label } from '@neighborhood-showcase/ui/components/label';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@neighborhood-showcase/ui/components/tooltip';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Check, Loader2, Sparkles, UploadCloud } from 'lucide-react';
@@ -606,21 +606,31 @@ function NewAnnouncementComponent() {
                 <div>
                   <TooltipProvider>
                     <Tooltip>
-                      <TooltipTrigger render={
-                        <span className="inline-block">
-                          <input
-                            type="checkbox"
-                            id="verified-badge-toggle"
-                            disabled={!canVerify}
-                            checked={showVerifiedBadge}
-                            onChange={(e) => setShowVerifiedBadge(e.target.checked)}
-                            className="h-4 w-4 cursor-pointer accent-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                          />
-                        </span>
-                      } />
+                      <TooltipTrigger
+                        render={
+                          <span className="inline-block">
+                            <input
+                              type="checkbox"
+                              id="verified-badge-toggle"
+                              disabled={!canVerify}
+                              checked={showVerifiedBadge}
+                              onChange={(e) =>
+                                setShowVerifiedBadge(e.target.checked)
+                              }
+                              className="h-4 w-4 cursor-pointer accent-primary disabled:cursor-not-allowed disabled:opacity-50"
+                            />
+                          </span>
+                        }
+                      />
                       {!canVerify && (
-                        <TooltipContent side="top" align="center" className="max-w-xs p-2 text-center">
-                          O selo de morador verificado está disponível apenas para moradores de condomínio aprovados. Acesse a página "Minha Conta" para verificar sua residência.
+                        <TooltipContent
+                          side="top"
+                          align="center"
+                          className="max-w-xs p-2 text-center"
+                        >
+                          O selo de morador verificado está disponível apenas
+                          para moradores de condomínio aprovados. Acesse a
+                          página "Minha Conta" para verificar sua residência.
                         </TooltipContent>
                       )}
                     </Tooltip>
@@ -628,9 +638,10 @@ function NewAnnouncementComponent() {
                 </div>
               </div>
               {!canVerify && selectedLocationId && (
-                <p className="text-[10px] text-warning mt-2">
+                <p className="mt-2 text-[10px] text-warning">
                   Indisponível: O selo de morador verificado está disponível
-                  apenas para moradores de condomínio aprovados. Acesse a página "Minha Conta" para verificar sua residência.
+                  apenas para moradores de condomínio aprovados. Acesse a página
+                  "Minha Conta" para verificar sua residência.
                 </p>
               )}
             </CardContent>

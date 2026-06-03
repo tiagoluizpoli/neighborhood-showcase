@@ -19,14 +19,14 @@ Redesign the announcement card component on the public home page with rich provi
 
 ## Acceptance criteria
 
-- [ ] Card displays cover image, title, category, provider identity row, and primary contact button
-- [ ] Provider avatar shows initials fallback
-- [ ] Verified badge displays conditionally on the card
-- [ ] Primary contact button (WhatsApp) is functional directly from the card
-- [ ] Card click navigates to `/anuncios/:id`
-- [ ] API response includes provider info (name, avatar, verification, contact)
-- [ ] Cards render responsively on mobile and desktop
-- [ ] No hardcoded color classes — strict semantic tokens
+- [x] Card displays cover image, title, category, provider identity row, and primary contact button
+- [x] Provider avatar shows initials fallback
+- [x] Verified badge displays conditionally on the card
+- [x] Primary contact button (WhatsApp) is functional directly from the card
+- [x] Card click navigates to `/anuncios/:id`
+- [x] API response includes provider info (name, avatar, verification, contact)
+- [x] Cards render responsively on mobile and desktop
+- [x] No hardcoded color classes — strict semantic tokens
 
 ## Blocked by
 

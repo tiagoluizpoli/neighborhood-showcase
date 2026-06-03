@@ -1,4 +1,5 @@
 import { db } from '@neighborhood-showcase/db';
+import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
 import {
   address as addressSchema,
   announcement as announcementSchema,
@@ -46,6 +47,8 @@ export interface PublicAnnouncementItem {
   showVerifiedBadge: boolean;
   status: string;
   createdAt: Date;
+  providerName: string;
+  providerAvatarUrl: string | null;
 }
 
 export class ListPublicAnnouncements {
@@ -143,8 +146,10 @@ export class ListPublicAnnouncements {
         providerLocation: providerLocationSchema,
         providerAddress: addressSchema,
         condoAddress: condoAddress,
+        provider: userSchema,
       })
       .from(announcementSchema)
+      .innerJoin(userSchema, eq(announcementSchema.providerId, userSchema.id))
       .leftJoin(
         condominiumSchema,
         eq(announcementSchema.condominiumId, condominiumSchema.id),
@@ -234,6 +239,7 @@ function mapRow(row: {
   providerLocation: typeof providerLocationSchema.$inferSelect | null;
   providerAddress: typeof addressSchema.$inferSelect | null;
   condoAddress?: typeof addressSchema.$inferSelect | null;
+  provider: typeof userSchema.$inferSelect;
 }): PublicAnnouncementItem {
   const condoCity = row.condominium?.city || row.providerAddress?.city || '';
   const condoState = row.condominium?.state || row.providerAddress?.state || '';
@@ -256,5 +262,7 @@ function mapRow(row: {
     showVerifiedBadge: row.announcement.showVerifiedBadge,
     status: row.announcement.status,
     createdAt: row.announcement.createdAt,
+    providerName: row.provider.name,
+    providerAvatarUrl: row.provider.image || null,
   };
 }

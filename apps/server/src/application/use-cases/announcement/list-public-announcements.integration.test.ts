@@ -145,6 +145,10 @@ describe('List Public Announcements Integration Test', () => {
     expect(ids).toContain('ann-cleaner-b');
     expect(ids).toContain('ann-burger-c');
     expect(ids).not.toContain('ann-draft-a');
+
+    // Verify provider details are mapped correctly
+    expect(list[0]?.providerName).toBe('List Provider');
+    expect(list[0]?.providerAvatarUrl).toBeNull();
   });
 
   test('filters by category', async () => {

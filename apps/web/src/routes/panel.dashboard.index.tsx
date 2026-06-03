@@ -978,28 +978,40 @@ function EditAnnouncementModal({
               </div>
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger render={
-                    <span className="inline-block">
-                      <input
-                        type="checkbox"
-                        disabled={!canVerify}
-                        checked={showVerifiedBadge && canVerify}
-                        onChange={(e) => setShowVerifiedBadge(e.target.checked)}
-                        className="h-5 w-5 rounded border-border bg-muted text-primary focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                      />
-                    </span>
-                  } />
+                  <TooltipTrigger
+                    render={
+                      <span className="inline-block">
+                        <input
+                          type="checkbox"
+                          disabled={!canVerify}
+                          checked={showVerifiedBadge && canVerify}
+                          onChange={(e) =>
+                            setShowVerifiedBadge(e.target.checked)
+                          }
+                          className="h-5 w-5 rounded border-border bg-muted text-primary focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                      </span>
+                    }
+                  />
                   {!canVerify && (
-                    <TooltipContent side="top" align="center" className="max-w-xs p-2 text-center">
-                      O selo de morador verificado está disponível apenas para moradores de condomínio aprovados. Acesse a página "Minha Conta" para verificar sua residência.
+                    <TooltipContent
+                      side="top"
+                      align="center"
+                      className="max-w-xs p-2 text-center"
+                    >
+                      O selo de morador verificado está disponível apenas para
+                      moradores de condomínio aprovados. Acesse a página "Minha
+                      Conta" para verificar sua residência.
                     </TooltipContent>
                   )}
                 </Tooltip>
               </TooltipProvider>
             </div>
             {!canVerify && (
-              <p className="text-[10px] text-warning px-1">
-                Indisponível: O selo de morador verificado está disponível apenas para moradores de condomínio aprovados. Acesse a página "Minha Conta" para verificar sua residência.
+              <p className="px-1 text-[10px] text-warning">
+                Indisponível: O selo de morador verificado está disponível
+                apenas para moradores de condomínio aprovados. Acesse a página
+                "Minha Conta" para verificar sua residência.
               </p>
             )}
           </div>
