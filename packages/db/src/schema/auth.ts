@@ -2,6 +2,7 @@ import { relations } from 'drizzle-orm';
 import {
   boolean,
   index,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -22,6 +23,19 @@ export const user = pgTable('user', {
   role: userRoleEnum('role').default('PROVIDER').notNull(),
   status: userStatusEnum('status').default('ACTIVE').notNull(),
   phone: text('phone'),
+  socialLinks: jsonb('social_links')
+    .$type<{
+      whatsapp?: string;
+      phone?: string;
+      email?: string;
+      instagram?: string;
+      tiktok?: string;
+      facebook?: string;
+      website?: string;
+    }>()
+    .notNull()
+    .default({}),
+  isProviderVisible: boolean('is_provider_visible').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
     .defaultNow()

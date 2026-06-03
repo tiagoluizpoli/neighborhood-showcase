@@ -17,13 +17,13 @@ Extend the database schema to support a broader set of contact and social channe
 
 ## Acceptance criteria
 
-- [ ] `user` table has a `socialLinks` JSONB column with Zod-validated shape
-- [ ] `announcement.contactLinks` JSONB supports `whatsapp`, `phone`, `email`, `instagram`, `tiktok`, `facebook`, `website`
-- [ ] `user` table has `isProviderVisible` boolean column (default `true`)
-- [ ] Account page has a social links editing section
-- [ ] Provider opt-out toggle exists on the account page
-- [ ] API validates the expanded contact channels via Zod schemas
-- [ ] Migration runs cleanly on existing data (new columns nullable/defaulted)
+- [x] `user` table has a `socialLinks` JSONB column with Zod-validated shape
+- [x] `announcement.contactLinks` JSONB supports `whatsapp`, `phone`, `email`, `instagram`, `tiktok`, `facebook`, `website`
+- [x] `user` table has `isProviderVisible` boolean column (default `true`)
+- [x] Account page has a social links editing section
+- [x] Provider opt-out toggle exists on the account page
+- [x] API validates the expanded contact channels via Zod schemas
+- [x] Migration runs cleanly on existing data (new columns nullable/defaulted)
 
 ## Blocked by
 

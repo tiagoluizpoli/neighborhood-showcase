@@ -46,7 +46,11 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
       tags: input.tags,
       contactLinks: {
         whatsapp: input.contactLinks.whatsapp || undefined,
+        phone: input.contactLinks.phone || undefined,
+        email: input.contactLinks.email || undefined,
         instagram: input.contactLinks.instagram || undefined,
+        tiktok: input.contactLinks.tiktok || undefined,
+        facebook: input.contactLinks.facebook || undefined,
         website: input.contactLinks.website || undefined,
       },
       showVerifiedBadge: input.showVerifiedBadge,
@@ -82,7 +86,11 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
       tags: input.tags,
       contactLinks: {
         whatsapp: input.contactLinks.whatsapp || undefined,
+        phone: input.contactLinks.phone || undefined,
+        email: input.contactLinks.email || undefined,
         instagram: input.contactLinks.instagram || undefined,
+        tiktok: input.contactLinks.tiktok || undefined,
+        facebook: input.contactLinks.facebook || undefined,
         website: input.contactLinks.website || undefined,
       },
       showVerifiedBadge: input.showVerifiedBadge,

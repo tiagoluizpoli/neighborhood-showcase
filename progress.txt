@@ -39,7 +39,11 @@
 - [x] **Issue 35**: Background Email Confirmation Dispatch (Completed: 2026-06-02)
 - [x] **Issue 36**: Webhook Integration Tests Alignment (Completed: 2026-06-02)
 - [x] **Issue 37**: Visual Foundation — shadcn Reset & Semantic Tokens (Completed: 2026-06-03)
-
+- [x] **Issue 38**: PostGIS & Geospatial Columns (Completed: 2026-06-03)
+- [x] **Issue 39**: Portal/Panel Route Layout Separation (Completed: 2026-06-03)
+- [x] **Issue 40**: Panel Sidebar Navigation (Completed: 2026-06-03)
+- [x] **Issue 41**: Account Page & Avatar Menu (Completed: 2026-06-03)
+- [x] **Issue 42**: Expanded Contact Channels Schema & Profile Form (Completed: 2026-06-03)
 
 ---
 
@@ -299,5 +303,6 @@
 [2026-06-03 00:31:00] Iteration 3 | Worked: Unified authenticated routes under /panel/*, created separate layout files (_portal and panel), setup data-theme scoped selectors in globals.css, added Become a Provider links to home page footer & promotion block, and aligned test files | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
 [2026-06-03 00:33:30] Iteration 4 | Worked: Replaced legacy panel header with collapsible role-grouped shadcn Sidebar in panel.tsx, added SidebarTrigger, grouped navigation links by user roles, and verified compilation and integration tests | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
 [2026-06-03 00:39:20] Iteration 7 | Worked: Added UpdateUser backend use-case & tRPC mutation procedure with integration tests, implemented new settings route at /panel/conta with profile edit form and LGPD account deletion modal, migrated account deletion from dashboard index, and integrated panel header Avatar/Popover menu | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
+[2026-06-03 00:46:10] Iteration 3 | Worked: Extended database schema to support expanded contact channels on user and announcement tables, updated UpdateUser use case and tRPC user/announcement routers, created getProfile endpoint, implemented contact channels forms and visibility toggle on /panel/conta page, and verified 150/150 integration tests pass | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
 
 

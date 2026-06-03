@@ -59,7 +59,11 @@ export const announcementRouter = router({
         tags: z.array(z.string()),
         contactLinks: z.object({
           whatsapp: z.string().optional(),
+          phone: z.string().optional(),
+          email: z.string().optional(),
           instagram: z.string().optional(),
+          tiktok: z.string().optional(),
+          facebook: z.string().optional(),
           website: z.string().optional(),
         }),
         showVerifiedBadge: z.boolean(),
@@ -246,7 +250,11 @@ export const announcementRouter = router({
         tags: z.array(z.string()),
         contactLinks: z.object({
           whatsapp: z.string().optional(),
+          phone: z.string().optional(),
+          email: z.string().optional(),
           instagram: z.string().optional(),
+          tiktok: z.string().optional(),
+          facebook: z.string().optional(),
           website: z.string().optional(),
         }),
         showVerifiedBadge: z.boolean(),

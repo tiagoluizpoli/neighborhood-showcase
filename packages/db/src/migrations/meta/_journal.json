@@ -15,6 +15,13 @@
       "when": 1780456700845,
       "tag": "0001_normal_rocket_racer",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780458072087,
+      "tag": "0002_neat_dragon_lord",
+      "breakpoints": true
     }
   ]
 }

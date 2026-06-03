@@ -41,6 +41,34 @@ describe('Update User Name Integration Test', () => {
     expect(updatedUser?.updatedAt).toBeDefined();
   });
 
+  test('successfully updates user social links and provider visibility', async () => {
+    const result = await useCase.execute({
+      userId: testUserId,
+      socialLinks: {
+        whatsapp: '5511999999999',
+        instagram: 'https://instagram.com/myprofile',
+        website: 'https://mywebsite.com',
+      },
+      isProviderVisible: false,
+    });
+
+    expect(result.success).toBe(true);
+
+    const [updatedUser] = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, testUserId))
+      .limit(1);
+
+    expect(updatedUser).toBeDefined();
+    expect(updatedUser?.socialLinks).toEqual({
+      whatsapp: '5511999999999',
+      instagram: 'https://instagram.com/myprofile',
+      website: 'https://mywebsite.com',
+    });
+    expect(updatedUser?.isProviderVisible).toBe(false);
+  });
+
   test('fails if name is too short', async () => {
     expect(
       useCase.execute({

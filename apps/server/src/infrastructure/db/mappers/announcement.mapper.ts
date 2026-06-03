@@ -18,7 +18,11 @@ export class AnnouncementMapper
     const hasContact =
       raw.contactLinks &&
       (raw.contactLinks.whatsapp ||
+        raw.contactLinks.phone ||
+        raw.contactLinks.email ||
         raw.contactLinks.instagram ||
+        raw.contactLinks.tiktok ||
+        raw.contactLinks.facebook ||
         raw.contactLinks.website);
     const contactLinks = hasContact
       ? raw.contactLinks
@@ -38,7 +42,11 @@ export class AnnouncementMapper
         tags: raw.tags,
         contactLinks: contactLinks as {
           whatsapp?: string;
+          phone?: string;
+          email?: string;
           instagram?: string;
+          tiktok?: string;
+          facebook?: string;
           website?: string;
         },
         showVerifiedBadge: raw.showVerifiedBadge,

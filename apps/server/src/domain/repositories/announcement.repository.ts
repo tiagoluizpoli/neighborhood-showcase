@@ -17,7 +17,11 @@ export interface CreateAnnouncementRepositoryInput {
   tags: string[];
   contactLinks: {
     whatsapp?: string;
+    phone?: string;
+    email?: string;
     instagram?: string;
+    tiktok?: string;
+    facebook?: string;
     website?: string;
   };
   showVerifiedBadge: boolean;
@@ -34,7 +38,11 @@ export interface UpdateAnnouncementRepositoryInput {
   tags?: string[];
   contactLinks?: {
     whatsapp?: string;
+    phone?: string;
+    email?: string;
     instagram?: string;
+    tiktok?: string;
+    facebook?: string;
     website?: string;
   };
   showVerifiedBadge?: boolean;

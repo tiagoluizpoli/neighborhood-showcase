@@ -227,7 +227,11 @@ export const announcement = pgTable('announcement', {
   contactLinks: jsonb('contact_links')
     .$type<{
       whatsapp?: string;
+      phone?: string;
+      email?: string;
       instagram?: string;
+      tiktok?: string;
+      facebook?: string;
       website?: string;
     }>()
     .notNull()

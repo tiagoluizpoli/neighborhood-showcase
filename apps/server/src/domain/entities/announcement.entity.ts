@@ -45,7 +45,11 @@ export interface AnnouncementProps extends AuditableProps {
   tags: string[];
   contactLinks: {
     whatsapp?: string;
+    phone?: string;
+    email?: string;
     instagram?: string;
+    tiktok?: string;
+    facebook?: string;
     website?: string;
   };
   showVerifiedBadge: boolean;
@@ -80,7 +84,11 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
     imageUrl: string;
     contactLinks: {
       whatsapp?: string;
+      phone?: string;
+      email?: string;
       instagram?: string;
+      tiktok?: string;
+      facebook?: string;
       website?: string;
     };
   }): void {
@@ -111,8 +119,17 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
       throw new AnnouncementImageRequiredError();
     }
 
-    const { whatsapp, instagram, website } = input.contactLinks;
-    if (!whatsapp?.trim() && !instagram?.trim() && !website?.trim()) {
+    const { whatsapp, phone, email, instagram, tiktok, facebook, website } =
+      input.contactLinks;
+    if (
+      !whatsapp?.trim() &&
+      !phone?.trim() &&
+      !email?.trim() &&
+      !instagram?.trim() &&
+      !tiktok?.trim() &&
+      !facebook?.trim() &&
+      !website?.trim()
+    ) {
       throw new AnnouncementContactRequiredError();
     }
   }
@@ -159,7 +176,11 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
 
   get contactLinks(): {
     whatsapp?: string;
+    phone?: string;
+    email?: string;
     instagram?: string;
+    tiktok?: string;
+    facebook?: string;
     website?: string;
   } {
     return this.props.contactLinks;
