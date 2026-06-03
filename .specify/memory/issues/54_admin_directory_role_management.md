@@ -29,8 +29,8 @@ Fix the admin providers directory, add geographic filters, and build a full user
 - [x] Geographic filters (Condominium, City, Neighborhood) work and chain correctly
 - [x] Opted-out providers are hidden from the directory
 - [x] All-users listing screen with search and filtering exists (admin.listUsers backend procedure done)
-- [ ] `SYSTEM_MANAGER` promotion restricted to existing `SYSTEM_MANAGER` users
-- [ ] `MODERATOR` assignment supports one-to-many condominium scope
+- [x] `SYSTEM_MANAGER` promotion restricted to existing `SYSTEM_MANAGER` users (admin.promoteToSystemManager with hierarchy guard)
+- [x] `MODERATOR` assignment supports one-to-many condominium scope (admin.assignModerator upserts APPROVED assignment per condo)
 - [x] `role_change_log` table records every role change with actor, target, roles, timestamp (schema + migration done)
 - [ ] CLI bootstrap command still works for initial admin setup
 - [ ] Integration tests: hierarchy enforcement, audit trail creation, filter queries, bug fix verification

@@ -9,8 +9,10 @@ import {
 import {
   address as addressSchema,
   announcement as announcementSchema,
+  assignment as assignmentSchema,
   condominium as condominiumSchema,
   providerLocation as providerLocationSchema,
+  roleChangeLog as roleChangeLogSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
 import { and, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
@@ -254,5 +256,152 @@ export const adminRouter = router({
 
       await db.delete(blacklistSchema).where(eq(blacklistSchema.id, input.id));
       return { success: true };
+    }),
+
+  promoteToSystemManager: protectedProcedure
+    .input(z.object({ targetUserId: z.string().min(1) }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
+      }
+
+      const [target] = await db
+        .select()
+        .from(userSchema)
+        .where(eq(userSchema.id, input.targetUserId))
+        .limit(1);
+
+      if (!target) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Usuário não encontrado.',
+        });
+      }
+
+      const previousRole = target.role;
+
+      await db
+        .update(userSchema)
+        .set({ role: 'SYSTEM_MANAGER' })
+        .where(eq(userSchema.id, input.targetUserId));
+
+      await db.insert(roleChangeLogSchema).values({
+        id: crypto.randomUUID(),
+        actorId: ctx.session.user.id,
+        targetUserId: input.targetUserId,
+        previousRole,
+        newRole: 'SYSTEM_MANAGER',
+      });
+
+      return { success: true };
+    }),
+
+  assignModerator: protectedProcedure
+    .input(
+      z.object({
+        targetUserId: z.string().min(1),
+        condominiumId: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
+      }
+
+      const [target] = await db
+        .select()
+        .from(userSchema)
+        .where(eq(userSchema.id, input.targetUserId))
+        .limit(1);
+
+      if (!target) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Usuário não encontrado.',
+        });
+      }
+
+      const [condo] = await db
+        .select({ id: condominiumSchema.id })
+        .from(condominiumSchema)
+        .where(eq(condominiumSchema.id, input.condominiumId))
+        .limit(1);
+
+      if (!condo) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Condomínio não encontrado.',
+        });
+      }
+
+      // Upsert: insert MODERATOR assignment (approved) if none exists for this pair.
+      const [existing] = await db
+        .select({ id: assignmentSchema.id })
+        .from(assignmentSchema)
+        .where(
+          and(
+            eq(assignmentSchema.providerId, input.targetUserId),
+            eq(assignmentSchema.condominiumId, input.condominiumId),
+            eq(assignmentSchema.type, 'MODERATOR'),
+          ),
+        )
+        .limit(1);
+
+      if (!existing) {
+        await db.insert(assignmentSchema).values({
+          id: crypto.randomUUID(),
+          providerId: input.targetUserId,
+          condominiumId: input.condominiumId,
+          type: 'MODERATOR',
+          status: 'APPROVED',
+          unitInfo: '',
+        });
+      } else {
+        await db
+          .update(assignmentSchema)
+          .set({ status: 'APPROVED' })
+          .where(eq(assignmentSchema.id, existing.id));
+      }
+
+      await db.insert(roleChangeLogSchema).values({
+        id: crypto.randomUUID(),
+        actorId: ctx.session.user.id,
+        targetUserId: input.targetUserId,
+        previousRole: target.role,
+        newRole: 'MODERATOR',
+        condominiumId: input.condominiumId,
+      });
+
+      return { success: true };
+    }),
+
+  toggleProviderVisibility: protectedProcedure
+    .input(z.object({ targetUserId: z.string().min(1) }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
+      }
+
+      const [target] = await db
+        .select()
+        .from(userSchema)
+        .where(eq(userSchema.id, input.targetUserId))
+        .limit(1);
+
+      if (!target) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Usuário não encontrado.',
+        });
+      }
+
+      const newVisibility = !target.isProviderVisible;
+
+      await db
+        .update(userSchema)
+        .set({ isProviderVisible: newVisibility })
+        .where(eq(userSchema.id, input.targetUserId));
+
+      return { isProviderVisible: newVisibility };
     }),
 });
