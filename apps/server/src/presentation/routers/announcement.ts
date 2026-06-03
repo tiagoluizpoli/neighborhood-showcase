@@ -11,6 +11,7 @@ import { TRPCError } from '@trpc/server';
 import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { CreateAnnouncement } from '../../application/use-cases/announcement/create-announcement';
+import { GetAnnouncementAnalytics } from '../../application/use-cases/announcement/get-announcement-analytics';
 import { GetProviderDashboardData } from '../../application/use-cases/announcement/get-provider-dashboard-data';
 import { ListPublicAnnouncements } from '../../application/use-cases/announcement/list-public-announcements';
 import { ReinstateAnnouncement } from '../../application/use-cases/announcement/reinstate-announcement';
@@ -42,6 +43,7 @@ const generatePaymentIntentUseCase = new GeneratePaymentIntent(
 const listPublicAnnouncementsUseCase = new ListPublicAnnouncements();
 const trackAnalyticsEventUseCase = new TrackAnalyticsEvent();
 const getProviderDashboardDataUseCase = new GetProviderDashboardData();
+const getAnnouncementAnalyticsUseCase = new GetAnnouncementAnalytics();
 const suspendAnnouncementUseCase = new SuspendAnnouncement();
 const reinstateAnnouncementUseCase = new ReinstateAnnouncement();
 
@@ -262,6 +264,21 @@ export const announcementRouter = router({
       providerId: ctx.session.user.id,
     });
   }),
+
+  getAnalytics: protectedProcedure
+    .input(
+      z.object({
+        announcementId: z.string().min(1),
+        period: z.enum(['7d', '30d', '12m']),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return getAnnouncementAnalyticsUseCase.execute({
+        announcementId: input.announcementId,
+        providerId: ctx.session.user.id,
+        period: input.period,
+      });
+    }),
 
   update: protectedProcedure
     .input(
