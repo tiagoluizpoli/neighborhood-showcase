@@ -17,6 +17,9 @@ import { and, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 
+const userRoleSchema = z.enum(['PROVIDER', 'SYSTEM_MANAGER']);
+const userStatusSchema = z.enum(['ACTIVE', 'BANNED']);
+
 export const adminRouter = router({
   listProviders: protectedProcedure
     .input(
@@ -95,6 +98,45 @@ export const adminRouter = router({
         .select()
         .from(userSchema)
         .where(and(...userConditions));
+    }),
+
+  listUsers: protectedProcedure
+    .input(
+      z.object({
+        search: z.string().optional(),
+        role: userRoleSchema.optional(),
+        status: userStatusSchema.optional(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
+      }
+
+      const conditions: SQL[] = [];
+
+      if (input.search) {
+        const pattern = `%${input.search}%`;
+        conditions.push(
+          or(
+            ilike(userSchema.name, pattern),
+            ilike(userSchema.email, pattern),
+          ) as SQL,
+        );
+      }
+
+      if (input.role) {
+        conditions.push(eq(userSchema.role, input.role));
+      }
+
+      if (input.status) {
+        conditions.push(eq(userSchema.status, input.status));
+      }
+
+      return db
+        .select()
+        .from(userSchema)
+        .where(conditions.length > 0 ? and(...conditions) : undefined);
     }),
 
   banProvider: protectedProcedure
