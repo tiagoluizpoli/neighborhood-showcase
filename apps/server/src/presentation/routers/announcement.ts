@@ -15,6 +15,7 @@ import { GetAnnouncementAnalytics } from '../../application/use-cases/announceme
 import { GetProviderDashboardData } from '../../application/use-cases/announcement/get-provider-dashboard-data';
 import { ListPublicAnnouncements } from '../../application/use-cases/announcement/list-public-announcements';
 import { ReinstateAnnouncement } from '../../application/use-cases/announcement/reinstate-announcement';
+import { ReportAnnouncement } from '../../application/use-cases/announcement/report-announcement';
 import { SuspendAnnouncement } from '../../application/use-cases/announcement/suspend-announcement';
 import { TrackAnalyticsEvent } from '../../application/use-cases/announcement/track-analytics-event';
 import { GeneratePaymentIntent } from '../../application/use-cases/payment/generate-payment-intent';
@@ -46,6 +47,7 @@ const getProviderDashboardDataUseCase = new GetProviderDashboardData();
 const getAnnouncementAnalyticsUseCase = new GetAnnouncementAnalytics();
 const suspendAnnouncementUseCase = new SuspendAnnouncement();
 const reinstateAnnouncementUseCase = new ReinstateAnnouncement();
+const reportAnnouncementUseCase = new ReportAnnouncement();
 
 export const announcementRouter = router({
   create: protectedProcedure
@@ -447,6 +449,28 @@ export const announcementRouter = router({
       await reinstateAnnouncementUseCase.execute({
         announcementId: input.id,
         moderatorId: ctx.session.user.id,
+      });
+      return { success: true };
+    }),
+
+  report: protectedProcedure
+    .input(
+      z.object({
+        announcementId: z.string().min(1),
+        reason: z.enum([
+          'FRAUDE_GOLPE',
+          'ASSEDIO_OFENSIVO',
+          'SPAM',
+          'SERVICO_ILEGAL',
+          'OUTROS',
+        ]),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      await reportAnnouncementUseCase.execute({
+        reporterId: ctx.session.user.id,
+        announcementId: input.announcementId,
+        reason: input.reason,
       });
       return { success: true };
     }),

@@ -19,11 +19,11 @@ Implement the user reporting system that allows authenticated users to report an
 
 - [x] `report` table and `reportReasonEnum` exist in the schema
 - [x] Unique constraint prevents duplicate reports from the same user on the same announcement
-- [ ] tRPC report procedure validates reason and rejects duplicates
+- [x] tRPC report procedure validates reason and rejects duplicates
 - [ ] "Denunciar" button appears on the announcement detail page for authenticated users only
 - [ ] Report dialog shows predefined reasons as radio buttons
-- [ ] Integration test: successful report creation
-- [ ] Integration test: duplicate report rejection
+- [x] Integration test: successful report creation
+- [x] Integration test: duplicate report rejection
 - [x] Migration runs cleanly
 
 ## Blocked by
