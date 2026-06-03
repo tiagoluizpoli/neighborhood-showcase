@@ -128,7 +128,7 @@ function PublicAnnouncementDetailsComponent() {
               {ad.condominiumId ? (
                 `${ad.condoName} (${ad.condoCity} - ${ad.condoState})`
               ) : (
-                <span className="font-semibold text-amber-500">
+                <span className="font-semibold text-warning">
                   Prestador Externo ({ad.condoCity} - {ad.condoState})
                 </span>
               )}
@@ -146,7 +146,7 @@ function PublicAnnouncementDetailsComponent() {
               )}
             </div>
             {formattedPrice && (
-              <span className="whitespace-nowrap font-bold text-emerald-500 text-xl">
+              <span className="whitespace-nowrap font-bold text-success text-xl">
                 {formattedPrice}
               </span>
             )}
@@ -190,7 +190,7 @@ function PublicAnnouncementDetailsComponent() {
                   rel="noopener noreferrer"
                   onClick={() => handleContactClick('WHATSAPP')}
                 >
-                  <Button className="flex w-full items-center justify-center gap-2 bg-emerald-600 py-6 font-medium text-white hover:bg-emerald-700">
+                  <Button className="flex w-full items-center justify-center gap-2 bg-success py-6 font-medium text-success-foreground hover:bg-success/80">
                     <MessageCircle className="h-5 w-5" />
                     Enviar WhatsApp
                   </Button>

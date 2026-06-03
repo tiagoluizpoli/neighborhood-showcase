@@ -425,8 +425,8 @@ function AdminDashboard() {
                           <span
                             className={`rounded-full border px-2.5 py-0.5 font-semibold text-xs ${
                               p.status === 'ACTIVE'
-                                ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                                : 'border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                                ? 'border-success/20 bg-success/10 text-success'
+                                : 'border-destructive/20 bg-destructive/10 text-destructive'
                             }`}
                           >
                             {p.status === 'ACTIVE' ? 'Ativo' : 'Banido'}

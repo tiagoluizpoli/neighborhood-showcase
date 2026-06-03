@@ -16,12 +16,12 @@ Establish the visual foundation for the entire overhaul by resetting all shadcn 
 
 ## Acceptance criteria
 
-- [ ] All previously installed shadcn components are reinstalled fresh (no local overrides remain)
-- [ ] All new shadcn components are installed and importable
-- [ ] `globals.css` contains `--success`, `--warning`, `--info` (+ foreground variants) for light and dark modes
-- [ ] Zero hardcoded Tailwind color utility classes remain in route files — all use semantic tokens
-- [ ] Border radius uses `--radius` token system exclusively
-- [ ] Application builds and renders without visual regressions
+- [x] All previously installed shadcn components are reinstalled fresh (no local overrides remain)
+- [x] All new shadcn components are installed and importable
+- [x] `globals.css` contains `--success`, `--warning`, `--info` (+ foreground variants) for light and dark modes
+- [x] Zero hardcoded Tailwind color utility classes remain in route files — all use semantic tokens
+- [x] Border radius uses `--radius` token system exclusively
+- [x] Application builds and renders without visual regressions
 
 ## Blocked by
 

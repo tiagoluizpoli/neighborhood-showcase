@@ -106,8 +106,8 @@ function PaymentComponent() {
   if (isGenerating) {
     return (
       <div className="flex min-h-[70vh] flex-col items-center justify-center space-y-4">
-        <Loader2 className="h-10 w-10 animate-spin text-indigo-500" />
-        <p className="text-slate-400 text-sm">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-muted-foreground text-sm">
           Gerando cobrança Pix de R$ 2,00...
         </p>
       </div>
@@ -117,13 +117,13 @@ function PaymentComponent() {
   if (getPaymentDetailsMutation.isError) {
     return (
       <div className="flex min-h-[70vh] flex-col items-center justify-center space-y-4 p-4 text-center">
-        <div className="rounded-full border border-red-900/30 bg-red-950/40 p-4 text-red-500">
+        <div className="rounded-full border border-destructive/30 bg-destructive/10 p-4 text-destructive">
           <CreditCard className="h-10 w-10" />
         </div>
-        <h2 className="font-bold text-white text-xl">
+        <h2 className="font-bold text-foreground text-xl">
           Falha ao gerar cobrança
         </h2>
-        <p className="max-w-md text-slate-400 text-sm">
+        <p className="max-w-md text-muted-foreground text-sm">
           {getPaymentDetailsMutation.error.message ||
             'Não foi possível estabelecer contato com o gateway de pagamento. Tente novamente mais tarde.'}
         </p>
@@ -146,8 +146,8 @@ function PaymentComponent() {
         <div className="relative flex w-full flex-col items-center justify-center space-y-6 rounded-2xl border bg-card p-8 text-center text-card-foreground shadow-lg">
           {/* Custom Success Checkmark Animation */}
           <div className="relative">
-            <div className="absolute inset-0 animate-pulse rounded-full bg-emerald-500/20 blur-xl" />
-            <CheckCircle2 className="relative z-10 h-20 w-20 animate-scale-up text-emerald-500" />
+            <div className="absolute inset-0 animate-pulse rounded-full bg-success/20 blur-xl" />
+            <CheckCircle2 className="relative z-10 h-20 w-20 animate-scale-up text-success" />
           </div>
           <div>
             <h1 className="font-bold text-2xl text-foreground">
@@ -159,7 +159,7 @@ function PaymentComponent() {
             </p>
           </div>
           <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
-            <div className="h-full animate-loading-bar bg-emerald-500" />
+            <div className="h-full animate-loading-bar bg-success" />
           </div>
           <p className="text-muted-foreground text-xs">
             Redirecionando para o dashboard em instantes...
@@ -193,7 +193,7 @@ function PaymentComponent() {
 
           {/* Pix QR Code */}
           {payment?.pixQrCode ? (
-            <div className="relative rounded-xl border border-slate-200 bg-white p-3 shadow-inner">
+            <div className="relative rounded-xl border border-border bg-card p-3 shadow-inner">
               {timeLeft <= 0 ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-background/90 p-4 text-center">
                   <Timer className="mb-2 h-8 w-8 text-destructive" />

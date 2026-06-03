@@ -429,8 +429,8 @@ function ModerationDashboard() {
                         <span
                           className={`rounded-full border px-2.5 py-1 font-semibold text-xs shadow-md backdrop-blur-md ${
                             ad.status === 'ACTIVE'
-                              ? 'border-emerald-500/30 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-                              : 'border-rose-500/30 bg-rose-500/20 text-rose-600 dark:text-rose-400'
+                              ? 'border-success/30 bg-success/20 text-success'
+                              : 'border-destructive/30 bg-destructive/20 text-destructive'
                           }`}
                         >
                           {ad.status === 'ACTIVE'
@@ -440,7 +440,7 @@ function ModerationDashboard() {
                             : 'Suspenso'}
                         </span>
                         {ad.flaggedForReview && (
-                          <span className="flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/20 px-2 py-0.5 font-semibold text-[9px] text-amber-600 backdrop-blur-md dark:text-amber-400">
+                          <span className="flex items-center gap-1 rounded-full border border-warning/30 bg-warning/20 px-2 py-0.5 font-semibold text-[9px] text-warning backdrop-blur-md">
                             <ShieldAlert className="h-3 w-3" /> Alterado
                             recentemente
                           </span>
@@ -547,7 +547,7 @@ function ModerationDashboard() {
                               onClick={() =>
                                 reinstateMutation.mutate({ id: ad.id })
                               }
-                              className="w-full bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700"
+                              className="w-full bg-success text-success-foreground hover:bg-success/80"
                             >
                               {reinstateMutation.isPending ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />

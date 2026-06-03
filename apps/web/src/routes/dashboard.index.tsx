@@ -125,8 +125,10 @@ function DashboardIndexComponent() {
   if (dashboardQuery.isLoading) {
     return (
       <div className="flex min-h-[80vh] flex-col items-center justify-center space-y-4">
-        <Loader2 className="h-10 w-10 animate-spin text-indigo-500" />
-        <p className="text-slate-400">Carregando painel do provedor...</p>
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-muted-foreground">
+          Carregando painel do provedor...
+        </p>
       </div>
     );
   }
@@ -134,11 +136,11 @@ function DashboardIndexComponent() {
   if (dashboardQuery.isError) {
     return (
       <div className="flex min-h-[80vh] flex-col items-center justify-center space-y-4 text-center">
-        <AlertTriangle className="h-12 w-12 text-rose-500" />
-        <h2 className="font-semibold text-slate-100 text-xl">
+        <AlertTriangle className="h-12 w-12 text-destructive" />
+        <h2 className="font-semibold text-foreground text-xl">
           Erro ao carregar dados
         </h2>
-        <p className="max-w-md text-slate-400">
+        <p className="max-w-md text-muted-foreground">
           Não foi possível carregar as informações do seu painel. Por favor,
           tente novamente mais tarde.
         </p>
@@ -451,9 +453,9 @@ function EmptyState({
   hideButton?: boolean;
 }) {
   return (
-    <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-slate-800 border-dashed p-12 text-center">
-      <AlertTriangle className="mx-auto h-10 w-10 text-slate-500" />
-      <p className="mt-4 font-medium text-slate-400 text-sm">{text}</p>
+    <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-border border-dashed p-12 text-center">
+      <AlertTriangle className="mx-auto h-10 w-10 text-muted-foreground" />
+      <p className="mt-4 font-medium text-muted-foreground text-sm">{text}</p>
       {!hideButton && link && buttonText && (
         <Link
           to={link}
@@ -497,14 +499,14 @@ function AnnouncementCard({
           <span
             className={`rounded-full px-2.5 py-1 font-semibold text-xs shadow-sm backdrop-blur-sm ${
               ad.status === 'ACTIVE'
-                ? 'border border-emerald-500/30 bg-emerald-500/20 text-emerald-600 dark:text-emerald-300'
+                ? 'border border-success/30 bg-success/20 text-success'
                 : ad.status === 'PENDING_PAYMENT'
-                  ? 'border border-amber-500/30 bg-amber-500/20 text-amber-600 dark:text-amber-300'
+                  ? 'border border-warning/30 bg-warning/20 text-warning'
                   : ad.status === 'DRAFT'
                     ? 'border bg-secondary text-secondary-foreground'
                     : ad.status === 'EXPIRED'
-                      ? 'border border-rose-500/30 bg-rose-500/20 text-rose-600 dark:text-rose-300'
-                      : 'border border-rose-600/40 bg-rose-600/30 text-rose-600 dark:text-rose-200'
+                      ? 'border border-destructive/30 bg-destructive/20 text-destructive'
+                      : 'border border-destructive/40 bg-destructive/30 text-destructive'
             }`}
           >
             {ad.status === 'ACTIVE'
@@ -521,7 +523,7 @@ function AnnouncementCard({
           </span>
           {/* Verified Badge */}
           {ad.showVerifiedBadge && (
-            <span className="flex items-center gap-1 rounded-full border border-indigo-500/30 bg-indigo-500/20 px-2 py-0.5 font-semibold text-[10px] text-indigo-600 backdrop-blur-sm dark:text-indigo-300">
+            <span className="flex items-center gap-1 rounded-full border border-primary/30 bg-primary/20 px-2 py-0.5 font-semibold text-[10px] text-primary backdrop-blur-sm">
               <ShieldCheck className="h-3 w-3" /> Morador Verificado
             </span>
           )}
@@ -531,7 +533,7 @@ function AnnouncementCard({
       {/* Body Content */}
       <div className="flex flex-1 flex-col p-5">
         <div className="mb-3">
-          <p className="font-semibold text-indigo-600 text-xs uppercase tracking-wider dark:text-indigo-400">
+          <p className="font-semibold text-primary text-xs uppercase tracking-wider">
             {ad.category}
           </p>
           <h4 className="line-clamp-1 font-bold text-foreground text-lg">
@@ -560,8 +562,7 @@ function AnnouncementCard({
           {ad.status === 'ACTIVE' && ad.expiresAt && (
             <div className="flex items-center justify-between text-muted-foreground text-xs">
               <span className="flex items-center gap-1">
-                <Calendar className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />{' '}
-                Expira em:
+                <Calendar className="h-3.5 w-3.5 text-primary" /> Expira em:
               </span>
               <span className="font-medium text-foreground">
                 {formatDate(ad.expiresAt)}
@@ -586,7 +587,7 @@ function AnnouncementCard({
             <button
               type="button"
               onClick={onPay}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 font-semibold text-sm text-white transition-colors hover:bg-emerald-500"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-success py-2.5 font-semibold text-sm text-success-foreground transition-colors hover:bg-success/80"
             >
               Publicar Anúncio
               <ArrowRight className="h-4 w-4" />
@@ -597,7 +598,7 @@ function AnnouncementCard({
             <button
               type="button"
               onClick={onPay}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-amber-500 py-2.5 font-semibold text-slate-950 text-sm transition-colors hover:bg-amber-400"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-warning py-2.5 font-semibold text-sm text-warning-foreground transition-colors hover:bg-warning/80"
             >
               Pagar Pix
               <ArrowRight className="h-4 w-4" />
@@ -609,7 +610,7 @@ function AnnouncementCard({
               type="button"
               onClick={onRenew}
               disabled={isRenewing}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 py-2.5 font-semibold text-sm text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-2.5 font-semibold text-primary-foreground text-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
             >
               {isRenewing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -752,20 +753,22 @@ function EditAnnouncementModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
-      <div className="fade-in zoom-in-95 relative flex max-h-[90vh] w-full max-w-2xl animate-in flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
+      <div className="fade-in zoom-in-95 relative flex max-h-[90vh] w-full max-w-2xl animate-in flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between border-slate-800 border-b p-5">
+        <div className="flex items-center justify-between border-border border-b p-5">
           <div>
-            <h3 className="font-bold text-slate-100 text-xl">Editar Anúncio</h3>
-            <p className="mt-0.5 text-slate-400 text-xs">
+            <h3 className="font-bold text-foreground text-xl">
+              Editar Anúncio
+            </h3>
+            <p className="mt-0.5 text-muted-foreground text-xs">
               As alterações serão salvas e enviadas para revisão.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
+            className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             <X className="h-5 w-5" />
           </button>
@@ -778,19 +781,19 @@ function EditAnnouncementModal({
         >
           {/* Cover Image Upload */}
           <div className="space-y-2">
-            <span className="block font-medium text-slate-300 text-sm">
+            <span className="block font-medium text-foreground text-sm">
               Imagem de Capa (4:3)
             </span>
             <div className="flex items-center gap-4">
-              <div className="relative aspect-[4/3] w-32 overflow-hidden rounded-lg border border-slate-800 bg-slate-950">
+              <div className="relative aspect-[4/3] w-32 overflow-hidden rounded-lg border border-border bg-muted">
                 <img
                   src={imageUrl}
                   alt="Preview"
                   className="h-full w-full object-cover"
                 />
                 {isUploading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-slate-950/70">
-                    <Loader2 className="h-5 w-5 animate-spin text-indigo-400" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-background/75">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
                   </div>
                 )}
               </div>
@@ -798,7 +801,7 @@ function EditAnnouncementModal({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2 font-semibold text-slate-200 text-sm transition-colors hover:bg-slate-800"
+                  className="rounded-xl border border-border bg-secondary px-4 py-2 font-semibold text-foreground text-sm transition-colors hover:bg-accent"
                 >
                   Alterar Imagem
                 </button>
@@ -809,7 +812,7 @@ function EditAnnouncementModal({
                   accept="image/*"
                   className="hidden"
                 />
-                <p className="text-slate-500 text-xs">
+                <p className="text-muted-foreground text-xs">
                   Imagens na proporção 4:3 são preferíveis.
                 </p>
               </div>
@@ -819,7 +822,7 @@ function EditAnnouncementModal({
           {/* Title & Subtitle */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <span className="block font-medium text-slate-300 text-sm">
+              <span className="block font-medium text-foreground text-sm">
                 Título *
               </span>
               <input
@@ -828,11 +831,11 @@ function EditAnnouncementModal({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ex: Marmitas Saudáveis"
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div className="space-y-1.5">
-              <span className="block font-medium text-slate-300 text-sm">
+              <span className="block font-medium text-foreground text-sm">
                 Subtítulo (Opcional)
               </span>
               <input
@@ -840,7 +843,7 @@ function EditAnnouncementModal({
                 value={subtitle}
                 onChange={(e) => setSubtitle(e.target.value)}
                 placeholder="Ex: Feitas com amor e ingredientes locais"
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>
@@ -848,7 +851,7 @@ function EditAnnouncementModal({
           {/* Category & Price */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <span className="block font-medium text-slate-300 text-sm">
+              <span className="block font-medium text-foreground text-sm">
                 Categoria *
               </span>
               <select
@@ -865,7 +868,7 @@ function EditAnnouncementModal({
               </select>
             </div>
             <div className="space-y-1.5">
-              <span className="block font-medium text-slate-300 text-sm">
+              <span className="block font-medium text-foreground text-sm">
                 Preço (R$, opcional)
               </span>
               <input
@@ -877,14 +880,14 @@ function EditAnnouncementModal({
                   setPrice(e.target.value === '' ? '' : Number(e.target.value))
                 }
                 placeholder="Ex: 25.00 (deixe em branco para combinar)"
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>
 
           {/* Description */}
           <div className="space-y-1.5">
-            <span className="block font-medium text-slate-300 text-sm">
+            <span className="block font-medium text-foreground text-sm">
               Descrição Detalhada *
             </span>
             <textarea
@@ -893,18 +896,18 @@ function EditAnnouncementModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Descreva o que você oferece, horários, prazos..."
-              className="w-full resize-none rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full resize-none rounded-xl border border-border bg-muted px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
 
           {/* Contacts */}
           <div className="space-y-3">
-            <h4 className="font-semibold text-slate-300 text-sm">
+            <h4 className="font-semibold text-foreground text-sm">
               Meios de Contato (Forneça ao menos um)
             </h4>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="space-y-1.5">
-                <span className="block text-slate-400 text-xs">
+                <span className="block text-muted-foreground text-xs">
                   WhatsApp (DDD + Número)
                 </span>
                 <input
@@ -912,11 +915,11 @@ function EditAnnouncementModal({
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
                   placeholder="Ex: 47999999999"
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
               <div className="space-y-1.5">
-                <span className="block text-slate-400 text-xs">
+                <span className="block text-muted-foreground text-xs">
                   Instagram (Username)
                 </span>
                 <input
@@ -924,11 +927,11 @@ function EditAnnouncementModal({
                   value={instagram}
                   onChange={(e) => setInstagram(e.target.value)}
                   placeholder="Ex: @seuusername"
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
               <div className="space-y-1.5">
-                <span className="block text-slate-400 text-xs">
+                <span className="block text-muted-foreground text-xs">
                   Site / Portfólio (URL)
                 </span>
                 <input
@@ -936,19 +939,19 @@ function EditAnnouncementModal({
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
                   placeholder="Ex: https://meusite.com"
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
             </div>
           </div>
 
           {/* Toggle Badge */}
-          <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+          <div className="flex items-center justify-between rounded-xl border border-border bg-muted/40 p-4">
             <div className="space-y-0.5">
-              <span className="block font-semibold text-slate-200 text-sm">
+              <span className="block font-semibold text-foreground text-sm">
                 Exibir Selo de Morador Verificado
               </span>
-              <span className="text-slate-500 text-xs">
+              <span className="text-muted-foreground text-xs">
                 Exiba que você é um morador aprovado neste condomínio.
               </span>
             </div>
@@ -956,17 +959,17 @@ function EditAnnouncementModal({
               type="checkbox"
               checked={showVerifiedBadge}
               onChange={(e) => setShowVerifiedBadge(e.target.checked)}
-              className="h-5 w-5 rounded border-slate-800 bg-slate-950 text-indigo-600 focus:ring-indigo-500/20"
+              className="h-5 w-5 rounded border-border bg-muted text-primary focus:ring-primary/20"
             />
           </div>
         </form>
 
         {/* Footer Actions */}
-        <div className="flex justify-end gap-3 border-slate-800 border-t p-5">
+        <div className="flex justify-end gap-3 border-border border-t p-5">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-slate-800 bg-slate-900/60 px-5 py-2.5 font-semibold text-slate-300 text-sm transition-colors hover:bg-slate-800 hover:text-white"
+            className="rounded-xl border border-border bg-secondary px-5 py-2.5 font-semibold text-muted-foreground text-sm transition-colors hover:bg-accent hover:text-foreground"
           >
             Cancelar
           </button>
@@ -974,7 +977,7 @@ function EditAnnouncementModal({
             type="button"
             onClick={handleSave}
             disabled={updateMutation.isPending || isUploading}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 font-semibold text-sm text-white transition-colors hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-semibold text-primary-foreground text-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
             {updateMutation.isPending && (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -998,19 +1001,19 @@ function DeleteAccountModal({
   isPending: boolean;
 }) {
   return (
-    <div className="fade-in fixed inset-0 z-50 flex animate-in items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm duration-200">
-      <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 text-center shadow-2xl">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/10 text-rose-500">
+    <div className="fade-in fixed inset-0 z-50 flex animate-in items-center justify-center bg-background/80 p-4 backdrop-blur-sm duration-200">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 text-center shadow-2xl">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
           <AlertTriangle className="h-6 w-6" />
         </div>
-        <h3 className="font-bold text-slate-100 text-xl">
+        <h3 className="font-bold text-foreground text-xl">
           Excluir Conta Permanentemente?
         </h3>
-        <p className="mt-3 text-slate-400 text-sm leading-relaxed">
+        <p className="mt-3 text-muted-foreground text-sm leading-relaxed">
           Esta ação é <strong>irreversível</strong> e em conformidade com a{' '}
           <strong>LGPD</strong>.
         </p>
-        <p className="mt-2 rounded-xl border border-slate-800 bg-slate-950/50 p-3 text-slate-400 text-xs leading-relaxed">
+        <p className="mt-2 rounded-xl border border-border bg-muted/50 p-3 text-muted-foreground text-xs leading-relaxed">
           Seus dados pessoais (nome, e-mail, telefone e CPF) serão apagados
           permanentemente. Seus anúncios serão removidos da vitrine pública.
           Registros financeiros de transações serão mantidos de forma totalmente
@@ -1020,7 +1023,7 @@ function DeleteAccountModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-xl border border-slate-800 bg-slate-900/60 py-2.5 font-semibold text-slate-300 text-sm transition-colors hover:bg-slate-800"
+            className="flex-1 rounded-xl border border-border bg-secondary py-2.5 font-semibold text-muted-foreground text-sm transition-colors hover:bg-accent hover:text-foreground"
           >
             Cancelar
           </button>
@@ -1028,7 +1031,7 @@ function DeleteAccountModal({
             type="button"
             onClick={onConfirm}
             disabled={isPending}
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-rose-600 py-2.5 font-semibold text-sm text-white transition-colors hover:bg-rose-500 disabled:opacity-50"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-destructive py-2.5 font-semibold text-sm text-white transition-colors hover:bg-destructive/90 disabled:opacity-50"
           >
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             Confirmar Exclusão

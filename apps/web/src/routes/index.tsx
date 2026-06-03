@@ -262,7 +262,7 @@ function PublicVitrineComponent() {
               id="verified-switch"
               checked={verifiedOnly}
               onChange={(e) => setVerifiedOnly(e.target.checked)}
-              className="h-4.5 w-4.5 cursor-pointer rounded border-gray-300 text-primary focus:ring-primary"
+              className="h-4.5 w-4.5 cursor-pointer rounded border-input text-primary focus:ring-primary"
             />
             <label
               htmlFor="verified-switch"
@@ -278,7 +278,7 @@ function PublicVitrineComponent() {
                 id="condo-filter-switch"
                 checked={filterByCondo}
                 onChange={(e) => setFilterByCondo(e.target.checked)}
-                className="h-4.5 w-4.5 cursor-pointer rounded border-gray-300 text-primary focus:ring-primary"
+                className="h-4.5 w-4.5 cursor-pointer rounded border-input text-primary focus:ring-primary"
               />
               <label
                 htmlFor="condo-filter-switch"
@@ -347,11 +347,11 @@ function PublicVitrineComponent() {
                     </div>
                   )}
                   {isLocal ? (
-                    <div className="absolute top-3 right-3 rounded bg-emerald-600/90 px-2 py-1 font-bold text-[10px] text-white shadow">
+                    <div className="absolute top-3 right-3 rounded bg-success/90 px-2 py-1 font-bold text-[10px] text-success-foreground shadow">
                       Aqui no condomínio
                     </div>
                   ) : !ad.condominiumId ? (
-                    <div className="absolute top-3 right-3 rounded bg-amber-600/90 px-2 py-1 font-bold text-[10px] text-white shadow">
+                    <div className="absolute top-3 right-3 rounded bg-warning/90 px-2 py-1 font-bold text-[10px] text-warning-foreground shadow">
                       Prestador Externo
                     </div>
                   ) : null}
@@ -366,7 +366,7 @@ function PublicVitrineComponent() {
                       {ad.condominiumId ? (
                         `${ad.condoName} (${ad.condoCity})`
                       ) : (
-                        <span className="font-semibold text-amber-500">
+                        <span className="font-semibold text-warning">
                           Autônomo ({ad.condoCity})
                         </span>
                       )}
@@ -387,7 +387,7 @@ function PublicVitrineComponent() {
                     {ad.description}
                   </span>
                   {formattedPrice && (
-                    <span className="whitespace-nowrap font-bold text-emerald-500 text-sm">
+                    <span className="whitespace-nowrap font-bold text-sm text-success">
                       {formattedPrice}
                     </span>
                   )}
@@ -531,7 +531,7 @@ function PublicVitrineComponent() {
                         {activeAdQuery.data.condominiumId ? (
                           `${activeAdQuery.data.condoName} (${activeAdQuery.data.condoCity} - ${activeAdQuery.data.condoState})`
                         ) : (
-                          <span className="font-semibold text-amber-500">
+                          <span className="font-semibold text-warning">
                             Prestador Externo ({activeAdQuery.data.condoCity} -{' '}
                             {activeAdQuery.data.condoState})
                           </span>
@@ -553,7 +553,7 @@ function PublicVitrineComponent() {
                       </div>
                       {activeAdQuery.data.priceCents !== null &&
                         activeAdQuery.data.priceCents !== undefined && (
-                          <span className="whitespace-nowrap font-bold text-emerald-500 text-lg">
+                          <span className="whitespace-nowrap font-bold text-lg text-success">
                             {new Intl.NumberFormat('pt-BR', {
                               style: 'currency',
                               currency: 'BRL',
@@ -606,7 +606,7 @@ function PublicVitrineComponent() {
                               )
                             }
                           >
-                            <Button className="flex w-full items-center justify-center gap-2 bg-emerald-600 py-5 font-semibold text-sm text-white hover:bg-emerald-700">
+                            <Button className="flex w-full items-center justify-center gap-2 bg-success py-5 font-semibold text-sm text-success-foreground hover:bg-success/80">
                               <MessageCircle className="h-4.5 w-4.5" />
                               WhatsApp
                             </Button>

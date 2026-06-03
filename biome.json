@@ -136,7 +136,10 @@
       }
     },
     {
-      "includes": ["**/src/components/ui/**/*"],
+      "includes": [
+        "**/src/components/ui/**/*",
+        "**/packages/ui/src/components/**/*"
+      ],
       "linter": {
         "enabled": false
       }

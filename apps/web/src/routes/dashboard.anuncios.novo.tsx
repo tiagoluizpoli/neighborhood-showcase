@@ -304,7 +304,7 @@ function NewAnnouncementComponent() {
         </Button>
         <div>
           <h1 className="flex items-center gap-2 font-bold text-2xl text-white tracking-tight">
-            Novo Anúncio <Sparkles className="h-5 w-5 text-amber-500" />
+            Novo Anúncio <Sparkles className="h-5 w-5 text-warning" />
           </h1>
           <p className="text-muted-foreground text-sm">
             Crie um rascunho da sua oferta e publique para seus vizinhos.
@@ -331,17 +331,17 @@ function NewAnnouncementComponent() {
               {/* Location Selector */}
               {isLoadingAssignments ? (
                 <div className="space-y-2">
-                  <Label className="font-medium text-slate-350 text-sm">
+                  <Label className="font-medium text-muted-foreground text-sm">
                     Localização
                   </Label>
                   <div className="h-10 w-full animate-pulse rounded bg-muted" />
                 </div>
               ) : approvedLocations.length === 0 ? (
                 <div className="space-y-2">
-                  <Label className="font-medium text-slate-350 text-sm">
+                  <Label className="font-medium text-muted-foreground text-sm">
                     Localização
                   </Label>
-                  <div className="rounded border border-amber-900/50 bg-amber-950/40 p-3 text-amber-300 text-sm">
+                  <div className="rounded border border-warning/30 bg-warning/10 p-3 text-sm text-warning">
                     Você não possui nenhuma localização aprovada. Cadastre-se em
                     um condomínio ou registre-se de forma autônoma antes de
                     anunciar.
@@ -352,7 +352,7 @@ function NewAnnouncementComponent() {
                   <div className="space-y-2">
                     <Label
                       htmlFor="location-select"
-                      className="font-medium text-slate-350 text-sm"
+                      className="font-medium text-muted-foreground text-sm"
                     >
                       Localização do Anúncio *
                     </Label>
@@ -379,7 +379,7 @@ function NewAnnouncementComponent() {
 
               {/* Category selector */}
               <div className="space-y-2">
-                <Label className="font-medium text-slate-350 text-sm">
+                <Label className="font-medium text-muted-foreground text-sm">
                   Categoria
                 </Label>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -390,7 +390,7 @@ function NewAnnouncementComponent() {
                       onClick={() => setCategory(cat)}
                       className={`rounded-md border px-3 py-2 font-semibold text-xs transition-all ${
                         category === cat
-                          ? 'border-indigo-500 bg-indigo-650 text-white shadow-indigo-900/30 shadow-lg'
+                          ? 'border-primary bg-primary text-primary-foreground shadow-sm'
                           : 'border bg-background text-muted-foreground hover:bg-card hover:text-foreground'
                       }`}
                     >
@@ -404,9 +404,9 @@ function NewAnnouncementComponent() {
               <div className="space-y-2">
                 <Label
                   htmlFor="title"
-                  className="font-medium text-slate-350 text-sm"
+                  className="font-medium text-muted-foreground text-sm"
                 >
-                  Título <span className="text-red-500">*</span>
+                  Título <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="title"
@@ -426,7 +426,7 @@ function NewAnnouncementComponent() {
               <div className="space-y-2">
                 <Label
                   htmlFor="subtitle"
-                  className="font-medium text-slate-350 text-sm"
+                  className="font-medium text-muted-foreground text-sm"
                 >
                   Subtítulo (opcional)
                 </Label>
@@ -445,9 +445,9 @@ function NewAnnouncementComponent() {
               <div className="space-y-2">
                 <Label
                   htmlFor="description"
-                  className="font-medium text-slate-350 text-sm"
+                  className="font-medium text-muted-foreground text-sm"
                 >
-                  Descrição Completa <span className="text-red-500">*</span>
+                  Descrição Completa <span className="text-destructive">*</span>
                 </Label>
                 <textarea
                   id="description"
@@ -470,7 +470,7 @@ function NewAnnouncementComponent() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="price"
-                    className="font-medium text-slate-350 text-sm"
+                    className="font-medium text-muted-foreground text-sm"
                   >
                     Preço Inicial (opcional)
                   </Label>
@@ -487,7 +487,7 @@ function NewAnnouncementComponent() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="tags"
-                    className="font-medium text-slate-350 text-sm"
+                    className="font-medium text-muted-foreground text-sm"
                   >
                     Tags / Palavras-chave
                   </Label>
@@ -522,7 +522,7 @@ function NewAnnouncementComponent() {
               <div className="space-y-2">
                 <Label
                   htmlFor="whatsapp"
-                  className="font-medium text-slate-350 text-sm"
+                  className="font-medium text-muted-foreground text-sm"
                 >
                   WhatsApp (apenas números com DDD)
                 </Label>
@@ -539,7 +539,7 @@ function NewAnnouncementComponent() {
               <div className="space-y-2">
                 <Label
                   htmlFor="instagram"
-                  className="font-medium text-slate-350 text-sm"
+                  className="font-medium text-muted-foreground text-sm"
                 >
                   Perfil do Instagram
                 </Label>
@@ -556,7 +556,7 @@ function NewAnnouncementComponent() {
               <div className="space-y-2">
                 <Label
                   htmlFor="website"
-                  className="font-medium text-slate-350 text-sm"
+                  className="font-medium text-muted-foreground text-sm"
                 >
                   Website / Cardápio Online (link completo)
                 </Label>
@@ -724,12 +724,12 @@ function NewAnnouncementComponent() {
                     disabled={!canVerify}
                     checked={showVerifiedBadge}
                     onChange={(e) => setShowVerifiedBadge(e.target.checked)}
-                    className="h-4 w-4 cursor-pointer accent-indigo-500 disabled:opacity-50"
+                    className="h-4 w-4 cursor-pointer accent-primary disabled:opacity-50"
                   />
                 </div>
               </div>
               {!canVerify && selectedLocationId && (
-                <p className="text-[10px] text-amber-500">
+                <p className="text-[10px] text-warning">
                   Indisponível: O selo de morador verificado está disponível
                   apenas para moradores de condomínio aprovados.
                 </p>
@@ -742,7 +742,7 @@ function NewAnnouncementComponent() {
             <Button
               type="submit"
               disabled={isUploading || createMutation.isPending}
-              className="w-full bg-indigo-650 py-3 font-semibold text-white shadow-indigo-900/30 shadow-lg hover:bg-primary"
+              className="w-full bg-primary py-3 font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
             >
               {isUploading ? (
                 <span className="flex items-center gap-2">
