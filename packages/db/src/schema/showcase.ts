@@ -1,14 +1,22 @@
 import { relations } from 'drizzle-orm';
 import {
   boolean,
+  customType,
   integer,
   jsonb,
+  numeric,
   pgEnum,
   pgTable,
   text,
   timestamp,
 } from 'drizzle-orm/pg-core';
 import { user } from './auth';
+
+export const geography = customType<{ data: string }>({
+  dataType() {
+    return 'geography(Point, 4326)';
+  },
+});
 
 export const condominiumStatusEnum = pgEnum('condominium_status', [
   'PENDING_APPROVAL',
@@ -100,6 +108,9 @@ export const condominium = pgTable('condominium', {
   proofUrl: text('proof_url'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
+  latitude: numeric('latitude'),
+  longitude: numeric('longitude'),
+  geog: geography('geog'),
 });
 
 export const providerLocation = pgTable('provider_location', {
@@ -123,6 +134,9 @@ export const providerLocation = pgTable('provider_location', {
     .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),
+  latitude: numeric('latitude'),
+  longitude: numeric('longitude'),
+  geog: geography('geog'),
 });
 
 export const assignment = pgTable('assignment', {

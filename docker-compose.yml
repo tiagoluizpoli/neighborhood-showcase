@@ -2,7 +2,7 @@ name: neighborhood-showcase
 
 services:
   postgres:
-    image: postgres
+    image: postgis/postgis:15-3.3
     container_name: neighborhood-showcase-postgres
     environment:
       POSTGRES_DB: neighborhood_showcase

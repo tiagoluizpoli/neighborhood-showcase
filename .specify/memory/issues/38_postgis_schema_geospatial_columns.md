@@ -16,12 +16,12 @@ Enable the PostGIS extension and add geospatial columns to the `condominium` and
 
 ## Acceptance criteria
 
-- [ ] PostGIS extension is enabled in the database
-- [ ] `condominium` table has `latitude`, `longitude`, and `geog` columns
-- [ ] `providerLocation` table has `latitude`, `longitude`, and `geog` columns
-- [ ] A reusable Drizzle custom column type for `geography(Point, 4326)` exists in the schema package
-- [ ] Migration runs cleanly on a fresh database
-- [ ] Existing data is not affected (new columns are nullable)
+- [x] PostGIS extension is enabled in the database
+- [x] `condominium` table has `latitude`, `longitude`, and `geog` columns
+- [x] `providerLocation` table has `latitude`, `longitude`, and `geog` columns
+- [x] A reusable Drizzle custom column type for `geography(Point, 4326)` exists in the schema package
+- [x] Migration runs cleanly on a fresh database
+- [x] Existing data is not affected (new columns are nullable)
 
 ## Blocked by
 
