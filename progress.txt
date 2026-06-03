@@ -44,6 +44,7 @@
 - [x] **Issue 40**: Panel Sidebar Navigation (Completed: 2026-06-03)
 - [x] **Issue 41**: Account Page & Avatar Menu (Completed: 2026-06-03)
 - [x] **Issue 42**: Expanded Contact Channels Schema & Profile Form (Completed: 2026-06-03)
+- [x] **Issue 43**: Geolocation Permission Modal & Client Capture (Completed: 2026-06-03)
 
 ---
 
@@ -283,6 +284,14 @@
 - Verified that database payment and announcement states remain unchanged on ignored events.
 - Ensured all other existing tests (query schema validation, invalid signatures, malformed body parsing) align with the current security validation rules.
 
+### Issue 43: Geolocation Permission Modal & Client Capture
+- Created a friendly and visually premium Geolocation Permission Dialog with explicit LGPD privacy disclaimer.
+- Stored coordinate capture in client React state and localStorage under 'user_coords' and the preference under 'geolocation_preference'.
+- Added an IP-based location estimation fallback query if browser permission is denied, bypassing localStorage persistence for compliance.
+- Added a warning alert banner with a trigger to re-enable geolocation context if denied.
+- Built a clear geolocation/condominium revocation action that clears coordinates, manual/automatic context, and prompts again.
+- Implemented and verified a frontend route unit test suite checking grant, deny, and revoke geolocation modal paths.
+
 [2026-06-02 02:03:08] Iteration 1: Fixed double-impression tracking bug by making the details route component the single source of truth and adding a useRef guard. Status: 100% Complete.
 [2026-06-02 09:25:00] Iteration 2: Relocated compose config to root, added Unleash & Redis services, updated template, and fixed test isolation leak. Status: 100% Complete. Loop Terminated.
 [2026-06-02 09:28:00] Iteration 3: Migrated 11 schema columns to native pgEnums, reset and re-generated initial migration, and updated test database setup script. Status: 100% Complete. Loop Terminated.
@@ -304,5 +313,6 @@
 [2026-06-03 00:33:30] Iteration 4 | Worked: Replaced legacy panel header with collapsible role-grouped shadcn Sidebar in panel.tsx, added SidebarTrigger, grouped navigation links by user roles, and verified compilation and integration tests | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
 [2026-06-03 00:39:20] Iteration 7 | Worked: Added UpdateUser backend use-case & tRPC mutation procedure with integration tests, implemented new settings route at /panel/conta with profile edit form and LGPD account deletion modal, migrated account deletion from dashboard index, and integrated panel header Avatar/Popover menu | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
 [2026-06-03 00:46:10] Iteration 3 | Worked: Extended database schema to support expanded contact channels on user and announcement tables, updated UpdateUser use case and tRPC user/announcement routers, created getProfile endpoint, implemented contact channels forms and visibility toggle on /panel/conta page, and verified 150/150 integration tests pass | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
+[2026-06-03 00:52:00] Iteration 1 | Worked: Built Geolocation Permission Dialog, stored coordinates in client/localStorage, added subtle warning banner if denied, IP-based fallback estimation, coordinates revocation action, and wrote a complete unit test suite for the geolocation modal flow | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
 
 

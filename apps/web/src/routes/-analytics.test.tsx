@@ -51,6 +51,7 @@ const renderComponent = (Component: () => any) => {
 // Mock react while preserving its internals and JSX runtime dependencies
 mock.module('react', () => ({
   ...RealReact,
+  useCallback: (fn: any, _deps: any[]) => fn,
   useEffect: (callback: () => void, _deps: any[]) => {
     activeEffects.push(callback);
   },

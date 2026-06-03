@@ -16,13 +16,13 @@ Implement the geolocation permission flow for Visitors on the home page — a us
 
 ## Acceptance criteria
 
-- [ ] Geolocation modal appears on first visit with LGPD transparency text
-- [ ] "Permitir" button triggers browser geolocation prompt
-- [ ] Granted: coordinates stored in client state and passed to the API
-- [ ] Denied: chronological feed with re-enable banner and manual filter dropdowns
-- [ ] IP fallback: city estimated without storage
-- [ ] User can revoke location context at any time
-- [ ] Component test for the modal flow (grant / deny / revoke paths)
+- [x] Geolocation modal appears on first visit with LGPD transparency text
+- [x] "Permitir" button triggers browser geolocation prompt
+- [x] Granted: coordinates stored in client state and passed to the API
+- [x] Denied: chronological feed with re-enable banner and manual filter dropdowns
+- [x] IP fallback: city estimated without storage
+- [x] User can revoke location context at any time
+- [x] Component test for the modal flow (grant / deny / revoke paths)
 
 ## Blocked by
 

@@ -6,6 +6,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@neighborhood-showcase/ui/components/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@neighborhood-showcase/ui/components/dialog';
 import { Input } from '@neighborhood-showcase/ui/components/input';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
@@ -20,7 +28,7 @@ import {
   SlidersHorizontal,
   X,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { trpc } from '@/utils/trpc';
 
@@ -52,6 +60,28 @@ function PublicVitrineComponent() {
   );
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
   const [condoSearchQuery, setCondoSearchQuery] = useState('');
+
+  // Geolocation states
+  const [geoPreference, setGeoPreference] = useState<string | null>(() =>
+    localStorage.getItem('geolocation_preference'),
+  );
+  const [isGeoDialogOpen, setIsGeoDialogOpen] = useState(
+    () => localStorage.getItem('geolocation_preference') === null,
+  );
+  const [_coords, setCoords] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(() => {
+    const savedCoords = localStorage.getItem('user_coords');
+    if (savedCoords) {
+      try {
+        return JSON.parse(savedCoords);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
 
   // Grid Filters
   const [search, setSearch] = useState('');
@@ -87,20 +117,50 @@ function PublicVitrineComponent() {
     trpc.announcement.trackEvent.mutationOptions(),
   );
 
-  // 1. Geolocation and initial condo load
-  useEffect(() => {
-    const savedCondo = localStorage.getItem('user_condo');
-    if (savedCondo) {
-      setSelectedCondo(JSON.parse(savedCondo));
-      return;
-    }
+  // Fallback IP estimation
+  const fetchIpFallback = useCallback(async () => {
+    try {
+      const res = await fetch('https://ipapi.co/json/');
+      if (!res.ok) throw new Error('IP api failed');
+      const data = await res.json();
+      const city = data.city;
+      if (city) {
+        const resList = await fetch(
+          `${
+            import.meta.env.VITE_SERVER_URL || 'http://localhost:3000'
+          }/trpc/condominium.listApproved?input=${encodeURIComponent(
+            JSON.stringify({ query: city }),
+          )}`,
+        );
+        const json = await resList.json();
+        const condos = json?.result?.data as SelectedCondo[];
 
+        if (condos && condos.length > 0) {
+          // Set as selected condominium, but do NOT write to localStorage user_condo (LGPD compliance)
+          setSelectedCondo(condos[0]);
+          toast.info(`Localização estimada por IP: ${condos[0].name}`);
+        }
+      }
+    } catch (err) {
+      console.error('IP fallback failed:', err);
+    }
+  }, []);
+
+  const handleGeoAllow = () => {
+    setIsGeoDialogOpen(false);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
+          const coordsObj = { latitude, longitude };
+          setCoords(coordsObj);
+          localStorage.setItem('user_coords', JSON.stringify(coordsObj));
+          localStorage.setItem('geolocation_preference', 'granted');
+          setGeoPreference('granted');
+          toast.success('Localização ativada com sucesso!');
+
+          // Now fetch city and condo name via reverse geocoding
           try {
-            // Reverse geocode with free OSM Nominatim
             const res = await fetch(
               `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
             );
@@ -129,20 +189,64 @@ function PublicVitrineComponent() {
                 return;
               }
             }
-            setIsSelectorOpen(true);
           } catch (err) {
             console.error(err);
-            setIsSelectorOpen(true);
           }
         },
-        () => {
-          setIsSelectorOpen(true);
+        (error) => {
+          console.error('Geolocation failed:', error);
+          handleGeoDeny();
         },
       );
     } else {
-      setIsSelectorOpen(true);
+      handleGeoDeny();
     }
-  }, []);
+  };
+
+  const handleGeoDeny = () => {
+    setIsGeoDialogOpen(false);
+    localStorage.setItem('geolocation_preference', 'denied');
+    setGeoPreference('denied');
+    toast.info('Localização desativada. Mostrando feed em ordem cronológica.');
+    fetchIpFallback();
+  };
+
+  const revokeLocation = () => {
+    localStorage.removeItem('geolocation_preference');
+    localStorage.removeItem('user_coords');
+    localStorage.removeItem('user_condo');
+    setCoords(null);
+    setSelectedCondo(null);
+    setGeoPreference(null);
+    setIsGeoDialogOpen(true);
+    toast.success('Localização revogada com sucesso.');
+  };
+
+  // 1. Geolocation and initial condo load
+  useEffect(() => {
+    const savedCondo = localStorage.getItem('user_condo');
+    if (savedCondo) {
+      setSelectedCondo(JSON.parse(savedCondo));
+    }
+
+    if (geoPreference === 'granted') {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            const coordsObj = { latitude, longitude };
+            setCoords(coordsObj);
+            localStorage.setItem('user_coords', JSON.stringify(coordsObj));
+          },
+          (err) => {
+            console.error('Auto geolocation failed:', err);
+          },
+        );
+      }
+    } else if (geoPreference === 'denied') {
+      fetchIpFallback();
+    }
+  }, [geoPreference, fetchIpFallback]);
 
   // 2. Synchronize URL path with activeAdId state & handle initial URL match
   useEffect(() => {
@@ -221,20 +325,31 @@ function PublicVitrineComponent() {
             <p className="font-medium text-muted-foreground text-xs">
               Exibindo anúncios próximos a
             </p>
-            <button
-              type="button"
-              onClick={() => setIsSelectorOpen(true)}
-              className="flex items-center gap-1 text-left font-semibold text-sm transition-colors hover:text-primary"
-            >
-              <span>
-                {selectedCondo
-                  ? selectedCondo.name
-                  : 'Nenhum condomínio selecionado'}
-              </span>
-              <span className="font-normal text-primary text-xs">
-                (Alterar)
-              </span>
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsSelectorOpen(true)}
+                className="flex items-center gap-1 text-left font-semibold text-sm transition-colors hover:text-primary"
+              >
+                <span>
+                  {selectedCondo
+                    ? selectedCondo.name
+                    : 'Nenhum condomínio selecionado'}
+                </span>
+                <span className="font-normal text-primary text-xs">
+                  (Alterar)
+                </span>
+              </button>
+              {(selectedCondo || geoPreference) && (
+                <button
+                  type="button"
+                  onClick={revokeLocation}
+                  className="font-normal text-destructive text-xs hover:underline"
+                >
+                  (Limpar localização)
+                </button>
+              )}
+            </div>
           </div>
         </div>
         {!selectedCondo && (
@@ -243,6 +358,73 @@ function PublicVitrineComponent() {
           </Button>
         )}
       </div>
+
+      {/* Subtle Geolocation Denied Re-enable Banner */}
+      {geoPreference === 'denied' && (
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-warning/30 bg-warning/5 p-4 text-warning shadow-sm backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-warning/10 p-2 text-warning">
+              <MapPin className="h-5 w-5 animate-pulse" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">Localização desativada</p>
+              <p className="text-muted-foreground text-xs">
+                Ative a localização para ordenar os anúncios por proximidade de
+                você.
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsGeoDialogOpen(true)}
+            className="border-warning/30 hover:bg-warning/10 hover:text-warning"
+          >
+            Ativar Localização
+          </Button>
+        </div>
+      )}
+
+      {/* Geolocation Permission Dialog */}
+      <Dialog open={isGeoDialogOpen} onOpenChange={setIsGeoDialogOpen}>
+        <DialogContent
+          showCloseButton={false}
+          className="max-w-md rounded-2xl p-6"
+        >
+          <DialogHeader className="flex flex-col items-center gap-2 text-center">
+            <div className="mb-2 rounded-full bg-primary/10 p-3 text-primary">
+              <MapPin className="h-6 w-6" />
+            </div>
+            <DialogTitle className="font-bold text-xl">
+              Descubra serviços perto de você
+            </DialogTitle>
+            <DialogDescription className="mt-1 text-muted-foreground text-sm">
+              Ative a localização para podermos mostrar e ordenar os anúncios de
+              serviços e produtos mais próximos a você.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="my-4 rounded-xl border bg-muted/50 p-3.5 text-center text-muted-foreground text-xs leading-relaxed">
+            🔒 <strong>Privacidade & LGPD:</strong> Sua localização é utilizada
+            exclusivamente para personalizar a sua experiência no feed e nunca é
+            compartilhada com terceiros.
+          </div>
+          <DialogFooter className="mt-4 flex flex-col gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              onClick={handleGeoDeny}
+              className="w-full sm:w-auto sm:flex-1"
+            >
+              Agora não
+            </Button>
+            <Button
+              onClick={handleGeoAllow}
+              className="w-full sm:w-auto sm:flex-1"
+            >
+              Permitir
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Main Filter Section */}
       <div className="mb-8 flex flex-col gap-6">
