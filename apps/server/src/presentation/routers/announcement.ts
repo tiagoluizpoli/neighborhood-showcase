@@ -233,11 +233,27 @@ export const announcementRouter = router({
         }
       }
 
+      let providerName = '';
+      let providerAvatarUrl: string | null = null;
+
+      const [provider] = await db
+        .select()
+        .from(userSchema)
+        .where(eq(userSchema.id, ann.providerId))
+        .limit(1);
+
+      if (provider) {
+        providerName = provider.name || '';
+        providerAvatarUrl = provider.image || null;
+      }
+
       return {
         ...ann.toDTO(),
         condoName,
         condoCity,
         condoState,
+        providerName,
+        providerAvatarUrl,
       };
     }),
 

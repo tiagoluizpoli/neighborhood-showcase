@@ -1,5 +1,5 @@
 ---
-issueId: 48_announcement_card_redesign.md
+issueId: 49_announcement_detail_page.md
 ---
 
 # PRD
