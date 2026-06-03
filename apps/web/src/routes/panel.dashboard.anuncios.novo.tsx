@@ -13,8 +13,9 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Check, Loader2, Sparkles, UploadCloud } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import Cropper, { type Area } from 'react-easy-crop';
 import { toast } from 'sonner';
-import { clampCropBounds, validateCropBounds } from '@/utils/cropper';
+import { getCroppedImg } from '@/utils/crop-image';
 import { trpc } from '@/utils/trpc';
 
 export const Route = createFileRoute('/panel/dashboard/anuncios/novo')({
@@ -33,8 +34,6 @@ const CATEGORIES = [
 function NewAnnouncementComponent() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // State for form fields
   const [selectedLocationId, setSelectedLocationId] = useState<string>('');
@@ -51,10 +50,9 @@ function NewAnnouncementComponent() {
 
   // Cropper states
   const [imageSrc, setImageSrc] = useState<string>('');
-  const [zoom, setZoom] = useState<number>(1.2);
-  const [xOffset, setXOffset] = useState<number>(50); // percentage (0 - 100)
-  const [yOffset, setYOffset] = useState<number>(50); // percentage (0 - 100)
-  const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState<number>(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
   // Queries
@@ -94,96 +92,12 @@ function NewAnnouncementComponent() {
     reader.onload = () => {
       setImageSrc(reader.result as string);
       // Reset cropper offsets
-      setZoom(1.2);
-      setXOffset(50);
-      setYOffset(50);
-      setCroppedBlob(null);
+      setZoom(1);
+      setCrop({ x: 0, y: 0 });
+      setCroppedAreaPixels(null);
     };
     reader.readAsDataURL(file);
   };
-
-  // Perform cropping onto canvas and previewing
-  useEffect(() => {
-    if (!imageSrc) return;
-
-    const img = new Image();
-    img.src = imageSrc;
-    img.onload = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const naturalWidth = img.naturalWidth;
-      const naturalHeight = img.naturalHeight;
-
-      // Crop to 4:3 viewport ratio
-      const viewportRatio = 4 / 3;
-      const imageRatio = naturalWidth / naturalHeight;
-
-      let sWidth = naturalWidth;
-      let sHeight = naturalHeight;
-
-      if (imageRatio > viewportRatio) {
-        sWidth = naturalHeight * viewportRatio;
-      } else {
-        sHeight = naturalWidth / viewportRatio;
-      }
-
-      // Apply zoom
-      sWidth = sWidth / zoom;
-      sHeight = sHeight / zoom;
-
-      // Calculate source coordinates based on offsets
-      const maxX = naturalWidth - sWidth;
-      const maxY = naturalHeight - sHeight;
-
-      // Interpolate offsets
-      const sx = (xOffset / 100) * maxX;
-      const sy = (yOffset / 100) * maxY;
-
-      // Validate bounds using cropper utility
-      const cropRect = {
-        x: Math.round(sx),
-        y: Math.round(sy),
-        width: Math.round(sWidth),
-        height: Math.round(sHeight),
-      };
-
-      const validated = validateCropBounds(
-        naturalWidth,
-        naturalHeight,
-        cropRect,
-      );
-      const finalCrop = validated.isValid
-        ? cropRect
-        : clampCropBounds(naturalWidth, naturalHeight, cropRect);
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(
-        img,
-        finalCrop.x,
-        finalCrop.y,
-        finalCrop.width,
-        finalCrop.height,
-        0,
-        0,
-        canvas.width,
-        canvas.height,
-      );
-
-      // Extract blob
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            setCroppedBlob(blob);
-          }
-        },
-        'image/webp',
-        0.85,
-      );
-    };
-  }, [imageSrc, zoom, xOffset, yOffset]);
 
   // Form mutation
   const createMutation = useMutation(
@@ -223,13 +137,16 @@ function NewAnnouncementComponent() {
       );
       return;
     }
-    if (!croppedBlob) {
+    if (!imageSrc || !croppedAreaPixels) {
       toast.error('A imagem de capa é obrigatória.');
       return;
     }
 
     try {
       setIsUploading(true);
+      // Crop image on submission
+      const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+
       // Upload cropped image
       const formData = new FormData();
       formData.append('file', croppedBlob, 'cover-image.webp');
@@ -603,18 +520,17 @@ function NewAnnouncementComponent() {
               ) : (
                 <div className="space-y-4">
                   {/* Viewport Cropper container */}
-                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border bg-background">
-                    <img
-                      ref={imageRef}
-                      src={imageSrc}
-                      alt="Original"
-                      className="hidden"
-                    />
-                    <canvas
-                      ref={canvasRef}
-                      width={400}
-                      height={300}
-                      className="h-full w-full object-cover"
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border bg-background">
+                    <Cropper
+                      image={imageSrc}
+                      crop={crop}
+                      zoom={zoom}
+                      aspect={4 / 3}
+                      onCropChange={setCrop}
+                      onZoomChange={setZoom}
+                      onCropComplete={(_, croppedPixels) =>
+                        setCroppedAreaPixels(croppedPixels)
+                      }
                     />
                   </div>
 
@@ -627,9 +543,9 @@ function NewAnnouncementComponent() {
                     <input
                       id="zoom-slider"
                       type="range"
-                      min="1"
-                      max="3"
-                      step="0.1"
+                      min={1}
+                      max={3}
+                      step={0.1}
                       value={zoom}
                       onChange={(e) =>
                         setZoom(Number.parseFloat(e.target.value))
@@ -638,48 +554,12 @@ function NewAnnouncementComponent() {
                     />
                   </div>
 
-                  {/* Positioning controls */}
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-muted-foreground text-xs">
-                        <Label htmlFor="xoffset-slider">Posição X</Label>
-                      </div>
-                      <input
-                        id="xoffset-slider"
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={xOffset}
-                        onChange={(e) =>
-                          setXOffset(Number.parseInt(e.target.value, 10))
-                        }
-                        className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-indigo-500"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-muted-foreground text-xs">
-                        <Label htmlFor="yoffset-slider">Posição Y</Label>
-                      </div>
-                      <input
-                        id="yoffset-slider"
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={yOffset}
-                        onChange={(e) =>
-                          setYOffset(Number.parseInt(e.target.value, 10))
-                        }
-                        className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-indigo-500"
-                      />
-                    </div>
-                  </div>
-
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => {
                       setImageSrc('');
-                      setCroppedBlob(null);
+                      setCroppedAreaPixels(null);
                       if (fileInputRef.current) fileInputRef.current.value = '';
                     }}
                     className="h-8 w-full border bg-background py-1 text-muted-foreground text-xs hover:bg-card"

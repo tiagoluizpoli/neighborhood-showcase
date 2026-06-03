@@ -16,13 +16,13 @@ Replace the custom HTML5 Canvas slider-based image cropper with `react-easy-crop
 
 ## Acceptance criteria
 
-- [ ] `react-easy-crop` is installed and integrated
-- [ ] Custom slider-based cropper code is removed (including `cropper.ts` utility)
-- [ ] Cropper enforces 4:3 aspect ratio
-- [ ] Drag-to-pan and pinch-to-zoom gestures work on both desktop and mobile
-- [ ] Crop preview is prominently sized
-- [ ] Cropper is available in both the announcement creation form and the announcement edit form
-- [ ] Output crop data is correctly sent to the backend for image processing
+- [x] `react-easy-crop` is installed and integrated
+- [x] Custom slider-based cropper code is removed (including `cropper.ts` utility)
+- [x] Cropper enforces 4:3 aspect ratio
+- [x] Drag-to-pan and pinch-to-zoom gestures work on both desktop and mobile
+- [x] Crop preview is prominently sized
+- [x] Cropper is available in both the announcement creation form and the announcement edit form
+- [x] Output crop data is correctly sent to the backend for image processing
 
 ## Blocked by
 

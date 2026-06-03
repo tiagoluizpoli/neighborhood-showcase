@@ -1,4 +1,5 @@
 import { env } from '@neighborhood-showcase/env/web';
+import { Button } from '@neighborhood-showcase/ui/components/button';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import {
@@ -16,8 +17,10 @@ import {
   X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import Cropper, { type Area } from 'react-easy-crop';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { getCroppedImg } from '@/utils/crop-image';
 import { trpc } from '@/utils/trpc';
 
 const dashboardSearchSchema = z.object({
@@ -636,6 +639,13 @@ function EditAnnouncementModal({
   const [imageUrl, setImageUrl] = useState(ad.imageUrl);
   const [isUploading, setIsUploading] = useState(false);
 
+  // Crop states
+  const [selectedImageSrc, setSelectedImageSrc] = useState<string>('');
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [isCroppingOpen, setIsCroppingOpen] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const updateMutation = useMutation(
@@ -650,15 +660,40 @@ function EditAnnouncementModal({
     }),
   );
 
-  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
+    if (!file.type.startsWith('image/')) {
+      toast.error('Por favor, selecione uma imagem válida.');
+      return;
+    }
 
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSelectedImageSrc(reader.result as string);
+      setZoom(1);
+      setCrop({ x: 0, y: 0 });
+      setCroppedAreaPixels(null);
+      setIsCroppingOpen(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropConfirm = async () => {
+    if (!selectedImageSrc || !croppedAreaPixels) return;
+
+    setIsUploading(true);
     try {
+      const croppedBlob = await getCroppedImg(
+        selectedImageSrc,
+        croppedAreaPixels,
+      );
+
+      const formData = new FormData();
+      formData.append('file', croppedBlob, 'cover-image.webp');
+      formData.append('type', 'image');
+
       const response = await fetch(`${env.VITE_SERVER_URL}/api/upload`, {
         method: 'POST',
         body: formData,
@@ -666,14 +701,15 @@ function EditAnnouncementModal({
       });
 
       if (!response.ok) {
-        throw new Error('Falha no upload da imagem.');
+        throw new Error('Falha no upload da imagem recortada.');
       }
 
       const data = await response.json();
       setImageUrl(data.url);
-      toast.success('Imagem enviada com sucesso!');
+      toast.success('Imagem recortada e enviada com sucesso!');
+      setIsCroppingOpen(false);
     } catch (err: unknown) {
-      toast.error((err as Error).message || 'Erro no upload da imagem.');
+      toast.error((err as Error).message || 'Erro ao processar imagem.');
     } finally {
       setIsUploading(false);
     }
@@ -951,6 +987,83 @@ function EditAnnouncementModal({
           </button>
         </div>
       </div>
+
+      {/* Cropper Modal inside the edit modal */}
+      {isCroppingOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-background/85 p-4 backdrop-blur-sm">
+          <div className="fade-in zoom-in-95 relative flex max-h-[85vh] w-full max-w-lg animate-in flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between border-border border-b p-5">
+              <div>
+                <h4 className="font-bold text-lg text-white">Ajustar Imagem</h4>
+                <p className="mt-0.5 text-muted-foreground text-xs">
+                  Arraste para ajustar o enquadramento de 4:3.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCroppingOpen(false)}
+                className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="min-h-[300px] flex-1 space-y-4 p-6">
+              <div className="relative aspect-[4/3] min-h-[220px] w-full overflow-hidden rounded-lg border bg-background">
+                <Cropper
+                  image={selectedImageSrc}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={4 / 3}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={(_, croppedPixels) =>
+                    setCroppedAreaPixels(croppedPixels)
+                  }
+                />
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex justify-between text-muted-foreground text-xs">
+                  <span className="font-medium text-foreground text-sm">
+                    Zoom
+                  </span>
+                  <span>{zoom.toFixed(1)}x</span>
+                </div>
+                <input
+                  type="range"
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  value={zoom}
+                  onChange={(e) => setZoom(Number.parseFloat(e.target.value))}
+                  className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-indigo-500"
+                />
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3 border-border border-t bg-muted/50 p-5">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsCroppingOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                onClick={handleCropConfirm}
+                disabled={isUploading}
+              >
+                {isUploading ? 'Salvando...' : 'Recortar e Salvar'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
