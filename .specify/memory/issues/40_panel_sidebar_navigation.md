@@ -16,13 +16,13 @@ Replace the current top header bar in the authenticated panel with the official 
 
 ## Acceptance criteria
 
-- [ ] shadcn `Sidebar` component is the primary navigation for all `/panel/*` routes
-- [ ] Sidebar is collapsible (full ↔ icon-only rail)
-- [ ] Navigation items are grouped by role ("Provedor", "Moderação", "Administração")
-- [ ] Only role-relevant groups are visible to the current user
-- [ ] Mobile: sidebar renders as an off-canvas drawer with hamburger trigger
-- [ ] Old top header bar is removed from the panel layout
-- [ ] All panel routes remain functional and navigable
+- [x] shadcn `Sidebar` component is the primary navigation for all `/panel/*` routes
+- [x] Sidebar is collapsible (full ↔ icon-only rail)
+- [x] Navigation items are grouped by role ("Provedor", "Moderação", "Administração")
+- [x] Only role-relevant groups are visible to the current user
+- [x] Mobile: sidebar renders as an off-canvas drawer with hamburger trigger
+- [x] Old top header bar is removed from the panel layout
+- [x] All panel routes remain functional and navigable
 
 ## Blocked by
 

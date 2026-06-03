@@ -1,5 +1,5 @@
 ---
-issueId: 39_portal_panel_route_layout_separation.md
+issueId: 40_panel_sidebar_navigation.md
 ---
 
 # PRD
