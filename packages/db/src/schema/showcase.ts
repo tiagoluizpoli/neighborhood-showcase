@@ -9,6 +9,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
 } from 'drizzle-orm/pg-core';
 import { user } from './auth';
 
@@ -263,6 +264,7 @@ export const announcementRelations = relations(
     }),
     payments: many(payment),
     analyticsEvents: many(analyticsEvent),
+    reports: many(report),
   }),
 );
 
@@ -303,6 +305,46 @@ export const analyticsEvent = pgTable('analytics_event', {
 export const analyticsEventRelations = relations(analyticsEvent, ({ one }) => ({
   announcement: one(announcement, {
     fields: [analyticsEvent.announcementId],
+    references: [announcement.id],
+  }),
+}));
+
+export const reportReasonEnum = pgEnum('report_reason', [
+  'FRAUDE_GOLPE',
+  'ASSEDIO_OFENSIVO',
+  'SPAM',
+  'SERVICO_ILEGAL',
+  'OUTROS',
+]);
+
+export const report = pgTable(
+  'report',
+  {
+    id: text('id').primaryKey(),
+    reporterId: text('reporter_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    announcementId: text('announcement_id')
+      .notNull()
+      .references(() => announcement.id, { onDelete: 'cascade' }),
+    reason: reportReasonEnum('reason').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    unique('reporter_announcement_unique').on(
+      table.reporterId,
+      table.announcementId,
+    ),
+  ],
+);
+
+export const reportRelations = relations(report, ({ one }) => ({
+  reporter: one(user, {
+    fields: [report.reporterId],
+    references: [user.id],
+  }),
+  announcement: one(announcement, {
+    fields: [report.announcementId],
     references: [announcement.id],
   }),
 }));
