@@ -25,7 +25,7 @@ Create a public-facing profile page for each provider at `/prestadores/:id`, sho
 - [ ] All configured social/contact links are displayed as interactive buttons/links
 - [ ] Active announcements grid renders using the redesigned card component
 - [ ] Empty state displays correctly when no active announcements exist
-- [ ] API returns provider profile + their active announcements
+- [x] API returns provider profile + their active announcements
 - [ ] 404 handling for non-existent provider IDs
 - [ ] SEO: proper title and meta description for the provider page
 
