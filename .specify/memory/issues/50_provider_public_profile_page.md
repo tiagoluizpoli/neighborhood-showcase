@@ -20,14 +20,14 @@ Create a public-facing profile page for each provider at `/prestadores/:id`, sho
 
 ## Acceptance criteria
 
-- [ ] `/prestadores/:id` route exists under the portal layout
-- [ ] Profile shows provider name, avatar (initials fallback), and verified badge
-- [ ] All configured social/contact links are displayed as interactive buttons/links
-- [ ] Active announcements grid renders using the redesigned card component
-- [ ] Empty state displays correctly when no active announcements exist
+- [x] `/prestadores/:id` route exists under the portal layout
+- [x] Profile shows provider name, avatar (initials fallback), and verified badge
+- [x] All configured social/contact links are displayed as interactive buttons/links
+- [x] Active announcements grid renders using the redesigned card component
+- [x] Empty state displays correctly when no active announcements exist
 - [x] API returns provider profile + their active announcements
-- [ ] 404 handling for non-existent provider IDs
-- [ ] SEO: proper title and meta description for the provider page
+- [x] 404 handling for non-existent provider IDs
+- [x] SEO: proper title and meta description for the provider page
 
 ## Blocked by
 
