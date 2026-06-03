@@ -16,11 +16,11 @@ Add per-announcement analytics views with charts and time-period filtering to th
 ## Acceptance criteria
 
 - [x] Time-period aggregation API returns correct counts per day/week/month
-- [ ] Dashboard home shows aggregate charts (impressions, clicks, conversion)
-- [ ] Per-announcement analytics view accessible via "View Analytics" button
-- [ ] Time-period selector (7d / 30d / 12m) is functional
-- [ ] Charts render correctly using shadcn chart / Recharts
-- [ ] Panel announcement cards have "View Analytics" and "View Details" action buttons
+- [x] Dashboard home shows aggregate charts (impressions, clicks, conversion)
+- [x] Per-announcement analytics view accessible via "View Analytics" button
+- [x] Time-period selector (7d / 30d / 12m) is functional
+- [x] Charts render correctly using shadcn chart / Recharts
+- [x] Panel announcement cards have "View Analytics" and "View Details" action buttons
 - [x] Integration tests: aggregation queries return correct counts for seeded events
 
 ## Blocked by

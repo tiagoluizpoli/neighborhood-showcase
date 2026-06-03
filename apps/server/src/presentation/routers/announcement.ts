@@ -268,7 +268,7 @@ export const announcementRouter = router({
   getAnalytics: protectedProcedure
     .input(
       z.object({
-        announcementId: z.string().min(1),
+        announcementId: z.string().min(1).optional(),
         period: z.enum(['7d', '30d', '12m']),
       }),
     )

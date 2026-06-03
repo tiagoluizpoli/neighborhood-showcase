@@ -1,6 +1,11 @@
 import { env } from '@neighborhood-showcase/env/web';
 import { Button } from '@neighborhood-showcase/ui/components/button';
 import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@neighborhood-showcase/ui/components/chart';
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -24,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Cropper, { type Area } from 'react-easy-crop';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { getCroppedImg } from '@/utils/crop-image';
@@ -94,9 +100,20 @@ function DashboardIndexComponent() {
   const [editingAd, setEditingAd] = useState<DashboardAnnouncementItem | null>(
     null,
   );
+  const [period, setPeriod] = useState<'7d' | '30d' | '12m'>('7d');
+  const [viewingAnalyticsAd, setViewingAnalyticsAd] =
+    useState<DashboardAnnouncementItem | null>(null);
+
   // Fetch dashboard data
   const dashboardQuery = useQuery(
     trpc.announcement.getDashboardData.queryOptions(),
+  );
+
+  // Fetch aggregate analytics data (omits announcementId)
+  const analyticsQuery = useQuery(
+    trpc.announcement.getAnalytics.queryOptions({
+      period,
+    }),
   );
 
   // Renew payment intent mutation
@@ -255,6 +272,150 @@ function DashboardIndexComponent() {
         </div>
       </div>
 
+      {/* Charts Section */}
+      <div className="mb-8 rounded-2xl border bg-card p-6 shadow-sm">
+        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <h2 className="font-bold text-foreground text-xl tracking-tight">
+              Desempenho Geral
+            </h2>
+            <p className="text-muted-foreground text-xs">
+              Histórico de visualizações e interações no período selecionado.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setPeriod('7d')}
+              className={`rounded-lg px-3 py-1.5 font-medium text-xs transition-all ${
+                period === '7d'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              7 Dias
+            </button>
+            <button
+              type="button"
+              onClick={() => setPeriod('30d')}
+              className={`rounded-lg px-3 py-1.5 font-medium text-xs transition-all ${
+                period === '30d'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              30 Dias
+            </button>
+            <button
+              type="button"
+              onClick={() => setPeriod('12m')}
+              className={`rounded-lg px-3 py-1.5 font-medium text-xs transition-all ${
+                period === '12m'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              12 Meses
+            </button>
+          </div>
+        </div>
+
+        {analyticsQuery.isLoading ? (
+          <div className="flex h-[300px] flex-col items-center justify-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground text-xs">
+              Carregando dados de desempenho...
+            </p>
+          </div>
+        ) : analyticsQuery.isError ? (
+          <div className="flex h-[300px] flex-col items-center justify-center space-y-4 text-center">
+            <AlertTriangle className="h-10 w-10 text-destructive" />
+            <p className="text-muted-foreground text-xs">
+              Erro ao carregar dados de desempenho.
+            </p>
+          </div>
+        ) : (
+          <div className="h-[300px] w-full">
+            <ChartContainer
+              config={{
+                impressions: {
+                  label: 'Visualizações',
+                  color: 'var(--chart-1)',
+                },
+                clicks: {
+                  label: 'Interações',
+                  color: 'var(--chart-2)',
+                },
+              }}
+              className="h-full w-full"
+            >
+              <BarChart data={analyticsQuery.data?.chartData}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="hsl(var(--border))"
+                />
+                <XAxis
+                  dataKey="label"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => {
+                    if (period === '12m') {
+                      const [year, month] = value.split('-');
+                      const monthNames = [
+                        'Jan',
+                        'Fev',
+                        'Mar',
+                        'Abr',
+                        'Mai',
+                        'Jun',
+                        'Jul',
+                        'Ago',
+                        'Set',
+                        'Out',
+                        'Nov',
+                        'Dez',
+                      ];
+                      return `${monthNames[Number.parseInt(month, 10) - 1]}/${year.slice(2)}`;
+                    }
+                    const parts = value.split('-');
+                    if (parts.length === 3) {
+                      return `${parts[2]}/${parts[1]}`;
+                    }
+                    return value;
+                  }}
+                />
+                <YAxis
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  allowDecimals={false}
+                />
+                <ChartTooltip
+                  cursor={{ fill: 'hsl(var(--muted) / 0.15)' }}
+                  content={<ChartTooltipContent indicator="line" />}
+                />
+                <Bar
+                  dataKey="impressions"
+                  name="Visualizações"
+                  fill="var(--color-impressions)"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar
+                  dataKey="clicks"
+                  name="Interações"
+                  fill="var(--color-clicks)"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ChartContainer>
+          </div>
+        )}
+      </div>
+
       {/* Tabs list Navigation */}
       <div className="mb-6 border-border border-b">
         <div className="flex space-x-8">
@@ -323,6 +484,7 @@ function DashboardIndexComponent() {
                   onEdit={() => setEditingAd(ad)}
                   formatDate={formatDate}
                   formatPrice={formatPrice}
+                  onViewAnalytics={setViewingAnalyticsAd}
                 />
               ))
             )}
@@ -350,6 +512,7 @@ function DashboardIndexComponent() {
                       to: `/panel/dashboard/anuncios/${ad.id}/pagamento`,
                     })
                   }
+                  onViewAnalytics={setViewingAnalyticsAd}
                 />
               ))
             )}
@@ -375,6 +538,7 @@ function DashboardIndexComponent() {
                     renewMutation.isPending &&
                     renewMutation.variables?.announcementId === ad.id
                   }
+                  onViewAnalytics={setViewingAnalyticsAd}
                 />
               ))
             )}
@@ -393,6 +557,7 @@ function DashboardIndexComponent() {
                   onEdit={() => setEditingAd(ad)}
                   formatDate={formatDate}
                   formatPrice={formatPrice}
+                  onViewAnalytics={setViewingAnalyticsAd}
                 />
               ))
             )}
@@ -411,6 +576,14 @@ function DashboardIndexComponent() {
               queryKey: trpc.announcement.getDashboardData.queryKey(),
             });
           }}
+        />
+      )}
+
+      {/* Analytics Modal */}
+      {viewingAnalyticsAd && (
+        <AnnouncementAnalyticsModal
+          ad={viewingAnalyticsAd}
+          onClose={() => setViewingAnalyticsAd(null)}
         />
       )}
     </div>
@@ -453,6 +626,7 @@ function AnnouncementCard({
   onPay,
   onRenew,
   isRenewing = false,
+  onViewAnalytics,
 }: {
   ad: DashboardAnnouncementItem;
   onEdit: () => void;
@@ -461,6 +635,7 @@ function AnnouncementCard({
   onPay?: () => void;
   onRenew?: () => void;
   isRenewing?: boolean;
+  onViewAnalytics?: (ad: DashboardAnnouncementItem) => void;
 }) {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border bg-card text-card-foreground shadow-sm">
@@ -559,12 +734,12 @@ function AnnouncementCard({
         )}
 
         {/* Buttons / Actions */}
-        <div className="mt-5 flex gap-2">
+        <div className="mt-5 flex flex-col gap-2">
           {ad.status === 'DRAFT' && onPay && (
             <button
               type="button"
               onClick={onPay}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-success py-2.5 font-semibold text-sm text-success-foreground transition-colors hover:bg-success/80"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-success py-2.5 font-semibold text-sm text-success-foreground transition-colors hover:bg-success/80"
             >
               Publicar Anúncio
               <ArrowRight className="h-4 w-4" />
@@ -575,7 +750,7 @@ function AnnouncementCard({
             <button
               type="button"
               onClick={onPay}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-warning py-2.5 font-semibold text-sm text-warning-foreground transition-colors hover:bg-warning/80"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-warning py-2.5 font-semibold text-sm text-warning-foreground transition-colors hover:bg-warning/80"
             >
               Pagar Pix
               <ArrowRight className="h-4 w-4" />
@@ -587,7 +762,7 @@ function AnnouncementCard({
               type="button"
               onClick={onRenew}
               disabled={isRenewing}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-2.5 font-semibold text-primary-foreground text-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 font-semibold text-primary-foreground text-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
             >
               {isRenewing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -598,24 +773,44 @@ function AnnouncementCard({
             </button>
           )}
 
-          <button
-            type="button"
-            onClick={onEdit}
-            className={`inline-flex items-center justify-center gap-2 rounded-xl border bg-background py-2.5 font-medium text-foreground text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${
-              ad.status === 'PENDING_PAYMENT' ||
+          {/* Actions Row */}
+          <div className="flex w-full gap-2">
+            {ad.status === 'ACTIVE' && (
+              <Link
+                to="/anuncios/$id"
+                params={{ id: ad.id }}
+                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border bg-background py-2 font-medium text-foreground text-xs transition-colors hover:bg-accent hover:text-accent-foreground"
+                title="Visualizar Anúncio Público"
+              >
+                <Eye className="h-3.5 w-3.5" />
+                Ver Detalhes
+              </Link>
+            )}
+
+            {(ad.status === 'ACTIVE' ||
               ad.status === 'EXPIRED' ||
-              ad.status === 'DRAFT'
-                ? 'px-3'
-                : 'flex-1'
-            }`}
-            title="Editar Anúncio"
-          >
-            <Edit className="h-4 w-4" />
-            {ad.status !== 'PENDING_PAYMENT' &&
-              ad.status !== 'EXPIRED' &&
-              ad.status !== 'DRAFT' &&
-              'Editar'}
-          </button>
+              ad.status === 'SUSPENDED') && (
+              <button
+                type="button"
+                onClick={() => onViewAnalytics?.(ad)}
+                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border bg-background py-2 font-medium text-foreground text-xs transition-colors hover:bg-accent hover:text-accent-foreground"
+                title="Ver Métricas de Desempenho"
+              >
+                <TrendingUp className="h-3.5 w-3.5" />
+                Ver Métricas
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={onEdit}
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border bg-background py-2 font-medium text-foreground text-xs transition-colors hover:bg-accent hover:text-accent-foreground"
+              title="Editar Anúncio"
+            >
+              <Edit className="h-3.5 w-3.5" />
+              Editar
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1118,6 +1313,191 @@ function EditAnnouncementModal({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function AnnouncementAnalyticsModal({
+  ad,
+  onClose,
+}: {
+  ad: DashboardAnnouncementItem;
+  onClose: () => void;
+}) {
+  const [period, setPeriod] = useState<'7d' | '30d' | '12m'>('7d');
+  const analyticsQuery = useQuery(
+    trpc.announcement.getAnalytics.queryOptions({
+      announcementId: ad.id,
+      period,
+    }),
+  );
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+      <div className="relative w-full max-w-3xl rounded-2xl border bg-card p-6 shadow-lg">
+        {/* Close Button */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-4 right-4 rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        {/* Header */}
+        <div className="mb-6">
+          <h3 className="font-bold text-foreground text-xl">
+            Métricas: {ad.title}
+          </h3>
+          <p className="mt-0.5 text-muted-foreground text-xs">
+            Analise a conversão e visualizações do seu anúncio no período
+            selecionado.
+          </p>
+        </div>
+
+        {/* Period Selector & Stats */}
+        <div className="mb-6 flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex gap-4">
+            <div>
+              <p className="font-semibold text-[10px] text-muted-foreground uppercase">
+                Visualizações
+              </p>
+              <p className="font-bold text-foreground text-xl">
+                {analyticsQuery.data?.summary.totalImpressions ?? 0}
+              </p>
+            </div>
+            <div>
+              <p className="font-semibold text-[10px] text-muted-foreground uppercase">
+                Interações
+              </p>
+              <p className="font-bold text-foreground text-xl">
+                {analyticsQuery.data?.summary.totalClicks ?? 0}
+              </p>
+            </div>
+            <div>
+              <p className="font-semibold text-[10px] text-muted-foreground uppercase">
+                Conversão
+              </p>
+              <p className="font-bold text-foreground text-xl">
+                {analyticsQuery.data?.summary.conversionRate ?? 0}%
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            {(['7d', '30d', '12m'] as const).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setPeriod(p)}
+                className={`rounded-lg px-2.5 py-1 font-medium text-xs transition-all ${
+                  period === p
+                    ? 'bg-primary text-primary-foreground shadow-xs'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+              >
+                {p === '7d' ? '7 Dias' : p === '30d' ? '30 Dias' : '12 Meses'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Chart */}
+        {analyticsQuery.isLoading ? (
+          <div className="flex h-[260px] flex-col items-center justify-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground text-xs">
+              Carregando métricas...
+            </p>
+          </div>
+        ) : analyticsQuery.isError ? (
+          <div className="flex h-[260px] flex-col items-center justify-center space-y-4 text-center">
+            <AlertTriangle className="h-10 w-10 text-destructive" />
+            <p className="text-muted-foreground text-xs">
+              Erro ao carregar métricas.
+            </p>
+          </div>
+        ) : (
+          <div className="h-[260px] w-full">
+            <ChartContainer
+              config={{
+                impressions: {
+                  label: 'Visualizações',
+                  color: 'var(--chart-1)',
+                },
+                clicks: {
+                  label: 'Interações',
+                  color: 'var(--chart-2)',
+                },
+              }}
+              className="h-full w-full"
+            >
+              <BarChart data={analyticsQuery.data?.chartData}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="hsl(var(--border))"
+                />
+                <XAxis
+                  dataKey="label"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => {
+                    if (period === '12m') {
+                      const [year, month] = value.split('-');
+                      const monthNames = [
+                        'Jan',
+                        'Fev',
+                        'Mar',
+                        'Abr',
+                        'Mai',
+                        'Jun',
+                        'Jul',
+                        'Ago',
+                        'Set',
+                        'Out',
+                        'Nov',
+                        'Dez',
+                      ];
+                      return `${monthNames[Number.parseInt(month, 10) - 1]}/${year.slice(2)}`;
+                    }
+                    const parts = value.split('-');
+                    if (parts.length === 3) {
+                      return `${parts[2]}/${parts[1]}`;
+                    }
+                    return value;
+                  }}
+                />
+                <YAxis
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  allowDecimals={false}
+                />
+                <ChartTooltip
+                  cursor={{ fill: 'hsl(var(--muted) / 0.15)' }}
+                  content={<ChartTooltipContent indicator="line" />}
+                />
+                <Bar
+                  dataKey="impressions"
+                  name="Visualizações"
+                  fill="var(--color-impressions)"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar
+                  dataKey="clicks"
+                  name="Interações"
+                  fill="var(--color-clicks)"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ChartContainer>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

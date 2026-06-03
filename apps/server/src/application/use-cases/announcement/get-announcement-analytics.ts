@@ -4,10 +4,10 @@ import {
   announcement as announcementSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
-import { and, eq, gte, isNull } from 'drizzle-orm';
+import { and, eq, gte, inArray, isNull } from 'drizzle-orm';
 
 export interface GetAnnouncementAnalyticsInput {
-  announcementId: string;
+  announcementId?: string;
   providerId: string;
   period: '7d' | '30d' | '12m';
 }
@@ -49,30 +49,47 @@ export class GetAnnouncementAnalytics {
   ): Promise<AnnouncementAnalyticsResult> {
     const { announcementId, providerId, period } = input;
 
-    // Fetch the announcement to check existence and ownership
-    const [ann] = await db
-      .select({ providerId: announcementSchema.providerId })
-      .from(announcementSchema)
-      .where(
-        and(
-          eq(announcementSchema.id, announcementId),
-          isNull(announcementSchema.deletedAt),
-        ),
-      )
-      .limit(1);
+    let announcementIds: string[] = [];
 
-    if (!ann) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Anúncio não encontrado.',
-      });
-    }
+    if (announcementId) {
+      // Fetch the announcement to check existence and ownership
+      const [ann] = await db
+        .select({ providerId: announcementSchema.providerId })
+        .from(announcementSchema)
+        .where(
+          and(
+            eq(announcementSchema.id, announcementId),
+            isNull(announcementSchema.deletedAt),
+          ),
+        )
+        .limit(1);
 
-    if (ann.providerId !== providerId) {
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'Acesso negado. Você não é o proprietário deste anúncio.',
-      });
+      if (!ann) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Anúncio não encontrado.',
+        });
+      }
+
+      if (ann.providerId !== providerId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Acesso negado. Você não é o proprietário deste anúncio.',
+        });
+      }
+      announcementIds = [announcementId];
+    } else {
+      // Fetch all announcements owned by the provider
+      const userAnnouncements = await db
+        .select({ id: announcementSchema.id })
+        .from(announcementSchema)
+        .where(
+          and(
+            eq(announcementSchema.providerId, providerId),
+            isNull(announcementSchema.deletedAt),
+          ),
+        );
+      announcementIds = userAnnouncements.map((a) => a.id);
     }
 
     // Determine the start date and generate bucket labels
@@ -111,19 +128,22 @@ export class GetAnnouncementAnalytics {
     }
 
     // Fetch events from database
-    const events = await db
-      .select({
-        eventType: analyticsEventSchema.eventType,
-        targetType: analyticsEventSchema.targetType,
-        createdAt: analyticsEventSchema.createdAt,
-      })
-      .from(analyticsEventSchema)
-      .where(
-        and(
-          eq(analyticsEventSchema.announcementId, announcementId),
-          gte(analyticsEventSchema.createdAt, startDate),
-        ),
-      );
+    const events =
+      announcementIds.length > 0
+        ? await db
+            .select({
+              eventType: analyticsEventSchema.eventType,
+              targetType: analyticsEventSchema.targetType,
+              createdAt: analyticsEventSchema.createdAt,
+            })
+            .from(analyticsEventSchema)
+            .where(
+              and(
+                inArray(analyticsEventSchema.announcementId, announcementIds),
+                gte(analyticsEventSchema.createdAt, startDate),
+              ),
+            )
+        : [];
 
     // Initialize labels map
     const dataMap = new Map<string, AnalyticsDataPoint>();

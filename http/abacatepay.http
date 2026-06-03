@@ -4,7 +4,7 @@
 @apiKey = abc_dev_JLLTNBMj0wMtAxXA6d2tcGuB
 
 # Define the billing ID returned when clicking "Publicar Anúncio" in the app.
-@billingId = pix_char_jYtdp1SGEBFjJUWk2X4feFzw
+@billingId = pix_char_LGeAJRkabfPXFAG3zRsFbwRQ
 
 ### Simulate Payment
 # Simulates approval of a PIX payment for a Transparent Checkout in Dev Mode.

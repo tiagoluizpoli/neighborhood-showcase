@@ -367,4 +367,16 @@ describe('getAnalytics Announcement Router Procedure', () => {
       }),
     ).rejects.toThrow('Anúncio não encontrado.');
   });
+
+  test('returns aggregate metrics across all provider announcements when announcementId is omitted', async () => {
+    const caller = createTestCaller(providerId);
+
+    const res = await caller.announcement.getAnalytics({
+      period: '7d',
+    });
+
+    expect(res.summary.totalImpressions).toBe(3);
+    expect(res.summary.totalClicks).toBe(2);
+    expect(res.summary.conversionRate).toBe(66.67);
+  });
 });

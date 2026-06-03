@@ -34,6 +34,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-easy-crop": "^5.5.7",
+    "recharts": "3.8.0",
     "react-i18next": "^17.0.8",
     "sonner": "catalog:",
     "vite-plugin-pwa": "^1.0.1",
