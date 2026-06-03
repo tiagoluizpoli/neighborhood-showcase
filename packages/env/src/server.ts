@@ -29,6 +29,7 @@ export const env = createEnv({
       .string()
       .default('default:development.unleash-insecure-client-token'),
     UNLEASH_APP_NAME: z.string().default('neighborhood-showcase'),
+    FEED_RADIUS_KM: z.coerce.number().default(10),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

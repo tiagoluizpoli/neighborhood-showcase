@@ -145,6 +145,9 @@ export const announcementRouter = router({
         search: z.string().optional(),
         verifiedOnly: z.boolean().optional(),
         userCondoId: z.string().optional(),
+        radiusKm: z.number().max(25).optional(),
+        city: z.string().optional(),
+        neighborhood: z.string().optional(),
       }),
     )
     .query(async ({ input }) => {
@@ -156,6 +159,9 @@ export const announcementRouter = router({
         search: input.search,
         verifiedOnly: input.verifiedOnly,
         userCondoId: input.userCondoId,
+        radiusKm: input.radiusKm,
+        city: input.city,
+        neighborhood: input.neighborhood,
       });
     }),
 

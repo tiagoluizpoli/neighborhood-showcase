@@ -22,12 +22,12 @@ Implement the proximity-based ranking engine that sorts the announcement feed ba
 
 - [x] Announcement listing API accepts optional lat/lng/condominiumId parameters
 - [x] Results sorted by PostGIS distance when coordinates are provided
-- [ ] Own-condominium announcements appear first
-- [ ] Verified providers rank higher than unverified at equal distance
-- [ ] Feed respects configurable radius (default 10km)
+- [x] Own-condominium announcements appear first
+- [x] Verified providers rank higher than unverified at equal distance
+- [x] Feed respects configurable radius (default 10km)
 - [ ] "Expand radius" option works up to 25km with a warning
 - [x] Chronological fallback when no coordinates provided
-- [ ] City/neighborhood filter parameters are functional
+- [x] City/neighborhood filter parameters are functional
 - [x] Integration tests: verify ranking order with seeded data at known coordinates
 
 ## Blocked by

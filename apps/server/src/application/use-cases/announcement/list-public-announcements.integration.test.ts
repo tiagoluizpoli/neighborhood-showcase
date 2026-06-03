@@ -264,4 +264,126 @@ describe('List Public Announcements Integration Test', () => {
     await db.delete(assignment).where(eq(assignment.id, extLocationId));
     await db.delete(address).where(eq(address.id, addressId));
   });
+
+  test('respects configurable default feed radius and expanded search radius', async () => {
+    // 1. Create a condominium 15km away
+    const farCondoId = 'condo-far-id';
+    await db.insert(condominium).values({
+      id: farCondoId,
+      name: 'Residencial Far Away',
+      city: 'Biguaçu',
+      state: 'SC',
+      cep: '88123456',
+      createdBy: providerId,
+      status: 'APPROVED',
+      latitude: '-27.4500',
+      longitude: '-48.5495',
+      geog: sql`ST_SetSRID(ST_MakePoint(-48.5495, -27.4500), 4326)::geography`,
+    });
+
+    // 2. Create active announcement for far condo
+    await db.insert(announcement).values({
+      id: 'ann-far-pizza',
+      providerId,
+      condominiumId: farCondoId,
+      title: 'Far Away Pizza',
+      description: 'Pizza delivered from Biguaçu',
+      imageUrl: 'http://localhost/far-pizza.jpg',
+      category: 'Food',
+      showVerifiedBadge: false,
+      status: 'ACTIVE',
+      createdAt: new Date(),
+    });
+
+    // 3. Query near Condo A with default radius (10km) -> should NOT return the far announcement
+    const listDefault = await useCase.execute({
+      latitude: -27.5965,
+      longitude: -48.5495,
+    });
+    const idsDefault = listDefault.map((x) => x.id);
+    expect(idsDefault).not.toContain('ann-far-pizza');
+
+    // 4. Query near Condo A with expanded radius (20km) -> should return the far announcement
+    const listExpanded = await useCase.execute({
+      latitude: -27.5965,
+      longitude: -48.5495,
+      radiusKm: 20,
+    });
+    const idsExpanded = listExpanded.map((x) => x.id);
+    expect(idsExpanded).toContain('ann-far-pizza');
+
+    // Cleanup far condo and announcement
+    await db.delete(announcement).where(eq(announcement.id, 'ann-far-pizza'));
+    await db.delete(condominium).where(eq(condominium.id, farCondoId));
+  });
+
+  test('prioritizes own-condominium announcements and boosts verified providers', async () => {
+    // We insert a new announcement at Condo B
+    await db.insert(announcement).values({
+      id: 'ann-boosted-b',
+      providerId,
+      condominiumId: condoBId,
+      title: 'Boosted Cleaner',
+      description: 'Super cleaner in Condo B',
+      imageUrl: 'http://localhost/boosted.jpg',
+      category: 'Services',
+      showVerifiedBadge: true,
+      status: 'ACTIVE',
+      createdAt: new Date(Date.now() - 2000),
+    });
+
+    // 1. Query near Condo A (-27.5965, -48.5495) with userCondoId = condoBId
+    // -> Condo B announcements should come first (exact condo match)
+    // -> Between Condo B announcements: 'ann-boosted-b' (verified) should come before 'ann-cleaner-b' (unverified)
+    const list = await useCase.execute({
+      latitude: -27.5965,
+      longitude: -48.5495,
+      userCondoId: condoBId,
+    });
+
+    expect(list[0]?.id).toBe('ann-boosted-b');
+    expect(list[1]?.id).toBe('ann-cleaner-b');
+    expect(list[2]?.id).toBe('ann-pizza-a');
+
+    // Cleanup
+    await db.delete(announcement).where(eq(announcement.id, 'ann-boosted-b'));
+  });
+
+  test('filters public feed by city and neighborhood', async () => {
+    // Insert a condo address for Condo A with specific city and neighborhood
+    const addressId = 'condo-a-address-id';
+    await db.insert(address).values({
+      id: addressId,
+      cep: '88000001',
+      street: 'Rua Principal',
+      neighborhood: 'Trindade',
+      city: 'Florianópolis',
+      state: 'SC',
+    });
+
+    await db
+      .update(condominium)
+      .set({ addressId })
+      .where(eq(condominium.id, condoAId));
+
+    // 1. Filter by city: Florianópolis -> should return Condo A and Condo B announcements
+    const listCity = await useCase.execute({ city: 'Florianópolis' });
+    const idsCity = listCity.map((x) => x.id);
+    expect(idsCity).toContain('ann-pizza-a');
+    expect(idsCity).toContain('ann-cleaner-b');
+    expect(idsCity).not.toContain('ann-burger-c');
+
+    // 2. Filter by neighborhood: Trindade -> should only return Condo A announcement
+    const listNeigh = await useCase.execute({ neighborhood: 'Trindade' });
+    const idsNeigh = listNeigh.map((x) => x.id);
+    expect(idsNeigh).toContain('ann-pizza-a');
+    expect(idsNeigh).not.toContain('ann-cleaner-b');
+
+    // Cleanup
+    await db
+      .update(condominium)
+      .set({ addressId: null })
+      .where(eq(condominium.id, condoAId));
+    await db.delete(address).where(eq(address.id, addressId));
+  });
 });

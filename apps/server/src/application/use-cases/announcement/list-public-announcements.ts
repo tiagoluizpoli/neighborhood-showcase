@@ -5,7 +5,11 @@ import {
   condominium as condominiumSchema,
   providerLocation as providerLocationSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
+import { env } from '@neighborhood-showcase/env/server';
 import { and, desc, eq, ilike, isNull, or, type SQL, sql } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
+
+const condoAddress = alias(addressSchema, 'condo_address');
 
 export interface ListPublicAnnouncementsInput {
   latitude?: number;
@@ -15,6 +19,9 @@ export interface ListPublicAnnouncementsInput {
   search?: string;
   verifiedOnly?: boolean;
   userCondoId?: string; // Selected/geolocated condominium ID for proximity sorting
+  radiusKm?: number;
+  city?: string;
+  neighborhood?: string;
 }
 
 export interface PublicAnnouncementItem {
@@ -97,6 +104,37 @@ export class ListPublicAnnouncements {
       );
     }
 
+    if (input.city) {
+      const cityPattern = `%${input.city}%`;
+      conditions.push(
+        or(
+          ilike(condominiumSchema.city, cityPattern),
+          ilike(addressSchema.city, cityPattern),
+          ilike(condoAddress.city, cityPattern),
+        ) as SQL,
+      );
+    }
+
+    if (input.neighborhood) {
+      const neighborhoodPattern = `%${input.neighborhood}%`;
+      conditions.push(
+        or(
+          ilike(condoAddress.neighborhood, neighborhoodPattern),
+          ilike(addressSchema.neighborhood, neighborhoodPattern),
+        ) as SQL,
+      );
+    }
+
+    let visitorPoint: SQL | null = null;
+    if (hasCoordinates) {
+      visitorPoint = sql`ST_SetSRID(ST_MakePoint(${input.longitude}, ${input.latitude}), 4326)::geography`;
+      const radiusKm = input.radiusKm ?? env.FEED_RADIUS_KM;
+      const radiusMeters = radiusKm * 1000;
+      conditions.push(
+        sql`ST_DWithin(COALESCE(${condominiumSchema.geog}, ${providerLocationSchema.geog}), ${visitorPoint}, ${radiusMeters})`,
+      );
+    }
+
     // 3. Query from Drizzle with left joins to retrieve both condominium and external addresses
     const query = db
       .select({
@@ -104,12 +142,14 @@ export class ListPublicAnnouncements {
         condominium: condominiumSchema,
         providerLocation: providerLocationSchema,
         providerAddress: addressSchema,
+        condoAddress: condoAddress,
       })
       .from(announcementSchema)
       .leftJoin(
         condominiumSchema,
         eq(announcementSchema.condominiumId, condominiumSchema.id),
       )
+      .leftJoin(condoAddress, eq(condominiumSchema.addressId, condoAddress.id))
       .leftJoin(
         providerLocationSchema,
         eq(announcementSchema.providerLocationId, providerLocationSchema.id),
@@ -120,12 +160,24 @@ export class ListPublicAnnouncements {
       )
       .where(and(...conditions));
 
-    if (hasCoordinates) {
-      const visitorPoint = sql`ST_SetSRID(ST_MakePoint(${input.longitude}, ${input.latitude}), 4326)::geography`;
-      const rows = await query.orderBy(
+    if (hasCoordinates && visitorPoint) {
+      const orderByExpressions: SQL[] = [];
+
+      if (input.userCondoId) {
+        orderByExpressions.push(
+          sql`CASE WHEN ${announcementSchema.condominiumId} = ${input.userCondoId} THEN 0 ELSE 1 END`,
+        );
+      }
+
+      orderByExpressions.push(
         sql`ST_Distance(COALESCE(${condominiumSchema.geog}, ${providerLocationSchema.geog}), ${visitorPoint})`,
-        desc(announcementSchema.createdAt),
       );
+
+      orderByExpressions.push(desc(announcementSchema.showVerifiedBadge));
+
+      orderByExpressions.push(desc(announcementSchema.createdAt));
+
+      const rows = await query.orderBy(...orderByExpressions);
       return rows.map(mapRow);
     }
 
@@ -159,6 +211,12 @@ export class ListPublicAnnouncements {
         if (!aCityMatch && bCityMatch) return 1;
       }
 
+      // Priority 2.5: Verified providers rank higher than unverified
+      const aVerified = a.announcement.showVerifiedBadge;
+      const bVerified = b.announcement.showVerifiedBadge;
+      if (aVerified && !bVerified) return -1;
+      if (!aVerified && bVerified) return 1;
+
       // Priority 3: Newest first
       return (
         b.announcement.createdAt.getTime() - a.announcement.createdAt.getTime()
@@ -175,6 +233,7 @@ function mapRow(row: {
   condominium: typeof condominiumSchema.$inferSelect | null;
   providerLocation: typeof providerLocationSchema.$inferSelect | null;
   providerAddress: typeof addressSchema.$inferSelect | null;
+  condoAddress?: typeof addressSchema.$inferSelect | null;
 }): PublicAnnouncementItem {
   const condoCity = row.condominium?.city || row.providerAddress?.city || '';
   const condoState = row.condominium?.state || row.providerAddress?.state || '';
