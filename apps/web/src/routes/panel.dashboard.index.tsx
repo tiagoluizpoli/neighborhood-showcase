@@ -5,6 +5,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@neighborhood-showcase/ui/components/chart';
+import { Checkbox } from '@neighborhood-showcase/ui/components/checkbox';
+import { Input } from '@neighborhood-showcase/ui/components/input';
+import { Textarea } from '@neighborhood-showcase/ui/components/textarea';
 import {
   Tooltip,
   TooltipContent,
@@ -353,11 +356,11 @@ function DashboardIndexComponent() {
                 <CartesianGrid
                   strokeDasharray="3 3"
                   vertical={false}
-                  stroke="hsl(var(--border))"
+                  stroke="var(--border)"
                 />
                 <XAxis
                   dataKey="label"
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--muted-foreground)"
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
@@ -388,14 +391,14 @@ function DashboardIndexComponent() {
                   }}
                 />
                 <YAxis
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--muted-foreground)"
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
                   allowDecimals={false}
                 />
                 <ChartTooltip
-                  cursor={{ fill: 'hsl(var(--muted) / 0.15)' }}
+                  cursor={{ fill: 'var(--muted)' }}
                   content={<ChartTooltipContent indicator="line" />}
                 />
                 <Bar
@@ -649,7 +652,7 @@ function AnnouncementCard({
         <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5">
           {/* Status Badge */}
           <span
-            className={`rounded-full px-2.5 py-1 font-semibold text-xs shadow-sm backdrop-blur-sm ${
+            className={`rounded-full px-2.5 py-1 font-semibold text-xs ${
               ad.status === 'ACTIVE'
                 ? 'border border-success/30 bg-success/20 text-success'
                 : ad.status === 'PENDING_PAYMENT'
@@ -675,7 +678,7 @@ function AnnouncementCard({
           </span>
           {/* Verified Badge */}
           {ad.showVerifiedBadge && (
-            <span className="flex items-center gap-1 rounded-full border border-primary/30 bg-primary/20 px-2 py-0.5 font-semibold text-[10px] text-primary backdrop-blur-sm">
+            <span className="flex items-center gap-1 rounded-full border border-primary/30 bg-primary/20 px-2 py-0.5 font-semibold text-[10px] text-primary">
               <ShieldCheck className="h-3 w-3" /> Morador Verificado
             </span>
           )}
@@ -970,8 +973,8 @@ function EditAnnouncementModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
-      <div className="fade-in zoom-in-95 relative flex max-h-[90vh] w-full max-w-2xl animate-in flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4">
+      <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-border bg-card">
         {/* Header */}
         <div className="flex items-center justify-between border-border border-b p-5">
           <div>
@@ -985,7 +988,7 @@ function EditAnnouncementModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             <X className="h-5 w-5" />
           </button>
@@ -1015,13 +1018,13 @@ function EditAnnouncementModal({
                 )}
               </div>
               <div className="space-y-1.5">
-                <button
+                <Button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="rounded-xl border border-border bg-secondary px-4 py-2 font-semibold text-foreground text-sm transition-colors hover:bg-accent"
+                  variant="secondary"
                 >
                   Alterar Imagem
-                </button>
+                </Button>
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -1042,25 +1045,23 @@ function EditAnnouncementModal({
               <span className="block font-medium text-foreground text-sm">
                 Título *
               </span>
-              <input
+              <Input
                 type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ex: Marmitas Saudáveis"
-                className="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div className="space-y-1.5">
               <span className="block font-medium text-foreground text-sm">
                 Subtítulo (Opcional)
               </span>
-              <input
+              <Input
                 type="text"
                 value={subtitle}
                 onChange={(e) => setSubtitle(e.target.value)}
                 placeholder="Ex: Feitas com amor e ingredientes locais"
-                className="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>
@@ -1075,7 +1076,7 @@ function EditAnnouncementModal({
                 required
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2.5 text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 dark:bg-input/30"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -1088,7 +1089,7 @@ function EditAnnouncementModal({
               <span className="block font-medium text-foreground text-sm">
                 Preço (R$, opcional)
               </span>
-              <input
+              <Input
                 type="number"
                 step="0.01"
                 min="0"
@@ -1097,7 +1098,6 @@ function EditAnnouncementModal({
                   setPrice(e.target.value === '' ? '' : Number(e.target.value))
                 }
                 placeholder="Ex: 25.00 (deixe em branco para combinar)"
-                className="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>
@@ -1107,13 +1107,13 @@ function EditAnnouncementModal({
             <span className="block font-medium text-foreground text-sm">
               Descrição Detalhada *
             </span>
-            <textarea
+            <Textarea
               required
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Descreva o que você oferece, horários, prazos..."
-              className="w-full resize-none rounded-xl border border-border bg-muted px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="resize-none"
             />
           </div>
 
@@ -1127,36 +1127,33 @@ function EditAnnouncementModal({
                 <span className="block text-muted-foreground text-xs">
                   WhatsApp (DDD + Número)
                 </span>
-                <input
+                <Input
                   type="text"
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
                   placeholder="Ex: 47999999999"
-                  className="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
               <div className="space-y-1.5">
                 <span className="block text-muted-foreground text-xs">
                   Instagram (Username)
                 </span>
-                <input
+                <Input
                   type="text"
                   value={instagram}
                   onChange={(e) => setInstagram(e.target.value)}
                   placeholder="Ex: @seuusername"
-                  className="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
               <div className="space-y-1.5">
                 <span className="block text-muted-foreground text-xs">
                   Site / Portfólio (URL)
                 </span>
-                <input
+                <Input
                   type="url"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
                   placeholder="Ex: https://meusite.com"
-                  className="w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
             </div>
@@ -1178,14 +1175,12 @@ function EditAnnouncementModal({
                   <TooltipTrigger
                     render={
                       <span className="inline-block">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           disabled={!canVerify}
                           checked={showVerifiedBadge && canVerify}
-                          onChange={(e) =>
-                            setShowVerifiedBadge(e.target.checked)
+                          onCheckedChange={(checked) =>
+                            setShowVerifiedBadge(checked === true)
                           }
-                          className="h-5 w-5 rounded border-border bg-muted text-primary focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
                         />
                       </span>
                     }
@@ -1216,35 +1211,32 @@ function EditAnnouncementModal({
 
         {/* Footer Actions */}
         <div className="flex justify-end gap-3 border-border border-t p-5">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl border border-border bg-secondary px-5 py-2.5 font-semibold text-muted-foreground text-sm transition-colors hover:bg-accent hover:text-foreground"
-          >
+          <Button type="button" onClick={onClose} variant="secondary">
             Cancelar
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={handleSave}
             disabled={updateMutation.isPending || isUploading}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-semibold text-primary-foreground text-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
             {updateMutation.isPending && (
               <Loader2 className="h-4 w-4 animate-spin" />
             )}
             Salvar Alterações
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Cropper Modal inside the edit modal */}
       {isCroppingOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-background/85 p-4 backdrop-blur-sm">
-          <div className="fade-in zoom-in-95 relative flex max-h-[85vh] w-full max-w-lg animate-in flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl duration-200">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-background/85 p-4">
+          <div className="relative flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-xl border border-border bg-card">
             {/* Header */}
             <div className="flex items-center justify-between border-border border-b p-5">
               <div>
-                <h4 className="font-bold text-lg text-white">Ajustar Imagem</h4>
+                <h4 className="font-bold text-foreground text-lg">
+                  Ajustar Imagem
+                </h4>
                 <p className="mt-0.5 text-muted-foreground text-xs">
                   Arraste para ajustar o enquadramento de 4:3.
                 </p>
@@ -1252,7 +1244,7 @@ function EditAnnouncementModal({
               <button
                 type="button"
                 onClick={() => setIsCroppingOpen(false)}
-                className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-white"
+                className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -1288,7 +1280,7 @@ function EditAnnouncementModal({
                   step={0.1}
                   value={zoom}
                   onChange={(e) => setZoom(Number.parseFloat(e.target.value))}
-                  className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-indigo-500"
+                  className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-primary"
                 />
               </div>
             </div>
@@ -1333,8 +1325,8 @@ function AnnouncementAnalyticsModal({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-      <div className="relative w-full max-w-3xl rounded-2xl border bg-card p-6 shadow-lg">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4">
+      <div className="relative w-full max-w-3xl rounded-xl border bg-card p-6">
         {/* Close Button */}
         <button
           type="button"
@@ -1436,11 +1428,11 @@ function AnnouncementAnalyticsModal({
                 <CartesianGrid
                   strokeDasharray="3 3"
                   vertical={false}
-                  stroke="hsl(var(--border))"
+                  stroke="var(--border)"
                 />
                 <XAxis
                   dataKey="label"
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--muted-foreground)"
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
@@ -1471,14 +1463,14 @@ function AnnouncementAnalyticsModal({
                   }}
                 />
                 <YAxis
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--muted-foreground)"
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
                   allowDecimals={false}
                 />
                 <ChartTooltip
-                  cursor={{ fill: 'hsl(var(--muted) / 0.15)' }}
+                  cursor={{ fill: 'var(--muted)' }}
                   content={<ChartTooltipContent indicator="line" />}
                 />
                 <Bar

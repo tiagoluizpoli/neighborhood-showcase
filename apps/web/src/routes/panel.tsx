@@ -158,7 +158,7 @@ function PanelLayout() {
         {/* Main Panel Content Area */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Top Panel Header */}
-          <header className="flex h-14 items-center justify-between border-b bg-card/50 px-4 backdrop-blur-sm">
+          <header className="flex h-14 items-center justify-between border-b bg-card px-4">
             <div className="flex items-center gap-2">
               <SidebarTrigger />
             </div>
@@ -172,7 +172,7 @@ function PanelLayout() {
                   </Avatar>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-56 rounded-xl border bg-card p-4 shadow-lg"
+                  className="w-56 rounded-xl border bg-card p-4"
                   align="end"
                 >
                   <div className="flex flex-col gap-1 pb-2">

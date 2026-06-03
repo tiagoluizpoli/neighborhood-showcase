@@ -75,9 +75,7 @@ export default function SignInForm({
           <form.Field name="email">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="text-foreground">
-                  E-mail
-                </Label>
+                <Label htmlFor={field.name}>E-mail</Label>
                 <Input
                   id={field.name}
                   name={field.name}
@@ -102,9 +100,7 @@ export default function SignInForm({
           <form.Field name="password">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="text-foreground">
-                  Senha
-                </Label>
+                <Label htmlFor={field.name}>Senha</Label>
                 <Input
                   id={field.name}
                   name={field.name}

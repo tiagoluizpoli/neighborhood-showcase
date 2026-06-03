@@ -1,5 +1,9 @@
 import { Card, CardContent } from '@neighborhood-showcase/ui/components/card';
-import { cn } from '@neighborhood-showcase/ui/lib/utils';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from '@neighborhood-showcase/ui/components/tabs';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { z } from 'zod';
@@ -24,32 +28,16 @@ function RouteComponent() {
   return (
     <div className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-background px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
-        <div className="flex border-b p-1">
-          <button
-            type="button"
-            onClick={() => setActiveTab('signin')}
-            className={cn(
-              'flex-1 cursor-pointer rounded-lg py-3 text-center font-semibold text-sm transition-all duration-300',
-              activeTab === 'signin'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-            )}
-          >
-            Entrar
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('signup')}
-            className={cn(
-              'flex-1 cursor-pointer rounded-lg py-3 text-center font-semibold text-sm transition-all duration-300',
-              activeTab === 'signup'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-            )}
-          >
-            Criar Conta
-          </button>
-        </div>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as 'signin' | 'signup')}
+          className="gap-0"
+        >
+          <TabsList className="w-full rounded-none border-b bg-transparent p-1">
+            <TabsTrigger value="signin">Entrar</TabsTrigger>
+            <TabsTrigger value="signup">Criar Conta</TabsTrigger>
+          </TabsList>
+        </Tabs>
         <CardContent className="p-0">
           {activeTab === 'signin' ? (
             <SignInForm onSwitchToSignUp={() => setActiveTab('signup')} />

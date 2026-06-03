@@ -100,7 +100,7 @@ function ProviderPublicProfileComponent() {
           removida de acordo com a LGPD.
         </p>
         <Link to="/">
-          <Button className="mt-2 rounded-xl">Voltar para o Início</Button>
+          <Button className="mt-2">Voltar para o Início</Button>
         </Link>
       </div>
     );
@@ -125,7 +125,7 @@ function ProviderPublicProfileComponent() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Identity & Social Links Card */}
         <div className="space-y-6 lg:col-span-1">
-          <Card className="overflow-hidden rounded-2xl border border-border/50 bg-card/45 shadow-sm backdrop-blur-md">
+          <Card className="overflow-hidden border border-border">
             <CardHeader className="flex flex-col items-center border-b pb-6 text-center">
               <Avatar className="h-24 w-24 border-2 border-border shadow-sm">
                 <AvatarImage src={provider.avatarUrl || undefined} />
@@ -171,7 +171,7 @@ function ProviderPublicProfileComponent() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Button className="flex w-full items-center justify-center gap-2 rounded-xl bg-success py-5 font-semibold text-success-foreground text-xs transition-all hover:bg-success/80">
+                    <Button className="w-full">
                       <MessageCircle className="h-4.5 w-4.5" />
                       WhatsApp
                     </Button>
@@ -187,7 +187,7 @@ function ProviderPublicProfileComponent() {
                   >
                     <Button
                       variant="outline"
-                      className="flex w-full items-center justify-center gap-2 rounded-xl py-5 font-semibold text-xs"
+                      className="flex w-full items-center justify-center gap-2 py-5 font-semibold text-xs"
                     >
                       <Phone className="h-4.5 w-4.5 text-muted-foreground" />
                       Ligar ({provider.socialLinks.phone})
@@ -204,7 +204,7 @@ function ProviderPublicProfileComponent() {
                   >
                     <Button
                       variant="outline"
-                      className="flex w-full items-center justify-center gap-2 rounded-xl py-5 font-semibold text-xs"
+                      className="flex w-full items-center justify-center gap-2 py-5 font-semibold text-xs"
                     >
                       <Mail className="h-4.5 w-4.5 text-muted-foreground" />
                       Enviar E-mail
@@ -221,9 +221,9 @@ function ProviderPublicProfileComponent() {
                   >
                     <Button
                       variant="outline"
-                      className="flex w-full items-center justify-center gap-2 rounded-xl border-pink-500/30 py-5 font-semibold text-xs hover:bg-pink-50/10"
+                      className="flex w-full items-center justify-center gap-2 py-5 font-semibold text-xs"
                     >
-                      <Instagram className="h-4.5 w-4.5 text-pink-500" />
+                      <Instagram className="h-4.5 w-4.5 text-muted-foreground" />
                       Instagram
                     </Button>
                   </a>
@@ -238,9 +238,9 @@ function ProviderPublicProfileComponent() {
                   >
                     <Button
                       variant="outline"
-                      className="flex w-full items-center justify-center gap-2 rounded-xl border-slate-500/30 py-5 font-semibold text-xs hover:bg-slate-50/10"
+                      className="flex w-full items-center justify-center gap-2 py-5 font-semibold text-xs"
                     >
-                      <TiktokIcon className="h-4.5 w-4.5 text-foreground" />
+                      <TiktokIcon className="h-4.5 w-4.5 text-muted-foreground" />
                       TikTok
                     </Button>
                   </a>
@@ -259,9 +259,9 @@ function ProviderPublicProfileComponent() {
                   >
                     <Button
                       variant="outline"
-                      className="flex w-full items-center justify-center gap-2 rounded-xl border-blue-500/30 py-5 font-semibold text-xs hover:bg-blue-50/10"
+                      className="flex w-full items-center justify-center gap-2 py-5 font-semibold text-xs"
                     >
-                      <Facebook className="h-4.5 w-4.5 text-blue-600" />
+                      <Facebook className="h-4.5 w-4.5 text-muted-foreground" />
                       Facebook
                     </Button>
                   </a>
@@ -280,9 +280,9 @@ function ProviderPublicProfileComponent() {
                   >
                     <Button
                       variant="secondary"
-                      className="flex w-full items-center justify-center gap-2 rounded-xl py-5 font-semibold text-xs transition-all"
+                      className="flex w-full items-center justify-center gap-2 py-5 font-semibold text-xs"
                     >
-                      <Globe className="h-4.5 w-4.5 text-blue-500" />
+                      <Globe className="h-4.5 w-4.5 text-muted-foreground" />
                       Acessar Website
                     </Button>
                   </a>
@@ -317,7 +317,7 @@ function ProviderPublicProfileComponent() {
           </div>
 
           {announcements.length === 0 ? (
-            <Card className="flex flex-col items-center justify-center rounded-2xl border border-border border-dashed p-12 text-center">
+            <Card className="flex flex-col items-center justify-center border border-border border-dashed p-12 text-center">
               <p className="font-medium text-muted-foreground text-sm">
                 Este prestador não possui anúncios ativos no momento.
               </p>
@@ -338,22 +338,22 @@ function ProviderPublicProfileComponent() {
                     key={ad.id}
                     to="/anuncios/$id"
                     params={{ id: ad.id }}
-                    className="group flex h-full flex-col overflow-hidden rounded-2xl border bg-card/45 shadow-sm backdrop-blur-md transition-all duration-300 hover:shadow-md"
+                    className="group flex h-full flex-col overflow-hidden border bg-card"
                   >
                     <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
                       <img
                         src={ad.imageUrl}
                         alt={ad.title}
-                        className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                        className="h-full w-full object-cover object-center"
                       />
                       {ad.showVerifiedBadge && (
-                        <div className="absolute top-3 left-3 flex items-center gap-1 rounded-full bg-primary/95 px-2 py-1 font-bold text-[10px] text-primary-foreground shadow">
+                        <div className="absolute top-3 left-3 flex items-center gap-1 rounded-full bg-primary px-2 py-1 font-bold text-[10px] text-primary-foreground">
                           <CheckCircle2 className="h-3 w-3 fill-current" />
                           <span>Verificado</span>
                         </div>
                       )}
                       {!ad.condominiumId && (
-                        <div className="absolute top-3 right-3 rounded bg-warning/90 px-2 py-1 font-bold text-[10px] text-warning-foreground shadow">
+                        <div className="absolute top-3 right-3 rounded bg-warning px-2 py-1 font-bold text-[10px] text-warning-foreground">
                           Prestador Externo
                         </div>
                       )}
@@ -374,11 +374,9 @@ function ProviderPublicProfileComponent() {
                           )}
                         </span>
                       </div>
-                      <CardTitle className="line-clamp-1 text-base transition-colors group-hover:text-primary">
-                        {ad.title}
-                      </CardTitle>
+                      <CardTitle className="line-clamp-1">{ad.title}</CardTitle>
                       {ad.subtitle && (
-                        <CardDescription className="line-clamp-1 text-xs">
+                        <CardDescription className="line-clamp-1">
                           {ad.subtitle}
                         </CardDescription>
                       )}

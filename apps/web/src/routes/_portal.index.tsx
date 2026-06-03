@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@neighborhood-showcase/ui/components/card';
+import { Checkbox } from '@neighborhood-showcase/ui/components/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -337,7 +338,7 @@ function PublicVitrineComponent() {
   return (
     <div className="container mx-auto max-w-6xl px-4 py-6">
       {/* Geolocation / Selected Condo Bar */}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-4 shadow-sm backdrop-blur-sm">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-4">
         <div className="flex items-center gap-3">
           <div className="rounded-lg bg-primary/10 p-2 text-primary">
             <MapPin className="h-5 w-5" />
@@ -382,10 +383,10 @@ function PublicVitrineComponent() {
 
       {/* Subtle Geolocation Denied Re-enable Banner */}
       {geoPreference === 'denied' && (
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-warning/30 bg-warning/5 p-4 text-warning shadow-sm backdrop-blur-sm">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-warning/30 bg-warning/5 p-4 text-warning">
           <div className="flex items-center gap-3">
             <div className="rounded-lg bg-warning/10 p-2 text-warning">
-              <MapPin className="h-5 w-5 animate-pulse" />
+              <MapPin className="h-5 w-5" />
             </div>
             <div>
               <p className="font-semibold text-sm">Localização desativada</p>
@@ -416,10 +417,7 @@ function PublicVitrineComponent() {
             }
           }}
         >
-          <DialogContent
-            showCloseButton={false}
-            className="max-w-lg rounded-2xl p-6"
-          >
+          <DialogContent showCloseButton={false} className="max-w-lg p-6">
             <DialogHeader className="space-y-2 text-center">
               <div className="mx-auto rounded-full bg-primary/10 p-3 text-primary">
                 <MapPin className="h-6 w-6" />
@@ -497,10 +495,7 @@ function PublicVitrineComponent() {
 
       {/* Geolocation Permission Dialog */}
       <Dialog open={isGeoDialogOpen} onOpenChange={setIsGeoDialogOpen}>
-        <DialogContent
-          showCloseButton={false}
-          className="max-w-md rounded-2xl p-6"
-        >
+        <DialogContent showCloseButton={false} className="max-w-md p-6">
           <DialogHeader className="flex flex-col items-center gap-2 text-center">
             <div className="mb-2 rounded-full bg-primary/10 p-3 text-primary">
               <MapPin className="h-6 w-6" />
@@ -545,16 +540,14 @@ function PublicVitrineComponent() {
               placeholder="Buscar por serviços, comidas, produtos..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-card/50 py-5 pl-10"
+              className="bg-card py-5 pl-10"
             />
           </div>
-          <div className="flex items-center gap-2.5 self-start rounded-lg border bg-card/50 px-4 py-2 md:self-auto">
-            <input
-              type="checkbox"
+          <div className="flex items-center gap-2.5 self-start rounded-lg border bg-card px-4 py-2 md:self-auto">
+            <Checkbox
               id="verified-switch"
               checked={verifiedOnly}
-              onChange={(e) => setVerifiedOnly(e.target.checked)}
-              className="h-4.5 w-4.5 cursor-pointer rounded border-input text-primary focus:ring-primary"
+              onCheckedChange={(checked) => setVerifiedOnly(checked === true)}
             />
             <label
               htmlFor="verified-switch"
@@ -564,13 +557,13 @@ function PublicVitrineComponent() {
             </label>
           </div>
           {selectedCondo && (
-            <div className="flex items-center gap-2.5 self-start rounded-lg border bg-card/50 px-4 py-2 md:self-auto">
-              <input
-                type="checkbox"
+            <div className="flex items-center gap-2.5 self-start rounded-lg border bg-card px-4 py-2 md:self-auto">
+              <Checkbox
                 id="condo-filter-switch"
                 checked={filterByCondo}
-                onChange={(e) => setFilterByCondo(e.target.checked)}
-                className="h-4.5 w-4.5 cursor-pointer rounded border-input text-primary focus:ring-primary"
+                onCheckedChange={(checked) =>
+                  setFilterByCondo(checked === true)
+                }
               />
               <label
                 htmlFor="condo-filter-switch"
@@ -585,18 +578,16 @@ function PublicVitrineComponent() {
         {/* Categories Tab Swiper */}
         <div className="scrollbar-none flex gap-2 overflow-x-auto pb-2">
           {CATEGORIES.map((cat) => (
-            <button
-              type="button"
+            <Button
               key={cat}
+              type="button"
               onClick={() => setCategory(cat)}
-              className={`whitespace-nowrap rounded-full border px-4 py-2 font-semibold text-xs transition-all duration-200 ${
-                category === cat
-                  ? 'border-primary bg-primary text-primary-foreground shadow-md'
-                  : 'border-muted bg-card/50 text-muted-foreground hover:bg-muted hover:text-foreground'
-              }`}
+              variant={category === cat ? 'default' : 'outline'}
+              size="sm"
+              className="whitespace-nowrap"
             >
               {cat}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -624,13 +615,13 @@ function PublicVitrineComponent() {
               <Card
                 key={ad.id}
                 onClick={() => openAdDetails(ad.id)}
-                className="group flex h-full cursor-pointer flex-col overflow-hidden border bg-card/45 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                className="group flex h-full cursor-pointer flex-col overflow-hidden border bg-card"
               >
                 <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
                   <img
                     src={ad.imageUrl}
                     alt={ad.title}
-                    className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                    className="h-full w-full object-cover object-center"
                   />
                   {ad.showVerifiedBadge && (
                     <div className="absolute top-3 left-3 flex items-center gap-1 rounded-full bg-primary/95 px-2 py-1 font-bold text-[10px] text-primary-foreground shadow">
@@ -664,11 +655,9 @@ function PublicVitrineComponent() {
                       )}
                     </span>
                   </div>
-                  <CardTitle className="line-clamp-1 text-base transition-colors group-hover:text-primary">
-                    {ad.title}
-                  </CardTitle>
+                  <CardTitle className="line-clamp-1">{ad.title}</CardTitle>
                   {ad.subtitle && (
-                    <CardDescription className="line-clamp-1 text-xs">
+                    <CardDescription className="line-clamp-1">
                       {ad.subtitle}
                     </CardDescription>
                   )}
@@ -722,10 +711,7 @@ function PublicVitrineComponent() {
                           }}
                           className="shrink-0"
                         >
-                          <Button
-                            size="sm"
-                            className="h-8 gap-1.5 bg-success text-success-foreground hover:bg-success/80"
-                          >
+                          <Button size="sm" className="h-8">
                             <MessageCircle className="h-3.5 w-3.5" />
                             <span>WhatsApp</span>
                           </Button>
@@ -751,7 +737,7 @@ function PublicVitrineComponent() {
           })}
         </div>
       ) : (
-        <div className="rounded-2xl border bg-card py-20 text-center">
+        <div className="rounded-xl border bg-card py-20 text-center">
           <SlidersHorizontal className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
           <h3 className="mb-1 font-medium text-lg">
             Nenhum anúncio encontrado
@@ -766,16 +752,16 @@ function PublicVitrineComponent() {
       {/* Geolocation Radius Controls */}
       {geoPreference === 'granted' && coords !== null && (
         <div
-          className={`mt-8 rounded-xl border p-6 shadow-sm backdrop-blur-sm transition-all duration-300 ${
+          className={`mt-8 rounded-xl border p-6 ${
             radiusKm === 25
               ? 'border-warning/40 bg-warning/5 text-warning-foreground'
-              : 'border-border bg-card/60'
+              : 'border-border bg-card'
           }`}
         >
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <div className="flex items-start gap-3">
               <MapPin
-                className={`mt-0.5 h-5 w-5 ${radiusKm === 25 ? 'animate-bounce text-warning' : 'animate-pulse text-primary'}`}
+                className={`mt-0.5 h-5 w-5 ${radiusKm === 25 ? 'text-warning' : 'text-primary'}`}
               />
               <div>
                 <p className="font-semibold text-sm">
@@ -803,7 +789,7 @@ function PublicVitrineComponent() {
       )}
 
       {/* Become a Provider Promo Section */}
-      <div className="mt-16 rounded-2xl border bg-muted/30 p-8 text-center backdrop-blur-sm">
+      <div className="mt-16 rounded-xl border bg-muted/30 p-8 text-center">
         <h3 className="mb-2 font-bold text-lg">
           Quer divulgar seus serviços na sua vizinhança?
         </h3>
@@ -818,15 +804,15 @@ function PublicVitrineComponent() {
 
       {/* Manual Condominium Selector Modal */}
       {isSelectorOpen && (
-        <div className="fade-in fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/60 p-4 backdrop-blur-sm duration-200">
-          <div className="zoom-in-95 w-full max-w-md animate-in overflow-hidden rounded-2xl border bg-background shadow-xl duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4">
+          <div className="w-full max-w-md overflow-hidden rounded-xl border bg-background">
             <div className="flex items-center justify-between border-b p-5">
               <h2 className="font-bold text-lg">Selecionar Condomínio</h2>
               {selectedCondo && (
                 <button
                   type="button"
                   onClick={() => setIsSelectorOpen(false)}
-                  className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted"
+                  className="rounded-full p-1.5 text-muted-foreground hover:bg-muted"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -845,7 +831,7 @@ function PublicVitrineComponent() {
                   placeholder="Ex: Jardim, Floripa, 88000..."
                   value={condoSearchQuery}
                   onChange={(e) => setCondoSearchQuery(e.target.value)}
-                  className="bg-muted/40 pl-9"
+                  className="bg-muted pl-9"
                   autoFocus
                 />
               </div>
@@ -864,7 +850,7 @@ function PublicVitrineComponent() {
                       type="button"
                       key={condo.id}
                       onClick={() => selectCondoManually(condo)}
-                      className="flex w-full flex-col gap-1 rounded-lg border p-3 text-left transition-all hover:bg-muted/70"
+                      className="flex w-full flex-col gap-1 rounded-lg border p-3 text-left hover:bg-muted"
                     >
                       <span className="font-semibold text-sm">
                         {condo.name}
@@ -887,8 +873,8 @@ function PublicVitrineComponent() {
 
       {/* Detail Preview Drawer/Modal */}
       {activeAdId && (
-        <div className="fade-in fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/70 p-4 backdrop-blur-sm duration-200">
-          <div className="zoom-in-95 flex max-h-[90vh] w-full max-w-lg animate-in flex-col overflow-hidden rounded-2xl border bg-background shadow-2xl duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4">
+          <div className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-xl border bg-background">
             <div className="flex items-center justify-between border-b p-4">
               <span className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">
                 Visualizar Anúncio
@@ -896,7 +882,7 @@ function PublicVitrineComponent() {
               <button
                 type="button"
                 onClick={closeAdDetails}
-                className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted"
+                className="rounded-full p-1.5 text-muted-foreground hover:bg-muted"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -920,7 +906,7 @@ function PublicVitrineComponent() {
                       className="h-full w-full object-cover object-center"
                     />
                     {activeAdQuery.data.showVerifiedBadge && (
-                      <div className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full bg-primary/95 px-3 py-1.5 font-semibold text-primary-foreground text-xs shadow-md">
+                      <div className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 font-semibold text-primary-foreground text-xs">
                         <CheckCircle2 className="h-3.5 w-3.5 fill-current" />
                         <span>Morador Verificado</span>
                       </div>
@@ -1013,7 +999,7 @@ function PublicVitrineComponent() {
                               )
                             }
                           >
-                            <Button className="flex w-full items-center justify-center gap-2 bg-success py-5 font-semibold text-sm text-success-foreground hover:bg-success/80">
+                            <Button className="w-full">
                               <MessageCircle className="h-4.5 w-4.5" />
                               WhatsApp
                             </Button>
@@ -1032,11 +1018,8 @@ function PublicVitrineComponent() {
                               )
                             }
                           >
-                            <Button
-                              variant="outline"
-                              className="flex w-full items-center justify-center gap-2 border-pink-500/30 py-5 font-semibold text-sm hover:bg-pink-50/10"
-                            >
-                              <Instagram className="h-4.5 w-4.5 text-pink-500" />
+                            <Button variant="outline" className="w-full">
+                              <Instagram className="h-4.5 w-4.5 text-muted-foreground" />
                               Instagram
                             </Button>
                           </a>
@@ -1061,11 +1044,8 @@ function PublicVitrineComponent() {
                             }
                             className="sm:col-span-2"
                           >
-                            <Button
-                              variant="secondary"
-                              className="flex w-full items-center justify-center gap-2 py-5 font-semibold text-sm"
-                            >
-                              <Globe className="h-4.5 w-4.5 text-blue-500" />
+                            <Button variant="secondary" className="w-full">
+                              <Globe className="h-4.5 w-4.5 text-muted-foreground" />
                               Website
                             </Button>
                           </a>

@@ -145,11 +145,10 @@ function PaymentComponent() {
   if (currentStatus === 'PAID') {
     return (
       <div className="mx-auto flex min-h-[80vh] max-w-md flex-col items-center justify-center p-4 md:p-8">
-        <div className="relative flex w-full flex-col items-center justify-center space-y-6 rounded-2xl border bg-card p-8 text-center text-card-foreground shadow-lg">
+        <div className="relative flex w-full flex-col items-center justify-center space-y-6 rounded-xl border bg-card p-8 text-center text-card-foreground">
           {/* Custom Success Checkmark Animation */}
           <div className="relative">
-            <div className="absolute inset-0 animate-pulse rounded-full bg-success/20 blur-xl" />
-            <CheckCircle2 className="relative z-10 h-20 w-20 animate-scale-up text-success" />
+            <CheckCircle2 className="relative z-10 h-20 w-20 text-success" />
           </div>
           <div>
             <h1 className="font-bold text-2xl text-foreground">
@@ -173,18 +172,18 @@ function PaymentComponent() {
 
   return (
     <div className="mx-auto max-w-md space-y-6 p-4 md:p-8">
-      <Card className="shadow-lg">
+      <Card>
         <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2 font-bold text-foreground text-xl">
+          <CardTitle className="flex items-center justify-center gap-2">
             Pagamento Pix <Timer className="h-5 w-5 text-primary" />
           </CardTitle>
-          <CardDescription className="text-muted-foreground">
+          <CardDescription>
             Pague a taxa única de R$ 2,00 para ativar o seu anúncio por 30 dias.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center space-y-6">
           {/* Value display */}
-          <div className="w-full rounded-lg border bg-muted/50 py-4 text-center">
+          <div className="w-full rounded-lg border bg-muted py-4 text-center">
             <span className="block font-semibold text-muted-foreground text-xs uppercase tracking-wider">
               Valor a pagar
             </span>
@@ -195,9 +194,9 @@ function PaymentComponent() {
 
           {/* Pix QR Code */}
           {payment?.pixQrCode ? (
-            <div className="relative rounded-xl border border-border bg-card p-3 shadow-inner">
+            <div className="relative rounded-xl border border-border bg-card p-3">
               {timeLeft <= 0 ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-background/90 p-4 text-center">
+                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-background p-4 text-center">
                   <Timer className="mb-2 h-8 w-8 text-destructive" />
                   <p className="font-semibold text-foreground text-xs">
                     QR Code Expirado

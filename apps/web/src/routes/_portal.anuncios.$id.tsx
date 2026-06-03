@@ -164,16 +164,16 @@ function PublicAnnouncementDetailsComponent() {
           </Button>
         )}
       </div>
-      <Card className="overflow-hidden border bg-card/50 shadow-lg backdrop-blur-sm">
+      <Card className="overflow-hidden border bg-card">
         {/* Cover image 4:3 */}
         <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
           <img
             src={ad.imageUrl}
             alt={ad.title}
-            className="h-full w-full object-cover object-center transition-transform duration-300 hover:scale-105"
+            className="h-full w-full object-cover object-center"
           />
           {ad.showVerifiedBadge && (
-            <div className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full bg-primary/95 px-3 py-1.5 font-semibold text-primary-foreground text-xs shadow-md">
+            <div className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 font-semibold text-primary-foreground text-xs">
               <CheckCircle2 className="h-3.5 w-3.5 fill-current" />
               <span>Morador Verificado</span>
             </div>
@@ -241,7 +241,7 @@ function PublicAnnouncementDetailsComponent() {
           )}
 
           {/* Provider Identity Card */}
-          <div className="mb-8 rounded-xl border border-muted bg-muted/20 p-4">
+          <div className="mb-8 rounded-xl border border-muted bg-muted p-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12 border">
@@ -289,7 +289,7 @@ function PublicAnnouncementDetailsComponent() {
                   rel="noopener noreferrer"
                   onClick={() => handleContactClick('WHATSAPP')}
                 >
-                  <Button className="flex w-full items-center justify-center gap-2 bg-success py-6 font-medium text-success-foreground hover:bg-success/80">
+                  <Button className="w-full">
                     <MessageCircle className="h-5 w-5" />
                     Enviar WhatsApp
                   </Button>
@@ -339,9 +339,9 @@ function PublicAnnouncementDetailsComponent() {
                 >
                   <Button
                     variant="outline"
-                    className="flex w-full items-center justify-center gap-2 border-pink-500/30 py-6 font-medium hover:bg-pink-50/10"
+                    className="flex w-full items-center justify-center gap-2 py-6 font-medium"
                   >
-                    <Instagram className="h-5 w-5 text-pink-500" />
+                    <Instagram className="h-5 w-5 text-muted-foreground" />
                     Ver Instagram
                   </Button>
                 </a>
@@ -356,9 +356,9 @@ function PublicAnnouncementDetailsComponent() {
                 >
                   <Button
                     variant="outline"
-                    className="flex w-full items-center justify-center gap-2 border-slate-500/30 py-6 font-medium hover:bg-slate-50/10"
+                    className="flex w-full items-center justify-center gap-2 py-6 font-medium"
                   >
-                    <TiktokIcon className="h-5 w-5 text-foreground" />
+                    <TiktokIcon className="h-5 w-5 text-muted-foreground" />
                     Ver TikTok
                   </Button>
                 </a>
@@ -373,9 +373,9 @@ function PublicAnnouncementDetailsComponent() {
                 >
                   <Button
                     variant="outline"
-                    className="flex w-full items-center justify-center gap-2 border-blue-500/30 py-6 font-medium hover:bg-blue-50/10"
+                    className="flex w-full items-center justify-center gap-2 py-6 font-medium"
                   >
-                    <Facebook className="h-5 w-5 text-blue-600" />
+                    <Facebook className="h-5 w-5 text-muted-foreground" />
                     Ver Facebook
                   </Button>
                 </a>
@@ -396,7 +396,7 @@ function PublicAnnouncementDetailsComponent() {
                     variant="secondary"
                     className="flex w-full items-center justify-center gap-2 py-6 font-medium"
                   >
-                    <Globe className="h-5 w-5 text-blue-500" />
+                    <Globe className="h-5 w-5 text-muted-foreground" />
                     Acessar Website
                   </Button>
                 </a>
@@ -485,7 +485,7 @@ function ReportDialog({
                   value={r.value}
                   checked={reason === r.value}
                   onChange={() => setReason(r.value)}
-                  className="h-4 w-4 border-primary text-primary focus:ring-primary"
+                  className="h-4 w-4 border-primary text-primary focus:ring-ring"
                 />
                 <span className="font-medium text-foreground text-sm">
                   {r.label}
@@ -507,7 +507,7 @@ function ReportDialog({
             <Button
               type="submit"
               disabled={reportMutation.isPending}
-              className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="flex-1"
             >
               {reportMutation.isPending ? 'Enviando...' : 'Denunciar'}
             </Button>

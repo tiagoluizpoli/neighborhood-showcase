@@ -88,9 +88,7 @@ export default function SignUpForm({
           <form.Field name="name">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="text-foreground">
-                  Nome Completo
-                </Label>
+                <Label htmlFor={field.name}>Nome Completo</Label>
                 <Input
                   id={field.name}
                   name={field.name}
@@ -114,9 +112,7 @@ export default function SignUpForm({
           <form.Field name="email">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="text-foreground">
-                  E-mail
-                </Label>
+                <Label htmlFor={field.name}>E-mail</Label>
                 <Input
                   id={field.name}
                   name={field.name}
@@ -141,9 +137,7 @@ export default function SignUpForm({
           <form.Field name="password">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="text-foreground">
-                  Senha
-                </Label>
+                <Label htmlFor={field.name}>Senha</Label>
                 <Input
                   id={field.name}
                   name={field.name}
@@ -168,9 +162,7 @@ export default function SignUpForm({
           <form.Field name="phone">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="text-foreground">
-                  Telefone
-                </Label>
+                <Label htmlFor={field.name}>Telefone</Label>
                 <Input
                   id={field.name}
                   name={field.name}
@@ -195,9 +187,7 @@ export default function SignUpForm({
           <form.Field name="cpf">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name} className="text-foreground">
-                  CPF
-                </Label>
+                <Label htmlFor={field.name}>CPF</Label>
                 <Input
                   id={field.name}
                   name={field.name}

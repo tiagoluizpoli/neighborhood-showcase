@@ -146,7 +146,7 @@ function AccountPageComponent() {
         {/* Form Container */}
         <div className="space-y-6 md:col-span-2">
           <form onSubmit={handleSave} className="space-y-6">
-            <Card className="rounded-xl border shadow-sm">
+            <Card>
               <CardHeader className="border-b pb-4">
                 <CardTitle>Perfil Público</CardTitle>
                 <CardDescription>
@@ -163,7 +163,7 @@ function AccountPageComponent() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Ex: Tiago Poli"
-                    className="h-10 rounded-xl"
+                    className="h-10"
                   />
                   <p className="text-muted-foreground text-xs">
                     Use o nome pelo qual você quer ser identificado nos seus
@@ -177,7 +177,7 @@ function AccountPageComponent() {
                     type="email"
                     disabled
                     value={session.user.email}
-                    className="h-10 rounded-xl bg-muted"
+                    className="h-10 bg-muted"
                   />
                   <p className="text-muted-foreground text-xs">
                     O e-mail da conta não pode ser alterado diretamente.
@@ -185,7 +185,7 @@ function AccountPageComponent() {
                 </div>
 
                 <div className="pt-2">
-                  <div className="flex items-start space-x-3 rounded-lg border bg-muted/20 p-4">
+                  <div className="flex items-start space-x-3 rounded-lg border bg-muted p-4">
                     <Checkbox
                       id="isProviderVisible"
                       checked={isProviderVisible}
@@ -211,7 +211,7 @@ function AccountPageComponent() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-xl border shadow-sm">
+            <Card>
               <CardHeader className="border-b pb-4">
                 <CardTitle>Canais de Contato & Redes Sociais</CardTitle>
                 <CardDescription>
@@ -228,7 +228,7 @@ function AccountPageComponent() {
                       value={whatsapp}
                       onChange={(e) => setWhatsapp(e.target.value)}
                       placeholder="Ex: 11999999999"
-                      className="h-10 rounded-xl"
+                      className="h-10"
                     />
                   </div>
 
@@ -239,7 +239,7 @@ function AccountPageComponent() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="Ex: 11999999999"
-                      className="h-10 rounded-xl"
+                      className="h-10"
                     />
                   </div>
 
@@ -251,7 +251,7 @@ function AccountPageComponent() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Ex: contato@exemplo.com"
-                      className="h-10 rounded-xl"
+                      className="h-10"
                     />
                   </div>
 
@@ -264,7 +264,7 @@ function AccountPageComponent() {
                       value={instagram}
                       onChange={(e) => setInstagram(e.target.value)}
                       placeholder="Ex: seunome.oficial"
-                      className="h-10 rounded-xl"
+                      className="h-10"
                     />
                   </div>
 
@@ -275,7 +275,7 @@ function AccountPageComponent() {
                       value={tiktok}
                       onChange={(e) => setTiktok(e.target.value)}
                       placeholder="Ex: seunome.oficial"
-                      className="h-10 rounded-xl"
+                      className="h-10"
                     />
                   </div>
 
@@ -286,7 +286,7 @@ function AccountPageComponent() {
                       value={facebook}
                       onChange={(e) => setFacebook(e.target.value)}
                       placeholder="Ex: seunome.oficial"
-                      className="h-10 rounded-xl"
+                      className="h-10"
                     />
                   </div>
                 </div>
@@ -299,7 +299,7 @@ function AccountPageComponent() {
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
                     placeholder="Ex: https://meuservico.com.br"
-                    className="h-10 rounded-xl"
+                    className="h-10"
                   />
                 </div>
               </CardContent>
@@ -307,7 +307,7 @@ function AccountPageComponent() {
                 <Button
                   type="submit"
                   disabled={updateProfileMutation.isPending}
-                  className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-semibold text-primary-foreground text-sm transition-all hover:bg-primary/90"
+                  className="flex items-center gap-2 px-5 py-2.5 font-semibold text-sm"
                 >
                   {updateProfileMutation.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -323,9 +323,9 @@ function AccountPageComponent() {
 
         {/* Account Info Side Panel */}
         <div className="space-y-6">
-          <Card className="rounded-xl border border-destructive/20 shadow-sm">
+          <Card className="border-destructive/20">
             <CardHeader className="border-b pb-4">
-              <CardTitle className="text-destructive">Zona de Risco</CardTitle>
+              <CardTitle>Zona de Risco</CardTitle>
               <CardDescription>
                 Ações irreversíveis relacionadas à sua conta.
               </CardDescription>
@@ -342,7 +342,7 @@ function AccountPageComponent() {
                 type="button"
                 variant="destructive"
                 onClick={() => setShowDeleteModal(true)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold text-sm"
+                className="flex w-full items-center justify-center gap-2 px-4 py-2.5 font-semibold text-sm"
               >
                 <UserX className="h-4 w-4" />
                 Excluir Minha Conta
@@ -354,8 +354,8 @@ function AccountPageComponent() {
 
       {/* Soft Delete Account Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fade-in fixed inset-0 z-50 flex animate-in items-center justify-center bg-background/80 p-4 backdrop-blur-sm duration-200">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 text-center shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4">
+          <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
               <AlertTriangle className="h-6 w-6" />
             </div>
@@ -366,7 +366,7 @@ function AccountPageComponent() {
               Esta ação é <strong>irreversível</strong> e em conformidade com a{' '}
               <strong>LGPD</strong>.
             </p>
-            <p className="mt-2 rounded-xl border border-border bg-muted/50 p-3 text-muted-foreground text-xs leading-relaxed">
+            <p className="mt-2 rounded-xl border border-border bg-muted p-3 text-muted-foreground text-xs leading-relaxed">
               Seus dados pessoais (nome, e-mail, telefone e CPF) serão apagados
               permanentemente. Seus anúncios serão removidos da vitrine pública.
               Registros financeiros de transações serão mantidos de forma
@@ -376,7 +376,7 @@ function AccountPageComponent() {
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
-                className="flex-1 rounded-xl border border-border bg-secondary py-2.5 font-semibold text-muted-foreground text-sm transition-colors hover:bg-accent hover:text-foreground"
+                className="flex-1 border border-border bg-secondary py-2.5 font-semibold text-muted-foreground text-sm hover:bg-accent hover:text-foreground"
               >
                 Cancelar
               </button>
@@ -384,7 +384,7 @@ function AccountPageComponent() {
                 type="button"
                 onClick={() => deleteAccountMutation.mutate()}
                 disabled={deleteAccountMutation.isPending}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-destructive py-2.5 font-semibold text-sm text-white transition-colors hover:bg-destructive/90 disabled:opacity-50"
+                className="inline-flex flex-1 items-center justify-center gap-2 py-2.5 font-semibold text-sm disabled:opacity-50"
               >
                 {deleteAccountMutation.isPending && (
                   <Loader2 className="h-4 w-4 animate-spin" />

@@ -336,10 +336,8 @@ function AdminDashboard() {
                     className="flex flex-col justify-between"
                   >
                     <CardHeader>
-                      <CardTitle className="font-semibold text-foreground text-lg">
-                        {condo.name}
-                      </CardTitle>
-                      <CardDescription className="text-muted-foreground">
+                      <CardTitle>{condo.name}</CardTitle>
+                      <CardDescription>
                         {condo.city} - {condo.state} | CEP: {condo.cep}
                       </CardDescription>
                     </CardHeader>
@@ -600,18 +598,14 @@ function AdminDashboard() {
             <div className="lg:col-span-1">
               <Card>
                 <CardHeader>
-                  <CardTitle className="font-semibold text-foreground text-lg">
-                    Adicionar CPF Blacklist
-                  </CardTitle>
-                  <CardDescription className="text-muted-foreground text-xs">
+                  <CardTitle>Adicionar CPF Blacklist</CardTitle>
+                  <CardDescription>
                     Bloqueie um CPF informando seu Hash SHA-256 e o motivo.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-1.5">
-                    <Label className="font-medium text-foreground text-xs">
-                      CPF Hash (SHA-256) *
-                    </Label>
+                    <Label>CPF Hash (SHA-256) *</Label>
                     <Input
                       placeholder="Ex: 85afb35c0245a49..."
                       value={newCpfHash}
@@ -619,9 +613,7 @@ function AdminDashboard() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="font-medium text-foreground text-xs">
-                      Motivo do Bloqueio *
-                    </Label>
+                    <Label>Motivo do Bloqueio *</Label>
                     <Input
                       placeholder="Ex: Histórico de golpes em outros sistemas"
                       value={blacklistReason}
@@ -907,7 +899,7 @@ function AdminDashboard() {
                             {/* Assign Moderator */}
                             {u.status === 'ACTIVE' &&
                               (assigningUserId === u.id ? (
-                                <div className="inline-flex w-52 flex-col gap-2 rounded-xl border border-border bg-muted/30 p-3 text-left">
+                                <div className="inline-flex w-52 flex-col gap-2 rounded-xl border border-border bg-muted p-3 text-left">
                                   <p className="font-medium text-foreground text-xs">
                                     Atribuir Moderador
                                   </p>
@@ -982,8 +974,8 @@ function AdminDashboard() {
 
       {/* Document Preview Modal */}
       {previewUrl && (
-        <div className="fixed inset-0 z-50 flex animate-fade-in items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="relative flex h-[85vh] w-full max-w-4xl flex-col rounded-xl border bg-card shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4">
+          <div className="relative flex h-[85vh] w-full max-w-4xl flex-col rounded-xl border bg-card">
             <button
               type="button"
               onClick={() => setPreviewUrl(null)}
@@ -996,7 +988,7 @@ function AdminDashboard() {
                 <iframe
                   title="Document Preview"
                   src={previewUrl}
-                  className="h-full w-full rounded-lg bg-white"
+                  className="h-full w-full rounded-lg bg-background"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center overflow-auto">

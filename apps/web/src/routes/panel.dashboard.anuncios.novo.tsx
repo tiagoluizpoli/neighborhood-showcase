@@ -7,8 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@neighborhood-showcase/ui/components/card';
+import { Checkbox } from '@neighborhood-showcase/ui/components/checkbox';
 import { Input } from '@neighborhood-showcase/ui/components/input';
 import { Label } from '@neighborhood-showcase/ui/components/label';
+import { Textarea } from '@neighborhood-showcase/ui/components/textarea';
 import {
   Tooltip,
   TooltipContent,
@@ -221,12 +223,11 @@ function NewAnnouncementComponent() {
           variant="outline"
           size="icon"
           onClick={() => navigate({ to: '/panel/dashboard' })}
-          className="border bg-card text-muted-foreground hover:bg-accent hover:text-foreground"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="flex items-center gap-2 font-bold text-2xl text-white tracking-tight">
+          <h1 className="flex items-center gap-2 font-bold text-2xl text-foreground tracking-tight">
             Novo Anúncio <Sparkles className="h-5 w-5 text-warning" />
           </h1>
           <p className="text-muted-foreground text-sm">
@@ -241,12 +242,10 @@ function NewAnnouncementComponent() {
       >
         {/* Form Fields Column */}
         <div className="space-y-6 md:col-span-2">
-          <Card className="border bg-card">
+          <Card>
             <CardHeader>
-              <CardTitle className="text-lg text-white">
-                Detalhes do Anúncio
-              </CardTitle>
-              <CardDescription className="text-muted-foreground">
+              <CardTitle>Detalhes do Anúncio</CardTitle>
+              <CardDescription>
                 Insira as informações gerais sobre seu produto ou serviço.
               </CardDescription>
             </CardHeader>
@@ -254,16 +253,12 @@ function NewAnnouncementComponent() {
               {/* Location Selector */}
               {isLoadingAssignments ? (
                 <div className="space-y-2">
-                  <Label className="font-medium text-muted-foreground text-sm">
-                    Localização
-                  </Label>
+                  <Label>Localização</Label>
                   <div className="h-10 w-full animate-pulse rounded bg-muted" />
                 </div>
               ) : approvedLocations.length === 0 ? (
                 <div className="space-y-2">
-                  <Label className="font-medium text-muted-foreground text-sm">
-                    Localização
-                  </Label>
+                  <Label>Localização</Label>
                   <div className="rounded border border-warning/30 bg-warning/10 p-3 text-sm text-warning">
                     Você não possui nenhuma localização aprovada. Cadastre-se em
                     um condomínio ou registre-se de forma autônoma antes de
@@ -273,17 +268,14 @@ function NewAnnouncementComponent() {
               ) : (
                 approvedLocations.length > 1 && (
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="location-select"
-                      className="font-medium text-muted-foreground text-sm"
-                    >
+                    <Label htmlFor="location-select">
                       Localização do Anúncio *
                     </Label>
                     <select
                       id="location-select"
                       value={selectedLocationId}
                       onChange={(e) => setSelectedLocationId(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 dark:bg-input/30"
                     >
                       <option value="" disabled>
                         Selecione a localização...
@@ -302,33 +294,25 @@ function NewAnnouncementComponent() {
 
               {/* Category selector */}
               <div className="space-y-2">
-                <Label className="font-medium text-muted-foreground text-sm">
-                  Categoria
-                </Label>
+                <Label>Categoria</Label>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {CATEGORIES.map((cat) => (
-                    <button
+                    <Button
                       key={cat}
                       type="button"
                       onClick={() => setCategory(cat)}
-                      className={`rounded-md border px-3 py-2 font-semibold text-xs transition-all ${
-                        category === cat
-                          ? 'border-primary bg-primary text-primary-foreground shadow-sm'
-                          : 'border bg-background text-muted-foreground hover:bg-card hover:text-foreground'
-                      }`}
+                      variant={category === cat ? 'default' : 'outline'}
+                      size="sm"
                     >
                       {cat}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
 
               {/* Title & Subtitle */}
               <div className="space-y-2">
-                <Label
-                  htmlFor="title"
-                  className="font-medium text-muted-foreground text-sm"
-                >
+                <Label htmlFor="title">
                   Título <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -339,7 +323,6 @@ function NewAnnouncementComponent() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
-                  className="border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring"
                 />
                 <div className="flex justify-end text-[10px] text-muted-foreground">
                   {title.length}/100 caracteres
@@ -347,12 +330,7 @@ function NewAnnouncementComponent() {
               </div>
 
               <div className="space-y-2">
-                <Label
-                  htmlFor="subtitle"
-                  className="font-medium text-muted-foreground text-sm"
-                >
-                  Subtítulo (opcional)
-                </Label>
+                <Label htmlFor="subtitle">Subtítulo (opcional)</Label>
                 <Input
                   id="subtitle"
                   type="text"
@@ -360,19 +338,15 @@ function NewAnnouncementComponent() {
                   placeholder="Ex: Entregas gratuitas às sextas-feiras"
                   value={subtitle}
                   onChange={(e) => setSubtitle(e.target.value)}
-                  className="border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring"
                 />
               </div>
 
               {/* Description */}
               <div className="space-y-2">
-                <Label
-                  htmlFor="description"
-                  className="font-medium text-muted-foreground text-sm"
-                >
+                <Label htmlFor="description">
                   Descrição Completa <span className="text-destructive">*</span>
                 </Label>
-                <textarea
+                <Textarea
                   id="description"
                   rows={4}
                   maxLength={2000}
@@ -380,7 +354,7 @@ function NewAnnouncementComponent() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   required
-                  className="flex min-h-[100px] w-full rounded-md border border bg-background px-3 py-2 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="min-h-[100px]"
                 />
                 <div className="flex justify-between text-[10px] text-muted-foreground">
                   <span>Mínimo 10 caracteres</span>
@@ -391,36 +365,24 @@ function NewAnnouncementComponent() {
               {/* Price & Tags */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="price"
-                    className="font-medium text-muted-foreground text-sm"
-                  >
-                    Preço Inicial (opcional)
-                  </Label>
+                  <Label htmlFor="price">Preço Inicial (opcional)</Label>
                   <Input
                     id="price"
                     type="text"
                     placeholder="Ex: R$ 45,00"
                     value={priceStr}
                     onChange={(e) => setPriceStr(e.target.value)}
-                    className="border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="tags"
-                    className="font-medium text-muted-foreground text-sm"
-                  >
-                    Tags / Palavras-chave
-                  </Label>
+                  <Label htmlFor="tags">Tags / Palavras-chave</Label>
                   <Input
                     id="tags"
                     type="text"
                     placeholder="Ex: bolo doce festa caseiro"
                     value={tagsStr}
                     onChange={(e) => setTagsStr(e.target.value)}
-                    className="border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring"
                   />
                   <p className="text-[10px] text-muted-foreground">
                     Separe por espaço ou vírgula.
@@ -431,22 +393,17 @@ function NewAnnouncementComponent() {
           </Card>
 
           {/* Contact Links Card */}
-          <Card className="border bg-card">
+          <Card>
             <CardHeader>
-              <CardTitle className="text-lg text-white">
-                Canais de Contato
-              </CardTitle>
-              <CardDescription className="text-muted-foreground">
+              <CardTitle>Canais de Contato</CardTitle>
+              <CardDescription>
                 Forneça pelo menos uma opção para os vizinhos entrarem em
                 contato.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label
-                  htmlFor="whatsapp"
-                  className="font-medium text-muted-foreground text-sm"
-                >
+                <Label htmlFor="whatsapp">
                   WhatsApp (apenas números com DDD)
                 </Label>
                 <Input
@@ -455,32 +412,22 @@ function NewAnnouncementComponent() {
                   placeholder="Ex: 11999999999"
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
-                  className="border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label
-                  htmlFor="instagram"
-                  className="font-medium text-muted-foreground text-sm"
-                >
-                  Perfil do Instagram
-                </Label>
+                <Label htmlFor="instagram">Perfil do Instagram</Label>
                 <Input
                   id="instagram"
                   type="text"
                   placeholder="Ex: @seu_negocio"
                   value={instagram}
                   onChange={(e) => setInstagram(e.target.value)}
-                  className="border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label
-                  htmlFor="website"
-                  className="font-medium text-muted-foreground text-sm"
-                >
+                <Label htmlFor="website">
                   Website / Cardápio Online (link completo)
                 </Label>
                 <Input
@@ -489,7 +436,6 @@ function NewAnnouncementComponent() {
                   placeholder="Ex: https://meusite.com.br"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
-                  className="border bg-background text-foreground placeholder:text-muted-foreground focus:ring-ring"
                 />
               </div>
             </CardContent>
@@ -499,12 +445,10 @@ function NewAnnouncementComponent() {
         {/* Media & Cropper Column */}
         <div className="space-y-6">
           {/* Cropper Card */}
-          <Card className="border bg-card">
+          <Card>
             <CardHeader>
-              <CardTitle className="text-lg text-white">
-                Imagem de Capa
-              </CardTitle>
-              <CardDescription className="text-muted-foreground">
+              <CardTitle>Imagem de Capa</CardTitle>
+              <CardDescription>
                 Imagens são obrigatórias e devem possuir a proporção 4:3.
               </CardDescription>
             </CardHeader>
@@ -513,9 +457,9 @@ function NewAnnouncementComponent() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="group flex aspect-[4/3] w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-2 border-dashed bg-background p-6 transition-all hover:bg-card/50"
+                  className="group flex aspect-[4/3] w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-2 border-dashed bg-background p-6 hover:bg-card"
                 >
-                  <UploadCloud className="mb-3 h-10 w-10 animate-bounce text-muted-foreground transition-colors group-hover:text-primary" />
+                  <UploadCloud className="mb-3 h-10 w-10 text-muted-foreground transition-colors group-hover:text-primary" />
                   <p className="font-semibold text-foreground text-xs">
                     Escolher imagem
                   </p>
@@ -556,7 +500,7 @@ function NewAnnouncementComponent() {
                       onChange={(e) =>
                         setZoom(Number.parseFloat(e.target.value))
                       }
-                      className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-indigo-500"
+                      className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-primary"
                     />
                   </div>
 
@@ -568,7 +512,7 @@ function NewAnnouncementComponent() {
                       setCroppedAreaPixels(null);
                       if (fileInputRef.current) fileInputRef.current.value = '';
                     }}
-                    className="h-8 w-full border bg-background py-1 text-muted-foreground text-xs hover:bg-card"
+                    className="w-full"
                   >
                     Trocar imagem
                   </Button>
@@ -586,16 +530,14 @@ function NewAnnouncementComponent() {
           </Card>
 
           {/* Badge & Trust Card */}
-          <Card className="border bg-card">
+          <Card>
             <CardHeader>
-              <CardTitle className="text-lg text-white">
-                Confiança & Selos
-              </CardTitle>
+              <CardTitle>Confiança & Selos</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg border border bg-background/60 p-3">
+              <div className="flex items-center justify-between rounded-lg border border bg-background p-3">
                 <div className="space-y-0.5">
-                  <div className="flex items-center gap-1.5 font-semibold text-sm text-white">
+                  <div className="flex items-center gap-1.5 font-semibold text-foreground text-sm">
                     Selo Morador Verificado
                   </div>
                   <p className="text-muted-foreground text-xs">
@@ -609,15 +551,13 @@ function NewAnnouncementComponent() {
                       <TooltipTrigger
                         render={
                           <span className="inline-block">
-                            <input
-                              type="checkbox"
+                            <Checkbox
                               id="verified-badge-toggle"
                               disabled={!canVerify}
                               checked={showVerifiedBadge}
-                              onChange={(e) =>
-                                setShowVerifiedBadge(e.target.checked)
+                              onCheckedChange={(checked) =>
+                                setShowVerifiedBadge(checked === true)
                               }
-                              className="h-4 w-4 cursor-pointer accent-primary disabled:cursor-not-allowed disabled:opacity-50"
                             />
                           </span>
                         }
@@ -652,7 +592,7 @@ function NewAnnouncementComponent() {
             <Button
               type="submit"
               disabled={isUploading || createMutation.isPending}
-              className="w-full bg-primary py-3 font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
+              className="w-full"
             >
               {isUploading ? (
                 <span className="flex items-center gap-2">
@@ -674,7 +614,7 @@ function NewAnnouncementComponent() {
               type="button"
               variant="outline"
               onClick={() => navigate({ to: '/panel/dashboard' })}
-              className="w-full border text-muted-foreground hover:bg-card/50"
+              className="w-full"
             >
               Cancelar
             </Button>

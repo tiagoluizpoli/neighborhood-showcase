@@ -283,32 +283,23 @@ function CondoSetupComponent() {
   );
   if (approvedAssignment) {
     return (
-      <div className="relative flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 -z-10 bg-background">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.12),transparent_45%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.12),transparent_45%)]" />
-        </div>
-
-        <Card className="w-full max-w-md border bg-card p-6 text-center shadow-lg">
+      <div className="flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-md p-6 text-center">
           <CardHeader>
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10 text-green-400">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted text-primary">
               <Check className="h-8 w-8" />
             </div>
-            <CardTitle className="font-bold text-2xl text-green-400">
-              Associação Aprovada!
-            </CardTitle>
-            <CardDescription className="mt-2 text-muted-foreground">
+            <CardTitle>Associação Aprovada!</CardTitle>
+            <CardDescription className="mt-2">
               Sua associação ao condomínio{' '}
-              <strong className="text-primary">
-                {approvedAssignment.condominium?.name}
-              </strong>{' '}
-              foi aprovada.
+              <strong>{approvedAssignment.condominium?.name}</strong> foi
+              aprovada.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button
               onClick={() => navigate({ to: '/panel/dashboard' })}
-              className="w-full bg-primary hover:bg-primary/90"
+              className="w-full"
             >
               Ir para o Painel
             </Button>
@@ -321,26 +312,17 @@ function CondoSetupComponent() {
   const pendingAssignment = myAssignments?.find((a) => a.status === 'PENDING');
   if (pendingAssignment) {
     return (
-      <div className="relative flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 -z-10 bg-background">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.12),transparent_45%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.12),transparent_45%)]" />
-        </div>
-
-        <Card className="w-full max-w-lg border bg-card p-6 text-center shadow-lg">
+      <div className="flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-lg p-6 text-center">
           <CardHeader>
-            <div className="mx-auto mb-4 flex h-16 w-16 animate-pulse items-center justify-center rounded-full bg-indigo-500/10 text-primary">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted text-primary">
               <Clock className="h-8 w-8" />
             </div>
-            <CardTitle className="font-bold text-2xl text-foreground">
-              Solicitação Pendente
-            </CardTitle>
-            <CardDescription className="mt-2 text-muted-foreground">
+            <CardTitle>Solicitação Pendente</CardTitle>
+            <CardDescription className="mt-2">
               Sua solicitação de acesso para o condomínio{' '}
-              <strong className="text-primary">
-                {pendingAssignment.condominium?.name}
-              </strong>{' '}
-              está em análise.
+              <strong>{pendingAssignment.condominium?.name}</strong> está em
+              análise.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -375,7 +357,7 @@ function CondoSetupComponent() {
             <Button
               variant="outline"
               onClick={() => myAssignmentsQuery.refetch()}
-              className="mt-4 border text-foreground hover:bg-accent"
+              className="mt-4"
             >
               Atualizar Status
             </Button>
@@ -388,24 +370,16 @@ function CondoSetupComponent() {
   // If the user already has a pending condo creation
   if (myCondo && myCondo.status === 'PENDING_APPROVAL') {
     return (
-      <div className="relative flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 -z-10 bg-background">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.12),transparent_45%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.12),transparent_45%)]" />
-        </div>
-
-        <Card className="w-full max-w-lg border bg-card p-6 text-center shadow-lg">
+      <div className="flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-lg p-6 text-center">
           <CardHeader>
-            <div className="mx-auto mb-4 flex h-16 w-16 animate-pulse items-center justify-center rounded-full bg-indigo-500/10 text-primary">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted text-primary">
               <Clock className="h-8 w-8" />
             </div>
-            <CardTitle className="font-bold text-2xl text-foreground">
-              Cadastro em Análise
-            </CardTitle>
-            <CardDescription className="mt-2 text-muted-foreground">
-              O condomínio{' '}
-              <strong className="text-primary">{myCondo.name}</strong> foi
-              enviado para aprovação.
+            <CardTitle>Cadastro em Análise</CardTitle>
+            <CardDescription className="mt-2">
+              O condomínio <strong>{myCondo.name}</strong> foi enviado para
+              aprovação.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -438,7 +412,7 @@ function CondoSetupComponent() {
             <Button
               variant="outline"
               onClick={() => myCondoQuery.refetch()}
-              className="mt-4 border text-foreground hover:bg-accent"
+              className="mt-4"
             >
               Atualizar Status
             </Button>
@@ -451,20 +425,18 @@ function CondoSetupComponent() {
   // If approved, redirect to dashboard or show completion
   if (myCondo && myCondo.status === 'APPROVED') {
     return (
-      <div className="relative flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md border bg-card p-6 text-center shadow-lg">
+      <div className="flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-md p-6 text-center">
           <CardHeader>
-            <CardTitle className="font-bold text-2xl text-green-400">
-              Condomínio Aprovado!
-            </CardTitle>
-            <CardDescription className="mt-2 text-muted-foreground">
+            <CardTitle>Condomínio Aprovado!</CardTitle>
+            <CardDescription className="mt-2">
               Seu acesso como moderador foi ativado.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button
               onClick={() => navigate({ to: '/panel/dashboard' })}
-              className="w-full bg-primary hover:bg-primary/90"
+              className="w-full"
             >
               Ir para o Painel
             </Button>
@@ -477,21 +449,14 @@ function CondoSetupComponent() {
   // Selection Screen
   if (flow === 'select') {
     return (
-      <div className="relative flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 -z-10 bg-background">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.12),transparent_45%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.12),transparent_45%)]" />
-        </div>
-
-        <Card className="w-full max-w-4xl border bg-card p-6 shadow-lg">
+      <div className="flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-4xl p-6">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/10 text-primary">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted text-primary">
               <Home className="h-8 w-8" />
             </div>
-            <CardTitle className="font-bold text-2xl text-foreground">
-              Configuração do Provedor
-            </CardTitle>
-            <CardDescription className="mt-2 text-muted-foreground">
+            <CardTitle>Configuração do Provedor</CardTitle>
+            <CardDescription className="mt-2">
               Você ainda não possui uma localização cadastrada. Escolha uma das
               opções abaixo para começar a anunciar seus serviços.
             </CardDescription>
@@ -499,7 +464,7 @@ function CondoSetupComponent() {
           <CardContent className="mt-6 grid gap-6 md:grid-cols-3">
             <div className="flex flex-col justify-between rounded-xl border border bg-muted/50 p-6 transition-all hover:border">
               <div>
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/10 text-primary">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-primary">
                   <Plus className="h-6 w-6" />
                 </div>
                 <h3 className="font-semibold text-foreground text-lg">
@@ -513,7 +478,7 @@ function CondoSetupComponent() {
               </div>
               <Button
                 onClick={() => setFlow('sindico')}
-                className="mt-6 w-full animate-none cursor-pointer bg-primary hover:bg-primary/90"
+                className="mt-6 w-full cursor-pointer"
               >
                 Começar
               </Button>
@@ -521,7 +486,7 @@ function CondoSetupComponent() {
 
             <div className="flex flex-col justify-between rounded-xl border border bg-muted/50 p-6 transition-all hover:border">
               <div>
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-primary">
                   <Users className="h-6 w-6" />
                 </div>
                 <h3 className="font-semibold text-foreground text-lg">
@@ -535,7 +500,7 @@ function CondoSetupComponent() {
               <Button
                 variant="outline"
                 onClick={() => setFlow('resident')}
-                className="mt-6 w-full cursor-pointer border text-foreground hover:bg-accent hover:text-foreground"
+                className="mt-6 w-full"
               >
                 Solicitar Acesso
               </Button>
@@ -543,7 +508,7 @@ function CondoSetupComponent() {
 
             <div className="flex flex-col justify-between rounded-xl border border bg-muted/50 p-6 transition-all hover:border">
               <div>
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10 text-green-400">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-primary">
                   <MapPin className="h-6 w-6" />
                 </div>
                 <h3 className="font-semibold text-foreground text-lg">
@@ -558,7 +523,7 @@ function CondoSetupComponent() {
               <Button
                 variant="outline"
                 onClick={() => setFlow('external')}
-                className="mt-6 w-full cursor-pointer border text-foreground hover:bg-accent hover:text-foreground"
+                className="mt-6 w-full"
               >
                 Cadastrar Endereço
               </Button>
@@ -623,13 +588,8 @@ function CondoSetupComponent() {
     };
 
     return (
-      <div className="relative flex min-h-[85vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 -z-10 bg-background">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.12),transparent_45%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.12),transparent_45%)]" />
-        </div>
-
-        <Card className="w-full max-w-lg border bg-card shadow-lg">
+      <div className="flex min-h-[85vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-lg">
           <CardHeader className="relative">
             <Button
               variant="ghost"
@@ -640,15 +600,14 @@ function CondoSetupComponent() {
                 setUnitInfo('');
                 setProofFile(null);
               }}
-              className="absolute top-4 left-4 h-8 w-8 cursor-pointer p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+              size="icon-sm"
+              className="absolute top-4 left-4"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div className="pt-4 text-center">
-              <CardTitle className="font-bold text-2xl text-foreground">
-                Participar de Condomínio
-              </CardTitle>
-              <CardDescription className="mt-1 text-muted-foreground">
+              <CardTitle>Participar de Condomínio</CardTitle>
+              <CardDescription className="mt-1">
                 Busque o seu condomínio e envie os dados de moradia
               </CardDescription>
             </div>
@@ -657,7 +616,7 @@ function CondoSetupComponent() {
             {!selectedCondo ? (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="search-condo" className="text-foreground">
+                  <Label htmlFor="search-condo">
                     Buscar Condomínio (Nome, Cidade ou CEP)
                   </Label>
                   <div className="relative">
@@ -665,7 +624,7 @@ function CondoSetupComponent() {
                     <Input
                       id="search-condo"
                       placeholder="Ex: Jardim das Flores, São Paulo..."
-                      className="border bg-background pl-10 text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
+                      className="pl-10"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -674,13 +633,13 @@ function CondoSetupComponent() {
 
                 {approvedCondosQuery.isPending && (
                   <div className="flex justify-center py-4">
-                    <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
                   </div>
                 )}
 
                 {approvedCondosQuery.data &&
                   approvedCondosQuery.data.length > 0 && (
-                    <div className="max-h-60 divide-y divide-border overflow-y-auto rounded-lg border border bg-background/60">
+                    <div className="max-h-60 divide-y divide-border overflow-y-auto rounded-lg border border bg-background">
                       {approvedCondosQuery.data.map((condo) => (
                         <button
                           key={condo.id}
@@ -727,7 +686,7 @@ function CondoSetupComponent() {
                       variant="ghost"
                       type="button"
                       onClick={() => setSelectedCondo(null)}
-                      className="h-7 cursor-pointer px-2 text-primary text-xs hover:bg-accent hover:text-indigo-300"
+                      className="h-7 px-2"
                     >
                       Alterar
                     </Button>
@@ -735,13 +694,10 @@ function CondoSetupComponent() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="unit-info" className="text-foreground">
-                    Identificação da Unidade *
-                  </Label>
+                  <Label htmlFor="unit-info">Identificação da Unidade *</Label>
                   <Input
                     id="unit-info"
                     placeholder="Ex: Bloco B, Apto 104"
-                    className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                     value={unitInfo}
                     onChange={(e) => setUnitInfo(e.target.value)}
                   />
@@ -752,16 +708,14 @@ function CondoSetupComponent() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-foreground">
-                    Comprovante de Residência (Opcional)
-                  </Label>
+                  <Label>Comprovante de Residência (Opcional)</Label>
                   <div className="flex justify-center rounded-lg border border border-dashed bg-muted/50 px-6 py-8 transition-colors hover:border">
                     <div className="space-y-2 text-center">
                       <UploadCloud className="mx-auto h-10 w-10 text-muted-foreground" />
                       <div className="flex justify-center text-muted-foreground text-sm">
                         <label
                           htmlFor="proof-upload"
-                          className="relative cursor-pointer rounded-md font-semibold text-primary hover:text-indigo-300"
+                          className="relative cursor-pointer rounded-md font-semibold text-primary hover:text-primary"
                         >
                           <span>Enviar comprovante</span>
                           <input
@@ -798,7 +752,7 @@ function CondoSetupComponent() {
                   disabled={
                     isUploadingResident || requestAssignmentMutation.isPending
                   }
-                  className="mt-6 w-full cursor-pointer rounded-lg bg-primary py-2 font-semibold text-white transition-colors hover:bg-primary/90"
+                  className="mt-6 w-full"
                 >
                   {isUploadingResident ? (
                     <>
@@ -825,26 +779,20 @@ function CondoSetupComponent() {
   // External Path Form
   if (flow === 'external') {
     return (
-      <div className="relative flex min-h-[85vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 -z-10 bg-background">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.12),transparent_45%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.12),transparent_45%)]" />
-        </div>
-
-        <Card className="w-full max-w-lg border bg-card shadow-lg">
+      <div className="flex min-h-[85vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-lg">
           <CardHeader className="relative">
             <Button
               variant="ghost"
               onClick={() => setFlow('select')}
-              className="absolute top-4 left-4 h-8 w-8 cursor-pointer p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+              size="icon-sm"
+              className="absolute top-4 left-4"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div className="pt-4 text-center">
-              <CardTitle className="font-bold text-2xl text-foreground">
-                Prestador Autônomo / Externo
-              </CardTitle>
-              <CardDescription className="mt-1 text-muted-foreground">
+              <CardTitle>Prestador Autônomo / Externo</CardTitle>
+              <CardDescription className="mt-1">
                 Cadastre o endereço de atendimento do seu serviço autônomo
               </CardDescription>
             </div>
@@ -853,15 +801,13 @@ function CondoSetupComponent() {
             <form onSubmit={handleExternalSubmit} className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-1 space-y-2">
-                  <Label htmlFor="ext-cep" className="text-foreground">
-                    CEP *
-                  </Label>
+                  <Label htmlFor="ext-cep">CEP *</Label>
                   <div className="relative">
                     <Input
                       id="ext-cep"
                       placeholder="00000-000"
                       maxLength={9}
-                      className="border bg-background pr-8 text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
+                      className="pr-8"
                       value={extCep}
                       onChange={(e) => setExtCep(e.target.value)}
                     />
@@ -872,13 +818,10 @@ function CondoSetupComponent() {
                 </div>
 
                 <div className="col-span-2 space-y-2">
-                  <Label htmlFor="ext-street" className="text-foreground">
-                    Rua / Logradouro *
-                  </Label>
+                  <Label htmlFor="ext-street">Rua / Logradouro *</Label>
                   <Input
                     id="ext-street"
                     placeholder="Rua, Avenida..."
-                    className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                     value={extStreet}
                     onChange={(e) => setExtStreet(e.target.value)}
                   />
@@ -887,13 +830,10 @@ function CondoSetupComponent() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="ext-neighborhood" className="text-foreground">
-                    Bairro *
-                  </Label>
+                  <Label htmlFor="ext-neighborhood">Bairro *</Label>
                   <Input
                     id="ext-neighborhood"
                     placeholder="Bairro"
-                    className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                     value={extNeighborhood}
                     onChange={(e) => setExtNeighborhood(e.target.value)}
                   />
@@ -901,27 +841,21 @@ function CondoSetupComponent() {
 
                 <div className="grid grid-cols-3 gap-2">
                   <div className="col-span-2 space-y-2">
-                    <Label htmlFor="ext-city" className="text-foreground">
-                      Cidade *
-                    </Label>
+                    <Label htmlFor="ext-city">Cidade *</Label>
                     <Input
                       id="ext-city"
                       placeholder="Cidade"
                       disabled
-                      className="border bg-card text-muted-foreground"
                       value={extCity}
                     />
                   </div>
 
                   <div className="col-span-1 space-y-2">
-                    <Label htmlFor="ext-state" className="text-foreground">
-                      UF *
-                    </Label>
+                    <Label htmlFor="ext-state">UF *</Label>
                     <Input
                       id="ext-state"
                       placeholder="UF"
                       disabled
-                      className="border bg-card text-muted-foreground"
                       value={extState}
                     />
                   </div>
@@ -930,26 +864,20 @@ function CondoSetupComponent() {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-1 space-y-2">
-                  <Label htmlFor="ext-number" className="text-foreground">
-                    Número *
-                  </Label>
+                  <Label htmlFor="ext-number">Número *</Label>
                   <Input
                     id="ext-number"
                     placeholder="123"
-                    className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                     value={extNumber}
                     onChange={(e) => setExtNumber(e.target.value)}
                   />
                 </div>
 
                 <div className="col-span-2 space-y-2">
-                  <Label htmlFor="ext-complement" className="text-foreground">
-                    Complemento
-                  </Label>
+                  <Label htmlFor="ext-complement">Complemento</Label>
                   <Input
                     id="ext-complement"
                     placeholder="Sala, Apto, Bloco..."
-                    className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                     value={extComplement}
                     onChange={(e) => setExtComplement(e.target.value)}
                   />
@@ -959,7 +887,7 @@ function CondoSetupComponent() {
               <Button
                 type="submit"
                 disabled={registerExternalMutation.isPending}
-                className="mt-6 w-full cursor-pointer rounded-lg bg-primary py-2 font-semibold text-white transition-colors hover:bg-primary/90"
+                className="mt-6 w-full"
               >
                 {registerExternalMutation.isPending ? (
                   <>
@@ -979,26 +907,20 @@ function CondoSetupComponent() {
 
   // Síndico Path Form
   return (
-    <div className="relative flex min-h-[85vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-      <div className="absolute inset-0 -z-10 bg-background">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.12),transparent_45%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.12),transparent_45%)]" />
-      </div>
-
-      <Card className="w-full max-w-lg border bg-card shadow-lg">
+    <div className="flex min-h-[85vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-lg">
         <CardHeader className="relative">
           <Button
             variant="ghost"
             onClick={() => setFlow('select')}
-            className="absolute top-4 left-4 h-8 w-8 cursor-pointer p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+            size="icon-sm"
+            className="absolute top-4 left-4"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="pt-4 text-center">
-            <CardTitle className="font-bold text-2xl text-foreground">
-              Cadastrar Condomínio
-            </CardTitle>
-            <CardDescription className="mt-1 text-muted-foreground">
+            <CardTitle>Cadastrar Condomínio</CardTitle>
+            <CardDescription className="mt-1">
               Preencha os dados como administrador/síndico
             </CardDescription>
           </div>
@@ -1006,13 +928,10 @@ function CondoSetupComponent() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="condo-name" className="text-foreground">
-                Nome do Condomínio *
-              </Label>
+              <Label htmlFor="condo-name">Nome do Condomínio *</Label>
               <Input
                 id="condo-name"
                 placeholder="Ex: Condomínio Residencial Vista Alegre"
-                className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -1020,15 +939,13 @@ function CondoSetupComponent() {
 
             <div className="grid grid-cols-3 gap-4">
               <div className="col-span-1 space-y-2">
-                <Label htmlFor="condo-cep" className="text-foreground">
-                  CEP *
-                </Label>
+                <Label htmlFor="condo-cep">CEP *</Label>
                 <div className="relative">
                   <Input
                     id="condo-cep"
                     placeholder="00000-000"
                     maxLength={9}
-                    className="border bg-background pr-8 text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
+                    className="pr-8"
                     value={cep}
                     onChange={(e) => setCep(e.target.value)}
                   />
@@ -1039,27 +956,21 @@ function CondoSetupComponent() {
               </div>
 
               <div className="col-span-1 space-y-2">
-                <Label htmlFor="condo-city" className="text-foreground">
-                  Cidade *
-                </Label>
+                <Label htmlFor="condo-city">Cidade *</Label>
                 <Input
                   id="condo-city"
                   placeholder="Cidade"
                   disabled
-                  className="border bg-card text-muted-foreground"
                   value={city}
                 />
               </div>
 
               <div className="col-span-1 space-y-2">
-                <Label htmlFor="condo-state" className="text-foreground">
-                  UF *
-                </Label>
+                <Label htmlFor="condo-state">UF *</Label>
                 <Input
                   id="condo-state"
                   placeholder="UF"
                   disabled
-                  className="border bg-card text-muted-foreground"
                   value={state}
                 />
               </div>
@@ -1067,27 +978,21 @@ function CondoSetupComponent() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="condo-email" className="text-foreground">
-                  E-mail de Contato
-                </Label>
+                <Label htmlFor="condo-email">E-mail de Contato</Label>
                 <Input
                   id="condo-email"
                   type="email"
                   placeholder="admin@condo.com"
-                  className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="condo-phone" className="text-foreground">
-                  Telefone / WhatsApp
-                </Label>
+                <Label htmlFor="condo-phone">Telefone / WhatsApp</Label>
                 <Input
                   id="condo-phone"
                   placeholder="(11) 99999-9999"
-                  className="border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                 />
@@ -1095,16 +1000,14 @@ function CondoSetupComponent() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-foreground">
-                Ata de Eleição / Convenção *
-              </Label>
+              <Label>Ata de Eleição / Convenção *</Label>
               <div className="flex justify-center rounded-lg border border border-dashed bg-muted/50 px-6 py-8 transition-colors hover:border">
                 <div className="space-y-2 text-center">
                   <UploadCloud className="mx-auto h-10 w-10 text-muted-foreground" />
                   <div className="flex justify-center text-muted-foreground text-sm">
                     <label
                       htmlFor="file-upload"
-                      className="relative cursor-pointer rounded-md font-semibold text-primary hover:text-indigo-300"
+                      className="relative cursor-pointer rounded-md font-semibold text-primary hover:text-primary"
                     >
                       <span>Enviar arquivo</span>
                       <input
@@ -1137,7 +1040,7 @@ function CondoSetupComponent() {
             <Button
               type="submit"
               disabled={isUploading || requestCondoMutation.isPending}
-              className="mt-6 w-full cursor-pointer rounded-lg bg-primary py-2 font-semibold text-white transition-colors hover:bg-primary/90"
+              className="mt-6 w-full"
             >
               {isUploading ? (
                 <>

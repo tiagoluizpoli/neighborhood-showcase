@@ -369,10 +369,10 @@ function ModerationDashboard() {
                     className="flex flex-col justify-between"
                   >
                     <CardHeader>
-                      <CardTitle className="font-semibold text-foreground text-lg">
+                      <CardTitle>
                         {resident.provider?.name || 'Morador Sem Nome'}
                       </CardTitle>
-                      <CardDescription className="text-muted-foreground">
+                      <CardDescription>
                         Unidade: {resident.unitInfo || 'Não informada'}
                       </CardDescription>
                     </CardHeader>
@@ -534,7 +534,7 @@ function ModerationDashboard() {
                       />
                       <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
                         <span
-                          className={`rounded-full border px-2.5 py-1 font-semibold text-xs shadow-md backdrop-blur-md ${
+                          className={`rounded-full border px-2.5 py-1 font-semibold text-xs ${
                             ad.status === 'ACTIVE'
                               ? 'border-success/30 bg-success/20 text-success'
                               : 'border-destructive/30 bg-destructive/20 text-destructive'
@@ -547,13 +547,13 @@ function ModerationDashboard() {
                             : 'Suspenso'}
                         </span>
                         {ad.flaggedForReview && (
-                          <span className="flex items-center gap-1 rounded-full border border-warning/30 bg-warning/20 px-2 py-0.5 font-semibold text-[9px] text-warning backdrop-blur-md">
+                          <span className="flex items-center gap-1 rounded-full border border-warning/30 bg-warning/20 px-2 py-0.5 font-semibold text-[9px] text-warning">
                             <ShieldAlert className="h-3 w-3" /> Alterado
                             recentemente
                           </span>
                         )}
                       </div>
-                      <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-background/95 to-transparent p-4">
+                      <div className="absolute right-0 bottom-0 left-0 p-4">
                         <p className="font-medium text-primary text-xs uppercase tracking-wider">
                           {ad.category}
                         </p>
@@ -744,12 +744,12 @@ function ModerationDashboard() {
                         className="h-full w-full object-cover"
                       />
                       <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
-                        <span className="rounded-full border border-destructive/30 bg-destructive/80 px-2.5 py-1 font-bold text-white text-xs shadow-md">
+                        <span className="rounded-full border border-destructive/30 bg-destructive px-2.5 py-1 font-bold text-destructive-foreground text-xs">
                           {ad.totalReports}{' '}
                           {ad.totalReports === 1 ? 'Denúncia' : 'Denúncias'}
                         </span>
                       </div>
-                      <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-background to-transparent p-4">
+                      <div className="absolute right-0 bottom-0 left-0 p-4">
                         <p className="font-medium text-destructive text-xs uppercase tracking-wider">
                           {ad.status === 'SUSPENDED'
                             ? t('common.suspended')
@@ -1007,7 +1007,7 @@ function ModerationDashboard() {
           open={!!viewingReportsAdId}
           onOpenChange={(open) => !open && setViewingReportsAdId(null)}
         >
-          <DialogContent className="w-full max-w-lg border bg-card p-6 shadow-xl">
+          <DialogContent className="w-full max-w-lg border bg-card p-6">
             <DialogHeader className="space-y-2">
               <DialogTitle className="font-bold text-foreground text-xl">
                 {t('moderation.details_title')}
@@ -1055,8 +1055,8 @@ function ModerationDashboard() {
 
       {/* Document Preview Modal */}
       {previewUrl && (
-        <div className="fixed inset-0 z-50 flex animate-fade-in items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="relative flex h-[85vh] w-full max-w-4xl flex-col rounded-xl border bg-card shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4">
+          <div className="relative flex h-[85vh] w-full max-w-4xl flex-col rounded-xl border bg-card">
             <button
               type="button"
               onClick={() => setPreviewUrl(null)}
@@ -1069,7 +1069,7 @@ function ModerationDashboard() {
                 <iframe
                   title="Document Preview"
                   src={previewUrl}
-                  className="h-full w-full rounded-lg bg-white"
+                  className="h-full w-full rounded-lg bg-background"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center overflow-auto">
