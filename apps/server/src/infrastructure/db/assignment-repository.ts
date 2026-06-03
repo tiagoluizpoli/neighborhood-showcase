@@ -1,5 +1,8 @@
 import { db } from '@neighborhood-showcase/db';
-import { providerLocation as assignSchema } from '@neighborhood-showcase/db/schema/showcase';
+import {
+  announcement as announcementSchema,
+  providerLocation as assignSchema,
+} from '@neighborhood-showcase/db/schema/showcase';
 import { and, eq } from 'drizzle-orm';
 import type {
   Assignment,
@@ -103,7 +106,7 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
 
   async updateStatus(
     id: string,
-    status: 'APPROVED' | 'REJECTED',
+    status: 'APPROVED' | 'REJECTED' | 'PENDING',
   ): Promise<Assignment> {
     const [updated] = await db
       .update(assignSchema)
@@ -113,6 +116,13 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
 
     if (!updated) {
       throw new Error(`Failed to update assignment status for ${id}`);
+    }
+
+    if (status !== 'APPROVED') {
+      await db
+        .update(announcementSchema)
+        .set({ showVerifiedBadge: false })
+        .where(eq(announcementSchema.providerLocationId, id));
     }
 
     return this.mapper.toDomain(updated);

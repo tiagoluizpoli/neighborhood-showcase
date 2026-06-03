@@ -279,6 +279,30 @@ export const announcementRouter = router({
         });
       }
 
+      if (input.showVerifiedBadge) {
+        if (!ann.providerLocationId) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message:
+              'Selo de morador verificado está disponível apenas para moradores aprovados.',
+          });
+        }
+        const assignment = await assignmentRepo.findById(
+          ann.providerLocationId,
+        );
+        if (
+          !assignment ||
+          assignment.status !== 'APPROVED' ||
+          assignment.type !== 'RESIDENT'
+        ) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message:
+              'Selo de morador verificado está disponível apenas para moradores aprovados.',
+          });
+        }
+      }
+
       const newStatus = ann.status === 'SUSPENDED' ? 'ACTIVE' : ann.status;
 
       const updatedAnn = await announcementRepo.update(input.id, {

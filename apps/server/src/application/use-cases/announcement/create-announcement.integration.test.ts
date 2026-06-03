@@ -1,4 +1,11 @@
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from 'bun:test';
 import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
@@ -9,6 +16,7 @@ import {
 import { eq } from 'drizzle-orm';
 import { DrizzleAnnouncementRepository } from '../../../infrastructure/db/announcement-repository';
 import { DrizzleAssignmentRepository } from '../../../infrastructure/db/assignment-repository';
+import { appRouter } from '../../../presentation/routers';
 import { CreateAnnouncement } from './create-announcement';
 
 describe('Create Announcement Integration Test', () => {
@@ -182,5 +190,164 @@ describe('Create Announcement Integration Test', () => {
     ).rejects.toThrow('O título do anúncio deve ter pelo menos 3 caracteres.');
 
     await db.delete(assignment);
+  });
+
+  describe('Update Announcement Verification Parity & Auto-Revocation', () => {
+    let testAnnId: string;
+    let assignId: string;
+
+    beforeEach(async () => {
+      // Cleanup
+      await db.delete(announcement);
+      await db.delete(assignment);
+
+      // Create approved assignment
+      assignId = 'approved-assign-update-id';
+      await db.insert(assignment).values({
+        id: assignId,
+        providerId: testUserId,
+        condominiumId: testCondoId,
+        type: 'RESIDENT',
+        status: 'APPROVED',
+        unitInfo: 'Block B, Apt 302',
+      });
+
+      // Create an announcement linked to that assignment with showVerifiedBadge = false
+      testAnnId = 'test-ann-update-id';
+      await db.insert(announcement).values({
+        id: testAnnId,
+        providerId: testUserId,
+        providerLocationId: assignId,
+        condominiumId: testCondoId,
+        title: 'Tasty Pizza',
+        description: 'Fresh pizza baked in our block.',
+        imageUrl: 'http://localhost:9000/showcase/pizza.jpg',
+        category: 'Alimentação',
+        tags: [],
+        contactLinks: { whatsapp: '5511999999999' },
+        showVerifiedBadge: false,
+        status: 'DRAFT',
+      });
+    });
+
+    test('successfully updates announcement to showVerifiedBadge = true when assignment is APPROVED RESIDENT', async () => {
+      const caller = appRouter.createCaller({
+        auth: null,
+        session: {
+          session: {
+            id: 'sess-update-ok',
+            userId: testUserId,
+            token: 'tok-update-ok',
+            expiresAt: new Date(Date.now() + 3600000),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            userAgent: null,
+            ipAddress: null,
+          },
+          user: {
+            id: testUserId,
+            name: 'John Provider',
+            email: 'john-provider@example.com',
+            emailVerified: true,
+            role: 'PROVIDER',
+            status: 'ACTIVE',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        },
+      });
+
+      const res = await caller.announcement.update({
+        id: testAnnId,
+        title: 'Super Tasty Pizza',
+        subtitle: null,
+        description: 'Fresh pizza baked in our block.',
+        priceCents: 3500,
+        imageUrl: 'http://localhost:9000/showcase/pizza.jpg',
+        category: 'Alimentação',
+        tags: [],
+        contactLinks: { whatsapp: '5511999999999' },
+        showVerifiedBadge: true,
+      });
+
+      expect(res.showVerifiedBadge).toBe(true);
+
+      const [dbAnn] = await db
+        .select()
+        .from(announcement)
+        .where(eq(announcement.id, testAnnId))
+        .limit(1);
+      expect(dbAnn?.showVerifiedBadge).toBe(true);
+    });
+
+    test('fails to update to showVerifiedBadge = true when assignment status is REJECTED', async () => {
+      // Reject assignment
+      await db
+        .update(assignment)
+        .set({ status: 'REJECTED' })
+        .where(eq(assignment.id, assignId));
+
+      const caller = appRouter.createCaller({
+        auth: null,
+        session: {
+          session: {
+            id: 'sess-update-fail',
+            userId: testUserId,
+            token: 'tok-update-fail',
+            expiresAt: new Date(Date.now() + 3600000),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            userAgent: null,
+            ipAddress: null,
+          },
+          user: {
+            id: testUserId,
+            name: 'John Provider',
+            email: 'john-provider@example.com',
+            emailVerified: true,
+            role: 'PROVIDER',
+            status: 'ACTIVE',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        },
+      });
+
+      expect(
+        caller.announcement.update({
+          id: testAnnId,
+          title: 'Super Tasty Pizza',
+          subtitle: null,
+          description: 'Fresh pizza baked in our block.',
+          priceCents: 3500,
+          imageUrl: 'http://localhost:9000/showcase/pizza.jpg',
+          category: 'Alimentação',
+          tags: [],
+          contactLinks: { whatsapp: '5511999999999' },
+          showVerifiedBadge: true,
+        }),
+      ).rejects.toThrow(
+        'Selo de morador verificado está disponível apenas para moradores aprovados.',
+      );
+    });
+
+    test('auto-revocation cascades verified badge to false when assignment status transitions to REJECTED', async () => {
+      // Set badge to true in DB first
+      await db
+        .update(announcement)
+        .set({ showVerifiedBadge: true })
+        .where(eq(announcement.id, testAnnId));
+
+      // Call repository updateStatus to reject assignment
+      await assignmentRepo.updateStatus(assignId, 'REJECTED');
+
+      // Verify showVerifiedBadge was set to false
+      const [dbAnn] = await db
+        .select()
+        .from(announcement)
+        .where(eq(announcement.id, testAnnId))
+        .limit(1);
+      expect(dbAnn?.showVerifiedBadge).toBe(false);
+    });
   });
 });

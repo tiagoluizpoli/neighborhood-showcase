@@ -29,6 +29,6 @@ export interface AssignmentRepository {
   findById(id: string): Promise<Assignment | null>;
   updateStatus(
     id: string,
-    status: 'APPROVED' | 'REJECTED',
+    status: 'APPROVED' | 'REJECTED' | 'PENDING',
   ): Promise<Assignment>;
 }
