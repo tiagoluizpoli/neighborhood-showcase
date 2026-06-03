@@ -348,3 +348,36 @@ export const reportRelations = relations(report, ({ one }) => ({
     references: [announcement.id],
   }),
 }));
+
+export const roleChangeLog = pgTable('role_change_log', {
+  id: text('id').primaryKey(),
+  actorId: text('actor_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  targetUserId: text('target_user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  previousRole: text('previous_role').notNull(),
+  newRole: text('new_role').notNull(),
+  condominiumId: text('condominium_id').references(() => condominium.id, {
+    onDelete: 'set null',
+  }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const roleChangeLogRelations = relations(roleChangeLog, ({ one }) => ({
+  actor: one(user, {
+    fields: [roleChangeLog.actorId],
+    references: [user.id],
+    relationName: 'roleChangeActor',
+  }),
+  targetUser: one(user, {
+    fields: [roleChangeLog.targetUserId],
+    references: [user.id],
+    relationName: 'roleChangeTarget',
+  }),
+  condominium: one(condominium, {
+    fields: [roleChangeLog.condominiumId],
+    references: [condominium.id],
+  }),
+}));
