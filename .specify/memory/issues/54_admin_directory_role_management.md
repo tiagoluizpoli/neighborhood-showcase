@@ -33,7 +33,7 @@ Fix the admin providers directory, add geographic filters, and build a full user
 - [x] `MODERATOR` assignment supports one-to-many condominium scope (admin.assignModerator upserts APPROVED assignment per condo)
 - [x] `role_change_log` table records every role change with actor, target, roles, timestamp (schema + migration done)
 - [ ] CLI bootstrap command still works for initial admin setup
-- [ ] Integration tests: hierarchy enforcement, audit trail creation, filter queries, bug fix verification
+- [x] Integration tests: hierarchy enforcement, audit trail creation, filter queries, bug fix verification (done in Iterations 2-3)
 
 ## Blocked by
 
