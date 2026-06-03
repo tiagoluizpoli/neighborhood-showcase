@@ -30,24 +30,20 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import {
+  confirmNearbyCondoSelection,
+  deriveNearbyCondoMatch,
+  dismissNearbyCondoSelection,
+  formatNearbyCondoDistance,
+  nearbyCondoDismissedStorageKey,
+  resetNearbyCondoSelectionPrompt,
+  type NearbyCondoSelection as SelectedCondo,
+} from '@/utils/condominium-proximity';
 import { trpc } from '@/utils/trpc';
 
 export const Route = createFileRoute('/_portal/')({
   component: PublicVitrineComponent,
 });
-
-interface SelectedCondo {
-  id: string;
-  name: string;
-  city: string;
-  state: string;
-  cep: string;
-}
-
-interface NearbyCondoResult {
-  condo: SelectedCondo;
-  distance: number;
-}
 
 const CATEGORIES = [
   'Todos',
@@ -97,6 +93,9 @@ function PublicVitrineComponent() {
   // Detail view state
   const [activeAdId, setActiveAdId] = useState<string | null>(null);
 
+  const nearbyCondoPromptDismissed =
+    localStorage.getItem(nearbyCondoDismissedStorageKey) === 'true';
+
   // tRPC Queries
   const { data: condoSearchResults, isLoading: isSearchingCondos } = useQuery(
     trpc.condominium.listApproved.queryOptions({ query: condoSearchQuery }),
@@ -112,6 +111,15 @@ function PublicVitrineComponent() {
       { enabled: geoPreference === 'granted' && coords !== null },
     ),
   );
+
+  const nearbyCondoMatch =
+    geoPreference === 'granted' &&
+    !selectedCondo &&
+    !nearbyCondoPromptDismissed &&
+    nearbyCondoResults &&
+    nearbyCondoResults.length > 0
+      ? deriveNearbyCondoMatch(nearbyCondoResults)
+      : null;
 
   const { data: announcements, isLoading: isLoadingAds } = useQuery(
     trpc.announcement.listPublic.queryOptions({
@@ -169,6 +177,7 @@ function PublicVitrineComponent() {
         async (position) => {
           const { latitude, longitude } = position.coords;
           const coordsObj = { latitude, longitude };
+          resetNearbyCondoSelectionPrompt();
           setCoords(coordsObj);
           localStorage.setItem('user_coords', JSON.stringify(coordsObj));
           localStorage.setItem('geolocation_preference', 'granted');
@@ -197,6 +206,7 @@ function PublicVitrineComponent() {
     localStorage.removeItem('geolocation_preference');
     localStorage.removeItem('user_coords');
     localStorage.removeItem('user_condo');
+    resetNearbyCondoSelectionPrompt();
     setCoords(null);
     setSelectedCondo(null);
     setGeoPreference(null);
@@ -204,21 +214,17 @@ function PublicVitrineComponent() {
     toast.success('Localização revogada com sucesso.');
   };
 
-  useEffect(() => {
-    if (
-      geoPreference !== 'granted' ||
-      selectedCondo ||
-      !nearbyCondoResults ||
-      nearbyCondoResults.length === 0
-    ) {
-      return;
-    }
+  const handleNearbyCondoConfirm = (condo: SelectedCondo) => {
+    confirmNearbyCondoSelection(condo, setSelectedCondo);
+    toast.success(`Condomínio selecionado: ${condo.name}`);
+  };
 
-    const nearestCondo: NearbyCondoResult = nearbyCondoResults[0];
-    setSelectedCondo(nearestCondo.condo);
-    localStorage.setItem('user_condo', JSON.stringify(nearestCondo.condo));
-    toast.success(`Localizado em: ${nearestCondo.condo.name}`);
-  }, [geoPreference, nearbyCondoResults, selectedCondo]);
+  const handleNearbyCondoDismiss = () => {
+    dismissNearbyCondoSelection(setSelectedCondo);
+    toast.info(
+      'Tudo bem. Você pode continuar navegando sem vincular um condomínio.',
+    );
+  };
 
   // 1. Geolocation and initial condo load
   useEffect(() => {
@@ -382,6 +388,95 @@ function PublicVitrineComponent() {
           </Button>
         </div>
       )}
+
+      {/* Nearby Condominium Prompt */}
+      {nearbyCondoMatch ? (
+        <Dialog
+          open
+          onOpenChange={(open) => {
+            if (!open) {
+              handleNearbyCondoDismiss();
+            }
+          }}
+        >
+          <DialogContent
+            showCloseButton={false}
+            className="max-w-lg rounded-2xl p-6"
+          >
+            <DialogHeader className="space-y-2 text-center">
+              <div className="mx-auto rounded-full bg-primary/10 p-3 text-primary">
+                <MapPin className="h-6 w-6" />
+              </div>
+              <DialogTitle className="font-bold text-xl">
+                {nearbyCondoMatch.mode === 'single'
+                  ? `Você mora no Condomínio ${nearbyCondoMatch.condo.name}?`
+                  : 'Encontramos condomínios próximos a você'}
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground text-sm">
+                {nearbyCondoMatch.mode === 'single'
+                  ? `Detectamos ${formatNearbyCondoDistance(
+                      nearbyCondoMatch.distance,
+                    )} até a entrada principal.`
+                  : 'Escolha o condomínio que melhor corresponde ao seu endereço para personalizar o feed.'}
+              </DialogDescription>
+            </DialogHeader>
+
+            {nearbyCondoMatch.mode === 'single' ? (
+              <div className="my-4 rounded-xl border bg-muted/40 p-4 text-center">
+                <p className="font-medium text-sm">
+                  {nearbyCondoMatch.condo.name}
+                </p>
+                <p className="mt-1 text-muted-foreground text-xs">
+                  {nearbyCondoMatch.condo.city} - {nearbyCondoMatch.condo.state}
+                </p>
+              </div>
+            ) : (
+              <div className="my-4 max-h-72 space-y-2 overflow-y-auto rounded-xl border bg-muted/20 p-2">
+                {nearbyCondoMatch.condos.map((candidate) => (
+                  <button
+                    type="button"
+                    key={candidate.condo.id}
+                    onClick={() => handleNearbyCondoConfirm(candidate.condo)}
+                    className="flex w-full items-center justify-between rounded-lg border bg-background px-4 py-3 text-left transition-colors hover:bg-muted/60"
+                  >
+                    <div>
+                      <p className="font-medium text-sm">
+                        {candidate.condo.name}
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        {candidate.condo.city} - {candidate.condo.state}
+                      </p>
+                    </div>
+                    <span className="font-semibold text-primary text-xs">
+                      {formatNearbyCondoDistance(candidate.distance)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <DialogFooter className="mt-4 flex flex-col gap-2 sm:flex-row">
+              <Button
+                variant="outline"
+                onClick={handleNearbyCondoDismiss}
+                className="w-full sm:w-auto sm:flex-1"
+              >
+                Não, continuar sem condomínio
+              </Button>
+              {nearbyCondoMatch.mode === 'single' ? (
+                <Button
+                  onClick={() =>
+                    handleNearbyCondoConfirm(nearbyCondoMatch.condo)
+                  }
+                  className="w-full sm:w-auto sm:flex-1"
+                >
+                  Sim, sou morador(a)
+                </Button>
+              ) : null}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : null}
 
       {/* Geolocation Permission Dialog */}
       <Dialog open={isGeoDialogOpen} onOpenChange={setIsGeoDialogOpen}>

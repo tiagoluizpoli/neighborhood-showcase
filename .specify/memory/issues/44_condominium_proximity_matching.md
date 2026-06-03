@@ -17,19 +17,25 @@ Use the Visitor's captured coordinates to detect nearby condominiums and prompt 
 
 ## Acceptance criteria
 
-- [ ] Proximity check API returns condominiums sorted by distance using PostGIS `ST_DWithin` and `ST_Distance`
-- [ ] Tier 1: single condo within 100m triggers direct prompt
-- [ ] Tier 2: multiple condos within 1km shows sorted selection list
+- [x] Proximity check API returns condominiums sorted by distance using PostGIS `ST_DWithin` and `ST_Distance`
+- [x] Tier 1: single condo within 100m triggers direct prompt
+- [x] Tier 2: multiple condos within 1km shows sorted selection list
 - [x] Confirmed condominium is stored as the user's browsing context
-- [ ] Dismiss proceeds without condominium context
-- [ ] Integration test: seeded condominiums return in correct proximity order
+- [x] Dismiss proceeds without condominium context
+- [x] Integration test: seeded condominiums return in correct proximity order
 
 ## Blocked by
 
-- #38 (PostGIS Schema & Geospatial Columns)
-- #43 (Geolocation Permission Modal & Client Capture)
+- None (dependencies resolved in prior iterations)
 
 ## Iteration 1 Notes
 
-- Portal geolocation flow now consumes `condominium.listNearby` and persists the nearest condo into `user_condo` when coordinates are available.
-- Tier 1 direct prompt and Tier 2 multi-condo picker remain for the next iteration.
+- Portal geolocation flow now consumed `condominium.listNearby` and persisted the nearest condo into `user_condo` when coordinates were available.
+- Tier 1 direct prompt and Tier 2 multi-condo picker remained for the next iteration.
+
+## Iteration 2 Notes
+
+- Replaced the silent auto-linking behavior with a proximity prompt that appears only when nearby condominiums exist.
+- Added the single-condo confirmation dialog and the multi-condo selection list, both sorted by distance.
+- Implemented dismiss handling that clears condo context, stores the dismissal flag, and keeps the feed unlinked until the user confirms.
+- Added/updated geolocation tests to cover confirm and dismiss flows plus the seeded proximity ordering test.

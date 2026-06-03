@@ -1,5 +1,5 @@
 // biome-ignore-all lint/suspicious/noExplicitAny: Mocking React internals and browser APIs requires explicit any
-import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { afterAll, beforeEach, describe, expect, mock, test } from 'bun:test';
 import * as RealQuery from '@tanstack/react-query';
 import * as RealReact from 'react';
 
@@ -52,6 +52,12 @@ global.localStorage = {
   key: () => null,
 };
 
+global.fetch = async () =>
+  ({
+    ok: true,
+    json: async () => ({}),
+  }) as any;
+
 // Hook simulation state
 let hookIndex = 0;
 const hookState: any[] = [];
@@ -76,6 +82,94 @@ const renderComponent = (Component: () => any) => {
     effect();
   }
   return result;
+};
+
+const getNodeText = (node: any): string => {
+  if (node == null || typeof node === 'boolean') {
+    return '';
+  }
+
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+
+  if (Array.isArray(node)) {
+    return node.map(getNodeText).join('');
+  }
+
+  return getNodeText(node.props?.children);
+};
+
+const findNodeByText = (node: any, text: string): any | null => {
+  if (node == null || typeof node === 'boolean') {
+    return null;
+  }
+
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node).includes(text) ? node : null;
+  }
+
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const match = findNodeByText(child, text);
+      if (match) return match;
+    }
+    return null;
+  }
+
+  const currentText = getNodeText(node.props?.children);
+  if (currentText.includes(text)) {
+    return node;
+  }
+
+  const children = node.props?.children;
+  if (Array.isArray(children)) {
+    for (const child of children) {
+      const match = findNodeByText(child, text);
+      if (match) return match;
+    }
+  } else if (children) {
+    return findNodeByText(children, text);
+  }
+
+  return null;
+};
+
+const findClickableNodeByText = (node: any, text: string): any | null => {
+  if (node == null || typeof node === 'boolean') {
+    return null;
+  }
+
+  if (typeof node === 'string' || typeof node === 'number') {
+    return null;
+  }
+
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const match = findClickableNodeByText(child, text);
+      if (match) return match;
+    }
+    return null;
+  }
+
+  if (
+    typeof node.props?.onClick === 'function' &&
+    getNodeText(node.props?.children).includes(text)
+  ) {
+    return node;
+  }
+
+  const children = node.props?.children;
+  if (Array.isArray(children)) {
+    for (const child of children) {
+      const match = findClickableNodeByText(child, text);
+      if (match) return match;
+    }
+  } else if (children) {
+    return findClickableNodeByText(children, text);
+  }
+
+  return null;
 };
 
 // Mock react while preserving its internals and JSX runtime dependencies
@@ -173,7 +267,63 @@ describe('Geolocation Permission Modal Flow', () => {
     expect(hookState[4][0]).toBe(false);
   });
 
-  test('Selects the nearest condominium from captured coordinates', () => {
+  test('Prompts for a nearby condominium and lets the user confirm it', () => {
+    global.localStorage.setItem('geolocation_preference', 'granted');
+    global.localStorage.setItem(
+      'user_coords',
+      JSON.stringify({
+        latitude: -27.5969,
+        longitude: -48.5495,
+      }),
+    );
+
+    mockNearbyCondoResults = [
+      {
+        condo: {
+          id: 'condo-close-id',
+          name: 'Condomínio Próximo',
+          city: 'Florianópolis',
+          state: 'SC',
+          cep: '88000001',
+        },
+        distance: 48.2,
+      },
+    ];
+
+    const component = IndexRoute.options.component;
+    const tree = renderComponent(component);
+
+    expect(
+      findNodeByText(tree, 'Você mora no Condomínio Condomínio Próximo?'),
+    ).toBeTruthy();
+    expect(findNodeByText(tree, 'Sim, sou morador(a)')).toBeTruthy();
+
+    const confirmButton = findClickableNodeByText(tree, 'Sim, sou morador(a)');
+    expect(confirmButton).toBeTruthy();
+    confirmButton.props.onClick();
+
+    expect(hookState[0][0]).toEqual({
+      id: 'condo-close-id',
+      name: 'Condomínio Próximo',
+      city: 'Florianópolis',
+      state: 'SC',
+      cep: '88000001',
+    });
+    expect(global.localStorage.getItem('user_condo')).toBe(
+      JSON.stringify({
+        id: 'condo-close-id',
+        name: 'Condomínio Próximo',
+        city: 'Florianópolis',
+        state: 'SC',
+        cep: '88000001',
+      }),
+    );
+    expect(
+      global.localStorage.getItem('nearby_condo_prompt_dismissed'),
+    ).toBeNull();
+  });
+
+  test('Lists multiple nearby condominiums and dismisses without context', () => {
     global.localStorage.setItem('geolocation_preference', 'granted');
     global.localStorage.setItem(
       'user_coords',
@@ -207,23 +357,38 @@ describe('Geolocation Permission Modal Flow', () => {
     ];
 
     const component = IndexRoute.options.component;
-    renderComponent(component);
+    const tree = renderComponent(component);
 
-    expect(hookState[0][0]).toEqual({
-      id: 'condo-close-id',
-      name: 'Condomínio Próximo',
-      city: 'Florianópolis',
-      state: 'SC',
-      cep: '88000001',
-    });
-    expect(global.localStorage.getItem('user_condo')).toBe(
-      JSON.stringify({
-        id: 'condo-close-id',
-        name: 'Condomínio Próximo',
-        city: 'Florianópolis',
-        state: 'SC',
-        cep: '88000001',
-      }),
+    expect(
+      findNodeByText(tree, 'Encontramos condomínios próximos a você'),
+    ).toBeTruthy();
+    expect(findNodeByText(tree, '48 m')).toBeTruthy();
+    expect(findNodeByText(tree, '513 m')).toBeTruthy();
+
+    const dismissButton = findClickableNodeByText(
+      tree,
+      'Não, continuar sem condomínio',
     );
+    expect(dismissButton).toBeTruthy();
+    dismissButton.props.onClick();
+
+    expect(hookState[0][0]).toBeNull();
+    expect(global.localStorage.getItem('user_condo')).toBeNull();
+    expect(global.localStorage.getItem('nearby_condo_prompt_dismissed')).toBe(
+      'true',
+    );
+
+    const _rerendered = renderComponent(component);
+    expect(global.localStorage.getItem('nearby_condo_prompt_dismissed')).toBe(
+      'true',
+    );
+    expect(hookState[0][0]).toBeNull();
   });
+});
+
+afterAll(() => {
+  delete (global as typeof globalThis & { window?: unknown }).window;
+  delete (global as typeof globalThis & { localStorage?: unknown })
+    .localStorage;
+  delete (global as typeof globalThis & { fetch?: unknown }).fetch;
 });
