@@ -25,7 +25,7 @@ Implement the proximity-based ranking engine that sorts the announcement feed ba
 - [x] Own-condominium announcements appear first
 - [x] Verified providers rank higher than unverified at equal distance
 - [x] Feed respects configurable radius (default 10km)
-- [ ] "Expand radius" option works up to 25km with a warning
+- [x] "Expand radius" option works up to 25km with a warning
 - [x] Chronological fallback when no coordinates provided
 - [x] City/neighborhood filter parameters are functional
 - [x] Integration tests: verify ranking order with seeded data at known coordinates
@@ -40,4 +40,13 @@ Implement the proximity-based ranking engine that sorts the announcement feed ba
 - Wired `announcement.listPublic` to accept `latitude`/`longitude` and rank by PostGIS distance when coordinates are present.
 - Forwarded captured coordinates from the public home feed query so geolocated visitors now hit the ranked API path.
 - Kept the existing condo-aware fallback for visitors without coordinates.
-- Remaining work: own-condominium pinning, verified-provider boost, configurable radius, manual city/neighborhood filters, and radius warning UI.
+
+## Iteration 4 Notes
+
+- Fully implemented default 10km radius filtering with PostGIS ST_DWithin on the backend.
+- Added radiusKm, city, and neighborhood parameters to the public feed listing procedure input.
+- Added the radius controls to the portal Index feed, allowing visitors to toggle between 10km and 25km.
+- Integrated a warning notice to inform visitors when searching within the expanded 25km radius.
+- Prioritized own-condominium listings and boosted verified provider rankings.
+- Added full unit test coverage for the radius selection and warning UI toggle.
+- Added 3 integration test scenarios verifying radius limits, prioritize/boosting rules, and city/neighborhood filtering.

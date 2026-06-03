@@ -89,6 +89,7 @@ function PublicVitrineComponent() {
   const [category, setCategory] = useState('Todos');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [filterByCondo, setFilterByCondo] = useState(false);
+  const [radiusKm, setRadiusKm] = useState<number>(10);
 
   // Detail view state
   const [activeAdId, setActiveAdId] = useState<string | null>(null);
@@ -131,6 +132,7 @@ function PublicVitrineComponent() {
       search,
       verifiedOnly,
       userCondoId: selectedCondo?.id,
+      radiusKm: coords ? radiusKm : undefined,
     }),
   );
 
@@ -212,6 +214,7 @@ function PublicVitrineComponent() {
     setCoords(null);
     setSelectedCondo(null);
     setGeoPreference(null);
+    setRadiusKm(10);
     setIsGeoDialogOpen(true);
     toast.success('Localização revogada com sucesso.');
   };
@@ -683,6 +686,45 @@ function PublicVitrineComponent() {
             Tente mudar a categoria, limpar o campo de busca ou selecionar outro
             condomínio.
           </p>
+        </div>
+      )}
+
+      {/* Geolocation Radius Controls */}
+      {geoPreference === 'granted' && coords !== null && (
+        <div
+          className={`mt-8 rounded-xl border p-6 shadow-sm backdrop-blur-sm transition-all duration-300 ${
+            radiusKm === 25
+              ? 'border-warning/40 bg-warning/5 text-warning-foreground'
+              : 'border-border bg-card/60'
+          }`}
+        >
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <div className="flex items-start gap-3">
+              <MapPin
+                className={`mt-0.5 h-5 w-5 ${radiusKm === 25 ? 'animate-bounce text-warning' : 'animate-pulse text-primary'}`}
+              />
+              <div>
+                <p className="font-semibold text-sm">
+                  {radiusKm === 10
+                    ? 'Raio de busca: 10 km (Padrão)'
+                    : 'Raio de busca: 25 km (Expandido)'}
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  {radiusKm === 10
+                    ? 'Procurando prestadores e condomínios próximos em Florianópolis e região.'
+                    : 'Atenção: Prestadores a distâncias maiores (até 25 km) podem não realizar entregas ou atendimentos na sua região.'}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant={radiusKm === 10 ? 'outline' : 'secondary'}
+              size="sm"
+              onClick={() => setRadiusKm(radiusKm === 10 ? 25 : 10)}
+              className="w-full shrink-0 font-semibold sm:w-auto"
+            >
+              {radiusKm === 10 ? 'Expandir para 25 km' : 'Voltar para 10 km'}
+            </Button>
+          </div>
         </div>
       )}
 

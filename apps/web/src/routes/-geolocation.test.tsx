@@ -384,6 +384,41 @@ describe('Geolocation Permission Modal Flow', () => {
     );
     expect(hookState[0][0]).toBeNull();
   });
+
+  test('Renders radius controls when geolocation is granted, lets the user toggle between 10km and 25km, and shows the warning', () => {
+    global.localStorage.setItem('geolocation_preference', 'granted');
+    global.localStorage.setItem(
+      'user_coords',
+      JSON.stringify({
+        latitude: -27.5969,
+        longitude: -48.5495,
+      }),
+    );
+
+    const component = IndexRoute.options.component;
+    let tree = renderComponent(component);
+
+    // Should render radius standard text initially (10 km)
+    expect(findNodeByText(tree, 'Raio de busca: 10 km (Padrão)')).toBeTruthy();
+    expect(findNodeByText(tree, 'Expandir para 25 km')).toBeTruthy();
+
+    const expandButton = findClickableNodeByText(tree, 'Expandir para 25 km');
+    expect(expandButton).toBeTruthy();
+    expandButton.props.onClick();
+
+    // Rerender and check if it now shows 25 km and the warning text
+    tree = renderComponent(component);
+    expect(
+      findNodeByText(tree, 'Raio de busca: 25 km (Expandido)'),
+    ).toBeTruthy();
+    expect(
+      findNodeByText(
+        tree,
+        'Atenção: Prestadores a distâncias maiores (até 25 km) podem não realizar entregas ou atendimentos na sua região.',
+      ),
+    ).toBeTruthy();
+    expect(findNodeByText(tree, 'Voltar para 10 km')).toBeTruthy();
+  });
 });
 
 afterAll(() => {
