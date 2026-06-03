@@ -9,17 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PanelRouteImport } from './routes/panel'
 import { Route as ModerationRouteImport } from './routes/moderation'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as PortalRouteImport } from './routes/_portal'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as PortalIndexRouteImport } from './routes/_portal.index'
+import { Route as PanelModerationRouteImport } from './routes/panel.moderation'
+import { Route as PanelDashboardRouteImport } from './routes/panel.dashboard'
+import { Route as PanelAdminRouteImport } from './routes/panel.admin'
 import { Route as DashboardCondoSetupRouteImport } from './routes/dashboard.condo-setup'
-import { Route as AnunciosIdRouteImport } from './routes/anuncios.$id'
+import { Route as PortalAuthRouteImport } from './routes/_portal.auth'
+import { Route as PanelDashboardIndexRouteImport } from './routes/panel.dashboard.index'
+import { Route as PanelDashboardCondoSetupRouteImport } from './routes/panel.dashboard.condo-setup'
 import { Route as DashboardAnunciosNovoRouteImport } from './routes/dashboard.anuncios.novo'
+import { Route as PortalAnunciosIdRouteImport } from './routes/_portal.anuncios.$id'
+import { Route as PanelDashboardAnunciosNovoRouteImport } from './routes/panel.dashboard.anuncios.novo'
 import { Route as DashboardAnunciosIdPagamentoRouteImport } from './routes/dashboard.anuncios.$id.pagamento'
+import { Route as PanelDashboardAnunciosIdPagamentoRouteImport } from './routes/panel.dashboard.anuncios.$id.pagamento'
 
+const PanelRoute = PanelRouteImport.update({
+  id: '/panel',
+  path: '/panel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ModerationRoute = ModerationRouteImport.update({
   id: '/moderation',
   path: '/moderation',
@@ -30,19 +44,13 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const PortalRoute = PortalRouteImport.update({
+  id: '/_portal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
@@ -50,113 +58,215 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const PortalIndexRoute = PortalIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PortalRoute,
+} as any)
+const PanelModerationRoute = PanelModerationRouteImport.update({
+  id: '/moderation',
+  path: '/moderation',
+  getParentRoute: () => PanelRoute,
+} as any)
+const PanelDashboardRoute = PanelDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => PanelRoute,
+} as any)
+const PanelAdminRoute = PanelAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => PanelRoute,
+} as any)
 const DashboardCondoSetupRoute = DashboardCondoSetupRouteImport.update({
   id: '/condo-setup',
   path: '/condo-setup',
   getParentRoute: () => DashboardRoute,
 } as any)
-const AnunciosIdRoute = AnunciosIdRouteImport.update({
-  id: '/anuncios/$id',
-  path: '/anuncios/$id',
-  getParentRoute: () => rootRouteImport,
+const PortalAuthRoute = PortalAuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => PortalRoute,
 } as any)
+const PanelDashboardIndexRoute = PanelDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PanelDashboardRoute,
+} as any)
+const PanelDashboardCondoSetupRoute =
+  PanelDashboardCondoSetupRouteImport.update({
+    id: '/condo-setup',
+    path: '/condo-setup',
+    getParentRoute: () => PanelDashboardRoute,
+  } as any)
 const DashboardAnunciosNovoRoute = DashboardAnunciosNovoRouteImport.update({
   id: '/anuncios/novo',
   path: '/anuncios/novo',
   getParentRoute: () => DashboardRoute,
 } as any)
+const PortalAnunciosIdRoute = PortalAnunciosIdRouteImport.update({
+  id: '/anuncios/$id',
+  path: '/anuncios/$id',
+  getParentRoute: () => PortalRoute,
+} as any)
+const PanelDashboardAnunciosNovoRoute =
+  PanelDashboardAnunciosNovoRouteImport.update({
+    id: '/anuncios/novo',
+    path: '/anuncios/novo',
+    getParentRoute: () => PanelDashboardRoute,
+  } as any)
 const DashboardAnunciosIdPagamentoRoute =
   DashboardAnunciosIdPagamentoRouteImport.update({
     id: '/anuncios/$id/pagamento',
     path: '/anuncios/$id/pagamento',
     getParentRoute: () => DashboardRoute,
   } as any)
+const PanelDashboardAnunciosIdPagamentoRoute =
+  PanelDashboardAnunciosIdPagamentoRouteImport.update({
+    id: '/anuncios/$id/pagamento',
+    path: '/anuncios/$id/pagamento',
+    getParentRoute: () => PanelDashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof PortalIndexRoute
   '/admin': typeof AdminRoute
-  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/moderation': typeof ModerationRoute
-  '/anuncios/$id': typeof AnunciosIdRoute
+  '/panel': typeof PanelRouteWithChildren
+  '/auth': typeof PortalAuthRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
+  '/panel/admin': typeof PanelAdminRoute
+  '/panel/dashboard': typeof PanelDashboardRouteWithChildren
+  '/panel/moderation': typeof PanelModerationRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/anuncios/$id': typeof PortalAnunciosIdRoute
   '/dashboard/anuncios/novo': typeof DashboardAnunciosNovoRoute
+  '/panel/dashboard/condo-setup': typeof PanelDashboardCondoSetupRoute
+  '/panel/dashboard/': typeof PanelDashboardIndexRoute
   '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
+  '/panel/dashboard/anuncios/novo': typeof PanelDashboardAnunciosNovoRoute
+  '/panel/dashboard/anuncios/$id/pagamento': typeof PanelDashboardAnunciosIdPagamentoRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/auth': typeof AuthRoute
   '/moderation': typeof ModerationRoute
-  '/anuncios/$id': typeof AnunciosIdRoute
+  '/panel': typeof PanelRouteWithChildren
+  '/auth': typeof PortalAuthRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
+  '/panel/admin': typeof PanelAdminRoute
+  '/panel/moderation': typeof PanelModerationRoute
+  '/': typeof PortalIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/anuncios/$id': typeof PortalAnunciosIdRoute
   '/dashboard/anuncios/novo': typeof DashboardAnunciosNovoRoute
+  '/panel/dashboard/condo-setup': typeof PanelDashboardCondoSetupRoute
+  '/panel/dashboard': typeof PanelDashboardIndexRoute
   '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
+  '/panel/dashboard/anuncios/novo': typeof PanelDashboardAnunciosNovoRoute
+  '/panel/dashboard/anuncios/$id/pagamento': typeof PanelDashboardAnunciosIdPagamentoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_portal': typeof PortalRouteWithChildren
   '/admin': typeof AdminRoute
-  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/moderation': typeof ModerationRoute
-  '/anuncios/$id': typeof AnunciosIdRoute
+  '/panel': typeof PanelRouteWithChildren
+  '/_portal/auth': typeof PortalAuthRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
+  '/panel/admin': typeof PanelAdminRoute
+  '/panel/dashboard': typeof PanelDashboardRouteWithChildren
+  '/panel/moderation': typeof PanelModerationRoute
+  '/_portal/': typeof PortalIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/_portal/anuncios/$id': typeof PortalAnunciosIdRoute
   '/dashboard/anuncios/novo': typeof DashboardAnunciosNovoRoute
+  '/panel/dashboard/condo-setup': typeof PanelDashboardCondoSetupRoute
+  '/panel/dashboard/': typeof PanelDashboardIndexRoute
   '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
+  '/panel/dashboard/anuncios/novo': typeof PanelDashboardAnunciosNovoRoute
+  '/panel/dashboard/anuncios/$id/pagamento': typeof PanelDashboardAnunciosIdPagamentoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/admin'
-    | '/auth'
     | '/dashboard'
     | '/moderation'
-    | '/anuncios/$id'
+    | '/panel'
+    | '/auth'
     | '/dashboard/condo-setup'
+    | '/panel/admin'
+    | '/panel/dashboard'
+    | '/panel/moderation'
     | '/dashboard/'
+    | '/anuncios/$id'
     | '/dashboard/anuncios/novo'
+    | '/panel/dashboard/condo-setup'
+    | '/panel/dashboard/'
     | '/dashboard/anuncios/$id/pagamento'
+    | '/panel/dashboard/anuncios/novo'
+    | '/panel/dashboard/anuncios/$id/pagamento'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/admin'
-    | '/auth'
     | '/moderation'
-    | '/anuncios/$id'
+    | '/panel'
+    | '/auth'
     | '/dashboard/condo-setup'
+    | '/panel/admin'
+    | '/panel/moderation'
+    | '/'
     | '/dashboard'
+    | '/anuncios/$id'
     | '/dashboard/anuncios/novo'
+    | '/panel/dashboard/condo-setup'
+    | '/panel/dashboard'
     | '/dashboard/anuncios/$id/pagamento'
+    | '/panel/dashboard/anuncios/novo'
+    | '/panel/dashboard/anuncios/$id/pagamento'
   id:
     | '__root__'
-    | '/'
+    | '/_portal'
     | '/admin'
-    | '/auth'
     | '/dashboard'
     | '/moderation'
-    | '/anuncios/$id'
+    | '/panel'
+    | '/_portal/auth'
     | '/dashboard/condo-setup'
+    | '/panel/admin'
+    | '/panel/dashboard'
+    | '/panel/moderation'
+    | '/_portal/'
     | '/dashboard/'
+    | '/_portal/anuncios/$id'
     | '/dashboard/anuncios/novo'
+    | '/panel/dashboard/condo-setup'
+    | '/panel/dashboard/'
     | '/dashboard/anuncios/$id/pagamento'
+    | '/panel/dashboard/anuncios/novo'
+    | '/panel/dashboard/anuncios/$id/pagamento'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  PortalRoute: typeof PortalRouteWithChildren
   AdminRoute: typeof AdminRoute
-  AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   ModerationRoute: typeof ModerationRoute
-  AnunciosIdRoute: typeof AnunciosIdRoute
+  PanelRoute: typeof PanelRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/panel': {
+      id: '/panel'
+      path: '/panel'
+      fullPath: '/panel'
+      preLoaderRoute: typeof PanelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/moderation': {
       id: '/moderation'
       path: '/moderation'
@@ -171,13 +281,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -185,11 +288,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
+    '/_portal': {
+      id: '/_portal'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/': {
@@ -199,6 +302,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_portal/': {
+      id: '/_portal/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof PortalIndexRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/panel/moderation': {
+      id: '/panel/moderation'
+      path: '/moderation'
+      fullPath: '/panel/moderation'
+      preLoaderRoute: typeof PanelModerationRouteImport
+      parentRoute: typeof PanelRoute
+    }
+    '/panel/dashboard': {
+      id: '/panel/dashboard'
+      path: '/dashboard'
+      fullPath: '/panel/dashboard'
+      preLoaderRoute: typeof PanelDashboardRouteImport
+      parentRoute: typeof PanelRoute
+    }
+    '/panel/admin': {
+      id: '/panel/admin'
+      path: '/admin'
+      fullPath: '/panel/admin'
+      preLoaderRoute: typeof PanelAdminRouteImport
+      parentRoute: typeof PanelRoute
+    }
     '/dashboard/condo-setup': {
       id: '/dashboard/condo-setup'
       path: '/condo-setup'
@@ -206,12 +337,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCondoSetupRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/anuncios/$id': {
-      id: '/anuncios/$id'
-      path: '/anuncios/$id'
-      fullPath: '/anuncios/$id'
-      preLoaderRoute: typeof AnunciosIdRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_portal/auth': {
+      id: '/_portal/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof PortalAuthRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/panel/dashboard/': {
+      id: '/panel/dashboard/'
+      path: '/'
+      fullPath: '/panel/dashboard/'
+      preLoaderRoute: typeof PanelDashboardIndexRouteImport
+      parentRoute: typeof PanelDashboardRoute
+    }
+    '/panel/dashboard/condo-setup': {
+      id: '/panel/dashboard/condo-setup'
+      path: '/condo-setup'
+      fullPath: '/panel/dashboard/condo-setup'
+      preLoaderRoute: typeof PanelDashboardCondoSetupRouteImport
+      parentRoute: typeof PanelDashboardRoute
     }
     '/dashboard/anuncios/novo': {
       id: '/dashboard/anuncios/novo'
@@ -220,6 +365,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAnunciosNovoRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_portal/anuncios/$id': {
+      id: '/_portal/anuncios/$id'
+      path: '/anuncios/$id'
+      fullPath: '/anuncios/$id'
+      preLoaderRoute: typeof PortalAnunciosIdRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/panel/dashboard/anuncios/novo': {
+      id: '/panel/dashboard/anuncios/novo'
+      path: '/anuncios/novo'
+      fullPath: '/panel/dashboard/anuncios/novo'
+      preLoaderRoute: typeof PanelDashboardAnunciosNovoRouteImport
+      parentRoute: typeof PanelDashboardRoute
+    }
     '/dashboard/anuncios/$id/pagamento': {
       id: '/dashboard/anuncios/$id/pagamento'
       path: '/anuncios/$id/pagamento'
@@ -227,8 +386,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAnunciosIdPagamentoRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/panel/dashboard/anuncios/$id/pagamento': {
+      id: '/panel/dashboard/anuncios/$id/pagamento'
+      path: '/anuncios/$id/pagamento'
+      fullPath: '/panel/dashboard/anuncios/$id/pagamento'
+      preLoaderRoute: typeof PanelDashboardAnunciosIdPagamentoRouteImport
+      parentRoute: typeof PanelDashboardRoute
+    }
   }
 }
+
+interface PortalRouteChildren {
+  PortalAuthRoute: typeof PortalAuthRoute
+  PortalIndexRoute: typeof PortalIndexRoute
+  PortalAnunciosIdRoute: typeof PortalAnunciosIdRoute
+}
+
+const PortalRouteChildren: PortalRouteChildren = {
+  PortalAuthRoute: PortalAuthRoute,
+  PortalIndexRoute: PortalIndexRoute,
+  PortalAnunciosIdRoute: PortalAnunciosIdRoute,
+}
+
+const PortalRouteWithChildren =
+  PortalRoute._addFileChildren(PortalRouteChildren)
 
 interface DashboardRouteChildren {
   DashboardCondoSetupRoute: typeof DashboardCondoSetupRoute
@@ -248,13 +429,45 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
   DashboardRouteChildren,
 )
 
+interface PanelDashboardRouteChildren {
+  PanelDashboardCondoSetupRoute: typeof PanelDashboardCondoSetupRoute
+  PanelDashboardIndexRoute: typeof PanelDashboardIndexRoute
+  PanelDashboardAnunciosNovoRoute: typeof PanelDashboardAnunciosNovoRoute
+  PanelDashboardAnunciosIdPagamentoRoute: typeof PanelDashboardAnunciosIdPagamentoRoute
+}
+
+const PanelDashboardRouteChildren: PanelDashboardRouteChildren = {
+  PanelDashboardCondoSetupRoute: PanelDashboardCondoSetupRoute,
+  PanelDashboardIndexRoute: PanelDashboardIndexRoute,
+  PanelDashboardAnunciosNovoRoute: PanelDashboardAnunciosNovoRoute,
+  PanelDashboardAnunciosIdPagamentoRoute:
+    PanelDashboardAnunciosIdPagamentoRoute,
+}
+
+const PanelDashboardRouteWithChildren = PanelDashboardRoute._addFileChildren(
+  PanelDashboardRouteChildren,
+)
+
+interface PanelRouteChildren {
+  PanelAdminRoute: typeof PanelAdminRoute
+  PanelDashboardRoute: typeof PanelDashboardRouteWithChildren
+  PanelModerationRoute: typeof PanelModerationRoute
+}
+
+const PanelRouteChildren: PanelRouteChildren = {
+  PanelAdminRoute: PanelAdminRoute,
+  PanelDashboardRoute: PanelDashboardRouteWithChildren,
+  PanelModerationRoute: PanelModerationRoute,
+}
+
+const PanelRouteWithChildren = PanelRoute._addFileChildren(PanelRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  PortalRoute: PortalRouteWithChildren,
   AdminRoute: AdminRoute,
-  AuthRoute: AuthRoute,
   DashboardRoute: DashboardRouteWithChildren,
   ModerationRoute: ModerationRoute,
-  AnunciosIdRoute: AnunciosIdRoute,
+  PanelRoute: PanelRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

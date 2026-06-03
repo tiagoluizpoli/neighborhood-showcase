@@ -8,7 +8,7 @@ import {
 } from '@neighborhood-showcase/ui/components/card';
 import { Input } from '@neighborhood-showcase/ui/components/input';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import {
   CheckCircle2,
   Globe,
@@ -24,7 +24,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { trpc } from '@/utils/trpc';
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/_portal/')({
   component: PublicVitrineComponent,
 });
 
@@ -408,6 +408,20 @@ function PublicVitrineComponent() {
           </p>
         </div>
       )}
+
+      {/* Become a Provider Promo Section */}
+      <div className="mt-16 rounded-2xl border bg-muted/30 p-8 text-center backdrop-blur-sm">
+        <h3 className="mb-2 font-bold text-lg">
+          Quer divulgar seus serviços na sua vizinhança?
+        </h3>
+        <p className="mx-auto mb-4 max-w-lg text-muted-foreground text-sm">
+          Cadastre-se como prestador de serviços e anuncie para os moradores do
+          seu condomínio ou região com facilidade e confiança.
+        </p>
+        <Link to="/auth" search={{ tab: 'signup' }}>
+          <Button variant="default">Começar Agora (Anunciar Serviços)</Button>
+        </Link>
+      </div>
 
       {/* Manual Condominium Selector Modal */}
       {isSelectorOpen && (

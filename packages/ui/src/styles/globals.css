@@ -146,3 +146,23 @@
     @apply font-sans;
   }
 }
+
+/* Scoped themes for Portal and Panel */
+[data-theme="portal"] {
+  /* Inherits from :root. Place overrides here. */
+  --primary: oklch(0.205 0 0);
+}
+.dark [data-theme="portal"] {
+  /* Inherits from .dark. Place dark mode overrides here. */
+  --primary: oklch(0.87 0 0);
+}
+
+[data-theme="panel"] {
+  /* Inherits from :root. Place overrides here. */
+  --primary: oklch(0.205 0 0);
+}
+.dark [data-theme="panel"] {
+  /* Inherits from .dark. Place dark mode overrides here. */
+  --primary: oklch(0.87 0 0);
+}
+

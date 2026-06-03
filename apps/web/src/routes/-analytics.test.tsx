@@ -132,8 +132,8 @@ mock.module('@tanstack/react-query', () => ({
 }));
 
 // Use dynamic imports to prevent ES module hoisting from importing original modules before mocks are set up
-const { Route: DetailsRoute } = await import('./anuncios.$id');
-const { Route: IndexRoute } = await import('./index');
+const { Route: DetailsRoute } = await import('./_portal.anuncios.$id');
+const { Route: IndexRoute } = await import('./_portal.index');
 
 // Monkeypatch Route.useParams to bypass React Router context calls in testing environment
 DetailsRoute.useParams = () => ({ id: currentId });

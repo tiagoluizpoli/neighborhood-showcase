@@ -16,13 +16,13 @@ Unify all authenticated routes under a `/panel/*` prefix, create completely inde
 
 ## Acceptance criteria
 
-- [ ] All authenticated routes live under `/panel/*`
-- [ ] Old paths (`/dashboard`, `/admin`, `/moderation`) redirect to their `/panel/*` equivalents
-- [ ] Public portal and panel use completely independent layout components
-- [ ] `data-theme="portal"` and `data-theme="panel"` wrappers exist on their respective layouts
-- [ ] "Become a Provider" link exists in the home page footer and in a subtle bottom section
-- [ ] Unauthenticated access to `/panel/*` redirects to `/`
-- [ ] All existing route guard tests pass (updated for new paths)
+- [x] All authenticated routes live under `/panel/*`
+- [x] Old paths (`/dashboard`, `/admin`, `/moderation`) redirect to their `/panel/*` equivalents
+- [x] Public portal and panel use completely independent layout components
+- [x] `data-theme="portal"` and `data-theme="panel"` wrappers exist on their respective layouts
+- [x] "Become a Provider" link exists in the home page footer and in a subtle bottom section
+- [x] Unauthenticated access to `/panel/*` redirects to `/`
+- [x] All existing route guard tests pass (updated for new paths)
 
 ## Blocked by
 

@@ -29,10 +29,11 @@ mock.module('../utils/trpc', () => ({
   trpc,
 }));
 
-import { Route as AdminRoute } from './admin';
+import { Route as PanelRoute } from './panel';
+import { Route as AdminRoute } from './panel.admin';
 // Import routes after the mock definition
-import { Route as DashboardRoute } from './dashboard';
-import { Route as ModerationRoute } from './moderation';
+import { Route as DashboardRoute } from './panel.dashboard';
+import { Route as ModerationRoute } from './panel.moderation';
 
 interface RedirectError {
   to?: string;
@@ -44,17 +45,17 @@ interface RedirectError {
 }
 
 describe('Route Guards Redirection & Security', () => {
-  describe('/dashboard Route Guard', () => {
+  describe('/panel Route Guard', () => {
     test('redirects unauthenticated users to home (/)', async () => {
       mockGetSession.mockImplementation(() => Promise.resolve({ data: null }));
 
       try {
-        await DashboardRoute.options.beforeLoad?.({
-          location: { pathname: '/dashboard' },
+        await PanelRoute.options.beforeLoad?.({
+          location: { pathname: '/panel' },
           params: {},
           search: {},
         } as unknown as Parameters<
-          NonNullable<typeof DashboardRoute.options.beforeLoad>
+          NonNullable<typeof PanelRoute.options.beforeLoad>
         >[0]);
         expect().unreachable(); // Should not reach here
       } catch (err: unknown) {
@@ -65,6 +66,38 @@ describe('Route Guards Redirection & Security', () => {
       }
     });
 
+    test('allows authenticated users access to panel layout route', async () => {
+      mockGetSession.mockImplementation(() =>
+        Promise.resolve({
+          data: {
+            user: { id: '1', role: 'USER' },
+            session: {},
+          },
+        } as unknown as {
+          data: {
+            user: { id: string; role: string };
+            session: Record<string, unknown>;
+          } | null;
+        }),
+      );
+
+      const ctx = await PanelRoute.options.beforeLoad?.({
+        location: { pathname: '/panel' },
+        params: {},
+        search: {},
+      } as unknown as Parameters<
+        NonNullable<typeof PanelRoute.options.beforeLoad>
+      >[0]);
+
+      expect(ctx).toBeDefined();
+      const resolvedCtx = ctx as {
+        session: { data: { user: { id: string } } };
+      };
+      expect(resolvedCtx.session.data.user.id).toBe('1');
+    });
+  });
+
+  describe('/panel/dashboard Route Guard', () => {
     test('redirects authenticated users without approved assignments/condo to condo-setup', async () => {
       mockGetSession.mockImplementation(() =>
         Promise.resolve({
@@ -84,9 +117,17 @@ describe('Route Guards Redirection & Security', () => {
 
       try {
         await DashboardRoute.options.beforeLoad?.({
-          location: { pathname: '/dashboard' },
+          location: { pathname: '/panel/dashboard' },
           params: {},
           search: {},
+          context: {
+            session: {
+              data: {
+                user: { id: '1', role: 'USER' },
+                session: {},
+              },
+            },
+          },
         } as unknown as Parameters<
           NonNullable<typeof DashboardRoute.options.beforeLoad>
         >[0]);
@@ -95,7 +136,7 @@ describe('Route Guards Redirection & Security', () => {
         expect(err).toBeDefined();
         const redirectErr = err as RedirectError;
         const dest = redirectErr.to || redirectErr.options?.to;
-        expect(dest).toBe('/dashboard/condo-setup');
+        expect(dest).toBe('/panel/dashboard/condo-setup');
       }
     });
 
@@ -115,28 +156,32 @@ describe('Route Guards Redirection & Security', () => {
       );
 
       const ctx = await DashboardRoute.options.beforeLoad?.({
-        location: { pathname: '/dashboard/condo-setup' },
+        location: { pathname: '/panel/dashboard/condo-setup' },
         params: {},
         search: {},
+        context: {
+          session: {
+            data: {
+              user: { id: '1', role: 'USER' },
+              session: {},
+            },
+          },
+        },
       } as unknown as Parameters<
         NonNullable<typeof DashboardRoute.options.beforeLoad>
       >[0]);
 
-      expect(ctx).toBeDefined();
-      const resolvedCtx = ctx as {
-        session: { data: { user: { id: string } } };
-      };
-      expect(resolvedCtx.session.data.user.id).toBe('1');
+      expect(ctx).toBeUndefined(); // Returns undefined or void on bypass
     });
   });
 
-  describe('/moderation Route Guard', () => {
+  describe('/panel/moderation Route Guard', () => {
     test('redirects unauthenticated users to home (/)', async () => {
       mockGetSession.mockImplementation(() => Promise.resolve({ data: null }));
 
       try {
         await ModerationRoute.options.beforeLoad?.({
-          location: { pathname: '/moderation' },
+          location: { pathname: '/panel/moderation' },
           params: {},
           search: {},
         } as unknown as Parameters<
@@ -151,7 +196,7 @@ describe('Route Guards Redirection & Security', () => {
       }
     });
 
-    test('redirects authenticated users without moderator assignment to /dashboard with Página não encontrada message', async () => {
+    test('redirects authenticated users without moderator assignment to /panel/dashboard with Página não encontrada message', async () => {
       mockGetSession.mockImplementation(() =>
         Promise.resolve({
           data: {
@@ -177,7 +222,7 @@ describe('Route Guards Redirection & Security', () => {
 
       try {
         await ModerationRoute.options.beforeLoad?.({
-          location: { pathname: '/moderation' },
+          location: { pathname: '/panel/moderation' },
           params: {},
           search: {},
         } as unknown as Parameters<
@@ -189,7 +234,7 @@ describe('Route Guards Redirection & Security', () => {
         const redirectErr = err as RedirectError;
         const dest = redirectErr.to || redirectErr.options?.to;
         const search = redirectErr.search || redirectErr.options?.search;
-        expect(dest).toBe('/dashboard');
+        expect(dest).toBe('/panel/dashboard');
         expect(search).toEqual({ message: 'Página não encontrada' });
       }
     });
@@ -219,7 +264,7 @@ describe('Route Guards Redirection & Security', () => {
       );
 
       const ctx = await ModerationRoute.options.beforeLoad?.({
-        location: { pathname: '/moderation' },
+        location: { pathname: '/panel/moderation' },
         params: {},
         search: {},
       } as unknown as Parameters<
@@ -231,13 +276,13 @@ describe('Route Guards Redirection & Security', () => {
     });
   });
 
-  describe('/admin Route Guard', () => {
+  describe('/panel/admin Route Guard', () => {
     test('redirects unauthenticated users to home (/)', async () => {
       mockGetSession.mockImplementation(() => Promise.resolve({ data: null }));
 
       try {
         await AdminRoute.options.beforeLoad?.({
-          location: { pathname: '/admin' },
+          location: { pathname: '/panel/admin' },
           params: {},
           search: {},
         } as unknown as Parameters<
@@ -252,7 +297,7 @@ describe('Route Guards Redirection & Security', () => {
       }
     });
 
-    test('redirects authenticated users without SYSTEM_MANAGER role to /dashboard with Página não encontrada message', async () => {
+    test('redirects authenticated users without SYSTEM_MANAGER role to /panel/dashboard with Página não encontrada message', async () => {
       mockGetSession.mockImplementation(() =>
         Promise.resolve({
           data: {
@@ -269,7 +314,7 @@ describe('Route Guards Redirection & Security', () => {
 
       try {
         await AdminRoute.options.beforeLoad?.({
-          location: { pathname: '/admin' },
+          location: { pathname: '/panel/admin' },
           params: {},
           search: {},
         } as unknown as Parameters<
@@ -281,7 +326,7 @@ describe('Route Guards Redirection & Security', () => {
         const redirectErr = err as RedirectError;
         const dest = redirectErr.to || redirectErr.options?.to;
         const search = redirectErr.search || redirectErr.options?.search;
-        expect(dest).toBe('/dashboard');
+        expect(dest).toBe('/panel/dashboard');
         expect(search).toEqual({ message: 'Página não encontrada' });
       }
     });
@@ -302,7 +347,7 @@ describe('Route Guards Redirection & Security', () => {
       );
 
       const ctx = await AdminRoute.options.beforeLoad?.({
-        location: { pathname: '/admin' },
+        location: { pathname: '/panel/admin' },
         params: {},
         search: {},
       } as unknown as Parameters<

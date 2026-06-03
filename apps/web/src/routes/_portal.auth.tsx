@@ -2,15 +2,24 @@ import { Card, CardContent } from '@neighborhood-showcase/ui/components/card';
 import { cn } from '@neighborhood-showcase/ui/lib/utils';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
+import { z } from 'zod';
 import SignInForm from '@/components/sign-in-form';
 import SignUpForm from '@/components/sign-up-form';
 
-export const Route = createFileRoute('/auth')({
+const authSearchSchema = z.object({
+  tab: z.enum(['signin', 'signup']).optional(),
+});
+
+export const Route = createFileRoute('/_portal/auth')({
+  validateSearch: authSearchSchema,
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
+  const { tab } = Route.useSearch();
+  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>(
+    tab || 'signin',
+  );
 
   return (
     <div className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-background px-4 py-12 sm:px-6 lg:px-8">

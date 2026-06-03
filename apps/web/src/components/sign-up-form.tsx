@@ -38,7 +38,7 @@ export default function SignUpForm({
         {
           onSuccess: () => {
             navigate({
-              to: '/dashboard/condo-setup',
+              to: '/panel/dashboard/condo-setup',
             });
             toast.success('Cadastro realizado com sucesso!');
           },

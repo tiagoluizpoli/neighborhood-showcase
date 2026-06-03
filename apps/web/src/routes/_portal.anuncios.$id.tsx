@@ -13,7 +13,7 @@ import {
 import { useEffect, useRef } from 'react';
 import { trpc } from '@/utils/trpc';
 
-export const Route = createFileRoute('/anuncios/$id')({
+export const Route = createFileRoute('/_portal/anuncios/$id')({
   component: PublicAnnouncementDetailsComponent,
 });
 
@@ -100,7 +100,6 @@ function PublicAnnouncementDetailsComponent() {
         <ArrowLeft className="h-4 w-4" />
         <span>Voltar para a vitrine</span>
       </Link>
-
       <Card className="overflow-hidden border bg-card/50 shadow-lg backdrop-blur-sm">
         {/* Cover image 4:3 */}
         <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">

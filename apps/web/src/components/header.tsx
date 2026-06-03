@@ -26,14 +26,18 @@ export default function Header() {
 
   const links = [
     { to: '/' as const, label: t('nav.home'), show: true },
-    { to: '/dashboard' as const, label: t('nav.dashboard'), show: !!session },
     {
-      to: '/moderation' as const,
+      to: '/panel/dashboard' as const,
+      label: t('nav.dashboard'),
+      show: !!session,
+    },
+    {
+      to: '/panel/moderation' as const,
       label: t('nav.moderation'),
       show: hasModeratorRole,
     },
     {
-      to: '/admin' as const,
+      to: '/panel/admin' as const,
       label: t('nav.admin'),
       show: hasSystemManagerRole,
     },
