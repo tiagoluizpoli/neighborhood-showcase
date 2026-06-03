@@ -1,5 +1,5 @@
 ---
-issueId: 40_panel_sidebar_navigation.md
+issueId: 42_expanded_contact_channels.md
 ---
 
 # PRD

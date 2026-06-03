@@ -17,13 +17,13 @@ Create a dedicated account management page and replace the current name/email te
 
 ## Acceptance criteria
 
-- [ ] Panel header shows `Avatar` component with initials fallback
-- [ ] Clicking avatar opens a popover with name, email, "Minha Conta" link, and "Sair" button
-- [ ] `/panel/conta` route exists and inherits the panel sidebar layout
-- [ ] Account page has a working "Edit Display Name" form
-- [ ] "Delete Account" action is on the account page and removed from the dashboard
-- [ ] User name update persists to the database
-- [ ] Integration test for user update procedure
+- [x] Panel header shows `Avatar` component with initials fallback
+- [x] Clicking avatar opens a popover with name, email, "Minha Conta" link, and "Sair" button
+- [x] `/panel/conta` route exists and inherits the panel sidebar layout
+- [x] Account page has a working "Edit Display Name" form
+- [x] "Delete Account" action is on the account page and removed from the dashboard
+- [x] User name update persists to the database
+- [x] Integration test for user update procedure
 
 ## Blocked by
 

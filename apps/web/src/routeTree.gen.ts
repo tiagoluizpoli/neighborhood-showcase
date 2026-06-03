@@ -18,6 +18,7 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as PortalIndexRouteImport } from './routes/_portal.index'
 import { Route as PanelModerationRouteImport } from './routes/panel.moderation'
 import { Route as PanelDashboardRouteImport } from './routes/panel.dashboard'
+import { Route as PanelContaRouteImport } from './routes/panel.conta'
 import { Route as PanelAdminRouteImport } from './routes/panel.admin'
 import { Route as DashboardCondoSetupRouteImport } from './routes/dashboard.condo-setup'
 import { Route as PortalAuthRouteImport } from './routes/_portal.auth'
@@ -71,6 +72,11 @@ const PanelModerationRoute = PanelModerationRouteImport.update({
 const PanelDashboardRoute = PanelDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => PanelRoute,
+} as any)
+const PanelContaRoute = PanelContaRouteImport.update({
+  id: '/conta',
+  path: '/conta',
   getParentRoute: () => PanelRoute,
 } as any)
 const PanelAdminRoute = PanelAdminRouteImport.update({
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof PortalAuthRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/panel/admin': typeof PanelAdminRoute
+  '/panel/conta': typeof PanelContaRoute
   '/panel/dashboard': typeof PanelDashboardRouteWithChildren
   '/panel/moderation': typeof PanelModerationRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/auth': typeof PortalAuthRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/panel/admin': typeof PanelAdminRoute
+  '/panel/conta': typeof PanelContaRoute
   '/panel/moderation': typeof PanelModerationRoute
   '/': typeof PortalIndexRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/_portal/auth': typeof PortalAuthRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/panel/admin': typeof PanelAdminRoute
+  '/panel/conta': typeof PanelContaRoute
   '/panel/dashboard': typeof PanelDashboardRouteWithChildren
   '/panel/moderation': typeof PanelModerationRoute
   '/_portal/': typeof PortalIndexRoute
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard/condo-setup'
     | '/panel/admin'
+    | '/panel/conta'
     | '/panel/dashboard'
     | '/panel/moderation'
     | '/dashboard/'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard/condo-setup'
     | '/panel/admin'
+    | '/panel/conta'
     | '/panel/moderation'
     | '/'
     | '/dashboard'
@@ -237,6 +248,7 @@ export interface FileRouteTypes {
     | '/_portal/auth'
     | '/dashboard/condo-setup'
     | '/panel/admin'
+    | '/panel/conta'
     | '/panel/dashboard'
     | '/panel/moderation'
     | '/_portal/'
@@ -321,6 +333,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/panel/dashboard'
       preLoaderRoute: typeof PanelDashboardRouteImport
+      parentRoute: typeof PanelRoute
+    }
+    '/panel/conta': {
+      id: '/panel/conta'
+      path: '/conta'
+      fullPath: '/panel/conta'
+      preLoaderRoute: typeof PanelContaRouteImport
       parentRoute: typeof PanelRoute
     }
     '/panel/admin': {
@@ -450,12 +469,14 @@ const PanelDashboardRouteWithChildren = PanelDashboardRoute._addFileChildren(
 
 interface PanelRouteChildren {
   PanelAdminRoute: typeof PanelAdminRoute
+  PanelContaRoute: typeof PanelContaRoute
   PanelDashboardRoute: typeof PanelDashboardRouteWithChildren
   PanelModerationRoute: typeof PanelModerationRoute
 }
 
 const PanelRouteChildren: PanelRouteChildren = {
   PanelAdminRoute: PanelAdminRoute,
+  PanelContaRoute: PanelContaRoute,
   PanelDashboardRoute: PanelDashboardRouteWithChildren,
   PanelModerationRoute: PanelModerationRoute,
 }

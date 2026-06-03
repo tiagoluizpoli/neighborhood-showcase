@@ -13,13 +13,11 @@ import {
   RefreshCw,
   ShieldCheck,
   TrendingUp,
-  UserX,
   X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { authClient } from '@/lib/auth-client';
 import { trpc } from '@/utils/trpc';
 
 const dashboardSearchSchema = z.object({
@@ -86,25 +84,9 @@ function DashboardIndexComponent() {
   const [editingAd, setEditingAd] = useState<DashboardAnnouncementItem | null>(
     null,
   );
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-
   // Fetch dashboard data
   const dashboardQuery = useQuery(
     trpc.announcement.getDashboardData.queryOptions(),
-  );
-
-  // Delete account mutation
-  const deleteAccountMutation = useMutation(
-    trpc.user.deleteAccount.mutationOptions({
-      onSuccess: async () => {
-        toast.success('Sua conta foi excluída permanentemente. Até logo!');
-        await authClient.signOut();
-        navigate({ to: '/' });
-      },
-      onError: (err) => {
-        toast.error(err.message || 'Erro ao excluir conta.');
-      },
-    }),
   );
 
   // Renew payment intent mutation
@@ -191,14 +173,6 @@ function DashboardIndexComponent() {
             <Plus className="h-4 w-4" />
             Criar Anúncio
           </Link>
-          <button
-            type="button"
-            onClick={() => setShowDeleteModal(true)}
-            className="inline-flex items-center gap-2 rounded-xl border bg-background px-4 py-2.5 font-medium text-destructive text-sm transition-all hover:bg-destructive/10 hover:text-destructive-foreground"
-          >
-            <UserX className="h-4 w-4" />
-            Excluir Conta
-          </button>
         </div>
       </div>
 
@@ -425,15 +399,6 @@ function DashboardIndexComponent() {
               queryKey: trpc.announcement.getDashboardData.queryKey(),
             });
           }}
-        />
-      )}
-
-      {/* Soft Delete Account Confirmation Modal */}
-      {showDeleteModal && (
-        <DeleteAccountModal
-          onClose={() => setShowDeleteModal(false)}
-          onConfirm={() => deleteAccountMutation.mutate()}
-          isPending={deleteAccountMutation.isPending}
         />
       )}
     </div>
@@ -983,58 +948,6 @@ function EditAnnouncementModal({
               <Loader2 className="h-4 w-4 animate-spin" />
             )}
             Salvar Alterações
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Delete Account Modal Component
-function DeleteAccountModal({
-  onClose,
-  onConfirm,
-  isPending,
-}: {
-  onClose: () => void;
-  onConfirm: () => void;
-  isPending: boolean;
-}) {
-  return (
-    <div className="fade-in fixed inset-0 z-50 flex animate-in items-center justify-center bg-background/80 p-4 backdrop-blur-sm duration-200">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 text-center shadow-2xl">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-          <AlertTriangle className="h-6 w-6" />
-        </div>
-        <h3 className="font-bold text-foreground text-xl">
-          Excluir Conta Permanentemente?
-        </h3>
-        <p className="mt-3 text-muted-foreground text-sm leading-relaxed">
-          Esta ação é <strong>irreversível</strong> e em conformidade com a{' '}
-          <strong>LGPD</strong>.
-        </p>
-        <p className="mt-2 rounded-xl border border-border bg-muted/50 p-3 text-muted-foreground text-xs leading-relaxed">
-          Seus dados pessoais (nome, e-mail, telefone e CPF) serão apagados
-          permanentemente. Seus anúncios serão removidos da vitrine pública.
-          Registros financeiros de transações serão mantidos de forma totalmente
-          anônima.
-        </p>
-        <div className="mt-6 flex gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 rounded-xl border border-border bg-secondary py-2.5 font-semibold text-muted-foreground text-sm transition-colors hover:bg-accent hover:text-foreground"
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            disabled={isPending}
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-destructive py-2.5 font-semibold text-sm text-white transition-colors hover:bg-destructive/90 disabled:opacity-50"
-          >
-            {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-            Confirmar Exclusão
           </button>
         </div>
       </div>
