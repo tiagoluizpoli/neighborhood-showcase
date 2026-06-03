@@ -78,6 +78,8 @@
 - Implemented reject tRPC endpoint (updates status to `REJECTED` and dispatches mock email to creator).
 - Implemented integration tests.
 
+[2026-06-03 01:18:11] Iteration 1 | Worked: Wired the portal geolocation flow to `condominium.listNearby`, persisted the nearest condo in `user_condo`, added geospatial getter/type fixes, and verified geolocation, typecheck, formatting, and full test passes | Failed: None | Status: 30% Complete.
+
 ### Issue 05: Resident Approval - Moderator
 - Route beforeLoad guard restricting access to `/moderation` only to approved `MODERATOR` users of that condominium.
 - tRPC route `listPending` querying pending resident assignments (`type = 'RESIDENT' && status = 'PENDING'`) while joining user relation details.
@@ -314,5 +316,4 @@
 [2026-06-03 00:39:20] Iteration 7 | Worked: Added UpdateUser backend use-case & tRPC mutation procedure with integration tests, implemented new settings route at /panel/conta with profile edit form and LGPD account deletion modal, migrated account deletion from dashboard index, and integrated panel header Avatar/Popover menu | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
 [2026-06-03 00:46:10] Iteration 3 | Worked: Extended database schema to support expanded contact channels on user and announcement tables, updated UpdateUser use case and tRPC user/announcement routers, created getProfile endpoint, implemented contact channels forms and visibility toggle on /panel/conta page, and verified 150/150 integration tests pass | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
 [2026-06-03 00:52:00] Iteration 1 | Worked: Built Geolocation Permission Dialog, stored coordinates in client/localStorage, added subtle warning banner if denied, IP-based fallback estimation, coordinates revocation action, and wrote a complete unit test suite for the geolocation modal flow | Failed: None | Status: 100% Complete. Loop Terminated. <promise>NO MORE TASKS</promise>
-
 

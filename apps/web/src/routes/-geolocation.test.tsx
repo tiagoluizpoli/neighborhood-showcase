@@ -7,6 +7,16 @@ import * as RealReact from 'react';
 let _mockGeolocationSuccessCallback: ((pos: any) => void) | null = null;
 let _mockGeolocationErrorCallback: ((err: any) => void) | null = null;
 let savedItems: Record<string, string | null> = {};
+let mockNearbyCondoResults: Array<{
+  condo: {
+    id: string;
+    name: string;
+    city: string;
+    state: string;
+    cep: string;
+  };
+  distance: number;
+}> = [];
 
 global.window = {
   addEventListener: () => {},
@@ -52,6 +62,7 @@ const resetHookState = () => {
   hookState.length = 0;
   activeEffects.length = 0;
   savedItems = {};
+  mockNearbyCondoResults = [];
   _mockGeolocationSuccessCallback = null;
   _mockGeolocationErrorCallback = null;
 };
@@ -93,6 +104,7 @@ mock.module('react', () => ({
           } else {
             stateContainer.value = newVal;
           }
+          hookState[idx][0] = stateContainer.value;
         },
       };
       hookState[idx] = [stateContainer.value, stateContainer.setValue];
@@ -104,10 +116,20 @@ mock.module('react', () => ({
 // Mock @tanstack/react-query
 mock.module('@tanstack/react-query', () => ({
   ...RealQuery,
-  useQuery: () => ({
-    data: [],
-    isLoading: false,
-  }),
+  useQuery: (options: any) => {
+    const queryKey = JSON.stringify(options?.queryKey ?? options ?? {});
+    if (queryKey.includes('listNearby')) {
+      return {
+        data: mockNearbyCondoResults,
+        isLoading: false,
+      };
+    }
+
+    return {
+      data: [],
+      isLoading: false,
+    };
+  },
   useMutation: () => ({
     mutate: () => {},
   }),
@@ -149,5 +171,59 @@ describe('Geolocation Permission Modal Flow', () => {
     renderComponent(component);
     // isGeoDialogOpen should be false
     expect(hookState[4][0]).toBe(false);
+  });
+
+  test('Selects the nearest condominium from captured coordinates', () => {
+    global.localStorage.setItem('geolocation_preference', 'granted');
+    global.localStorage.setItem(
+      'user_coords',
+      JSON.stringify({
+        latitude: -27.5969,
+        longitude: -48.5495,
+      }),
+    );
+
+    mockNearbyCondoResults = [
+      {
+        condo: {
+          id: 'condo-close-id',
+          name: 'Condomínio Próximo',
+          city: 'Florianópolis',
+          state: 'SC',
+          cep: '88000001',
+        },
+        distance: 48.2,
+      },
+      {
+        condo: {
+          id: 'condo-mid-id',
+          name: 'Condomínio Médio',
+          city: 'Florianópolis',
+          state: 'SC',
+          cep: '88000002',
+        },
+        distance: 512.7,
+      },
+    ];
+
+    const component = IndexRoute.options.component;
+    renderComponent(component);
+
+    expect(hookState[0][0]).toEqual({
+      id: 'condo-close-id',
+      name: 'Condomínio Próximo',
+      city: 'Florianópolis',
+      state: 'SC',
+      cep: '88000001',
+    });
+    expect(global.localStorage.getItem('user_condo')).toBe(
+      JSON.stringify({
+        id: 'condo-close-id',
+        name: 'Condomínio Próximo',
+        city: 'Florianópolis',
+        state: 'SC',
+        cep: '88000001',
+      }),
+    );
   });
 });

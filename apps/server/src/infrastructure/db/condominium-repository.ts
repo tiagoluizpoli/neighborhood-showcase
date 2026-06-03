@@ -1,6 +1,6 @@
 import { db } from '@neighborhood-showcase/db';
 import { condominium as condoSchema } from '@neighborhood-showcase/db/schema/showcase';
-import { eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { Condominium } from '../../domain/entities/condominium.entity';
 import type {
   CondominiumRepository,
@@ -90,6 +90,33 @@ export class DrizzleCondominiumRepository implements CondominiumRepository {
       .where(eq(condoSchema.status, 'PENDING_APPROVAL'));
 
     return results.map((row) => this.mapper.toDomain(row));
+  }
+
+  async findNearbyApproved(
+    lat: number,
+    lng: number,
+    radiusInMeters: number,
+  ): Promise<{ condo: Condominium; distance: number }[]> {
+    const results = await db
+      .select({
+        condo: condoSchema,
+        distance: sql<number>`ST_Distance(${condoSchema.geog}, ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography)`,
+      })
+      .from(condoSchema)
+      .where(
+        and(
+          eq(condoSchema.status, 'APPROVED'),
+          sql`ST_DWithin(${condoSchema.geog}, ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography, ${radiusInMeters})`,
+        ),
+      )
+      .orderBy(
+        sql`ST_Distance(${condoSchema.geog}, ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography)`,
+      );
+
+    return results.map((row) => ({
+      condo: this.mapper.toDomain(row.condo),
+      distance: Number(row.distance),
+    }));
   }
 
   async updateStatus(

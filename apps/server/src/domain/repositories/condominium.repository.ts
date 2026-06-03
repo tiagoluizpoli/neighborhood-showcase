@@ -21,6 +21,11 @@ export interface CondominiumRepository {
   findByCreatorId(userId: string): Promise<Condominium | null>;
   searchApproved(query: string): Promise<Condominium[]>;
   listPending(): Promise<Condominium[]>;
+  findNearbyApproved(
+    lat: number,
+    lng: number,
+    radiusInMeters: number,
+  ): Promise<{ condo: Condominium; distance: number }[]>;
   updateStatus(
     id: string,
     status: 'APPROVED' | 'REJECTED',

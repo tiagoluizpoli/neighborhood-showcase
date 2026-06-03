@@ -35,6 +35,9 @@ export interface CondominiumProps extends AuditableProps {
   deletedAt?: Date | null;
   addressId?: string | null;
   number?: string | null;
+  latitude?: string | null;
+  longitude?: string | null;
+  geog?: string | null;
 }
 
 export class Condominium extends AuditableEntity<CondominiumProps> {
@@ -113,6 +116,18 @@ export class Condominium extends AuditableEntity<CondominiumProps> {
 
   get number(): string | null | undefined {
     return this.props.number;
+  }
+
+  get latitude(): string | null | undefined {
+    return this.props.latitude;
+  }
+
+  get longitude(): string | null | undefined {
+    return this.props.longitude;
+  }
+
+  get geog(): string | null | undefined {
+    return this.props.geog;
   }
 
   public approve(): void {

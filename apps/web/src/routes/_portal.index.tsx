@@ -44,6 +44,11 @@ interface SelectedCondo {
   cep: string;
 }
 
+interface NearbyCondoResult {
+  condo: SelectedCondo;
+  distance: number;
+}
+
 const CATEGORIES = [
   'Todos',
   'Alimentação',
@@ -68,7 +73,7 @@ function PublicVitrineComponent() {
   const [isGeoDialogOpen, setIsGeoDialogOpen] = useState(
     () => localStorage.getItem('geolocation_preference') === null,
   );
-  const [_coords, setCoords] = useState<{
+  const [coords, setCoords] = useState<{
     latitude: number;
     longitude: number;
   } | null>(() => {
@@ -95,6 +100,17 @@ function PublicVitrineComponent() {
   // tRPC Queries
   const { data: condoSearchResults, isLoading: isSearchingCondos } = useQuery(
     trpc.condominium.listApproved.queryOptions({ query: condoSearchQuery }),
+  );
+
+  const { data: nearbyCondoResults } = useQuery(
+    trpc.condominium.listNearby.queryOptions(
+      {
+        latitude: coords?.latitude ?? 0,
+        longitude: coords?.longitude ?? 0,
+        radiusInMeters: 1000,
+      },
+      { enabled: geoPreference === 'granted' && coords !== null },
+    ),
   );
 
   const { data: announcements, isLoading: isLoadingAds } = useQuery(
@@ -158,40 +174,6 @@ function PublicVitrineComponent() {
           localStorage.setItem('geolocation_preference', 'granted');
           setGeoPreference('granted');
           toast.success('Localização ativada com sucesso!');
-
-          // Now fetch city and condo name via reverse geocoding
-          try {
-            const res = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
-            );
-            const data = await res.json();
-            const city =
-              data.address?.city ||
-              data.address?.town ||
-              data.address?.village ||
-              '';
-
-            if (city) {
-              const resList = await fetch(
-                `${
-                  import.meta.env.VITE_SERVER_URL || 'http://localhost:3000'
-                }/trpc/condominium.listApproved?input=${encodeURIComponent(
-                  JSON.stringify({ query: city }),
-                )}`,
-              );
-              const json = await resList.json();
-              const condos = json?.result?.data as SelectedCondo[];
-
-              if (condos && condos.length > 0) {
-                setSelectedCondo(condos[0]);
-                localStorage.setItem('user_condo', JSON.stringify(condos[0]));
-                toast.success(`Localizado em: ${condos[0].name}`);
-                return;
-              }
-            }
-          } catch (err) {
-            console.error(err);
-          }
         },
         (error) => {
           console.error('Geolocation failed:', error);
@@ -221,6 +203,22 @@ function PublicVitrineComponent() {
     setIsGeoDialogOpen(true);
     toast.success('Localização revogada com sucesso.');
   };
+
+  useEffect(() => {
+    if (
+      geoPreference !== 'granted' ||
+      selectedCondo ||
+      !nearbyCondoResults ||
+      nearbyCondoResults.length === 0
+    ) {
+      return;
+    }
+
+    const nearestCondo: NearbyCondoResult = nearbyCondoResults[0];
+    setSelectedCondo(nearestCondo.condo);
+    localStorage.setItem('user_condo', JSON.stringify(nearestCondo.condo));
+    toast.success(`Localizado em: ${nearestCondo.condo.name}`);
+  }, [geoPreference, nearbyCondoResults, selectedCondo]);
 
   // 1. Geolocation and initial condo load
   useEffect(() => {

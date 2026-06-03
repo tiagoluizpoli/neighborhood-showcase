@@ -23,6 +23,9 @@ export class CondominiumMapper
         deletedAt: raw.deletedAt,
         addressId: raw.addressId,
         number: raw.number,
+        latitude: raw.latitude,
+        longitude: raw.longitude,
+        geog: raw.geog,
       },
       raw.id,
     );
@@ -43,6 +46,9 @@ export class CondominiumMapper
       deletedAt: entity.deletedAt,
       addressId: entity.addressId,
       number: entity.number,
+      latitude: entity.latitude,
+      longitude: entity.longitude,
+      geog: entity.geog,
     };
   }
 }

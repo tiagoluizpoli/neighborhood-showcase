@@ -59,6 +59,26 @@ export const condominiumRouter = router({
       return results.map((condo) => condo.toDTO());
     }),
 
+  listNearby: publicProcedure
+    .input(
+      z.object({
+        latitude: z.number(),
+        longitude: z.number(),
+        radiusInMeters: z.number().default(1000),
+      }),
+    )
+    .query(async ({ input }) => {
+      const results = await condoRepo.findNearbyApproved(
+        input.latitude,
+        input.longitude,
+        input.radiusInMeters,
+      );
+      return results.map((row) => ({
+        condo: row.condo.toDTO(),
+        distance: row.distance,
+      }));
+    }),
+
   listPending: adminProcedure.query(async () => {
     const results = await condoRepo.listPending();
     return results.map((condo) => condo.toDTO());

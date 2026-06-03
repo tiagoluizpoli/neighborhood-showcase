@@ -20,7 +20,7 @@ Use the Visitor's captured coordinates to detect nearby condominiums and prompt 
 - [ ] Proximity check API returns condominiums sorted by distance using PostGIS `ST_DWithin` and `ST_Distance`
 - [ ] Tier 1: single condo within 100m triggers direct prompt
 - [ ] Tier 2: multiple condos within 1km shows sorted selection list
-- [ ] Confirmed condominium is stored as the user's browsing context
+- [x] Confirmed condominium is stored as the user's browsing context
 - [ ] Dismiss proceeds without condominium context
 - [ ] Integration test: seeded condominiums return in correct proximity order
 
@@ -28,3 +28,8 @@ Use the Visitor's captured coordinates to detect nearby condominiums and prompt 
 
 - #38 (PostGIS Schema & Geospatial Columns)
 - #43 (Geolocation Permission Modal & Client Capture)
+
+## Iteration 1 Notes
+
+- Portal geolocation flow now consumes `condominium.listNearby` and persists the nearest condo into `user_condo` when coordinates are available.
+- Tier 1 direct prompt and Tier 2 multi-condo picker remain for the next iteration.
