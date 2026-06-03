@@ -81,7 +81,7 @@ Monorepo using Turborepo and Bun.
 - Because the repository is at its beginning and before v1 release, do not accumulate migrations when dropping or replacing tables (such as legacy `todo`). Wipe the `packages/db/src/migrations/` directory, drop the table schema definitions, and generate a new base schema migration from scratch.
 
 ## Current Plan Reference
-- [Improvements & Bug Fixes Plan](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/improvements_plan.md)
-- [AbacatePay Webhook Security & Type Safety Fixes Plan](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/32_abacatepay_webhook_fixes.md)
+- [PRD v2: Backlog Overhaul Plan](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/PRD.md)
+- [Backlog Grilling Session Log](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/backlog_grilling.md)
 
 
