@@ -128,7 +128,7 @@ function CondoSetupComponent() {
       onSuccess: () => {
         toast.success('Localização registrada com sucesso!');
         myAssignmentsQuery.refetch();
-        navigate({ to: '/dashboard' });
+        navigate({ to: '/panel/dashboard' });
       },
       onError: (err) => {
         toast.error(err.message || 'Erro ao registrar localização.');
@@ -307,7 +307,7 @@ function CondoSetupComponent() {
           </CardHeader>
           <CardContent>
             <Button
-              onClick={() => navigate({ to: '/dashboard' })}
+              onClick={() => navigate({ to: '/panel/dashboard' })}
               className="w-full bg-primary hover:bg-primary/90"
             >
               Ir para o Painel
@@ -463,7 +463,7 @@ function CondoSetupComponent() {
           </CardHeader>
           <CardContent>
             <Button
-              onClick={() => navigate({ to: '/dashboard' })}
+              onClick={() => navigate({ to: '/panel/dashboard' })}
               className="w-full bg-primary hover:bg-primary/90"
             >
               Ir para o Painel

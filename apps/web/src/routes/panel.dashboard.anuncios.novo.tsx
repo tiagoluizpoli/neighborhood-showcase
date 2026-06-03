@@ -110,7 +110,7 @@ function NewAnnouncementComponent() {
     trpc.announcement.create.mutationOptions({
       onSuccess: () => {
         toast.success('Rascunho do anúncio criado com sucesso!');
-        navigate({ to: '/dashboard' });
+        navigate({ to: '/panel/dashboard' });
       },
       onError: (err) => {
         toast.error(err.message || 'Erro ao criar o anúncio.');
@@ -220,7 +220,7 @@ function NewAnnouncementComponent() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => navigate({ to: '/dashboard' })}
+          onClick={() => navigate({ to: '/panel/dashboard' })}
           className="border bg-card text-muted-foreground hover:bg-accent hover:text-foreground"
         >
           <ArrowLeft className="h-5 w-5" />
@@ -673,7 +673,7 @@ function NewAnnouncementComponent() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate({ to: '/dashboard' })}
+              onClick={() => navigate({ to: '/panel/dashboard' })}
               className="w-full border text-muted-foreground hover:bg-card/50"
             >
               Cancelar

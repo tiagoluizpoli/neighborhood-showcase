@@ -77,7 +77,7 @@ function PaymentComponent() {
     if (currentStatus === 'PAID') {
       toast.success('Pagamento confirmado! Seu anúncio está ativo.');
       const timeout = setTimeout(() => {
-        navigate({ to: '/dashboard' });
+        navigate({ to: '/panel/dashboard' });
       }, 4000);
       return () => clearTimeout(timeout);
     }

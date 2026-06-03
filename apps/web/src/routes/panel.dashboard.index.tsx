@@ -82,7 +82,7 @@ function DashboardIndexComponent() {
     if (message) {
       toast.error(message);
       navigate({
-        to: '/dashboard',
+        to: '/panel/dashboard',
         replace: true,
       });
     }
@@ -105,7 +105,7 @@ function DashboardIndexComponent() {
       onSuccess: (data) => {
         toast.success('Intenção de pagamento gerada. Redirecionando...');
         navigate({
-          to: `/dashboard/anuncios/${data.announcementId}/pagamento`,
+          to: `/panel/dashboard/anuncios/${data.announcementId}/pagamento`,
         });
       },
       onError: (err) => {
@@ -312,7 +312,7 @@ function DashboardIndexComponent() {
             {announcements.active.length === 0 ? (
               <EmptyState
                 text="Nenhum anúncio ativo no momento."
-                link="/dashboard/anuncios/novo"
+                link="/panel/dashboard/anuncios/novo"
                 buttonText="Criar Anúncio"
               />
             ) : (
@@ -334,7 +334,7 @@ function DashboardIndexComponent() {
             {announcements.draft.length === 0 ? (
               <EmptyState
                 text="Nenhum rascunho ou pagamento pendente."
-                link="/dashboard/anuncios/novo"
+                link="/panel/dashboard/anuncios/novo"
                 buttonText="Criar Anúncio"
               />
             ) : (
@@ -346,7 +346,9 @@ function DashboardIndexComponent() {
                   formatDate={formatDate}
                   formatPrice={formatPrice}
                   onPay={() =>
-                    navigate({ to: `/dashboard/anuncios/${ad.id}/pagamento` })
+                    navigate({
+                      to: `/panel/dashboard/anuncios/${ad.id}/pagamento`,
+                    })
                   }
                 />
               ))
