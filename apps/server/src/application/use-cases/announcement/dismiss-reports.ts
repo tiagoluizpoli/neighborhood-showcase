@@ -3,37 +3,36 @@ import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement as announcementSchema,
   providerLocation as assignmentSchema,
+  report as reportSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 
-export interface ReinstateAnnouncementInput {
+export interface DismissReportsInput {
   announcementId: string;
   moderatorId: string;
 }
 
-export class ReinstateAnnouncement {
-  async execute(input: ReinstateAnnouncementInput): Promise<void> {
+export class DismissReports {
+  async execute(input: DismissReportsInput): Promise<void> {
     const { announcementId, moderatorId } = input;
 
     // 1. Fetch announcement
     const [ann] = await db
       .select()
       .from(announcementSchema)
-      .where(eq(announcementSchema.id, announcementId))
+      .where(
+        and(
+          eq(announcementSchema.id, announcementId),
+          isNull(announcementSchema.deletedAt),
+        ),
+      )
       .limit(1);
 
     if (!ann) {
       throw new TRPCError({
         code: 'NOT_FOUND',
         message: 'Anúncio não encontrado.',
-      });
-    }
-
-    if (!ann.condominiumId) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Anúncio não está associado a um condomínio.',
       });
     }
 
@@ -51,8 +50,15 @@ export class ReinstateAnnouncement {
       });
     }
 
+    // 3. Verify permissions (either SYSTEM_MANAGER or approved MODERATOR of the condo)
     if (actor.role !== 'SYSTEM_MANAGER') {
-      // Verify moderator permission for the announcement's condominium
+      if (!ann.condominiumId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Acesso negado. Este anúncio não pertence a um condomínio.',
+        });
+      }
+
       const [isMod] = await db
         .select()
         .from(assignmentSchema)
@@ -74,14 +80,9 @@ export class ReinstateAnnouncement {
       }
     }
 
-    // 3. Update announcement to ACTIVE and clear reason/flag
+    // 4. Delete reports
     await db
-      .update(announcementSchema)
-      .set({
-        status: 'ACTIVE',
-        suspensionReason: null,
-        flaggedForReview: false,
-      })
-      .where(eq(announcementSchema.id, announcementId));
+      .delete(reportSchema)
+      .where(eq(reportSchema.announcementId, announcementId));
   }
 }

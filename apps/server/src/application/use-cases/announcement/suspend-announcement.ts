@@ -1,4 +1,5 @@
 import { db } from '@neighborhood-showcase/db';
+import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement as announcementSchema,
   providerLocation as assignmentSchema,
@@ -37,25 +38,41 @@ export class SuspendAnnouncement {
       });
     }
 
-    // 2. Verify moderator permission for the announcement's condominium
-    const [isMod] = await db
-      .select()
-      .from(assignmentSchema)
-      .where(
-        and(
-          eq(assignmentSchema.providerId, moderatorId),
-          eq(assignmentSchema.condominiumId, ann.condominiumId),
-          eq(assignmentSchema.type, 'MODERATOR'),
-          eq(assignmentSchema.status, 'APPROVED'),
-        ),
-      )
+    // 2. Fetch acting user details to check for global SYSTEM_MANAGER role
+    const [actor] = await db
+      .select({ role: userSchema.role })
+      .from(userSchema)
+      .where(eq(userSchema.id, moderatorId))
       .limit(1);
 
-    if (!isMod) {
+    if (!actor) {
       throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'Acesso negado. Você não é moderador deste condomínio.',
+        code: 'NOT_FOUND',
+        message: 'Usuário não encontrado.',
       });
+    }
+
+    if (actor.role !== 'SYSTEM_MANAGER') {
+      // Verify moderator permission for the announcement's condominium
+      const [isMod] = await db
+        .select()
+        .from(assignmentSchema)
+        .where(
+          and(
+            eq(assignmentSchema.providerId, moderatorId),
+            eq(assignmentSchema.condominiumId, ann.condominiumId),
+            eq(assignmentSchema.type, 'MODERATOR'),
+            eq(assignmentSchema.status, 'APPROVED'),
+          ),
+        )
+        .limit(1);
+
+      if (!isMod) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Acesso negado. Você não é moderador deste condomínio.',
+        });
+      }
     }
 
     // 3. Update announcement to SUSPENDED with reason

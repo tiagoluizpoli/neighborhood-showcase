@@ -3,7 +3,6 @@ import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
 import {
   address as addressSchema,
   announcement as announcementSchema,
-  assignment as assignmentSchema,
   condominium as condominiumSchema,
   providerLocation as providerLocationSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
@@ -11,9 +10,11 @@ import { TRPCError } from '@trpc/server';
 import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { CreateAnnouncement } from '../../application/use-cases/announcement/create-announcement';
+import { DismissReports } from '../../application/use-cases/announcement/dismiss-reports';
 import { GetAnnouncementAnalytics } from '../../application/use-cases/announcement/get-announcement-analytics';
 import { GetProviderDashboardData } from '../../application/use-cases/announcement/get-provider-dashboard-data';
 import { ListPublicAnnouncements } from '../../application/use-cases/announcement/list-public-announcements';
+import { ListReportedAnnouncements } from '../../application/use-cases/announcement/list-reported-announcements';
 import { ReinstateAnnouncement } from '../../application/use-cases/announcement/reinstate-announcement';
 import { ReportAnnouncement } from '../../application/use-cases/announcement/report-announcement';
 import { SuspendAnnouncement } from '../../application/use-cases/announcement/suspend-announcement';
@@ -48,6 +49,8 @@ const getAnnouncementAnalyticsUseCase = new GetAnnouncementAnalytics();
 const suspendAnnouncementUseCase = new SuspendAnnouncement();
 const reinstateAnnouncementUseCase = new ReinstateAnnouncement();
 const reportAnnouncementUseCase = new ReportAnnouncement();
+const dismissReportsUseCase = new DismissReports();
+const listReportedAnnouncementsUseCase = new ListReportedAnnouncements();
 
 export const announcementRouter = router({
   create: protectedProcedure
@@ -373,13 +376,13 @@ export const announcementRouter = router({
       // Verify moderator role for this condo
       const [isMod] = await db
         .select()
-        .from(assignmentSchema)
+        .from(providerLocationSchema)
         .where(
           and(
-            eq(assignmentSchema.providerId, ctx.session.user.id),
-            eq(assignmentSchema.condominiumId, input.condominiumId),
-            eq(assignmentSchema.type, 'MODERATOR'),
-            eq(assignmentSchema.status, 'APPROVED'),
+            eq(providerLocationSchema.providerId, ctx.session.user.id),
+            eq(providerLocationSchema.condominiumId, input.condominiumId),
+            eq(providerLocationSchema.type, 'MODERATOR'),
+            eq(providerLocationSchema.status, 'APPROVED'),
           ),
         )
         .limit(1);
@@ -471,6 +474,33 @@ export const announcementRouter = router({
         reporterId: ctx.session.user.id,
         announcementId: input.announcementId,
         reason: input.reason,
+      });
+      return { success: true };
+    }),
+
+  listReported: protectedProcedure
+    .input(
+      z.object({
+        threshold: z.number().optional(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return listReportedAnnouncementsUseCase.execute({
+        actorId: ctx.session.user.id,
+        threshold: input.threshold,
+      });
+    }),
+
+  dismissReports: protectedProcedure
+    .input(
+      z.object({
+        announcementId: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      await dismissReportsUseCase.execute({
+        announcementId: input.announcementId,
+        moderatorId: ctx.session.user.id,
       });
       return { success: true };
     }),
