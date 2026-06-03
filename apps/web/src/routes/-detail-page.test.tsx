@@ -81,12 +81,20 @@ mock.module('react', () => ({
   },
 }));
 
+let mockSessionData: any = null;
 let currentId = 'ann-123';
 const mockMutate = mock(() => {});
 const mockTrackEventMutation = {
   mutate: mockMutate,
   isPending: false,
 };
+
+// Mock @/lib/auth-client
+mock.module('@/lib/auth-client', () => ({
+  authClient: {
+    useSession: () => ({ data: mockSessionData, isPending: false }),
+  },
+}));
 
 // Mock @tanstack/react-query
 mock.module('@tanstack/react-query', () => ({
@@ -235,5 +243,23 @@ describe('Public Announcement Detail Component Visuals', () => {
     );
     // Website
     expect(hrefs.some((h) => h?.includes('http://pizza.com'))).toBe(true);
+  });
+
+  test('does not show Denunciar button for unauthenticated users', () => {
+    mockSessionData = null;
+    const component = DetailsRoute.options.component;
+    const tree = renderComponent(component);
+
+    const reportButton = findElementByProp(tree, 'title', 'Denunciar Anúncio');
+    expect(reportButton).toBeNull();
+  });
+
+  test('shows Denunciar button for authenticated users', () => {
+    mockSessionData = { user: { id: 'user-123' } };
+    const component = DetailsRoute.options.component;
+    const tree = renderComponent(component);
+
+    const reportButton = findElementByProp(tree, 'title', 'Denunciar Anúncio');
+    expect(reportButton).not.toBeNull();
   });
 });

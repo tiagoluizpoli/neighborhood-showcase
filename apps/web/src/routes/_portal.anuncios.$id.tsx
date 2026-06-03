@@ -5,9 +5,18 @@ import {
 } from '@neighborhood-showcase/ui/components/avatar';
 import { Button } from '@neighborhood-showcase/ui/components/button';
 import { Card, CardContent } from '@neighborhood-showcase/ui/components/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@neighborhood-showcase/ui/components/dialog';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import {
+  AlertTriangle,
   ArrowLeft,
   CheckCircle2,
   Facebook,
@@ -18,7 +27,9 @@ import {
   MessageCircle,
   Phone,
 } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { authClient } from '@/lib/auth-client';
 import { trpc } from '@/utils/trpc';
 
 // Custom SVG Tiktok Icon
@@ -43,6 +54,8 @@ export const Route = createFileRoute('/_portal/anuncios/$id')({
 
 function PublicAnnouncementDetailsComponent() {
   const { id } = Route.useParams();
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const { data: session } = authClient.useSession();
 
   // Query details
   const detailsQuery = useQuery(
@@ -130,13 +143,27 @@ function PublicAnnouncementDetailsComponent() {
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-8">
-      <Link
-        to="/"
-        className="mb-6 inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Voltar para a vitrine</span>
-      </Link>
+      <div className="mb-6 flex items-center justify-between">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Voltar para a vitrine</span>
+        </Link>
+        {session && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsReportOpen(true)}
+            className="gap-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+            title="Denunciar Anúncio"
+          >
+            <AlertTriangle className="h-4 w-4" />
+            <span>Denunciar</span>
+          </Button>
+        )}
+      </div>
       <Card className="overflow-hidden border bg-card/50 shadow-lg backdrop-blur-sm">
         {/* Cover image 4:3 */}
         <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
@@ -378,6 +405,115 @@ function PublicAnnouncementDetailsComponent() {
           </div>
         </CardContent>
       </Card>
+
+      {session && (
+        <ReportDialog
+          isOpen={isReportOpen}
+          onClose={() => setIsReportOpen(false)}
+          announcementId={id}
+        />
+      )}
     </div>
+  );
+}
+
+function ReportDialog({
+  isOpen,
+  onClose,
+  announcementId,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  announcementId: string;
+}) {
+  const [reason, setReason] = useState<
+    'FRAUDE_GOLPE' | 'ASSEDIO_OFENSIVO' | 'SPAM' | 'SERVICO_ILEGAL' | 'OUTROS'
+  >('FRAUDE_GOLPE');
+
+  const reportMutation = useMutation(
+    trpc.announcement.report.mutationOptions({
+      onSuccess: () => {
+        toast.success(
+          'Denúncia enviada com sucesso. Obrigado por nos ajudar a manter a comunidade segura!',
+        );
+        onClose();
+      },
+      onError: (err) => {
+        toast.error(err.message || 'Erro ao enviar denúncia.');
+      },
+    }),
+  );
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    reportMutation.mutate({
+      announcementId,
+      reason,
+    });
+  };
+
+  const reasons = [
+    { value: 'FRAUDE_GOLPE', label: 'Fraude ou Golpe' },
+    { value: 'ASSEDIO_OFENSIVO', label: 'Assédio ou Conteúdo Ofensivo' },
+    { value: 'SPAM', label: 'Spam' },
+    { value: 'SERVICO_ILEGAL', label: 'Serviço Ilegal' },
+    { value: 'OUTROS', label: 'Outros' },
+  ] as const;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md p-6">
+        <DialogHeader>
+          <DialogTitle className="font-bold text-foreground text-lg">
+            Denunciar Anúncio
+          </DialogTitle>
+          <DialogDescription className="mt-1 text-muted-foreground text-xs">
+            Selecione o motivo da denúncia. Nós revisaremos o anúncio em breve.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div className="space-y-3">
+            {reasons.map((r) => (
+              <label
+                key={r.value}
+                className="flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 transition-colors hover:bg-accent"
+              >
+                <input
+                  type="radio"
+                  name="reason"
+                  value={r.value}
+                  checked={reason === r.value}
+                  onChange={() => setReason(r.value)}
+                  className="h-4 w-4 border-primary text-primary focus:ring-primary"
+                />
+                <span className="font-medium text-foreground text-sm">
+                  {r.label}
+                </span>
+              </label>
+            ))}
+          </div>
+
+          <DialogFooter className="mt-6 flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={reportMutation.isPending}
+              className="flex-1"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              disabled={reportMutation.isPending}
+              className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {reportMutation.isPending ? 'Enviando...' : 'Denunciar'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
