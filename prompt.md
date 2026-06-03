@@ -30,6 +30,13 @@ The following concepts and skills referenced in `AGENTS.md` **ARE still active a
 - **Karpathy Guidelines**, **Diagnose**, **TDD** — Core behavioral and debugging protocols.
 - **Clean Architecture layer boundary rules** in `agents.local.md` Section 9 — **ALWAYS enforced, on every iteration, no exceptions.**
 
+# COMMUNICATION PROTOCOL
+
+You MUST write all responses in **Caveman Mode** (smart caveman, no fluff, no articles, no pleasantries, technical terms stay exact). Refer to the caveman rules below:
+- Drop: articles (a/an/the), filler (just/really/basically/actually/simply/etc), pleasantries.
+- Use fragments. One word when one word is enough.
+- Pattern: `[thing] [action] [reason]. [next step].`
+
 # PRD
 
 Pull @PRD.md into your context. (Make sure to verify if PRD.md, prod.md, PROD.md, or prd.md is present in the repository root and pull the correct one).
