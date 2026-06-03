@@ -80,6 +80,125 @@ Monorepo using Turborepo and Bun.
 ### 8. Early-Stage Database Migration Rules
 - Because the repository is at its beginning and before v1 release, do not accumulate migrations when dropping or replacing tables (such as legacy `todo`). Wipe the `packages/db/src/migrations/` directory, drop the table schema definitions, and generate a new base schema migration from scratch.
 
+### 9. Clean Architecture — Layer Boundary Enforcement (CRITICAL)
+
+> **This section is NON-NEGOTIABLE.** Every line of code written, reviewed, or refactored MUST respect these boundaries. Violations are blocking — they must be fixed before any task is considered complete.
+
+#### 9.1 — Dependency Direction Rule (The Golden Rule)
+
+Dependencies ALWAYS point inward. Inner layers NEVER know about outer layers.
+
+```
+Presentation → Application → Domain ← Infrastructure
+```
+
+- **Domain** is the innermost layer. It depends on NOTHING external. It holds ALL interface contracts (repository interfaces, service interfaces, adapter interfaces) that other layers implement or consume.
+- **Application** depends on Domain only (consumes repository/service interfaces and entities).
+- **Infrastructure** depends on Domain ONLY (implements its interfaces). It NEVER depends on Application.
+- **Presentation** depends on Application (calls use cases) and Domain (maps entities to DTOs).
+- **Infrastructure and Presentation NEVER depend on each other.**
+- **Infrastructure and Application NEVER depend on each other.** They both depend on Domain.
+
+#### 9.2 — Domain Layer (`domain/`)
+
+**Purpose**: Core business entities, value objects, ALL interface contracts (repository interfaces, service interfaces, adapter interfaces), domain errors. Domain is the single source of truth for every contract that needs an implementation in another layer.
+
+**Allowed imports**: Only from itself (`domain/`) and `shared/`.
+
+**FORBIDDEN imports** (absolute ban):
+- `drizzle-orm` or any ORM/database library
+- `@neighborhood-showcase/db` or any database package
+- `@trpc/server` or any HTTP/RPC framework
+- `fastify`, `express`, or any transport framework
+- Any external SDK or third-party service client
+- Anything from `infrastructure/` or `presentation/`
+
+**Error handling**: Domain throws ONLY `DomainError` subclasses. Never framework-specific errors.
+
+#### 9.3 — Application Layer (`application/use-cases/`)
+
+**Purpose**: Orchestration. Use cases coordinate domain entities and repository interfaces to fulfill business operations. They contain NO data access logic and NO transport logic.
+
+**Allowed imports**:
+- Domain entities (`domain/entities/`)
+- Domain repository interfaces (`domain/repositories/`)
+- Domain errors (`shared/domain-error.ts` or `domain/errors/`)
+- Shared utilities (`shared/`)
+
+**FORBIDDEN imports** (absolute ban):
+- `drizzle-orm`, `drizzle-orm/pg-core`, or any ORM operator (`eq`, `and`, `sql`, `desc`, `ilike`, `inArray`, `isNull`, `alias`, etc.)
+- `@neighborhood-showcase/db` (the `db` client instance)
+- `@neighborhood-showcase/db/schema/*` (any schema table definition)
+- `@trpc/server` (`TRPCError` or any tRPC type)
+- `fastify` or any HTTP framework type
+- Any direct file from `infrastructure/` or `presentation/`
+- Any third-party SDK client (payment gateways, storage, email, etc.)
+
+**Error handling**: Use cases throw ONLY `DomainError` subclasses. The Presentation Layer is responsible for translating `DomainError` into `TRPCError`.
+
+**Data access**: Use cases call repository interface methods (e.g., `this.announcementRepo.findById(id)`). They NEVER construct SQL queries, use ORM operators, or touch the database client directly.
+
+#### 9.4 — Infrastructure Layer (`infrastructure/`)
+
+**Purpose**: Concrete implementations of domain contracts. All external I/O lives here: database repositories, third-party API clients, file storage adapters, email services.
+
+**Allowed imports**:
+- Domain interfaces (to implement them — repository interfaces, service interfaces, adapter interfaces)
+- Domain entities (to return them)
+- Domain mappers (`infrastructure/db/mappers/`)
+- `drizzle-orm`, `@neighborhood-showcase/db` (database access belongs HERE)
+- Third-party SDKs (payment, storage, email — all belong HERE)
+- Shared utilities
+
+**FORBIDDEN imports**:
+- Anything from `application/` (use cases, application services, etc.)
+- Anything from `presentation/` (routers, tRPC context, etc.)
+- `@trpc/server` or any transport framework
+
+**Repositories**: Every repository class MUST implement a domain repository interface. Raw database schemas and ORM operators are ONLY used inside repository methods, never exposed to callers.
+
+#### 9.5 — Presentation Layer (`presentation/`)
+
+**Purpose**: Transport boundary. tRPC routers, HTTP handlers, request validation, response mapping, error translation.
+
+**Allowed imports**:
+- Application use cases (to invoke them)
+- Domain entities (to map them to response DTOs)
+- Domain errors (to catch and translate them)
+- `@trpc/server` (tRPC types, `TRPCError` — belongs HERE)
+- Zod schemas for input validation
+- Shared utilities
+
+**FORBIDDEN imports**:
+- `drizzle-orm` or any ORM library
+- `@neighborhood-showcase/db` or any database package
+- Anything from `infrastructure/` directly (no repository implementations, no DB clients)
+
+**Error translation**: The Presentation Layer catches `DomainError` instances thrown by use cases and maps them to `TRPCError` with appropriate HTTP codes. This is the ONLY place where `TRPCError` is constructed.
+
+#### 9.6 — Forbidden Import Matrix (Quick Reference)
+
+| Import source | Domain | Application | Infrastructure | Presentation |
+|:---|:---:|:---:|:---:|:---:|
+| `drizzle-orm` / ORM operators | ❌ | ❌ | ✅ | ❌ |
+| `@neighborhood-showcase/db` | ❌ | ❌ | ✅ | ❌ |
+| `@trpc/server` / `TRPCError` | ❌ | ❌ | ❌ | ✅ |
+| `fastify` / transport types | ❌ | ❌ | ❌ | ✅ |
+| Domain entities & interfaces | ✅ | ✅ | ✅ | ✅ |
+| Application use cases | ❌ | ✅ | ❌ | ✅ |
+| Application services | ❌ | ✅ | ❌ | ❌ |
+| Infrastructure implementations | ❌ | ❌ | ✅ | ❌ |
+| Presentation routers | ❌ | ❌ | ❌ | ✅ |
+| Third-party SDKs | ❌ | ❌ | ✅ | ❌ |
+
+#### 9.7 — Dependency Injection
+
+Use cases receive their repository dependencies through constructor injection (parameter objects). They NEVER instantiate concrete repositories directly. Wiring (composing use cases with their concrete infrastructure dependencies) happens at the composition root (e.g., the router or a DI container), NOT inside the use case.
+
+#### 9.8 — Test Files Exception
+
+Integration test files (`*.integration.test.ts`, `*.test.ts`) are allowed to import from any layer for test setup purposes (e.g., seeding the database directly). This exception applies ONLY to test files, NEVER to production code.
+
 ## Current Plan Reference
 - [PRD v2: Backlog Overhaul Plan](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/PRD.md)
 - [Backlog Grilling Session Log](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/backlog_grilling.md)

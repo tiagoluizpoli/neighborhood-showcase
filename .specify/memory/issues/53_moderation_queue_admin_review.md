@@ -22,7 +22,7 @@ Build the admin moderation queue that surfaces spotlighted announcements (those 
 ## Acceptance criteria
 
 - [x] Spotlight query returns announcements exceeding the configurable report threshold
-- [ ] Moderation queue screen shows spotlighted announcements with report details
+- [x] Moderation queue screen shows spotlighted announcements with report details
 - [x] Dismiss action clears reports without affecting the announcement
 - [x] Suspend action updates announcement status to `SUSPENDED` with a reason
 - [x] Ban action blacklists the provider and suspends all their announcements

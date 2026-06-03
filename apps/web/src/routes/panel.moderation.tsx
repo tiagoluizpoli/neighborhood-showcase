@@ -1,3 +1,4 @@
+import { Badge } from '@neighborhood-showcase/ui/components/badge';
 import { Button } from '@neighborhood-showcase/ui/components/button';
 import {
   Card,
@@ -6,6 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@neighborhood-showcase/ui/components/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@neighborhood-showcase/ui/components/dialog';
 import { Input } from '@neighborhood-showcase/ui/components/input';
 import { Label } from '@neighborhood-showcase/ui/components/label';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -15,6 +23,7 @@ import {
   Check,
   ExternalLink,
   FileText,
+  History,
   Loader2,
   Megaphone,
   RefreshCw,
@@ -23,6 +32,7 @@ import {
   X,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { authClient } from '@/lib/auth-client';
 import { trpc, trpcClient } from '@/utils/trpc';
@@ -45,7 +55,11 @@ export const Route = createFileRoute('/panel/moderation')({
         a.condominiumId !== null,
     );
 
-    if (moderatorAssignments.length === 0) {
+    // Bypass redirect for SYSTEM_MANAGER
+    if (
+      session.data.user.role !== 'SYSTEM_MANAGER' &&
+      moderatorAssignments.length === 0
+    ) {
       throw redirect({
         to: '/panel/dashboard',
         search: {
@@ -60,7 +74,10 @@ export const Route = createFileRoute('/panel/moderation')({
 });
 
 function ModerationDashboard() {
-  const { moderatorAssignments } = Route.useRouteContext();
+  const { session, moderatorAssignments } = Route.useRouteContext();
+  const { t } = useTranslation();
+
+  const isSystemManager = session.data?.user?.role === 'SYSTEM_MANAGER';
 
   // Selected condo context state
   const [selectedCondoId, setSelectedCondoId] = useState<string>(
@@ -68,8 +85,8 @@ function ModerationDashboard() {
   );
 
   const [activeSubTab, setActiveSubTab] = useState<
-    'residents' | 'announcements'
-  >('residents');
+    'residents' | 'announcements' | 'reports'
+  >(moderatorAssignments.length === 0 ? 'reports' : 'residents');
 
   // Queries & Mutations (Residents)
   const pendingResidentsQuery = useQuery(
@@ -82,7 +99,11 @@ function ModerationDashboard() {
   const approveMutation = useMutation(
     trpc.assignment.approve.mutationOptions({
       onSuccess: () => {
-        toast.success('Morador aprovado com sucesso!');
+        toast.success(
+          t('moderation.approve_success', {
+            defaultValue: 'Morador aprovado com sucesso!',
+          }),
+        );
         pendingResidentsQuery.refetch();
       },
       onError: (err) => {
@@ -94,7 +115,11 @@ function ModerationDashboard() {
   const rejectMutation = useMutation(
     trpc.assignment.reject.mutationOptions({
       onSuccess: () => {
-        toast.success('Morador rejeitado com sucesso!');
+        toast.success(
+          t('moderation.reject_success', {
+            defaultValue: 'Morador rejeitado com sucesso!',
+          }),
+        );
         setIsRejectingId(null);
         setReason('');
         pendingResidentsQuery.refetch();
@@ -113,13 +138,34 @@ function ModerationDashboard() {
     ),
   );
 
+  // Queries & Mutations (Reports)
+  const reportedQuery = useQuery(
+    trpc.announcement.listReported.queryOptions(
+      {},
+      { enabled: activeSubTab === 'reports' },
+    ),
+  );
+
+  const dismissReportsMutation = useMutation(
+    trpc.announcement.dismissReports.mutationOptions({
+      onSuccess: () => {
+        toast.success(t('moderation.dismiss_success'));
+        reportedQuery.refetch();
+      },
+      onError: (err) => {
+        toast.error(err.message || 'Erro ao arquivar denúncias.');
+      },
+    }),
+  );
+
   const suspendMutation = useMutation(
     trpc.announcement.suspend.mutationOptions({
       onSuccess: () => {
-        toast.success('Anúncio suspenso com sucesso!');
+        toast.success(t('moderation.suspend_success'));
         setIsSuspendingId(null);
         setSuspensionReason('');
         announcementsQuery.refetch();
+        reportedQuery.refetch();
       },
       onError: (err) => {
         toast.error(err.message || 'Erro ao suspender anúncio.');
@@ -132,9 +178,25 @@ function ModerationDashboard() {
       onSuccess: () => {
         toast.success('Anúncio reabilitado com sucesso!');
         announcementsQuery.refetch();
+        reportedQuery.refetch();
       },
       onError: (err) => {
         toast.error(err.message || 'Erro ao reabilitar anúncio.');
+      },
+    }),
+  );
+
+  const banProviderMutation = useMutation(
+    trpc.admin.banProvider.mutationOptions({
+      onSuccess: () => {
+        toast.success(t('moderation.ban_success'));
+        setIsBanningUserId(null);
+        setBanReason('');
+        reportedQuery.refetch();
+        announcementsQuery.refetch();
+      },
+      onError: (err) => {
+        toast.error(err.message || 'Erro ao banir prestador.');
       },
     }),
   );
@@ -147,12 +209,39 @@ function ModerationDashboard() {
   const [isSuspendingId, setIsSuspendingId] = useState<string | null>(null);
   const [suspensionReason, setSuspensionReason] = useState('');
 
+  const [isBanningUserId, setIsBanningUserId] = useState<string | null>(null);
+  const [banReason, setBanReason] = useState('');
+
+  const [viewingReportsAdId, setViewingReportsAdId] = useState<string | null>(
+    null,
+  );
+
   const currentCondo = moderatorAssignments.find(
     (a) => a.condominiumId === selectedCondoId,
   )?.condominium;
 
   const pendingResidents = pendingResidentsQuery.data || [];
   const announcements = announcementsQuery.data || [];
+  const reportedAnnouncements = reportedQuery.data || [];
+
+  const selectedAdForReports = reportedAnnouncements.find(
+    (a) => a.id === viewingReportsAdId,
+  );
+
+  const getReasonLabel = (reasonKey: string) => {
+    switch (reasonKey) {
+      case 'FRAUDE_GOLPE':
+        return t('moderation.reason_fraude');
+      case 'ASSEDIO_OFENSIVO':
+        return t('moderation.reason_assedio');
+      case 'SPAM':
+        return t('moderation.reason_spam');
+      case 'SERVICO_ILEGAL':
+        return t('moderation.reason_servico_ilegal');
+      default:
+        return t('moderation.reason_outros');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -161,13 +250,13 @@ function ModerationDashboard() {
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h1 className="font-bold text-3xl text-foreground tracking-tight">
-              Painel de Moderação
+              {t('moderation.title')}
             </h1>
             <p className="mt-1 text-muted-foreground text-sm">
-              {currentCondo?.name || 'Carregando condomínio...'}
+              {currentCondo?.name || t('moderation.subtitle')}
             </p>
           </div>
-          {moderatorAssignments.length > 1 && (
+          {moderatorAssignments.length > 1 && activeSubTab !== 'reports' && (
             <select
               value={selectedCondoId}
               onChange={(e) => {
@@ -190,32 +279,50 @@ function ModerationDashboard() {
 
         {/* Toggle Sub-Tabs */}
         <div className="mb-8 flex space-x-8 border-border border-b">
+          {moderatorAssignments.length > 0 && (
+            <>
+              <button
+                type="button"
+                onClick={() => setActiveSubTab('residents')}
+                className={`relative pb-4 font-semibold text-sm transition-all ${
+                  activeSubTab === 'residents'
+                    ? 'border-primary border-b-2 text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  {t('moderation.tab_residents')} ({pendingResidents.length})
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveSubTab('announcements')}
+                className={`relative pb-4 font-semibold text-sm transition-all ${
+                  activeSubTab === 'announcements'
+                    ? 'border-primary border-b-2 text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Megaphone className="h-4 w-4" />
+                  {t('moderation.tab_announcements')} ({announcements.length})
+                </div>
+              </button>
+            </>
+          )}
           <button
             type="button"
-            onClick={() => setActiveSubTab('residents')}
+            onClick={() => setActiveSubTab('reports')}
             className={`relative pb-4 font-semibold text-sm transition-all ${
-              activeSubTab === 'residents'
+              activeSubTab === 'reports'
                 ? 'border-primary border-b-2 text-primary'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Moradores Pendentes ({pendingResidents.length})
-            </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveSubTab('announcements')}
-            className={`relative pb-4 font-semibold text-sm transition-all ${
-              activeSubTab === 'announcements'
-                ? 'border-primary border-b-2 text-primary'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <Megaphone className="h-4 w-4" />
-              Anúncios do Condomínio ({announcements.length})
+              <ShieldAlert className="h-4 w-4" />
+              {t('moderation.tab_reports')} ({reportedAnnouncements.length})
             </div>
           </button>
         </div>
@@ -325,7 +432,7 @@ function ModerationDashboard() {
                               onClick={() => setIsRejectingId(null)}
                               className="h-7 px-2 text-muted-foreground text-xs"
                             >
-                              Cancelar
+                              {t('moderation.cancel')}
                             </Button>
                             <Button
                               variant="destructive"
@@ -340,7 +447,7 @@ function ModerationDashboard() {
                               }
                               className="h-7 px-2 text-xs"
                             >
-                              Confirmar
+                              {t('moderation.confirm')}
                             </Button>
                           </div>
                         </div>
@@ -489,17 +596,42 @@ function ModerationDashboard() {
                               htmlFor={`suspend-reason-${ad.id}`}
                               className="text-destructive text-xs"
                             >
-                              Motivo da Suspensão *
+                              {t('moderation.select_reason')} *
                             </Label>
-                            <Input
+                            <select
                               id={`suspend-reason-${ad.id}`}
-                              placeholder="Ex: Conteúdo inadequado ou contato falso"
-                              className="text-xs"
+                              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-foreground text-xs focus:border-ring focus:outline-none"
                               value={suspensionReason}
                               onChange={(e) =>
                                 setSuspensionReason(e.target.value)
                               }
-                            />
+                            >
+                              <option value="">
+                                -- {t('moderation.select_reason')} --
+                              </option>
+                              <option
+                                value={t(
+                                  'moderation.suspend_reason_inadequado',
+                                )}
+                              >
+                                {t('moderation.suspend_reason_inadequado')}
+                              </option>
+                              <option
+                                value={t('moderation.suspend_reason_fraude')}
+                              >
+                                {t('moderation.suspend_reason_fraude')}
+                              </option>
+                              <option
+                                value={t('moderation.suspend_reason_contato')}
+                              >
+                                {t('moderation.suspend_reason_contato')}
+                              </option>
+                              <option
+                                value={t('moderation.suspend_reason_spam')}
+                              >
+                                {t('moderation.suspend_reason_spam')}
+                              </option>
+                            </select>
                           </div>
                           <div className="flex justify-end space-x-2">
                             <Button
@@ -507,23 +639,22 @@ function ModerationDashboard() {
                               onClick={() => setIsSuspendingId(null)}
                               className="h-7 px-2 text-muted-foreground text-xs"
                             >
-                              Cancelar
+                              {t('moderation.cancel')}
                             </Button>
                             <Button
                               variant="destructive"
                               disabled={
-                                suspendMutation.isPending ||
-                                !suspensionReason.trim()
+                                suspendMutation.isPending || !suspensionReason
                               }
                               onClick={() =>
                                 suspendMutation.mutate({
                                   id: ad.id,
-                                  reason: suspensionReason.trim(),
+                                  reason: suspensionReason,
                                 })
                               }
                               className="h-7 px-2 text-xs"
                             >
-                              Confirmar
+                              {t('moderation.confirm')}
                             </Button>
                           </div>
                         </div>
@@ -539,7 +670,7 @@ function ModerationDashboard() {
                               className="w-full"
                             >
                               <AlertTriangle className="mr-1.5 h-4 w-4" />{' '}
-                              Suspender Anúncio
+                              {t('moderation.suspend')}
                             </Button>
                           ) : (
                             <Button
@@ -568,7 +699,359 @@ function ModerationDashboard() {
             )}
           </>
         )}
+
+        {/* Reports Queue View */}
+        {activeSubTab === 'reports' && (
+          <>
+            <div className="mb-6">
+              <h2 className="font-bold text-2xl text-foreground">
+                {t('moderation.reports_title')}
+              </h2>
+              <p className="mt-1 text-muted-foreground text-xs">
+                {t('moderation.reports_subtitle')}
+              </p>
+            </div>
+
+            {reportedQuery.isPending ? (
+              <div className="flex min-h-[40vh] items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : reportedAnnouncements.length === 0 ? (
+              <Card className="py-12 text-center">
+                <CardContent>
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                    <ShieldAlert className="h-6 w-6" />
+                  </div>
+                  <h3 className="font-semibold text-foreground text-lg">
+                    {t('moderation.reports_empty_title')}
+                  </h3>
+                  <p className="mt-1 text-muted-foreground text-sm">
+                    {t('moderation.reports_empty_desc')}
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {reportedAnnouncements.map((ad) => (
+                  <Card
+                    key={ad.id}
+                    className="flex flex-col justify-between overflow-hidden border-destructive/20 bg-destructive/5 dark:bg-destructive/10"
+                  >
+                    <div className="relative aspect-[4/3] w-full bg-muted">
+                      <img
+                        src={ad.imageUrl}
+                        alt={ad.title}
+                        className="h-full w-full object-cover"
+                      />
+                      <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
+                        <span className="rounded-full border border-destructive/30 bg-destructive/80 px-2.5 py-1 font-bold text-white text-xs shadow-md">
+                          {ad.totalReports}{' '}
+                          {ad.totalReports === 1 ? 'Denúncia' : 'Denúncias'}
+                        </span>
+                      </div>
+                      <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-background to-transparent p-4">
+                        <p className="font-medium text-destructive text-xs uppercase tracking-wider">
+                          {ad.status === 'SUSPENDED'
+                            ? t('common.suspended')
+                            : t('common.active')}
+                        </p>
+                        <h4 className="line-clamp-1 font-bold text-foreground text-lg">
+                          {ad.title}
+                        </h4>
+                      </div>
+                    </div>
+
+                    <CardContent className="flex flex-1 flex-col justify-between space-y-4 p-5">
+                      <div className="space-y-3">
+                        <div className="border-border border-b pb-2">
+                          <span className="text-muted-foreground text-xs">
+                            Prestador:
+                          </span>
+                          <p className="font-semibold text-foreground text-sm">
+                            {ad.providerName}
+                          </p>
+                          <p className="text-muted-foreground text-xs">
+                            {ad.providerEmail}
+                          </p>
+                        </div>
+
+                        {/* Reason Breakdown Pills */}
+                        <div className="flex flex-wrap gap-2">
+                          {Object.entries(ad.reasonBreakdown).map(
+                            ([reasonKey, count]) => {
+                              if (count === 0) return null;
+                              return (
+                                <Badge
+                                  key={reasonKey}
+                                  variant="outline"
+                                  className="border-destructive/30 bg-background text-[10px] text-destructive"
+                                >
+                                  {getReasonLabel(reasonKey)}: {count}
+                                </Badge>
+                              );
+                            },
+                          )}
+                        </div>
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setViewingReportsAdId(ad.id)}
+                          className="h-8 w-full border border-border bg-background text-foreground text-xs hover:bg-muted"
+                        >
+                          <History className="mr-1.5 h-3.5 w-3.5" />
+                          {t('moderation.details_title')}
+                        </Button>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="space-y-2 pt-4">
+                        {isSuspendingId === ad.id ? (
+                          <div className="space-y-3 rounded-lg border border-destructive/20 bg-card p-3">
+                            <div className="space-y-1">
+                              <Label
+                                htmlFor={`report-suspend-${ad.id}`}
+                                className="font-semibold text-foreground text-xs"
+                              >
+                                {t('moderation.select_reason')} *
+                              </Label>
+                              <select
+                                id={`report-suspend-${ad.id}`}
+                                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-foreground text-xs focus:border-ring focus:outline-none"
+                                value={suspensionReason}
+                                onChange={(e) =>
+                                  setSuspensionReason(e.target.value)
+                                }
+                              >
+                                <option value="">
+                                  -- {t('moderation.select_reason')} --
+                                </option>
+                                <option
+                                  value={t(
+                                    'moderation.suspend_reason_inadequado',
+                                  )}
+                                >
+                                  {t('moderation.suspend_reason_inadequado')}
+                                </option>
+                                <option
+                                  value={t('moderation.suspend_reason_fraude')}
+                                >
+                                  {t('moderation.suspend_reason_fraude')}
+                                </option>
+                                <option
+                                  value={t('moderation.suspend_reason_contato')}
+                                >
+                                  {t('moderation.suspend_reason_contato')}
+                                </option>
+                                <option
+                                  value={t('moderation.suspend_reason_spam')}
+                                >
+                                  {t('moderation.suspend_reason_spam')}
+                                </option>
+                              </select>
+                            </div>
+                            <div className="flex justify-end space-x-2">
+                              <Button
+                                variant="ghost"
+                                onClick={() => setIsSuspendingId(null)}
+                                className="h-7 px-2 text-xs"
+                              >
+                                {t('moderation.cancel')}
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                disabled={
+                                  suspendMutation.isPending || !suspensionReason
+                                }
+                                onClick={() =>
+                                  suspendMutation.mutate({
+                                    id: ad.id,
+                                    reason: suspensionReason,
+                                  })
+                                }
+                                className="h-7 px-2 text-xs"
+                              >
+                                {t('moderation.confirm')}
+                              </Button>
+                            </div>
+                          </div>
+                        ) : isBanningUserId === ad.id ? (
+                          <div className="space-y-3 rounded-lg border border-destructive/30 bg-card p-3">
+                            <div className="space-y-1">
+                              <p className="font-bold text-destructive text-xs">
+                                {t('moderation.ban_desc')}
+                              </p>
+                              <Label
+                                htmlFor={`report-ban-${ad.id}`}
+                                className="font-semibold text-foreground text-xs"
+                              >
+                                {t('moderation.select_reason')} *
+                              </Label>
+                              <select
+                                id={`report-ban-${ad.id}`}
+                                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-foreground text-xs focus:border-ring focus:outline-none"
+                                value={banReason}
+                                onChange={(e) => setBanReason(e.target.value)}
+                              >
+                                <option value="">
+                                  -- {t('moderation.select_reason')} --
+                                </option>
+                                <option
+                                  value={t('moderation.ban_reason_repetidas')}
+                                >
+                                  {t('moderation.ban_reason_repetidas')}
+                                </option>
+                                <option
+                                  value={t('moderation.ban_reason_fraude')}
+                                >
+                                  {t('moderation.ban_reason_fraude')}
+                                </option>
+                                <option
+                                  value={t('moderation.ban_reason_termos')}
+                                >
+                                  {t('moderation.ban_reason_termos')}
+                                </option>
+                              </select>
+                            </div>
+                            <div className="flex justify-end space-x-2">
+                              <Button
+                                variant="ghost"
+                                onClick={() => setIsBanningUserId(null)}
+                                className="h-7 px-2 text-xs"
+                              >
+                                {t('moderation.cancel')}
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                disabled={
+                                  banProviderMutation.isPending || !banReason
+                                }
+                                onClick={() =>
+                                  banProviderMutation.mutate({
+                                    id: ad.providerId,
+                                    reason: banReason,
+                                  })
+                                }
+                                className="h-7 px-2 text-xs"
+                              >
+                                {t('moderation.confirm')}
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-2">
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                onClick={() =>
+                                  dismissReportsMutation.mutate({
+                                    announcementId: ad.id,
+                                  })
+                                }
+                                disabled={dismissReportsMutation.isPending}
+                                className="flex-1 border-border bg-background text-foreground text-xs"
+                              >
+                                {dismissReportsMutation.isPending ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <>
+                                    <Check className="mr-1.5 h-3.5 w-3.5" />
+                                    {t('moderation.dismiss')}
+                                  </>
+                                )}
+                              </Button>
+
+                              {ad.status !== 'SUSPENDED' && (
+                                <Button
+                                  variant="destructive"
+                                  onClick={() => {
+                                    setIsSuspendingId(ad.id);
+                                    setSuspensionReason('');
+                                  }}
+                                  className="flex-1 text-xs"
+                                >
+                                  <AlertTriangle className="mr-1.5 h-3.5 w-3.5" />
+                                  {t('moderation.suspend')}
+                                </Button>
+                              )}
+                            </div>
+
+                            {isSystemManager && (
+                              <Button
+                                variant="destructive"
+                                onClick={() => {
+                                  setIsBanningUserId(ad.id);
+                                  setBanReason('');
+                                }}
+                                className="w-full font-semibold text-xs"
+                              >
+                                <ShieldAlert className="mr-1.5 h-3.5 w-3.5" />
+                                {t('moderation.ban')}
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </main>
+
+      {/* Reports Detailed List Modal */}
+      {viewingReportsAdId && selectedAdForReports && (
+        <Dialog
+          open={!!viewingReportsAdId}
+          onOpenChange={(open) => !open && setViewingReportsAdId(null)}
+        >
+          <DialogContent className="w-full max-w-lg border bg-card p-6 shadow-xl">
+            <DialogHeader className="space-y-2">
+              <DialogTitle className="font-bold text-foreground text-xl">
+                {t('moderation.details_title')}
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground text-xs">
+                {selectedAdForReports.title}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="max-h-[50vh] space-y-3 overflow-y-auto py-4 pr-1">
+              {selectedAdForReports.reports.map((r) => (
+                <div
+                  key={r.id}
+                  className="space-y-1.5 rounded-lg border border-border bg-muted/40 p-3 text-xs"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-foreground">
+                      {r.reporterName}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {new Date(r.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground">{r.reporterEmail}</p>
+                  <div className="pt-1">
+                    <span className="rounded bg-destructive/10 px-2 py-0.5 font-semibold text-[10px] text-destructive">
+                      {getReasonLabel(r.reason)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <Button
+                onClick={() => setViewingReportsAdId(null)}
+                className="h-9 px-4 font-medium text-xs"
+              >
+                Fechar
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Document Preview Modal */}
       {previewUrl && (

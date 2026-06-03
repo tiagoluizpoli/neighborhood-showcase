@@ -20,6 +20,7 @@ export interface ReportedAnnouncementItem {
   status: string;
   suspensionReason: string | null;
   createdAt: Date;
+  providerId: string;
   providerName: string;
   providerEmail: string;
   totalReports: number;
@@ -105,6 +106,7 @@ export class ListReportedAnnouncements {
         status: announcementSchema.status,
         suspensionReason: announcementSchema.suspensionReason,
         createdAt: announcementSchema.createdAt,
+        providerId: announcementSchema.providerId,
         providerName: userSchema.name,
         providerEmail: userSchema.email,
         reportCount:
@@ -126,6 +128,7 @@ export class ListReportedAnnouncements {
         announcementSchema.status,
         announcementSchema.suspensionReason,
         announcementSchema.createdAt,
+        announcementSchema.providerId,
         userSchema.name,
         userSchema.email,
       )
@@ -178,6 +181,7 @@ export class ListReportedAnnouncements {
         status: ann.status,
         suspensionReason: ann.suspensionReason,
         createdAt: ann.createdAt,
+        providerId: ann.providerId,
         providerName: ann.providerName || '',
         providerEmail: ann.providerEmail || '',
         totalReports: ann.reportCount,

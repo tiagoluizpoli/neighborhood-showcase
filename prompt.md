@@ -2,6 +2,34 @@
 issueId: 53_moderation_queue_admin_review.md
 ---
 
+# MANDATORY CONTEXT
+
+Before starting ANY work, you MUST read and internalize the following files in this exact order:
+
+1. **`AGENTS.md`** (project root) — Global agent protocol, behavioral rules, and Karpathy Guidelines.
+2. **`agents.local.md`** (project root) — Project-specific architecture rules, tech stack, file structure, and **Clean Architecture layer boundary enforcement**. Section 9 is CRITICAL and NON-NEGOTIABLE.
+
+These files define the architectural laws of this codebase. Every line of code you write, refactor, or review MUST comply with them. If a task requires violating any rule in `agents.local.md`, you MUST stop and emit `<promise>ABORT</promise>` with a detailed explanation.
+
+# SPECKIT BYPASS
+
+This project uses the **Ralph Loop** for task execution, NOT SpecKit workflows. The following SpecKit-specific elements referenced in `AGENTS.md` are **IGNORED**:
+
+- SpecKit commands (`/speckit.specify`, `/speckit.plan`, `/speckit.tasks`, etc.)
+- SpecKit folders (`.specify/workflows`, `.specify/scripts`, `.specify/templates`, `.specify/extensions`)
+- SpecKit-specific enforcement rules (e.g., "invoke prompt-enhancer protocol before processing any feature description")
+- The Task-by-Task Implementation Flow (replaced by the Ralph Loop's own RED → GREEN → REFACTOR cycle below)
+
+The following concepts and skills referenced in `AGENTS.md` **ARE still active and MUST be followed**:
+
+- **Karpathy Guidelines** — Think before coding, simplicity first, surgical changes.
+- **UI Red Flag Protocol** — Stop, log, and prompt before any out-of-scope UI change.
+- **Backend Specialist** — SOLID enforcement, 4-layer Clean Architecture, ARBC security model.
+- **Testing Skills** (`test-coverage`, `test-backend`, `test-frontend`, `test-e2e`, `test-master`) — Exhaustive test scenario coverage.
+- **Code Review** (`code-review`) — Spec alignment, architecture, SOLID enforcement.
+- **Karpathy Guidelines**, **Diagnose**, **TDD** — Core behavioral and debugging protocols.
+- **Clean Architecture layer boundary rules** in `agents.local.md` Section 9 — **ALWAYS enforced, on every iteration, no exceptions.**
+
 # PRD
 
 Pull @PRD.md into your context. (Make sure to verify if PRD.md, prod.md, PROD.md, or prd.md is present in the repository root and pull the correct one).

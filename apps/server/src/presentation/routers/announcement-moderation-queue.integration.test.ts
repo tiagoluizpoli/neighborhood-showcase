@@ -44,8 +44,8 @@ describe('Announcement Moderation Queue Router Procedures', () => {
         name: 'Admin User',
         email: 'admin@example.com',
         emailVerified: true,
-        role: 'SYSTEM_MANAGER',
-        status: 'ACTIVE',
+        role: 'SYSTEM_MANAGER' as const,
+        status: 'ACTIVE' as const,
         cpfHash: 'hash-admin',
       },
       {
@@ -53,8 +53,8 @@ describe('Announcement Moderation Queue Router Procedures', () => {
         name: 'Mod A',
         email: 'moda@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
-        status: 'ACTIVE',
+        role: 'PROVIDER' as const,
+        status: 'ACTIVE' as const,
         cpfHash: 'hash-moda',
       },
       {
@@ -62,8 +62,8 @@ describe('Announcement Moderation Queue Router Procedures', () => {
         name: 'Mod B',
         email: 'modb@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
-        status: 'ACTIVE',
+        role: 'PROVIDER' as const,
+        status: 'ACTIVE' as const,
         cpfHash: 'hash-modb',
       },
       {
@@ -71,8 +71,8 @@ describe('Announcement Moderation Queue Router Procedures', () => {
         name: 'Mary Provider',
         email: 'mary-provider@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
-        status: 'ACTIVE',
+        role: 'PROVIDER' as const,
+        status: 'ACTIVE' as const,
         cpfHash: 'hash-provider',
       },
       ...reporterIds.map((id, index) => ({
@@ -80,8 +80,8 @@ describe('Announcement Moderation Queue Router Procedures', () => {
         name: `Reporter ${index + 1}`,
         email: `reporter-${index + 1}@example.com`,
         emailVerified: true,
-        role: 'PROVIDER',
-        status: 'ACTIVE',
+        role: 'PROVIDER' as const,
+        status: 'ACTIVE' as const,
         cpfHash: `hash-rep-${index + 1}`,
       })),
     ]);
@@ -156,7 +156,7 @@ describe('Announcement Moderation Queue Router Procedures', () => {
         id: `rep-a-${index}`,
         reporterId: id,
         announcementId: annAId,
-        reason: index % 2 === 0 ? 'FRAUDE_GOLPE' : 'SPAM',
+        reason: index % 2 === 0 ? ('FRAUDE_GOLPE' as const) : ('SPAM' as const),
       })),
     );
 
@@ -166,7 +166,7 @@ describe('Announcement Moderation Queue Router Procedures', () => {
         id: `rep-b-${index}`,
         reporterId: id,
         announcementId: annBId,
-        reason: 'SPAM',
+        reason: 'SPAM' as const,
       })),
     );
   });
