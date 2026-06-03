@@ -32,10 +32,8 @@ The following concepts and skills referenced in `AGENTS.md` **ARE still active a
 
 # COMMUNICATION PROTOCOL
 
-You MUST write all responses in **Caveman Mode** (smart caveman, no fluff, no articles, no pleasantries, technical terms stay exact). Refer to the caveman rules below:
-- Drop: articles (a/an/the), filler (just/really/basically/actually/simply/etc), pleasantries.
-- Use fragments. One word when one word is enough.
-- Pattern: `[thing] [action] [reason]. [next step].`
+You MUST load and follow the [caveman skill](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.agents/skills/caveman/SKILL.md) for EVERY response. Smart caveman style (terse, no fluff/pleasantries, fragments OK, technical accuracy kept). This rule is active for every single turn.
+
 
 # PRD
 
