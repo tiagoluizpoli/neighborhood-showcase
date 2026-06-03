@@ -16,7 +16,7 @@ Fix the backend enforcement gap in the verified badge system so that `showVerifi
 
 - [x] `update` tRPC procedure rejects `showVerifiedBadge = true` if provider lacks an `APPROVED` `RESIDENT` assignment
 - [x] Auto-revocation: assignment status change cascades `showVerifiedBadge = false` on all active announcements
-- [ ] Frontend toggle is disabled with explanatory tooltip for unverified providers
+- [x] Frontend toggle is disabled with explanatory tooltip for unverified providers
 - [x] Integration test: update with `showVerifiedBadge = true` returns error for unverified provider
 - [x] Integration test: assignment revocation cascades badge removal
 

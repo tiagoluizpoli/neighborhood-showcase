@@ -1,5 +1,11 @@
 import { env } from '@neighborhood-showcase/env/web';
 import { Button } from '@neighborhood-showcase/ui/components/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@neighborhood-showcase/ui/components/tooltip';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import {
@@ -63,6 +69,7 @@ interface DashboardAnnouncementItem {
   createdAt: string;
   suspensionReason: string | null;
   condoName: string;
+  providerLocationId: string | null;
 }
 
 function DashboardIndexComponent() {
@@ -623,6 +630,18 @@ function EditAnnouncementModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const assignmentsQuery = useQuery(
+    trpc.assignment.getMyAssignments.queryOptions(),
+  );
+  const assignments = assignmentsQuery.data;
+
+  const selectedAssignment = assignments?.find(
+    (a) => a.id === ad.providerLocationId,
+  );
+  const canVerify =
+    selectedAssignment?.type === 'RESIDENT' &&
+    selectedAssignment?.status === 'APPROVED';
+
   const [title, setTitle] = useState(ad.title);
   const [subtitle, setSubtitle] = useState(ad.subtitle || '');
   const [description, setDescription] = useState(ad.description);
@@ -749,7 +768,7 @@ function EditAnnouncementModal({
         instagram: instagram || undefined,
         website: website || undefined,
       },
-      showVerifiedBadge,
+      showVerifiedBadge: showVerifiedBadge && canVerify,
     });
   };
 
@@ -947,21 +966,42 @@ function EditAnnouncementModal({
           </div>
 
           {/* Toggle Badge */}
-          <div className="flex items-center justify-between rounded-xl border border-border bg-muted/40 p-4">
-            <div className="space-y-0.5">
-              <span className="block font-semibold text-foreground text-sm">
-                Exibir Selo de Morador Verificado
-              </span>
-              <span className="text-muted-foreground text-xs">
-                Exiba que você é um morador aprovado neste condomínio.
-              </span>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between rounded-xl border border-border bg-muted/40 p-4">
+              <div className="space-y-0.5">
+                <span className="block font-semibold text-foreground text-sm">
+                  Exibir Selo de Morador Verificado
+                </span>
+                <span className="text-muted-foreground text-xs">
+                  Exiba que você é um morador aprovado neste condomínio.
+                </span>
+              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger render={
+                    <span className="inline-block">
+                      <input
+                        type="checkbox"
+                        disabled={!canVerify}
+                        checked={showVerifiedBadge && canVerify}
+                        onChange={(e) => setShowVerifiedBadge(e.target.checked)}
+                        className="h-5 w-5 rounded border-border bg-muted text-primary focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                    </span>
+                  } />
+                  {!canVerify && (
+                    <TooltipContent side="top" align="center" className="max-w-xs p-2 text-center">
+                      O selo de morador verificado está disponível apenas para moradores de condomínio aprovados. Acesse a página "Minha Conta" para verificar sua residência.
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
             </div>
-            <input
-              type="checkbox"
-              checked={showVerifiedBadge}
-              onChange={(e) => setShowVerifiedBadge(e.target.checked)}
-              className="h-5 w-5 rounded border-border bg-muted text-primary focus:ring-primary/20"
-            />
+            {!canVerify && (
+              <p className="text-[10px] text-warning px-1">
+                Indisponível: O selo de morador verificado está disponível apenas para moradores de condomínio aprovados. Acesse a página "Minha Conta" para verificar sua residência.
+              </p>
+            )}
           </div>
         </form>
 

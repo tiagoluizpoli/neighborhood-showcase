@@ -1,6 +1,12 @@
 import { env } from '@neighborhood-showcase/env/web';
 import { Button } from '@neighborhood-showcase/ui/components/button';
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@neighborhood-showcase/ui/components/tooltip';
+import {
   Card,
   CardContent,
   CardDescription,
@@ -598,20 +604,33 @@ function NewAnnouncementComponent() {
                   </p>
                 </div>
                 <div>
-                  <input
-                    type="checkbox"
-                    id="verified-badge-toggle"
-                    disabled={!canVerify}
-                    checked={showVerifiedBadge}
-                    onChange={(e) => setShowVerifiedBadge(e.target.checked)}
-                    className="h-4 w-4 cursor-pointer accent-primary disabled:opacity-50"
-                  />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger render={
+                        <span className="inline-block">
+                          <input
+                            type="checkbox"
+                            id="verified-badge-toggle"
+                            disabled={!canVerify}
+                            checked={showVerifiedBadge}
+                            onChange={(e) => setShowVerifiedBadge(e.target.checked)}
+                            className="h-4 w-4 cursor-pointer accent-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                          />
+                        </span>
+                      } />
+                      {!canVerify && (
+                        <TooltipContent side="top" align="center" className="max-w-xs p-2 text-center">
+                          O selo de morador verificado está disponível apenas para moradores de condomínio aprovados. Acesse a página "Minha Conta" para verificar sua residência.
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
               {!canVerify && selectedLocationId && (
-                <p className="text-[10px] text-warning">
+                <p className="text-[10px] text-warning mt-2">
                   Indisponível: O selo de morador verificado está disponível
-                  apenas para moradores de condomínio aprovados.
+                  apenas para moradores de condomínio aprovados. Acesse a página "Minha Conta" para verificar sua residência.
                 </p>
               )}
             </CardContent>

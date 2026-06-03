@@ -32,6 +32,7 @@ export interface DashboardAnnouncementItem {
   createdAt: Date;
   suspensionReason: string | null;
   condoName: string;
+  providerLocationId: string | null;
 }
 
 export interface ProviderDashboardData {
@@ -74,6 +75,7 @@ export class GetProviderDashboardData {
         createdAt: announcementSchema.createdAt,
         suspensionReason: announcementSchema.suspensionReason,
         condoName: condominiumSchema.name,
+        providerLocationId: announcementSchema.providerLocationId,
       })
       .from(announcementSchema)
       .leftJoin(
@@ -136,6 +138,7 @@ export class GetProviderDashboardData {
         createdAt: raw.createdAt,
         suspensionReason: raw.suspensionReason,
         condoName: raw.condoName || '',
+        providerLocationId: raw.providerLocationId,
       };
 
       if (item.status === 'ACTIVE') {
