@@ -16,7 +16,11 @@ import {
 import { ListPublicAnnouncements } from '../../application/use-cases/announcement/list-public-announcements';
 import { ListReportedAnnouncements } from '../../application/use-cases/announcement/list-reported-announcements';
 import { ReinstateAnnouncement } from '../../application/use-cases/announcement/reinstate-announcement';
-import { ReportAnnouncement } from '../../application/use-cases/announcement/report-announcement';
+import {
+  AnnouncementReportConflictError,
+  AnnouncementReportNotFoundError,
+  ReportAnnouncement,
+} from '../../application/use-cases/announcement/report-announcement';
 import { SuspendAnnouncement } from '../../application/use-cases/announcement/suspend-announcement';
 import { TrackAnalyticsEvent } from '../../application/use-cases/announcement/track-analytics-event';
 import {
@@ -34,6 +38,7 @@ import { DrizzleAnnouncementRepository } from '../../infrastructure/db/announcem
 import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-repository';
 import { DrizzleCategoryRepository } from '../../infrastructure/db/category-repository';
 import { DrizzlePaymentRepository } from '../../infrastructure/db/payment-repository';
+import { DrizzleReportRepository } from '../../infrastructure/db/report-repository';
 import { AbacatePayClient } from '../../infrastructure/payment/abacatepay.client';
 import { protectedProcedure, publicProcedure, router } from '../trpc';
 
@@ -41,6 +46,7 @@ const announcementRepo = new DrizzleAnnouncementRepository();
 const assignmentRepo = new DrizzleAssignmentRepository();
 const categoryRepo = new DrizzleCategoryRepository();
 const paymentRepo = new DrizzlePaymentRepository();
+const reportRepo = new DrizzleReportRepository();
 const abacatePayClient = new AbacatePayClient();
 
 const createAnnouncementUseCase = new CreateAnnouncement(
@@ -74,7 +80,10 @@ const getProviderDashboardDataUseCase = new GetProviderDashboardData();
 const getAnnouncementAnalyticsUseCase = new GetAnnouncementAnalytics();
 const suspendAnnouncementUseCase = new SuspendAnnouncement();
 const reinstateAnnouncementUseCase = new ReinstateAnnouncement();
-const reportAnnouncementUseCase = new ReportAnnouncement();
+const reportAnnouncementUseCase = new ReportAnnouncement(
+  announcementRepo,
+  reportRepo,
+);
 const dismissReportsUseCase = new DismissReports();
 const listReportedAnnouncementsUseCase = new ListReportedAnnouncements();
 
@@ -395,12 +404,32 @@ export const announcementRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      await reportAnnouncementUseCase.execute({
-        reporterId: ctx.session.user.id,
-        announcementId: input.announcementId,
-        reason: input.reason,
-      });
-      return { success: true };
+      try {
+        await reportAnnouncementUseCase.execute({
+          reporterId: ctx.session.user.id,
+          announcementId: input.announcementId,
+          reason: input.reason,
+        });
+        return { success: true };
+      } catch (error) {
+        if (error instanceof AnnouncementReportNotFoundError) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: error.message,
+            cause: error,
+          });
+        }
+
+        if (error instanceof AnnouncementReportConflictError) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: error.message,
+            cause: error,
+          });
+        }
+
+        throw error;
+      }
     }),
 
   listReported: protectedProcedure
