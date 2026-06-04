@@ -647,7 +647,21 @@ function PublicVitrineComponent() {
   };
 
   return (
-    <div className="container mx-auto max-w-6xl px-4 py-6">
+    <div className="w-full px-4 py-6 md:px-6 lg:px-8">
+      <section className="mb-6 rounded-2xl border bg-muted/30 px-5 py-5 md:px-6">
+        <div className="flex max-w-3xl flex-col gap-2">
+          <span className="font-semibold text-primary text-xs uppercase tracking-[0.24em]">
+            {t('home.hero.eyebrow')}
+          </span>
+          <h1 className="font-semibold text-2xl tracking-tight md:text-3xl">
+            {t('home.hero.title')}
+          </h1>
+          <p className="max-w-2xl text-muted-foreground text-sm md:text-base">
+            {t('home.hero.description')}
+          </p>
+        </div>
+      </section>
+
       {/* Geolocation / Selected Location Control */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-4">
         <div className="flex items-center gap-3">

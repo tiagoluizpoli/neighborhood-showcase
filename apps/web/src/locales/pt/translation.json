@@ -101,5 +101,12 @@
     "radius_expanded_desc": "Atenção: Prestadores a distâncias maiores (até 25 km) podem não realizar entregas ou atendimentos na sua região.",
     "radius_expand": "Expandir para 25 km",
     "radius_shrink": "Voltar para 10 km"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Descubra perto de você",
+      "title": "Explore serviços e ofertas da sua região",
+      "description": "Busque por categoria, condomínio ou palavra-chave e fale direto com quem anuncia."
+    }
   }
 }

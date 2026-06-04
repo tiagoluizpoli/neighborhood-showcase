@@ -101,5 +101,12 @@
     "radius_expanded_desc": "Warning: Providers farther away (up to 25 km) may not deliver or provide service in your area.",
     "radius_expand": "Expand to 25 km",
     "radius_shrink": "Back to 10 km"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Discover nearby",
+      "title": "Explore local services and offers",
+      "description": "Browse by category, condominium, or keyword and talk directly to the provider."
+    }
   }
 }

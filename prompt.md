@@ -1,5 +1,5 @@
 ---
-issueId: 57_home_location_control_geolocation_confidence_cleanup.md
+issueId: 58_home_discovery_layout_first_viewport_cleanup.md
 ---
 
 # MANDATORY CONTEXT

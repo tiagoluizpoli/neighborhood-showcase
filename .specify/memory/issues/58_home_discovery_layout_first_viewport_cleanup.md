@@ -87,10 +87,10 @@ The home page currently uses a centered `max-w-6xl` container for the entire bro
 
 ## Acceptance criteria
 
-- [ ] Home page no longer constrains the entire browsing experience to a centered `max-w-6xl` column.
-- [ ] A compact hero band exists above discovery controls.
+- [x] Home page no longer constrains the entire browsing experience to a centered `max-w-6xl` column.
+- [x] A compact hero band exists above discovery controls.
 - [ ] Discovery controls and the first announcement row are visible quickly on common laptop viewports.
-- [ ] `#explorar`, `#como-funciona`, and `#anunciar` section targets exist and match the public header anchors.
+- [x] `#explorar`, `#como-funciona`, and `#anunciar` section targets exist and match the public header anchors.
 - [ ] Search, location/status, categories, and filters are grouped into one compact discovery controls area.
 - [ ] Desktop controls are visible inline without large full-width control bars.
 - [ ] Mobile secondary filters use a sheet/drawer instead of stacking all controls above the feed.
@@ -106,5 +106,10 @@ The home page currently uses a centered `max-w-6xl` container for the entire bro
 
 ## Blocked by
 
-- Issue 56: Public Browsing Header Separation
-- Issue 57: Home Location Control & Geolocation Confidence Cleanup
+- None.
+
+## Iteration 3 Notes
+
+- Started Issue 58 by widening the home-page shell, removing the old `max-w-6xl` constraint, and introducing a compact hero band above discovery controls.
+- Added route-level UI assertions covering the wider shell, preserved section anchors, and new hero content.
+- Remaining work: compact discovery controls layout, denser feed viewport behavior, compact `#como-funciona`, full-width `#anunciar` CTA band, and mobile secondary-filter sheet behavior.
