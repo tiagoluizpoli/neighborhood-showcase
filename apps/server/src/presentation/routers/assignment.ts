@@ -1,6 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { ApproveAssignment } from '../../application/use-cases/assignment/approve-assignment';
+import { ListProviderAssignments } from '../../application/use-cases/assignment/list-provider-assignments';
 import { RegisterExternalLocation } from '../../application/use-cases/assignment/register-external-location';
 import { RejectAssignment } from '../../application/use-cases/assignment/reject-assignment';
 import { RequestAssignment } from '../../application/use-cases/assignment/request-assignment';
@@ -9,6 +10,9 @@ import { protectedProcedure, router } from '../trpc';
 
 const assignmentRepo = new DrizzleAssignmentRepository();
 const requestAssignmentUseCase = new RequestAssignment(assignmentRepo);
+const listProviderAssignmentsUseCase = new ListProviderAssignments(
+  assignmentRepo,
+);
 const approveAssignmentUseCase = new ApproveAssignment(assignmentRepo);
 const rejectAssignmentUseCase = new RejectAssignment(assignmentRepo);
 const registerExternalUseCase = new RegisterExternalLocation(assignmentRepo);
@@ -51,7 +55,9 @@ export const assignmentRouter = router({
     }),
 
   getMyAssignments: protectedProcedure.query(async ({ ctx }) => {
-    const results = await assignmentRepo.findByProviderId(ctx.session.user.id);
+    const results = await listProviderAssignmentsUseCase.execute({
+      providerId: ctx.session.user.id,
+    });
     return results.map((assign) => ({
       ...assign.toDTO(),
       condominium: assign.condominium,

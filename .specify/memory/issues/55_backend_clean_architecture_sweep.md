@@ -86,4 +86,8 @@ If a slice exposes a real behavior bug, document it separately instead of hiding
 
 ## Blocked by
 
-- None. Start with auditing and slicing before implementation.
+- `bun run check` / `bun run check-types` currently fail on pre-existing dirty work in `apps/server/src/infrastructure/db/announcement-repository.ts` because `isNull` is imported but unused.
+
+## Progress notes
+
+- 2026-06-04: Started Slice 5 with `assignment.getMyAssignments`. Added `ListProviderAssignments` use case and routed the procedure through application layer while preserving DTO output. Focused integration test passes. Remaining Slice 5 router procedures still pending.
