@@ -35,6 +35,9 @@ export interface PublicAnnouncementItem {
   condoName: string | null;
   condoCity: string;
   condoState: string;
+  condoNeighborhood?: string | null;
+  latitude?: string | null;
+  longitude?: string | null;
   title: string;
   subtitle: string | null;
   description: string;
@@ -269,6 +272,12 @@ function mapRow(row: {
 }): PublicAnnouncementItem {
   const condoCity = row.condominium?.city || row.providerAddress?.city || '';
   const condoState = row.condominium?.state || row.providerAddress?.state || '';
+  const condoNeighborhood =
+    row.condoAddress?.neighborhood || row.providerAddress?.neighborhood || null;
+  const latitude =
+    row.condominium?.latitude || row.providerLocation?.latitude || null;
+  const longitude =
+    row.condominium?.longitude || row.providerLocation?.longitude || null;
 
   return {
     id: row.announcement.id,
@@ -277,6 +286,9 @@ function mapRow(row: {
     condoName: row.condominium?.name ?? null,
     condoCity,
     condoState,
+    condoNeighborhood,
+    latitude,
+    longitude,
     title: row.announcement.title,
     subtitle: row.announcement.subtitle,
     description: row.announcement.description,

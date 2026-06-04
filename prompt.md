@@ -1,5 +1,5 @@
 ---
-issueId: 58_home_discovery_layout_first_viewport_cleanup.md
+issueId: 59_announcement_card_spectrum_inspired_redesign.md
 ---
 
 # MANDATORY CONTEXT

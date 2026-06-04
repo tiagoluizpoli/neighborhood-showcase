@@ -1,16 +1,4 @@
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@neighborhood-showcase/ui/components/avatar';
 import { Button } from '@neighborhood-showcase/ui/components/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@neighborhood-showcase/ui/components/card';
 import { Checkbox } from '@neighborhood-showcase/ui/components/checkbox';
 import {
   Dialog,
@@ -40,7 +28,7 @@ import {
   TabsTrigger,
 } from '@neighborhood-showcase/ui/components/tabs';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import {
   CheckCircle2,
   Loader2,
@@ -52,6 +40,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { AnnouncementCard } from '@/components/announcement-card';
 import { authClient } from '@/lib/auth-client';
 import {
   confirmNearbyCondoSelection,
@@ -67,13 +56,6 @@ import { trpc } from '@/utils/trpc';
 export const Route = createFileRoute('/_portal/')({
   component: PublicVitrineComponent,
 });
-
-const getInitials = (name: string) => {
-  if (!name) return '';
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-};
 
 const getDistanceKm = (
   lat1: number,
@@ -125,7 +107,6 @@ const getFreshStoredCoords = () => {
 };
 
 function PublicVitrineComponent() {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const { data: session } = authClient.useSession();
 
@@ -951,146 +932,21 @@ function PublicVitrineComponent() {
         </div>
       ) : announcements && announcements.length > 0 ? (
         <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-          {announcements.map((ad) => {
-            const isLocal =
-              selectedCondo && ad.condominiumId === selectedCondo.id;
-            const formattedPrice =
-              ad.priceCents !== null
-                ? new Intl.NumberFormat('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL',
-                  }).format(ad.priceCents / 100)
-                : null;
-
-            return (
-              <Card
-                key={ad.id}
-                onClick={() =>
-                  navigate({ to: '/anuncios/$id', params: { id: ad.id } })
-                }
-                className="group flex h-full cursor-pointer flex-col overflow-hidden border bg-card"
-              >
-                <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
-                  <img
-                    src={ad.imageUrl}
-                    alt={ad.title}
-                    className="h-full w-full object-cover object-center"
-                  />
-                  {ad.showVerifiedBadge && (
-                    <div className="absolute top-3 left-3 flex items-center gap-1 rounded-full bg-primary/95 px-2 py-1 font-bold text-[10px] text-primary-foreground shadow">
-                      <CheckCircle2 className="h-3 w-3 fill-current" />
-                      <span>Verificado</span>
-                    </div>
-                  )}
-                  {isLocal ? (
-                    <div className="absolute top-3 right-3 rounded bg-success/90 px-2 py-1 font-bold text-[10px] text-success-foreground shadow">
-                      Aqui no condomínio
-                    </div>
-                  ) : !ad.condominiumId ? (
-                    <div className="absolute top-3 right-3 rounded bg-warning/90 px-2 py-1 font-bold text-[10px] text-warning-foreground shadow">
-                      Prestador Externo
-                    </div>
-                  ) : null}
-                </div>
-
-                <CardHeader className="flex-grow-0 p-4 pb-2">
-                  <div className="mb-1 flex items-center justify-between gap-2 font-medium text-[10px] text-muted-foreground">
-                    <span className="rounded-full bg-muted px-2 py-0.5 font-semibold text-foreground uppercase tracking-wider">
-                      {ad.category}
-                    </span>
-                    <span className="truncate">
-                      {ad.condominiumId ? (
-                        `${ad.condoName} (${ad.condoCity})`
-                      ) : (
-                        <span className="font-semibold text-warning">
-                          Autônomo ({ad.condoCity})
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                  <CardTitle className="line-clamp-1">{ad.title}</CardTitle>
-                  {ad.subtitle && (
-                    <CardDescription className="line-clamp-1">
-                      {ad.subtitle}
-                    </CardDescription>
-                  )}
-                </CardHeader>
-
-                <CardContent className="flex flex-grow flex-col justify-between gap-3 p-4 pt-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="line-clamp-2 pr-2 text-muted-foreground text-xs leading-relaxed">
-                      {ad.description}
-                    </span>
-                    {formattedPrice && (
-                      <span className="shrink-0 whitespace-nowrap font-bold text-sm text-success">
-                        {formattedPrice}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mt-auto flex flex-col gap-3">
-                    <hr className="border-border/50" />
-
-                    <div className="flex items-center justify-between gap-2">
-                      <a
-                        href={`/prestadores/${ad.providerId}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex min-w-0 items-center gap-2 hover:underline"
-                      >
-                        <Avatar size="sm">
-                          <AvatarImage
-                            src={ad.providerAvatarUrl || undefined}
-                          />
-                          <AvatarFallback>
-                            {getInitials(ad.providerName)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="flex items-center gap-1 truncate font-semibold text-foreground text-xs">
-                          {ad.providerName}
-                          {ad.showVerifiedBadge && (
-                            <CheckCircle2 className="h-3 w-3 fill-current text-primary" />
-                          )}
-                        </span>
-                      </a>
-
-                      {ad.contactLinks?.whatsapp ? (
-                        <a
-                          href={`https://wa.me/${ad.contactLinks.whatsapp.replace(/\D/g, '')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleContactClick(ad.id, 'WHATSAPP');
-                          }}
-                          className="shrink-0"
-                        >
-                          <Button size="sm" className="h-8">
-                            <MessageCircle className="h-3.5 w-3.5" />
-                            <span>WhatsApp</span>
-                          </Button>
-                        </a>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate({
-                              to: '/anuncios/$id',
-                              params: { id: ad.id },
-                            });
-                          }}
-                          className="h-8 shrink-0 text-xs"
-                        >
-                          Detalhes
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+          {announcements.map((ad) => (
+            <AnnouncementCard
+              key={ad.id}
+              ad={ad}
+              selectedCondo={selectedCondo}
+              visitorCoords={coords}
+              isGpsFresh={isGpsFresh}
+              hasIpFallback={
+                geoPreference !== 'granted' &&
+                coords === null &&
+                ipLocation !== null
+              }
+              onContactClick={handleContactClick}
+            />
+          ))}
         </div>
       ) : (
         <div className="rounded-xl border bg-card py-20 text-center">

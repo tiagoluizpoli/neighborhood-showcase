@@ -76,18 +76,18 @@ Visitors should understand the card in this order:
 
 ## Acceptance criteria
 
-- [ ] `AnnouncementCard` is extracted from the home route into a reusable component.
-- [ ] Card uses a Spectrum-inspired image-led layout adapted for announcements.
-- [ ] Offer/title hierarchy appears before administrative metadata.
-- [ ] Provider identity is visible and links to `/prestadores/:id`.
-- [ ] Verified trust signal appears near provider identity and is not duplicated as noisy image badges.
-- [ ] Card shows exactly one primary action: WhatsApp, phone, email, or details fallback.
-- [ ] Price/value is visually prominent when present and absent gracefully when missing.
-- [ ] Whole-card detail navigation works and is keyboard-accessible.
-- [ ] Contact and provider links do not trigger detail navigation.
-- [ ] Location/proximity text follows Issue 57 confidence rules.
-- [ ] Card avoids warning-style treatment for external providers.
-- [ ] Focused tests cover card navigation, provider link, primary contact fallback, and contact click tracking.
+- [x] `AnnouncementCard` is extracted from the home route into a reusable component.
+- [x] Card uses a Spectrum-inspired image-led layout adapted for announcements.
+- [x] Offer/title hierarchy appears before administrative metadata.
+- [x] Provider identity is visible and links to `/prestadores/:id`.
+- [x] Verified trust signal appears near provider identity and is not duplicated as noisy image badges.
+- [x] Card shows exactly one primary action: WhatsApp, phone, email, or details fallback.
+- [x] Price/value is visually prominent when present and absent gracefully when missing.
+- [x] Whole-card detail navigation works and is keyboard-accessible.
+- [x] Contact and provider links do not trigger detail navigation.
+- [x] Location/proximity text follows Issue 57 confidence rules.
+- [x] Card avoids warning-style treatment for external providers.
+- [x] Focused tests cover card navigation, provider link, primary contact fallback, and contact click tracking.
 
 ## Blocked by
 

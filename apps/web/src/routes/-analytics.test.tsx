@@ -48,13 +48,64 @@ const renderComponent = (Component: () => any) => {
   return result;
 };
 
-// Mock react while preserving its internals and JSX runtime dependencies
+const findElement = (node: any, predicate: (el: any) => boolean): any => {
+  if (!node) return null;
+  if (typeof node.type === 'function') {
+    try {
+      const rendered = node.type(node.props);
+      return findElement(rendered, predicate);
+    } catch (err) {
+      console.error(
+        'Rendering failed for type:',
+        node.type.name || node.type,
+        err,
+      );
+      return null;
+    }
+  }
+  if (predicate(node)) return node;
+  if (node.props?.children) {
+    const children = Array.isArray(node.props.children)
+      ? node.props.children
+      : [node.props.children];
+    for (const child of children) {
+      const found = findElement(child, predicate);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
 mock.module('react', () => ({
   ...RealReact,
   useCallback: (fn: any, _deps: any[]) => fn,
   useEffect: (callback: () => void, _deps: any[]) => {
     activeEffects.push(callback);
   },
+  useLayoutEffect: (callback: () => void, _deps: any[]) => {
+    activeEffects.push(callback);
+  },
+  useMemo: (fn: any, _deps: any[]) => fn(),
+  useId: () => 'mock-id',
+  useDebugValue: () => {},
+  useTransition: () => [false, (cb: any) => cb()],
+  useDeferredValue: (value: any) => value,
+  useSyncExternalStore: (_subscribe: any, getSnapshot: any) => getSnapshot(),
+  useInsertionEffect: (callback: () => void, _deps: any[]) => {
+    callback();
+  },
+  useImperativeHandle: (ref: any, create: any) => {
+    if (ref) {
+      if (typeof ref === 'function') ref(create());
+      else ref.current = create();
+    }
+  },
+  useActionState: (action: any, initialState: any) => [
+    initialState,
+    action,
+    false,
+  ],
+  useOptimistic: (passthrough: any) => [passthrough, () => {}],
   useRef: (initialValue: any) => {
     const idx = hookIndex++;
     if (hookState[idx] === undefined) {
@@ -79,6 +130,27 @@ mock.module('react', () => ({
     }
     return hookState[idx];
   },
+  useContext: (context: any) => {
+    return context?._currentValue;
+  },
+}));
+
+// Mock react-i18next
+mock.module('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, options?: any) => {
+      const translations: Record<string, string> = {
+        'location.ip_fallback': 'Região aproximada',
+        'location.selected_condo': 'Condomínio selecionado',
+        'location.fresh_gps': 'Localização atual (GPS)',
+      };
+      let val = translations[key] ?? key;
+      if (options?.name) {
+        val = val.replace('{{name}}', options.name);
+      }
+      return val;
+    },
+  }),
 }));
 
 // Mock @/lib/auth-client
@@ -265,25 +337,10 @@ describe('Analytics Impression Tracking tests', () => {
     // Render vitrine
     const tree = renderComponent(vitrineComponent);
 
-    // Helper to find a element recursively
-    const findElement = (node: any, predicate: (el: any) => boolean): any => {
-      if (!node) return null;
-      if (predicate(node)) return node;
-      if (node.props?.children) {
-        const children = Array.isArray(node.props.children)
-          ? node.props.children
-          : [node.props.children];
-        for (const child of children) {
-          const found = findElement(child, predicate);
-          if (found) return found;
-        }
-      }
-      return null;
-    };
-
     // Find the Card in the vitrine tree (identify it by its specific class names or type name)
     const card = findElement(tree, (el) => {
-      return el.props?.className?.includes('group');
+      const classes = el.props?.className?.split(' ') || [];
+      return classes.includes('group') && el.props?.role === 'button';
     });
     expect(card).toBeDefined();
     expect(card.props.onClick).toBeDefined();
@@ -302,24 +359,10 @@ describe('Analytics Impression Tracking tests', () => {
     const vitrineComponent = IndexRoute.options.component;
     const tree = renderComponent(vitrineComponent);
 
-    const findElement = (node: any, predicate: (el: any) => boolean): any => {
-      if (!node) return null;
-      if (predicate(node)) return node;
-      if (node.props?.children) {
-        const children = Array.isArray(node.props.children)
-          ? node.props.children
-          : [node.props.children];
-        for (const child of children) {
-          const found = findElement(child, predicate);
-          if (found) return found;
-        }
-      }
-      return null;
-    };
-
-    const card = findElement(tree, (el) =>
-      el.props?.className?.includes('group'),
-    );
+    const card = findElement(tree, (el) => {
+      const classes = el.props?.className?.split(' ') || [];
+      return classes.includes('group') && el.props?.role === 'button';
+    });
     expect(card).toBeDefined();
 
     // Reset mockNavigate history
