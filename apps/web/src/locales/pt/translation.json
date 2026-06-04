@@ -3,7 +3,10 @@
     "home": "Início",
     "dashboard": "Painel",
     "moderation": "Moderação",
-    "admin": "Administração"
+    "admin": "Administração",
+    "explore": "Explorar",
+    "how_it_works": "Como funciona",
+    "advertise": "Anunciar"
   },
   "menu": {
     "account": "Minha Conta",

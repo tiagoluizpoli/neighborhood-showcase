@@ -1,63 +1,47 @@
-import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { ModeToggle } from './mode-toggle';
-import UserMenu from './user-menu';
 import { authClient } from '@/lib/auth-client';
-import { trpc } from '@/utils/trpc';
 
 export default function Header() {
   const { t, i18n } = useTranslation();
   const { data: session } = authClient.useSession();
 
-  const { data: assignments } = useQuery(
-    trpc.assignment.getMyAssignments.queryOptions(undefined, {
-      enabled: !!session,
-    }),
-  );
-
-  const hasModeratorRole = !!assignments?.some(
-    (a) =>
-      a.type === 'MODERATOR' &&
-      a.status === 'APPROVED' &&
-      a.condominiumId !== null,
-  );
-  const hasSystemManagerRole = session?.user.role === 'SYSTEM_MANAGER';
-
-  const links = [
-    { to: '/' as const, label: t('nav.home'), show: true },
-    {
-      to: '/panel/dashboard' as const,
-      label: t('nav.dashboard'),
-      show: !!session,
-    },
-    {
-      to: '/panel/moderation' as const,
-      label: t('nav.moderation'),
-      show: hasModeratorRole,
-    },
-    {
-      to: '/panel/admin' as const,
-      label: t('nav.admin'),
-      show: hasSystemManagerRole,
-    },
-  ];
-
   return (
-    <div>
-      <div className="flex flex-row items-center justify-between px-2 py-1">
-        <nav className="flex gap-4 text-lg">
-          {links
-            .filter((link) => link.show)
-            .map(({ to, label }) => {
-              return (
-                <Link key={to} to={to}>
-                  {label}
-                </Link>
-              );
-            })}
+    <header className="border-b bg-card text-card-foreground">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        {/* Brand */}
+        <Link to="/" className="font-bold text-primary text-xl tracking-tight">
+          Neighborhood Showcase
+        </Link>
+
+        {/* Public Navigation */}
+        <nav className="hidden items-center gap-6 font-medium text-sm md:flex">
+          <Link
+            to="/"
+            hash="explorar"
+            className="transition-colors hover:text-primary"
+          >
+            {t('nav.explore')}
+          </Link>
+          <Link
+            to="/"
+            hash="como-funciona"
+            className="transition-colors hover:text-primary"
+          >
+            {t('nav.how_it_works')}
+          </Link>
+          <Link
+            to="/"
+            hash="anunciar"
+            className="transition-colors hover:text-primary"
+          >
+            {t('nav.advertise')}
+          </Link>
         </nav>
-        <div className="flex items-center gap-2">
+
+        {/* Actions & Utilities */}
+        <div className="flex items-center gap-4">
           <select
             value={i18n.language}
             onChange={(e) => i18n.changeLanguage(e.target.value)}
@@ -70,11 +54,27 @@ export default function Header() {
               EN
             </option>
           </select>
+
           <ModeToggle />
-          <UserMenu />
+
+          {session ? (
+            <Link
+              to="/panel/dashboard"
+              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm shadow transition-colors hover:bg-primary/90"
+            >
+              {t('nav.dashboard')}
+            </Link>
+          ) : (
+            <Link
+              to="/auth"
+              search={{ tab: 'signin' }}
+              className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-4 py-2 font-medium text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              {t('menu.login')}
+            </Link>
+          )}
         </div>
       </div>
-      <hr />
-    </div>
+    </header>
   );
 }

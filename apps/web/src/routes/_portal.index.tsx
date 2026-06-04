@@ -526,7 +526,7 @@ function PublicVitrineComponent() {
       </Dialog>
 
       {/* Main Filter Section */}
-      <div className="mb-8 flex flex-col gap-6">
+      <div id="explorar" className="mb-8 flex flex-col gap-6">
         <div className="flex flex-col gap-4 md:flex-row">
           <div className="relative flex-1">
             <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -791,8 +791,45 @@ function PublicVitrineComponent() {
         </div>
       )}
 
+      {/* Como Funciona Section */}
+      <div id="como-funciona" className="mt-16 rounded-xl border bg-card p-8">
+        <h3 className="mb-6 text-center font-bold text-lg">Como Funciona</h3>
+        <div className="grid grid-cols-1 gap-6 text-center sm:grid-cols-3">
+          <div>
+            <div className="mb-2 font-semibold text-primary">
+              1. Explore perto de você
+            </div>
+            <p className="text-muted-foreground text-sm">
+              Descubra prestadores de serviços e produtos perto da sua
+              localização ou condomínio.
+            </p>
+          </div>
+          <div>
+            <div className="mb-2 font-semibold text-primary">
+              2. Confira quem anuncia
+            </div>
+            <p className="text-muted-foreground text-sm">
+              Veja o perfil dos prestadores e saiba quem são os moradores
+              verificados.
+            </p>
+          </div>
+          <div>
+            <div className="mb-2 font-semibold text-primary">
+              3. Fale direto com o prestador
+            </div>
+            <p className="text-muted-foreground text-sm">
+              Entre em contato via WhatsApp ou outros canais cadastrados com um
+              clique.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Become a Provider Promo Section */}
-      <div className="mt-16 rounded-xl border bg-muted/30 p-8 text-center">
+      <div
+        id="anunciar"
+        className="mt-16 rounded-xl border bg-muted/30 p-8 text-center"
+      >
         <h3 className="mb-2 font-bold text-lg">
           Quer divulgar seus serviços na sua vizinhança?
         </h3>

@@ -3,7 +3,10 @@
     "home": "Home",
     "dashboard": "Dashboard",
     "moderation": "Moderation",
-    "admin": "Administration"
+    "admin": "Administration",
+    "explore": "Explore",
+    "how_it_works": "How it works",
+    "advertise": "Advertise"
   },
   "menu": {
     "account": "My Account",

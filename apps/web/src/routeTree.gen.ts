@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PanelRouteImport } from './routes/panel'
 import { Route as ModerationRouteImport } from './routes/moderation'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as PortalRouteImport } from './routes/_portal'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
@@ -21,7 +22,6 @@ import { Route as PanelDashboardRouteImport } from './routes/panel.dashboard'
 import { Route as PanelContaRouteImport } from './routes/panel.conta'
 import { Route as PanelAdminRouteImport } from './routes/panel.admin'
 import { Route as DashboardCondoSetupRouteImport } from './routes/dashboard.condo-setup'
-import { Route as PortalAuthRouteImport } from './routes/_portal.auth'
 import { Route as PanelDashboardIndexRouteImport } from './routes/panel.dashboard.index'
 import { Route as PanelDashboardCondoSetupRouteImport } from './routes/panel.dashboard.condo-setup'
 import { Route as DashboardAnunciosNovoRouteImport } from './routes/dashboard.anuncios.novo'
@@ -44,6 +44,11 @@ const ModerationRoute = ModerationRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -89,11 +94,6 @@ const DashboardCondoSetupRoute = DashboardCondoSetupRouteImport.update({
   id: '/condo-setup',
   path: '/condo-setup',
   getParentRoute: () => DashboardRoute,
-} as any)
-const PortalAuthRoute = PortalAuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => PortalRoute,
 } as any)
 const PanelDashboardIndexRoute = PanelDashboardIndexRouteImport.update({
   id: '/',
@@ -143,10 +143,10 @@ const PanelDashboardAnunciosIdPagamentoRoute =
 export interface FileRoutesByFullPath {
   '/': typeof PortalIndexRoute
   '/admin': typeof AdminRoute
+  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/moderation': typeof ModerationRoute
   '/panel': typeof PanelRouteWithChildren
-  '/auth': typeof PortalAuthRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/panel/admin': typeof PanelAdminRoute
   '/panel/conta': typeof PanelContaRoute
@@ -164,9 +164,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
+  '/auth': typeof AuthRoute
   '/moderation': typeof ModerationRoute
   '/panel': typeof PanelRouteWithChildren
-  '/auth': typeof PortalAuthRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/panel/admin': typeof PanelAdminRoute
   '/panel/conta': typeof PanelContaRoute
@@ -186,10 +186,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_portal': typeof PortalRouteWithChildren
   '/admin': typeof AdminRoute
+  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/moderation': typeof ModerationRoute
   '/panel': typeof PanelRouteWithChildren
-  '/_portal/auth': typeof PortalAuthRoute
   '/dashboard/condo-setup': typeof DashboardCondoSetupRoute
   '/panel/admin': typeof PanelAdminRoute
   '/panel/conta': typeof PanelContaRoute
@@ -211,10 +211,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/auth'
     | '/dashboard'
     | '/moderation'
     | '/panel'
-    | '/auth'
     | '/dashboard/condo-setup'
     | '/panel/admin'
     | '/panel/conta'
@@ -232,9 +232,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/admin'
+    | '/auth'
     | '/moderation'
     | '/panel'
-    | '/auth'
     | '/dashboard/condo-setup'
     | '/panel/admin'
     | '/panel/conta'
@@ -253,10 +253,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_portal'
     | '/admin'
+    | '/auth'
     | '/dashboard'
     | '/moderation'
     | '/panel'
-    | '/_portal/auth'
     | '/dashboard/condo-setup'
     | '/panel/admin'
     | '/panel/conta'
@@ -277,6 +277,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   PortalRoute: typeof PortalRouteWithChildren
   AdminRoute: typeof AdminRoute
+  AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   ModerationRoute: typeof ModerationRoute
   PanelRoute: typeof PanelRouteWithChildren
@@ -303,6 +304,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -368,13 +376,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCondoSetupRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/_portal/auth': {
-      id: '/_portal/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof PortalAuthRouteImport
-      parentRoute: typeof PortalRoute
-    }
     '/panel/dashboard/': {
       id: '/panel/dashboard/'
       path: '/'
@@ -435,14 +436,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface PortalRouteChildren {
-  PortalAuthRoute: typeof PortalAuthRoute
   PortalIndexRoute: typeof PortalIndexRoute
   PortalAnunciosIdRoute: typeof PortalAnunciosIdRoute
   PortalPrestadoresIdRoute: typeof PortalPrestadoresIdRoute
 }
 
 const PortalRouteChildren: PortalRouteChildren = {
-  PortalAuthRoute: PortalAuthRoute,
   PortalIndexRoute: PortalIndexRoute,
   PortalAnunciosIdRoute: PortalAnunciosIdRoute,
   PortalPrestadoresIdRoute: PortalPrestadoresIdRoute,
@@ -507,6 +506,7 @@ const PanelRouteWithChildren = PanelRoute._addFileChildren(PanelRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   PortalRoute: PortalRouteWithChildren,
   AdminRoute: AdminRoute,
+  AuthRoute: AuthRoute,
   DashboardRoute: DashboardRouteWithChildren,
   ModerationRoute: ModerationRoute,
   PanelRoute: PanelRouteWithChildren,

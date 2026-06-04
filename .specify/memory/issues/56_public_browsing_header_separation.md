@@ -54,17 +54,17 @@ The portal layout currently renders a shared `Header` that includes authenticate
 
 ## Acceptance criteria
 
-- [ ] Public browsing routes render a public header, not the current shared app header.
-- [ ] Public header never shows `Dashboard`, `Admin`, `Moderação`, or the user avatar/menu.
-- [ ] Public footer never shows `Dashboard`, `Admin`, `Moderação`, or the user avatar/menu.
-- [ ] Logged-out users see an `Entrar` action in the public header.
-- [ ] Logged-in users see a `Painel` action in the public header.
-- [ ] `Explorar`, `Como funciona`, and `Anunciar` links exist and resolve to real home-page section targets.
-- [ ] Footer includes public shell links for `Explorar`, `Como funciona`, `Anunciar`, and `Entrar`.
-- [ ] Footer does not include dead legal/support placeholder links.
-- [ ] `/auth` uses a focused auth layout/header instead of the public browsing header.
-- [ ] `/panel/*` remains separate from public browsing routes.
-- [ ] Tests or route assertions cover logged-in and logged-out public header behavior.
+- [x] Public browsing routes render a public header, not the current shared app header.
+- [x] Public header never shows `Dashboard`, `Admin`, `Moderação`, or the user avatar/menu.
+- [x] Public footer never shows `Dashboard`, `Admin`, `Moderação`, or the user avatar/menu.
+- [x] Logged-out users see an `Entrar` action in the public header.
+- [x] Logged-in users see a `Painel` action in the public header.
+- [x] `Explorar`, `Como funciona`, and `Anunciar` links exist and resolve to real home-page section targets.
+- [x] Footer includes public shell links for `Explorar`, `Como funciona`, `Anunciar`, and `Entrar`.
+- [x] Footer does not include dead legal/support placeholder links.
+- [x] `/auth` uses a focused auth layout/header instead of the public browsing header.
+- [x] `/panel/*` remains separate from public browsing routes.
+- [x] Tests or route assertions cover logged-in and logged-out public header behavior.
 
 ## Blocked by
 
