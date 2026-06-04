@@ -86,7 +86,7 @@ If a slice exposes a real behavior bug, document it separately instead of hiding
 
 ## Blocked by
 
-- `bun run check` / `bun run check-types` currently fail on pre-existing dirty work in `apps/server/src/infrastructure/db/announcement-repository.ts` because `isNull` is imported but unused.
+- None currently.
 
 ## Progress notes
 
@@ -95,3 +95,4 @@ If a slice exposes a real behavior bug, document it separately instead of hiding
 - 2026-06-04: Continued Slice 5 with `assignment.approve`. Added `GetAssignment` use case and routed the pre-approval lookup through application layer while preserving `NOT_FOUND`, `BAD_REQUEST`, moderator guard, and success DTO behavior. Focused integration test passes. `reject` plus announcement/payment/moderation router cleanup still pending.
 - 2026-06-04: Continued Slice 5 with `assignment.reject`. Added `GetCondominiumAssignment` use case to centralize assignment existence and condominium-link checks, then routed reject pre-checks through application layer while preserving `NOT_FOUND`, `BAD_REQUEST`, moderator guard, reject reason, and success DTO behavior. Focused integration test passes. Assignment router cleanup is now complete; announcement/payment/moderation router cleanup still pending.
 - 2026-06-04: Continued Slice 5 with `announcement.getPaymentStatus`. Added `GetPaymentStatus` use case and routed payment status lookup plus ownership checks through application layer while preserving `NOT_FOUND`, `FORBIDDEN`, and response DTO behavior. Focused integration test passes. Remaining Slice 5 work is announcement public/detail/moderation flows and any remaining payment router cleanup.
+- 2026-06-04: Continued Slice 5 with `announcement.listForModeration`. Added `ListAnnouncementsForModeration` use case plus repository DTO/query support, then routed moderator scope validation and moderated announcement listing through application layer while preserving `FORBIDDEN` and response payload behavior. Focused integration test passes. Feedback loops are green again. Remaining Slice 5 work is announcement public/detail flows and moderation/reporting use-case cleanup.

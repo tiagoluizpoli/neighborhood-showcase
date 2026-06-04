@@ -2,18 +2,21 @@ import { db } from '@neighborhood-showcase/db';
 import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
 import {
   address as addressSchema,
-  announcement as announcementSchema,
   category as categorySchema,
   condominium as condominiumSchema,
   providerLocation as providerLocationSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
-import { and, eq, inArray, isNull } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { CreateAnnouncement } from '../../application/use-cases/announcement/create-announcement';
 import { DismissReports } from '../../application/use-cases/announcement/dismiss-reports';
 import { GetAnnouncementAnalytics } from '../../application/use-cases/announcement/get-announcement-analytics';
 import { GetProviderDashboardData } from '../../application/use-cases/announcement/get-provider-dashboard-data';
+import {
+  ListAnnouncementsForModeration,
+  ModerationAccessDeniedError,
+} from '../../application/use-cases/announcement/list-announcements-for-moderation';
 import { ListPublicAnnouncements } from '../../application/use-cases/announcement/list-public-announcements';
 import { ListReportedAnnouncements } from '../../application/use-cases/announcement/list-reported-announcements';
 import { ReinstateAnnouncement } from '../../application/use-cases/announcement/reinstate-announcement';
@@ -51,6 +54,8 @@ const getPaymentStatusUseCase = new GetPaymentStatus(
   announcementRepo,
   paymentRepo,
 );
+const listAnnouncementsForModerationUseCase =
+  new ListAnnouncementsForModeration(announcementRepo, assignmentRepo);
 
 const listPublicAnnouncementsUseCase = new ListPublicAnnouncements();
 const trackAnalyticsEventUseCase = new TrackAnalyticsEvent();
@@ -397,62 +402,22 @@ export const announcementRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      // Verify moderator role for this condo
-      const [isMod] = await db
-        .select()
-        .from(providerLocationSchema)
-        .where(
-          and(
-            eq(providerLocationSchema.providerId, ctx.session.user.id),
-            eq(providerLocationSchema.condominiumId, input.condominiumId),
-            eq(providerLocationSchema.type, 'MODERATOR'),
-            eq(providerLocationSchema.status, 'APPROVED'),
-          ),
-        )
-        .limit(1);
-
-      if (!isMod) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Acesso negado. Você não é moderador deste condomínio.',
+      try {
+        return await listAnnouncementsForModerationUseCase.execute({
+          actorId: ctx.session.user.id,
+          condominiumId: input.condominiumId,
         });
+      } catch (error) {
+        if (error instanceof ModerationAccessDeniedError) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: error.message,
+            cause: error,
+          });
+        }
+
+        throw error;
       }
-
-      // Query active or suspended announcements
-      const ads = await db
-        .select({
-          id: announcementSchema.id,
-          title: announcementSchema.title,
-          subtitle: announcementSchema.subtitle,
-          description: announcementSchema.description,
-          priceCents: announcementSchema.priceCents,
-          imageUrl: announcementSchema.imageUrl,
-          category: categorySchema.name,
-          categoryId: announcementSchema.categoryId,
-          tags: announcementSchema.tags,
-          contactLinks: announcementSchema.contactLinks,
-          showVerifiedBadge: announcementSchema.showVerifiedBadge,
-          flaggedForReview: announcementSchema.flaggedForReview,
-          status: announcementSchema.status,
-          suspensionReason: announcementSchema.suspensionReason,
-          createdAt: announcementSchema.createdAt,
-          providerName: userSchema.name,
-        })
-        .from(announcementSchema)
-        .innerJoin(userSchema, eq(announcementSchema.providerId, userSchema.id))
-        .innerJoin(
-          categorySchema,
-          eq(announcementSchema.categoryId, categorySchema.id),
-        )
-        .where(
-          and(
-            eq(announcementSchema.condominiumId, input.condominiumId),
-            inArray(announcementSchema.status, ['ACTIVE', 'SUSPENDED']),
-            isNull(announcementSchema.deletedAt),
-          ),
-        );
-
-      return ads;
     }),
 
   suspend: protectedProcedure

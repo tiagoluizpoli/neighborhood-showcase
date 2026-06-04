@@ -3,6 +3,49 @@ import type {
   AnnouncementStatus,
 } from '../entities/announcement.entity';
 
+export interface PublicAnnouncementDTO {
+  id: string;
+  providerId: string;
+  condominiumId: string | null;
+  providerLocationId: string | null;
+  title: string;
+  subtitle: string | null;
+  description: string;
+  priceCents: number | null;
+  imageUrl: string;
+  categoryId: string;
+  tags: string[];
+  contactLinks: Record<string, string | undefined>;
+  showVerifiedBadge: boolean;
+  status: string;
+  createdAt: Date;
+  category: string;
+  condoName: string;
+  condoCity: string;
+  condoState: string;
+  providerName: string;
+  providerAvatarUrl: string | null;
+}
+
+export interface ModerationAnnouncementDTO {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  description: string;
+  priceCents: number | null;
+  imageUrl: string;
+  category: string;
+  categoryId: string;
+  tags: string[];
+  contactLinks: Record<string, string | undefined>;
+  showVerifiedBadge: boolean;
+  flaggedForReview: boolean;
+  status: string;
+  suspensionReason: string | null;
+  createdAt: Date;
+  providerName: string;
+}
+
 export interface CreateAnnouncementRepositoryInput {
   id: string;
   providerId: string;
@@ -57,6 +100,10 @@ export interface UpdateAnnouncementRepositoryInput {
 export interface AnnouncementRepository {
   create(input: CreateAnnouncementRepositoryInput): Promise<Announcement>;
   findById(id: string): Promise<Announcement | null>;
+  findPublicById(id: string): Promise<PublicAnnouncementDTO | null>;
+  listForModeration(
+    condominiumId: string,
+  ): Promise<ModerationAnnouncementDTO[]>;
   updateStatus(id: string, status: AnnouncementStatus): Promise<Announcement>;
   update(
     id: string,

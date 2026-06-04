@@ -1,6 +1,13 @@
 import { db } from '@neighborhood-showcase/db';
-import { announcement as announcementSchema } from '@neighborhood-showcase/db/schema/showcase';
-import { eq } from 'drizzle-orm';
+import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
+import {
+  address as addressSchema,
+  announcement as announcementSchema,
+  category as categorySchema,
+  condominium as condominiumSchema,
+  providerLocation as providerLocationSchema,
+} from '@neighborhood-showcase/db/schema/showcase';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import type {
   Announcement,
   AnnouncementStatus,
@@ -8,6 +15,8 @@ import type {
 import type {
   AnnouncementRepository,
   CreateAnnouncementRepositoryInput,
+  ModerationAnnouncementDTO,
+  PublicAnnouncementDTO,
   UpdateAnnouncementRepositoryInput,
 } from '../../domain/repositories/announcement.repository';
 import { AnnouncementMapper } from './mappers/announcement.mapper';
@@ -88,6 +97,128 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
     }
 
     return this.mapper.toDomain(updated);
+  }
+
+  async findPublicById(id: string): Promise<PublicAnnouncementDTO | null> {
+    const [found] = await db
+      .select()
+      .from(announcementSchema)
+      .where(eq(announcementSchema.id, id))
+      .limit(1);
+
+    if (!found || found.status !== 'ACTIVE' || found.deletedAt !== null) {
+      return null;
+    }
+
+    let condoName = '';
+    let condoCity = '';
+    let condoState = '';
+
+    if (found.condominiumId) {
+      const [condo] = await db
+        .select()
+        .from(condominiumSchema)
+        .where(eq(condominiumSchema.id, found.condominiumId))
+        .limit(1);
+      if (condo) {
+        condoName = condo.name;
+        condoCity = condo.city;
+        condoState = condo.state;
+      }
+    } else if (found.providerLocationId) {
+      const [loc] = await db
+        .select({ city: addressSchema.city, state: addressSchema.state })
+        .from(providerLocationSchema)
+        .innerJoin(
+          addressSchema,
+          eq(providerLocationSchema.addressId, addressSchema.id),
+        )
+        .where(eq(providerLocationSchema.id, found.providerLocationId))
+        .limit(1);
+      if (loc) {
+        condoCity = loc.city;
+        condoState = loc.state;
+      }
+    }
+
+    const [provider] = await db
+      .select({ name: userSchema.name, image: userSchema.image })
+      .from(userSchema)
+      .where(eq(userSchema.id, found.providerId))
+      .limit(1);
+
+    const [cat] = await db
+      .select({ name: categorySchema.name })
+      .from(categorySchema)
+      .where(eq(categorySchema.id, found.categoryId))
+      .limit(1);
+
+    return {
+      id: found.id,
+      providerId: found.providerId,
+      condominiumId: found.condominiumId,
+      providerLocationId: found.providerLocationId,
+      title: found.title,
+      subtitle: found.subtitle,
+      description: found.description,
+      priceCents: found.priceCents,
+      imageUrl: found.imageUrl,
+      categoryId: found.categoryId,
+      tags: found.tags,
+      contactLinks: found.contactLinks as Record<string, string | undefined>,
+      showVerifiedBadge: found.showVerifiedBadge,
+      status: found.status,
+      createdAt: found.createdAt,
+      category: cat?.name ?? '',
+      condoName,
+      condoCity,
+      condoState,
+      providerName: provider?.name ?? '',
+      providerAvatarUrl: provider?.image ?? null,
+    };
+  }
+
+  async listForModeration(
+    condominiumId: string,
+  ): Promise<ModerationAnnouncementDTO[]> {
+    const rows = await db
+      .select({
+        id: announcementSchema.id,
+        title: announcementSchema.title,
+        subtitle: announcementSchema.subtitle,
+        description: announcementSchema.description,
+        priceCents: announcementSchema.priceCents,
+        imageUrl: announcementSchema.imageUrl,
+        category: categorySchema.name,
+        categoryId: announcementSchema.categoryId,
+        tags: announcementSchema.tags,
+        contactLinks: announcementSchema.contactLinks,
+        showVerifiedBadge: announcementSchema.showVerifiedBadge,
+        flaggedForReview: announcementSchema.flaggedForReview,
+        status: announcementSchema.status,
+        suspensionReason: announcementSchema.suspensionReason,
+        createdAt: announcementSchema.createdAt,
+        providerName: userSchema.name,
+      })
+      .from(announcementSchema)
+      .innerJoin(userSchema, eq(announcementSchema.providerId, userSchema.id))
+      .innerJoin(
+        categorySchema,
+        eq(announcementSchema.categoryId, categorySchema.id),
+      )
+      .where(
+        and(
+          eq(announcementSchema.condominiumId, condominiumId),
+          inArray(announcementSchema.status, ['ACTIVE', 'SUSPENDED']),
+          isNull(announcementSchema.deletedAt),
+        ),
+      );
+
+    return rows.map((row) => ({
+      ...row,
+      contactLinks: row.contactLinks as Record<string, string | undefined>,
+      providerName: row.providerName ?? '',
+    }));
   }
 
   async softDeleteAllByProviderId(
