@@ -50,7 +50,7 @@ describe('getPublic Announcement Router Procedure', () => {
       title: 'Delicious Pizza',
       description: 'Warm and tasty pizza delivered right to your apartment',
       imageUrl: 'http://localhost:9000/showcase/pizza.jpg',
-      category: 'Alimentação',
+      categoryId: 'cat-alimentacao',
       status: 'ACTIVE',
     });
   });

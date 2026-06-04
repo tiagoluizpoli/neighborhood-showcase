@@ -42,7 +42,7 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
       description: input.description,
       priceCents: input.priceCents || null,
       imageUrl: input.imageUrl,
-      category: input.category,
+      categoryId: input.categoryId,
       tags: input.tags,
       contactLinks: {
         whatsapp: input.contactLinks.whatsapp || undefined,
@@ -82,7 +82,7 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
       description: input.description,
       priceCents: input.priceCents || null,
       imageUrl: input.imageUrl,
-      category: input.category,
+      categoryId: input.categoryId,
       tags: input.tags,
       contactLinks: {
         whatsapp: input.contactLinks.whatsapp || undefined,

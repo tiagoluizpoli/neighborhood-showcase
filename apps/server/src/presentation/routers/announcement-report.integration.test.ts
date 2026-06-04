@@ -63,7 +63,7 @@ describe('report Announcement Router Procedure', () => {
         title: 'Delicious Bread',
         description: 'Fresh warm bread every morning.',
         imageUrl: 'http://localhost:9000/showcase/bread.jpg',
-        category: 'Alimentação',
+        categoryId: 'cat-alimentacao',
         status: 'ACTIVE',
       },
       {
@@ -73,7 +73,7 @@ describe('report Announcement Router Procedure', () => {
         title: 'Old Bread',
         description: 'Hard warm bread from last week.',
         imageUrl: 'http://localhost:9000/showcase/bread.jpg',
-        category: 'Alimentação',
+        categoryId: 'cat-alimentacao',
         status: 'ACTIVE',
         deletedAt: new Date(),
       },

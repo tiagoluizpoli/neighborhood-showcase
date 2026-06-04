@@ -58,16 +58,6 @@ const getInitials = (name: string) => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
-const CATEGORIES = [
-  'Todos',
-  'Alimentação',
-  'Serviços',
-  'Produtos',
-  'Vagas',
-  'Eventos',
-  'Outros',
-];
-
 function PublicVitrineComponent() {
   const [selectedCondo, setSelectedCondo] = useState<SelectedCondo | null>(
     null,
@@ -99,7 +89,7 @@ function PublicVitrineComponent() {
 
   // Grid Filters
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('Todos');
+  const [categoryId, setCategoryId] = useState('Todos');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [filterByCondo, setFilterByCondo] = useState(false);
   const [radiusKm, setRadiusKm] = useState<number>(10);
@@ -111,6 +101,10 @@ function PublicVitrineComponent() {
     localStorage.getItem(nearbyCondoDismissedStorageKey) === 'true';
 
   // tRPC Queries
+  const { data: backendCategories } = useQuery(
+    trpc.announcement.listCategories.queryOptions(),
+  );
+
   const { data: condoSearchResults, isLoading: isSearchingCondos } = useQuery(
     trpc.condominium.listApproved.queryOptions({ query: condoSearchQuery }),
   );
@@ -141,7 +135,7 @@ function PublicVitrineComponent() {
       longitude: coords?.longitude,
       condominiumId:
         filterByCondo && selectedCondo ? selectedCondo.id : undefined,
-      category,
+      categoryId: categoryId === 'Todos' ? undefined : categoryId,
       search,
       verifiedOnly,
       userCondoId: selectedCondo?.id,
@@ -577,16 +571,25 @@ function PublicVitrineComponent() {
 
         {/* Categories Tab Swiper */}
         <div className="scrollbar-none flex gap-2 overflow-x-auto pb-2">
-          {CATEGORIES.map((cat) => (
+          <Button
+            type="button"
+            onClick={() => setCategoryId('Todos')}
+            variant={categoryId === 'Todos' ? 'default' : 'outline'}
+            size="sm"
+            className="whitespace-nowrap"
+          >
+            Todos
+          </Button>
+          {backendCategories?.map((cat) => (
             <Button
-              key={cat}
+              key={cat.id}
               type="button"
-              onClick={() => setCategory(cat)}
-              variant={category === cat ? 'default' : 'outline'}
+              onClick={() => setCategoryId(cat.id)}
+              variant={categoryId === cat.id ? 'default' : 'outline'}
               size="sm"
               className="whitespace-nowrap"
             >
-              {cat}
+              {cat.name}
             </Button>
           ))}
         </div>

@@ -81,6 +81,13 @@ mock.module('react', () => ({
   },
 }));
 
+// Mock @/lib/auth-client
+mock.module('@/lib/auth-client', () => ({
+  authClient: {
+    useSession: () => ({ data: null, isPending: false }),
+  },
+}));
+
 let currentId = 'ann-123';
 const mockMutate = mock(() => {});
 const mockTrackEventMutation = {
@@ -95,6 +102,32 @@ mock.module('@tanstack/react-query', () => ({
     // Differentiate queries by queryKey (safely extracted from options)
     const queryKey = options?.queryKey || [];
     const queryHash = options?.queryKeyHash || '';
+
+    // Check if query is listCategories
+    if (
+      queryHash.includes('listCategories') ||
+      JSON.stringify(queryKey).includes('listCategories')
+    ) {
+      return {
+        data: [
+          {
+            id: 'cat-alimentacao',
+            slug: 'alimentacao',
+            name: 'Alimentação',
+            displayOrder: 1,
+            isActive: true,
+          },
+          {
+            id: 'cat-servicos',
+            slug: 'servicos',
+            name: 'Serviços',
+            displayOrder: 2,
+            isActive: true,
+          },
+        ],
+        isLoading: false,
+      };
+    }
 
     // Check if query is listPublic (public announcements list)
     if (
@@ -231,7 +264,7 @@ describe('Analytics Impression Tracking tests', () => {
 
     // Find the Card in the vitrine tree (identify it by its specific class names or type name)
     const card = findElement(tree, (el) => {
-      return el.props?.className?.includes('bg-card/45');
+      return el.props?.className?.includes('group');
     });
     expect(card).toBeDefined();
     expect(card.props.onClick).toBeDefined();

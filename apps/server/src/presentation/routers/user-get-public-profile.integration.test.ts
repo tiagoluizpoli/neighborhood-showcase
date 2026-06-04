@@ -78,7 +78,7 @@ describe('user.getPublicProfile Router Procedure', () => {
       title: 'Expert House Cleaning',
       description: 'Reliable and fast deep cleaning services',
       imageUrl: 'http://localhost/cleaning.jpg',
-      category: 'Serviços',
+      categoryId: 'cat-servicos',
       status: 'ACTIVE',
       contactLinks: {
         whatsapp: '5511999999999',
@@ -94,7 +94,7 @@ describe('user.getPublicProfile Router Procedure', () => {
       title: 'Car Wash',
       description: 'Premium car wash service',
       imageUrl: 'http://localhost/carwash.jpg',
-      category: 'Serviços',
+      categoryId: 'cat-servicos',
       status: 'DRAFT',
       contactLinks: {},
       showVerifiedBadge: false,

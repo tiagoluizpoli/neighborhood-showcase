@@ -73,7 +73,7 @@ describe('Ban Provider Integration Test', () => {
       title: 'Bad Service',
       description: 'Violates community guidelines.',
       imageUrl: 'https://example.com/bad.png',
-      category: 'Serviços',
+      categoryId: 'cat-servicos',
       tags: [],
       contactLinks: {},
       status: 'ACTIVE',

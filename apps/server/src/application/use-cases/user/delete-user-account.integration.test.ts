@@ -73,7 +73,7 @@ describe('Delete User Account LGPD Integration Test', () => {
       title: 'Doceria Gourmet',
       description: 'Melhores doces da região.',
       imageUrl: 'https://example.com/sweet.png',
-      category: 'Alimentação',
+      categoryId: 'cat-alimentacao',
       tags: [],
       contactLinks: {},
       status: 'ACTIVE',

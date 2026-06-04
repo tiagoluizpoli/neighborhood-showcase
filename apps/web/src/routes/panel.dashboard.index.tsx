@@ -47,15 +47,6 @@ export const Route = createFileRoute('/panel/dashboard/')({
   component: DashboardIndexComponent,
 });
 
-const CATEGORIES = [
-  'Alimentação',
-  'Serviços Gerais',
-  'Aulas & Consultoria',
-  'Artesanato & Moda',
-  'Beleza & Estética',
-  'Outros',
-];
-
 interface DashboardAnnouncementItem {
   id: string;
   title: string;
@@ -64,6 +55,7 @@ interface DashboardAnnouncementItem {
   priceCents: number | null;
   imageUrl: string;
   category: string;
+  categoryId: string;
   tags: string[];
   contactLinks: {
     whatsapp?: string;
@@ -830,6 +822,10 @@ function EditAnnouncementModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const { data: backendCategories } = useQuery(
+    trpc.announcement.listCategories.queryOptions(),
+  );
+
   const assignmentsQuery = useQuery(
     trpc.assignment.getMyAssignments.queryOptions(),
   );
@@ -848,7 +844,7 @@ function EditAnnouncementModal({
   const [price, setPrice] = useState<number | ''>(
     ad.priceCents ? ad.priceCents / 100 : '',
   );
-  const [category, setCategory] = useState(ad.category);
+  const [categoryId, setCategoryId] = useState(ad.categoryId);
   const [whatsapp, setWhatsapp] = useState(ad.contactLinks.whatsapp || '');
   const [instagram, setInstagram] = useState(ad.contactLinks.instagram || '');
   const [website, setWebsite] = useState(ad.contactLinks.website || '');
@@ -961,7 +957,7 @@ function EditAnnouncementModal({
       description,
       priceCents: price ? Math.round(Number(price) * 100) : null,
       imageUrl,
-      category,
+      categoryId,
       tags: ad.tags,
       contactLinks: {
         whatsapp: whatsapp || undefined,
@@ -1074,13 +1070,13 @@ function EditAnnouncementModal({
               </span>
               <select
                 required
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
                 className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 dark:bg-input/30"
               >
-                {CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
+                {backendCategories?.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
                   </option>
                 ))}
               </select>

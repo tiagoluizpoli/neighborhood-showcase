@@ -74,7 +74,7 @@ describe('Generate Payment Intent Integration Test', () => {
       title: 'Delicious Ice Cream',
       description: 'Handmade delicious ice cream in curitiba block A.',
       imageUrl: 'http://localhost:9000/showcase/icecream.jpg',
-      category: 'Alimentação',
+      categoryId: 'cat-alimentacao',
       status: 'DRAFT',
     });
   });

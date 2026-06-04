@@ -2,6 +2,7 @@ import { db } from '@neighborhood-showcase/db';
 import {
   analyticsEvent as analyticsEventSchema,
   announcement as announcementSchema,
+  category as categorySchema,
   condominium as condominiumSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { and, eq, inArray, isNull } from 'drizzle-orm';
@@ -18,6 +19,7 @@ export interface DashboardAnnouncementItem {
   priceCents: number | null;
   imageUrl: string;
   category: string;
+  categoryId: string;
   tags: string[];
   contactLinks: {
     whatsapp?: string;
@@ -64,7 +66,8 @@ export class GetProviderDashboardData {
         description: announcementSchema.description,
         priceCents: announcementSchema.priceCents,
         imageUrl: announcementSchema.imageUrl,
-        category: announcementSchema.category,
+        categoryId: announcementSchema.categoryId,
+        categoryName: categorySchema.name,
         tags: announcementSchema.tags,
         contactLinks: announcementSchema.contactLinks,
         showVerifiedBadge: announcementSchema.showVerifiedBadge,
@@ -81,6 +84,10 @@ export class GetProviderDashboardData {
       .leftJoin(
         condominiumSchema,
         eq(announcementSchema.condominiumId, condominiumSchema.id),
+      )
+      .innerJoin(
+        categorySchema,
+        eq(announcementSchema.categoryId, categorySchema.id),
       )
       .where(
         and(
@@ -126,7 +133,8 @@ export class GetProviderDashboardData {
         description: raw.description,
         priceCents: raw.priceCents,
         imageUrl: raw.imageUrl,
-        category: raw.category,
+        category: raw.categoryName,
+        categoryId: raw.categoryId,
         tags: raw.tags,
         contactLinks:
           raw.contactLinks as DashboardAnnouncementItem['contactLinks'],

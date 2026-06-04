@@ -4,6 +4,7 @@ import {
   address as addressSchema,
   announcement as announcementSchema,
   assignment as assignmentSchema,
+  category as categorySchema,
   condominium as condominiumSchema,
   providerLocation as providerLocationSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
@@ -95,7 +96,8 @@ export const userRouter = router({
           description: announcementSchema.description,
           priceCents: announcementSchema.priceCents,
           imageUrl: announcementSchema.imageUrl,
-          category: announcementSchema.category,
+          categoryId: announcementSchema.categoryId,
+          category: categorySchema.name,
           tags: announcementSchema.tags,
           contactLinks: announcementSchema.contactLinks,
           showVerifiedBadge: announcementSchema.showVerifiedBadge,
@@ -108,6 +110,10 @@ export const userRouter = router({
           providerLocState: addressSchema.state,
         })
         .from(announcementSchema)
+        .innerJoin(
+          categorySchema,
+          eq(announcementSchema.categoryId, categorySchema.id),
+        )
         .leftJoin(
           condominiumSchema,
           eq(announcementSchema.condominiumId, condominiumSchema.id),
@@ -140,6 +146,7 @@ export const userRouter = router({
           description: ad.description,
           priceCents: ad.priceCents,
           imageUrl: ad.imageUrl,
+          categoryId: ad.categoryId,
           category: ad.category,
           tags: ad.tags,
           contactLinks: ad.contactLinks,

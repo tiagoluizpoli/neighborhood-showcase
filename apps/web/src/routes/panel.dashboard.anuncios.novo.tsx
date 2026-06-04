@@ -30,22 +30,13 @@ export const Route = createFileRoute('/panel/dashboard/anuncios/novo')({
   component: NewAnnouncementComponent,
 });
 
-const CATEGORIES = [
-  'Alimentação',
-  'Serviços Gerais',
-  'Aulas & Consultoria',
-  'Artesanato & Moda',
-  'Beleza & Estética',
-  'Outros',
-];
-
 function NewAnnouncementComponent() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // State for form fields
   const [selectedLocationId, setSelectedLocationId] = useState<string>('');
-  const [category, setCategory] = useState<string>('');
+  const [categoryId, setCategoryId] = useState<string>('');
   const [title, setTitle] = useState<string>('');
   const [subtitle, setSubtitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -64,6 +55,10 @@ function NewAnnouncementComponent() {
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
   // Queries
+  const { data: backendCategories } = useQuery(
+    trpc.announcement.listCategories.queryOptions(),
+  );
+
   const assignmentsQuery = useQuery(
     trpc.assignment.getMyAssignments.queryOptions(),
   );
@@ -127,7 +122,7 @@ function NewAnnouncementComponent() {
       toast.error('Por favor, selecione uma localização.');
       return;
     }
-    if (!category) {
+    if (!categoryId) {
       toast.error('Por favor, selecione uma categoria.');
       return;
     }
@@ -196,7 +191,7 @@ function NewAnnouncementComponent() {
         description,
         priceCents,
         imageUrl,
-        category,
+        categoryId,
         tags,
         contactLinks: {
           whatsapp: whatsapp || undefined,
@@ -296,15 +291,15 @@ function NewAnnouncementComponent() {
               <div className="space-y-2">
                 <Label>Categoria</Label>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {CATEGORIES.map((cat) => (
+                  {backendCategories?.map((cat) => (
                     <Button
-                      key={cat}
+                      key={cat.id}
                       type="button"
-                      onClick={() => setCategory(cat)}
-                      variant={category === cat ? 'default' : 'outline'}
+                      onClick={() => setCategoryId(cat.id)}
+                      variant={categoryId === cat.id ? 'default' : 'outline'}
                       size="sm"
                     >
-                      {cat}
+                      {cat.name}
                     </Button>
                   ))}
                 </div>

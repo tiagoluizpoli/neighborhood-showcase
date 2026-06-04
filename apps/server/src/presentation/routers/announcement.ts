@@ -3,6 +3,7 @@ import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
 import {
   address as addressSchema,
   announcement as announcementSchema,
+  category as categorySchema,
   condominium as condominiumSchema,
   providerLocation as providerLocationSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
@@ -62,7 +63,7 @@ export const announcementRouter = router({
         description: z.string().min(10).max(2000),
         priceCents: z.number().nullable().optional(),
         imageUrl: z.string().min(1),
-        category: z.string().min(1),
+        categoryId: z.string().min(1),
         tags: z.array(z.string()),
         contactLinks: z.object({
           whatsapp: z.string().optional(),
@@ -85,7 +86,7 @@ export const announcementRouter = router({
         description: input.description,
         priceCents: input.priceCents,
         imageUrl: input.imageUrl,
-        category: input.category,
+        categoryId: input.categoryId,
         tags: input.tags,
         contactLinks: input.contactLinks,
         showVerifiedBadge: input.showVerifiedBadge,
@@ -148,7 +149,7 @@ export const announcementRouter = router({
         latitude: z.number().optional(),
         longitude: z.number().optional(),
         condominiumId: z.string().optional(),
-        category: z.string().optional(),
+        categoryId: z.string().optional(),
         search: z.string().optional(),
         verifiedOnly: z.boolean().optional(),
         userCondoId: z.string().optional(),
@@ -162,7 +163,7 @@ export const announcementRouter = router({
         latitude: input.latitude,
         longitude: input.longitude,
         condominiumId: input.condominiumId,
-        category: input.category,
+        categoryId: input.categoryId,
         search: input.search,
         verifiedOnly: input.verifiedOnly,
         userCondoId: input.userCondoId,
@@ -254,8 +255,19 @@ export const announcementRouter = router({
         providerAvatarUrl = provider.image || null;
       }
 
+      let categoryName = '';
+      const [cat] = await db
+        .select()
+        .from(categorySchema)
+        .where(eq(categorySchema.id, ann.categoryId))
+        .limit(1);
+      if (cat) {
+        categoryName = cat.name;
+      }
+
       return {
         ...ann.toDTO(),
+        category: categoryName,
         condoName,
         condoCity,
         condoState,
@@ -294,7 +306,7 @@ export const announcementRouter = router({
         description: z.string().min(10).max(2000),
         priceCents: z.number().nullable().optional(),
         imageUrl: z.string().min(1),
-        category: z.string().min(1),
+        categoryId: z.string().min(1),
         tags: z.array(z.string()),
         contactLinks: z.object({
           whatsapp: z.string().optional(),
@@ -349,7 +361,7 @@ export const announcementRouter = router({
         description: input.description,
         priceCents: input.priceCents,
         imageUrl: input.imageUrl,
-        category: input.category,
+        categoryId: input.categoryId,
         tags: input.tags,
         contactLinks: input.contactLinks,
         showVerifiedBadge: input.showVerifiedBadge,
@@ -403,7 +415,8 @@ export const announcementRouter = router({
           description: announcementSchema.description,
           priceCents: announcementSchema.priceCents,
           imageUrl: announcementSchema.imageUrl,
-          category: announcementSchema.category,
+          category: categorySchema.name,
+          categoryId: announcementSchema.categoryId,
           tags: announcementSchema.tags,
           contactLinks: announcementSchema.contactLinks,
           showVerifiedBadge: announcementSchema.showVerifiedBadge,
@@ -415,6 +428,10 @@ export const announcementRouter = router({
         })
         .from(announcementSchema)
         .innerJoin(userSchema, eq(announcementSchema.providerId, userSchema.id))
+        .innerJoin(
+          categorySchema,
+          eq(announcementSchema.categoryId, categorySchema.id),
+        )
         .where(
           and(
             eq(announcementSchema.condominiumId, input.condominiumId),
@@ -504,4 +521,12 @@ export const announcementRouter = router({
       });
       return { success: true };
     }),
+
+  listCategories: publicProcedure.query(async () => {
+    return db
+      .select()
+      .from(categorySchema)
+      .where(eq(categorySchema.isActive, true))
+      .orderBy(categorySchema.displayOrder);
+  }),
 });

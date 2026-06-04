@@ -13,7 +13,7 @@ export interface CreateAnnouncementRepositoryInput {
   description: string;
   priceCents?: number | null;
   imageUrl: string;
-  category: string;
+  categoryId: string;
   tags: string[];
   contactLinks: {
     whatsapp?: string;
@@ -34,7 +34,7 @@ export interface UpdateAnnouncementRepositoryInput {
   description?: string;
   priceCents?: number | null;
   imageUrl?: string;
-  category?: string;
+  categoryId?: string;
   tags?: string[];
   contactLinks?: {
     whatsapp?: string;

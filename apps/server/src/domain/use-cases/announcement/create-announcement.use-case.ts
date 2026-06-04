@@ -8,7 +8,7 @@ export interface CreateAnnouncementInput {
   description: string;
   priceCents?: number | null;
   imageUrl: string;
-  category: string;
+  categoryId: string;
   tags: string[];
   contactLinks: {
     whatsapp?: string;

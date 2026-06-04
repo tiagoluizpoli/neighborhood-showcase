@@ -38,7 +38,7 @@ export class AnnouncementMapper
         description: raw.description,
         priceCents: raw.priceCents,
         imageUrl: raw.imageUrl,
-        category: raw.category,
+        categoryId: raw.categoryId,
         tags: raw.tags,
         contactLinks: contactLinks as {
           whatsapp?: string;
@@ -73,7 +73,7 @@ export class AnnouncementMapper
       description: entity.description,
       priceCents: entity.priceCents,
       imageUrl: entity.imageUrl,
-      category: entity.category,
+      categoryId: entity.categoryId,
       tags: entity.tags,
       contactLinks: entity.contactLinks,
       showVerifiedBadge: entity.showVerifiedBadge,

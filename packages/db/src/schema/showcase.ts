@@ -206,6 +206,21 @@ export const assignmentRelations = relations(assignment, ({ one }) => ({
   }),
 }));
 
+export const category = pgTable('category', {
+  id: text('id').primaryKey(),
+  slug: text('slug').notNull().unique(),
+  name: text('name').notNull(),
+  description: text('description'),
+  icon: text('icon'),
+  displayOrder: integer('display_order').default(0).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const categoryRelations = relations(category, ({ many }) => ({
+  announcements: many(announcement),
+}));
+
 export const announcement = pgTable('announcement', {
   id: text('id').primaryKey(),
   providerId: text('provider_id')
@@ -223,7 +238,9 @@ export const announcement = pgTable('announcement', {
   description: text('description').notNull(),
   priceCents: integer('price_cents'),
   imageUrl: text('image_url').notNull(),
-  category: text('category').notNull(),
+  categoryId: text('category_id')
+    .notNull()
+    .references(() => category.id),
   tags: text('tags').array().notNull().default([]),
   contactLinks: jsonb('contact_links')
     .$type<{
@@ -261,6 +278,10 @@ export const announcementRelations = relations(
     condominium: one(condominium, {
       fields: [announcement.condominiumId],
       references: [condominium.id],
+    }),
+    category: one(category, {
+      fields: [announcement.categoryId],
+      references: [category.id],
     }),
     payments: many(payment),
     analyticsEvents: many(analyticsEvent),

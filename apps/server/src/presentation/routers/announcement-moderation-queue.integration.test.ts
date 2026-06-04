@@ -135,7 +135,7 @@ describe('Announcement Moderation Queue Router Procedures', () => {
         title: 'Fresh warm bread condo A',
         description: 'Bread condo A description.',
         imageUrl: 'http://localhost:9000/showcase/bread.jpg',
-        category: 'Alimentação',
+        categoryId: 'cat-alimentacao',
         status: 'ACTIVE',
       },
       {
@@ -145,7 +145,7 @@ describe('Announcement Moderation Queue Router Procedures', () => {
         title: 'Fresh warm bread condo B',
         description: 'Bread condo B description.',
         imageUrl: 'http://localhost:9000/showcase/bread.jpg',
-        category: 'Alimentação',
+        categoryId: 'cat-alimentacao',
         status: 'ACTIVE',
       },
     ]);
@@ -311,7 +311,7 @@ describe('Announcement Moderation Queue Router Procedures', () => {
       title: 'Active announcement before ban',
       description: 'To be suspended',
       imageUrl: 'http://localhost:9000/showcase/img.jpg',
-      category: 'Serviços',
+      categoryId: 'cat-servicos',
       status: 'ACTIVE',
     });
 

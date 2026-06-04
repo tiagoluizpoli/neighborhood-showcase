@@ -86,7 +86,7 @@ describe('List Public Announcements Integration Test', () => {
         title: 'Pizza Floripa',
         description: 'Delicious pizza in Floripa Condo A',
         imageUrl: 'http://localhost/pizza.jpg',
-        category: 'Food',
+        categoryId: 'cat-alimentacao',
         showVerifiedBadge: true,
         status: 'ACTIVE',
         createdAt: new Date(Date.now() - 10000),
@@ -98,7 +98,7 @@ describe('List Public Announcements Integration Test', () => {
         title: 'Floripa Cleaner',
         description: 'Condo cleaning services SC',
         imageUrl: 'http://localhost/cleaner.jpg',
-        category: 'Services',
+        categoryId: 'cat-servicos',
         showVerifiedBadge: false,
         status: 'ACTIVE',
         createdAt: new Date(Date.now() - 5000),
@@ -110,7 +110,7 @@ describe('List Public Announcements Integration Test', () => {
         title: 'Burger Curitiba',
         description: 'Handmade burger PR',
         imageUrl: 'http://localhost/burger.jpg',
-        category: 'Food',
+        categoryId: 'cat-alimentacao',
         showVerifiedBadge: true,
         status: 'ACTIVE',
         createdAt: new Date(),
@@ -122,7 +122,7 @@ describe('List Public Announcements Integration Test', () => {
         title: 'Draft Item',
         description: 'Unpublished listing draft',
         imageUrl: 'http://localhost/draft.jpg',
-        category: 'Food',
+        categoryId: 'cat-alimentacao',
         showVerifiedBadge: false,
         status: 'DRAFT',
       },
@@ -152,7 +152,7 @@ describe('List Public Announcements Integration Test', () => {
   });
 
   test('filters by category', async () => {
-    const list = await useCase.execute({ category: 'Food' });
+    const list = await useCase.execute({ categoryId: 'cat-alimentacao' });
     expect(list.length).toBe(2);
     const ids = list.map((x) => x.id);
     expect(ids).toContain('ann-pizza-a');
@@ -237,7 +237,7 @@ describe('List Public Announcements Integration Test', () => {
       title: 'Ext Pizza Delivery',
       description: 'Best pizza delivery in Florianópolis',
       imageUrl: 'http://localhost/ext-pizza.jpg',
-      category: 'Food',
+      categoryId: 'cat-alimentacao',
       showVerifiedBadge: false,
       status: 'ACTIVE',
       createdAt: new Date(),
@@ -293,7 +293,7 @@ describe('List Public Announcements Integration Test', () => {
       title: 'Far Away Pizza',
       description: 'Pizza delivered from Biguaçu',
       imageUrl: 'http://localhost/far-pizza.jpg',
-      category: 'Food',
+      categoryId: 'cat-alimentacao',
       showVerifiedBadge: false,
       status: 'ACTIVE',
       createdAt: new Date(),
@@ -330,7 +330,7 @@ describe('List Public Announcements Integration Test', () => {
       title: 'Boosted Cleaner',
       description: 'Super cleaner in Condo B',
       imageUrl: 'http://localhost/boosted.jpg',
-      category: 'Services',
+      categoryId: 'cat-servicos',
       showVerifiedBadge: true,
       status: 'ACTIVE',
       createdAt: new Date(Date.now() - 2000),

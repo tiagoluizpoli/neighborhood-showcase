@@ -41,7 +41,7 @@ export interface AnnouncementProps extends AuditableProps {
   description: string;
   priceCents?: number | null;
   imageUrl: string;
-  category: string;
+  categoryId: string;
   tags: string[];
   contactLinks: {
     whatsapp?: string;
@@ -71,7 +71,7 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
     Announcement.validate({
       title: this.props.title,
       description: this.props.description,
-      category: this.props.category,
+      categoryId: this.props.categoryId,
       imageUrl: this.props.imageUrl,
       contactLinks: this.props.contactLinks,
     });
@@ -80,7 +80,7 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
   private static validate(input: {
     title: string;
     description: string;
-    category: string;
+    categoryId: string;
     imageUrl: string;
     contactLinks: {
       whatsapp?: string;
@@ -112,7 +112,7 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
         'A descrição do anúncio não pode exceder 2000 caracteres.',
       );
     }
-    if (!input.category || input.category.trim().length === 0) {
+    if (!input.categoryId || input.categoryId.trim().length === 0) {
       throw new AnnouncementCategoryRequiredError();
     }
     if (!input.imageUrl || input.imageUrl.trim().length === 0) {
@@ -166,8 +166,8 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
     return this.props.imageUrl;
   }
 
-  get category(): string {
-    return this.props.category;
+  get categoryId(): string {
+    return this.props.categoryId;
   }
 
   get tags(): string[] {

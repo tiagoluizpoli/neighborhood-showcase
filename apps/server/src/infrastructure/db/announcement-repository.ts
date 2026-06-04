@@ -30,7 +30,7 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
         description: input.description,
         priceCents: input.priceCents || null,
         imageUrl: input.imageUrl,
-        category: input.category,
+        categoryId: input.categoryId,
         tags: input.tags,
         contactLinks: input.contactLinks,
         showVerifiedBadge: input.showVerifiedBadge,

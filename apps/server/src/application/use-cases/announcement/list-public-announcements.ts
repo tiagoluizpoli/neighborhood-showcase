@@ -3,6 +3,7 @@ import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
 import {
   address as addressSchema,
   announcement as announcementSchema,
+  category as categorySchema,
   condominium as condominiumSchema,
   providerLocation as providerLocationSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
@@ -16,7 +17,7 @@ export interface ListPublicAnnouncementsInput {
   latitude?: number;
   longitude?: number;
   condominiumId?: string;
-  category?: string;
+  categoryId?: string;
   search?: string;
   verifiedOnly?: boolean;
   userCondoId?: string; // Selected/geolocated condominium ID for proximity sorting
@@ -38,6 +39,7 @@ export interface PublicAnnouncementItem {
   priceCents: number | null;
   imageUrl: string;
   category: string;
+  categoryId: string;
   tags: string[];
   contactLinks: {
     whatsapp?: string;
@@ -92,8 +94,8 @@ export class ListPublicAnnouncements {
       );
     }
 
-    if (input.category && input.category !== 'Todos') {
-      conditions.push(eq(announcementSchema.category, input.category));
+    if (input.categoryId && input.categoryId !== 'Todos') {
+      conditions.push(eq(announcementSchema.categoryId, input.categoryId));
     }
 
     if (input.verifiedOnly) {
@@ -151,9 +153,14 @@ export class ListPublicAnnouncements {
         providerAddress: addressSchema,
         condoAddress: condoAddress,
         provider: userSchema,
+        category: categorySchema,
       })
       .from(announcementSchema)
       .innerJoin(userSchema, eq(announcementSchema.providerId, userSchema.id))
+      .innerJoin(
+        categorySchema,
+        eq(announcementSchema.categoryId, categorySchema.id),
+      )
       .leftJoin(
         condominiumSchema,
         eq(announcementSchema.condominiumId, condominiumSchema.id),
@@ -244,6 +251,7 @@ function mapRow(row: {
   providerAddress: typeof addressSchema.$inferSelect | null;
   condoAddress?: typeof addressSchema.$inferSelect | null;
   provider: typeof userSchema.$inferSelect;
+  category: typeof categorySchema.$inferSelect;
 }): PublicAnnouncementItem {
   const condoCity = row.condominium?.city || row.providerAddress?.city || '';
   const condoState = row.condominium?.state || row.providerAddress?.state || '';
@@ -260,7 +268,8 @@ function mapRow(row: {
     description: row.announcement.description,
     priceCents: row.announcement.priceCents,
     imageUrl: row.announcement.imageUrl,
-    category: row.announcement.category,
+    category: row.category.name,
+    categoryId: row.announcement.categoryId,
     tags: row.announcement.tags,
     contactLinks: row.announcement.contactLinks,
     showVerifiedBadge: row.announcement.showVerifiedBadge,

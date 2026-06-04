@@ -72,7 +72,7 @@ describe('Suspend and Reinstate Announcement Integration Test', () => {
       title: 'Active Service',
       description: 'Clean coding services.',
       imageUrl: 'https://example.com/img.png',
-      category: 'Serviços',
+      categoryId: 'cat-servicos',
       tags: [],
       contactLinks: {},
       status: 'ACTIVE',

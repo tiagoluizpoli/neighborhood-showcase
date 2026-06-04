@@ -64,7 +64,7 @@ describe('getAnalytics Announcement Router Procedure', () => {
         title: 'Analytics Service 1',
         description: 'Warm and tasty service',
         imageUrl: 'http://localhost:9000/showcase/pizza.jpg',
-        category: 'Alimentação',
+        categoryId: 'cat-alimentacao',
         status: 'ACTIVE',
       },
       {
@@ -74,7 +74,7 @@ describe('getAnalytics Announcement Router Procedure', () => {
         title: 'Other Service',
         description: 'Warm and tasty service',
         imageUrl: 'http://localhost:9000/showcase/pizza.jpg',
-        category: 'Alimentação',
+        categoryId: 'cat-alimentacao',
         status: 'ACTIVE',
       },
     ]);
