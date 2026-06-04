@@ -12,6 +12,11 @@ import { env } from '@neighborhood-showcase/env/server';
 import { eq } from 'drizzle-orm';
 import Fastify, { type FastifyInstance } from 'fastify';
 import fastifyRawBody from 'fastify-raw-body';
+import { ProcessWebhookPayment } from '../../application/use-cases/payment/process-webhook-payment';
+import { DrizzleAnnouncementRepository } from '../../infrastructure/db/announcement-repository';
+import { DrizzlePaymentRepository } from '../../infrastructure/db/payment-repository';
+import { DrizzleUserRepository } from '../../infrastructure/db/user-repository';
+import { ResendEmailService } from '../../infrastructure/services/resend-email.service';
 import { webhookRoutes } from './webhook';
 
 describe('AbacatePay Webhook Integration Test', () => {
@@ -31,7 +36,19 @@ describe('AbacatePay Webhook Integration Test', () => {
       encoding: 'utf8',
       runFirst: true,
     });
-    await app.register(webhookRoutes);
+
+    const paymentRepo = new DrizzlePaymentRepository();
+    const announcementRepo = new DrizzleAnnouncementRepository();
+    const userRepo = new DrizzleUserRepository();
+    const emailService = new ResendEmailService();
+    const processWebhookPayment = new ProcessWebhookPayment(
+      paymentRepo,
+      announcementRepo,
+      userRepo,
+      emailService,
+    );
+
+    await app.register(webhookRoutes, { processWebhookPayment });
 
     // Clear database
     await db.delete(payment);

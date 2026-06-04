@@ -1,9 +1,16 @@
 import { auth } from '@neighborhood-showcase/auth';
 import type { FastifyInstance } from 'fastify';
-import { resizeTo43Webp } from '../../infrastructure/storage/image.utils';
-import { storageClient } from '../../infrastructure/storage/storage.client';
+import type { UploadFile } from '../../application/use-cases/storage/upload-file';
 
-export async function uploadRoutes(fastify: FastifyInstance) {
+export async function uploadRoutes(
+  fastify: FastifyInstance,
+  opts: { uploadFile: UploadFile },
+) {
+  const { uploadFile } = opts;
+  if (!uploadFile) {
+    throw new Error('UploadFile use case is required');
+  }
+
   fastify.post('/api/upload', async (request, reply) => {
     // 1. Authenticate check: Ensure user is logged in
     const authHeaders = new Headers();
@@ -44,40 +51,18 @@ export async function uploadRoutes(fastify: FastifyInstance) {
       ? (data.fields.type as { value: string }).value
       : 'document';
 
-    let uploadBuffer = buffer;
-    let uploadMimetype = mimetype;
-    let uploadFilename = `${session.user.id}-${Date.now()}-${filename}`;
-
-    // If it's an image, run sharp optimization!
-    if (uploadType === 'image' || mimetype.startsWith('image/')) {
-      try {
-        uploadBuffer = await resizeTo43Webp(buffer);
-        uploadMimetype = 'image/webp';
-
-        const extIndex = uploadFilename.lastIndexOf('.');
-        uploadFilename = `${
-          extIndex !== -1
-            ? uploadFilename.substring(0, extIndex)
-            : uploadFilename
-        }.webp`;
-      } catch (err) {
-        fastify.log.error(err, 'Sharp image processing failed');
-        return reply
-          .status(400)
-          .send({ error: 'Failed to process image', code: 'BAD_REQUEST' });
-      }
-    }
-
-    // Upload to S3/MinIO
+    // Call the UploadFile use case
     try {
-      const url = await storageClient.uploadFile(
-        uploadFilename,
-        uploadBuffer,
-        uploadMimetype,
-      );
-      return reply.send({ url, key: uploadFilename });
+      const result = await uploadFile.execute({
+        userId: session.user.id,
+        filename,
+        buffer,
+        mimetype,
+        uploadType,
+      });
+      return reply.send(result);
     } catch (err) {
-      fastify.log.error(err, 'S3 upload failed');
+      fastify.log.error(err, 'File upload failed');
       return reply
         .status(500)
         .send({ error: 'Failed to save file', code: 'INTERNAL_SERVER_ERROR' });

@@ -1,0 +1,58 @@
+import { DeleteUserAccount } from '../../application/use-cases/user/delete-user-account';
+import {
+  GetPublicProviderProfile,
+  type GetPublicProviderProfileInput,
+  type PublicProviderProfileResult,
+} from '../../application/use-cases/user/get-public-provider-profile';
+import {
+  GetUserProfile,
+  type GetUserProfileInput,
+} from '../../application/use-cases/user/get-user-profile';
+import {
+  UpdateUser,
+  type UpdateUserInput,
+} from '../../application/use-cases/user/update-user';
+import { DrizzleAnnouncementRepository } from '../../infrastructure/db/announcement-repository';
+import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-repository';
+import { DrizzleUserRepository } from '../../infrastructure/db/user-repository';
+
+export interface UserRouterDependencies {
+  deleteUserAccountUseCase: {
+    execute(input: { userId: string }): Promise<void>;
+  };
+  getPublicProviderProfileUseCase: {
+    execute(
+      input: GetPublicProviderProfileInput,
+    ): Promise<PublicProviderProfileResult>;
+  };
+  getUserProfileUseCase: {
+    execute(input: GetUserProfileInput): Promise<{
+      id: string;
+      name: string;
+      email: string;
+      phone: string | null;
+      socialLinks: Record<string, string | undefined>;
+      isProviderVisible: boolean;
+    }>;
+  };
+  updateUserUseCase: {
+    execute(input: UpdateUserInput): Promise<{ success: boolean }>;
+  };
+}
+
+export function createUserRouterDependencies(): UserRouterDependencies {
+  const userRepo = new DrizzleUserRepository();
+  const assignmentRepo = new DrizzleAssignmentRepository();
+  const announcementRepo = new DrizzleAnnouncementRepository();
+
+  return {
+    deleteUserAccountUseCase: new DeleteUserAccount(userRepo),
+    getPublicProviderProfileUseCase: new GetPublicProviderProfile(
+      userRepo,
+      assignmentRepo,
+      announcementRepo,
+    ),
+    getUserProfileUseCase: new GetUserProfile(userRepo),
+    updateUserUseCase: new UpdateUser(userRepo),
+  };
+}

@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { db } from '@neighborhood-showcase/db';
-import { analyticsEvent } from '@neighborhood-showcase/db/schema/showcase';
+import type { AnalyticsRepository } from '../../../domain/repositories/analytics.repository';
 
 export interface TrackAnalyticsEventInput {
   announcementId: string;
@@ -9,10 +8,12 @@ export interface TrackAnalyticsEventInput {
 }
 
 export class TrackAnalyticsEvent {
+  constructor(private readonly analyticsRepo: AnalyticsRepository) {}
+
   async execute(
     input: TrackAnalyticsEventInput,
   ): Promise<{ success: boolean }> {
-    await db.insert(analyticsEvent).values({
+    await this.analyticsRepo.insert({
       id: `evt_${randomUUID()}`,
       announcementId: input.announcementId,
       eventType: input.eventType,

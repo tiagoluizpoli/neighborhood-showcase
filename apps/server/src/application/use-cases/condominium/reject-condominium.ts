@@ -1,13 +1,29 @@
-import { db } from '@neighborhood-showcase/db';
-import { user } from '@neighborhood-showcase/db/schema/auth';
-import { TRPCError } from '@trpc/server';
-import { eq } from 'drizzle-orm';
 import type { Condominium } from '../../../domain/entities/condominium.entity';
 import type { CondominiumRepository } from '../../../domain/repositories/condominium.repository';
+import type { UserRepository } from '../../../domain/repositories/user.repository';
 import type {
   RejectCondominiumInput,
   RejectCondominiumUseCase,
 } from '../../../domain/use-cases/condominium/reject-condominium.use-case';
+import { DomainError } from '../../../shared/domain-error';
+
+export class RejectReasonRequiredError extends DomainError {
+  constructor() {
+    super('O motivo da rejeição é obrigatório.');
+  }
+}
+
+export class CondominiumNotFoundError extends DomainError {
+  constructor() {
+    super('Condomínio não encontrado.');
+  }
+}
+
+export class CondominiumNotPendingError extends DomainError {
+  constructor() {
+    super('Este condomínio não está pendente de aprovação.');
+  }
+}
 
 export const mockEmailService = {
   sendEmail: async (input: { to: string; subject: string; html: string }) => {
@@ -18,29 +34,23 @@ export const mockEmailService = {
 };
 
 export class RejectCondominium implements RejectCondominiumUseCase {
-  constructor(private readonly condoRepo: CondominiumRepository) {}
+  constructor(
+    private readonly condoRepo: CondominiumRepository,
+    private readonly userRepo: UserRepository,
+  ) {}
 
   async execute(input: RejectCondominiumInput): Promise<Condominium> {
     if (!input.reason.trim()) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'O motivo da rejeição é obrigatório.',
-      });
+      throw new RejectReasonRequiredError();
     }
 
     const condo = await this.condoRepo.findById(input.id);
     if (!condo) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Condomínio não encontrado.',
-      });
+      throw new CondominiumNotFoundError();
     }
 
     if (condo.status !== 'PENDING_APPROVAL') {
-      throw new TRPCError({
-        code: 'CONFLICT',
-        message: 'Este condomínio não está pendente de aprovação.',
-      });
+      throw new CondominiumNotPendingError();
     }
 
     // Reject the condominium
@@ -50,11 +60,7 @@ export class RejectCondominium implements RejectCondominiumUseCase {
     );
 
     // Get the creator's email to send the notification
-    const [creator] = await db
-      .select()
-      .from(user)
-      .where(eq(user.id, condo.createdBy))
-      .limit(1);
+    const creator = await this.userRepo.findById(condo.createdBy);
 
     if (creator?.email) {
       await mockEmailService.sendEmail({

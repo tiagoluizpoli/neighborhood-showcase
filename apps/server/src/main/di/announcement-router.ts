@@ -75,10 +75,15 @@ export function createAnnouncementRouterDependencies(): AnnouncementRouterDepend
       announcementRepo,
       assignmentRepo,
     ),
-    listPublicAnnouncementsUseCase: new ListPublicAnnouncements(),
+    listPublicAnnouncementsUseCase: new ListPublicAnnouncements(
+      announcementRepo,
+    ),
     listActiveCategoriesUseCase: new ListActiveCategories(categoryRepo),
     trackAnalyticsEventUseCase: new TrackAnalyticsEvent(analyticsRepo),
-    getProviderDashboardDataUseCase: new GetProviderDashboardData(),
+    getProviderDashboardDataUseCase: new GetProviderDashboardData(
+      announcementRepo,
+      analyticsRepo,
+    ),
     getAnnouncementAnalyticsUseCase: new GetAnnouncementAnalytics(
       announcementRepo,
       analyticsRepo,

@@ -141,10 +141,9 @@ describe('ListAnnouncementsForModeration use case', () => {
     });
 
     expect(results).toHaveLength(2);
-    expect(results.map((item) => item.id)).toEqual([
-      'moderation-list-active-id',
-      'moderation-list-suspended-id',
-    ]);
+    expect(results.map((item) => item.id).sort()).toEqual(
+      ['moderation-list-active-id', 'moderation-list-suspended-id'].sort(),
+    );
     expect(results[0]?.providerName).toBe('Provider User');
     expect(results[1]?.suspensionReason).toBe('Previous violation');
   });

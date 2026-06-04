@@ -1,5 +1,8 @@
 import { db } from '@neighborhood-showcase/db';
-import { payment as paymentSchema } from '@neighborhood-showcase/db/schema/showcase';
+import {
+  announcement as announcementSchema,
+  payment as paymentSchema,
+} from '@neighborhood-showcase/db/schema/showcase';
 import { desc, eq } from 'drizzle-orm';
 import type {
   Payment,
@@ -68,5 +71,30 @@ export class DrizzlePaymentRepository implements PaymentRepository {
     }
 
     return this.mapper.toDomain(updated);
+  }
+
+  async completePaymentAndActivate(
+    paymentId: string,
+    announcementId: string,
+    expiresAt: Date,
+  ): Promise<void> {
+    await db.transaction(async (tx) => {
+      await tx
+        .update(paymentSchema)
+        .set({
+          status: 'PAID',
+          updatedAt: new Date(),
+        })
+        .where(eq(paymentSchema.id, paymentId));
+
+      await tx
+        .update(announcementSchema)
+        .set({
+          status: 'ACTIVE',
+          paidAt: new Date(),
+          expiresAt,
+        })
+        .where(eq(announcementSchema.id, announcementId));
+    });
   }
 }

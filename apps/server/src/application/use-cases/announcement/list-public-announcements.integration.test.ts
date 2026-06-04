@@ -9,10 +9,13 @@ import {
   payment,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq, sql } from 'drizzle-orm';
+import { DrizzleAnnouncementRepository } from '../../../infrastructure/db/announcement-repository';
 import { ListPublicAnnouncements } from './list-public-announcements';
 
 describe('List Public Announcements Integration Test', () => {
-  const useCase = new ListPublicAnnouncements();
+  const useCase = new ListPublicAnnouncements(
+    new DrizzleAnnouncementRepository(),
+  );
 
   const providerId = 'list-provider-id';
   const condoAId = 'condo-a-id'; // Florianópolis, SC
@@ -26,6 +29,8 @@ describe('List Public Announcements Integration Test', () => {
     await db.delete(assignment);
     await db.delete(condominium);
     await db.delete(user);
+    await db.delete(address).where(eq(address.id, 'ext-address-id'));
+    await db.delete(address).where(eq(address.id, 'condo-a-address-id'));
 
     // Insert user
     await db.insert(user).values({

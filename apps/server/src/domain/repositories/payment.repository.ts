@@ -15,4 +15,9 @@ export interface PaymentRepository {
   findByAnnouncementId(announcementId: string): Promise<Payment | null>;
   findByBillingId(billingId: string): Promise<Payment | null>;
   updateStatus(id: string, status: PaymentStatus): Promise<Payment>;
+  completePaymentAndActivate(
+    paymentId: string,
+    announcementId: string,
+    expiresAt: Date,
+  ): Promise<void>;
 }

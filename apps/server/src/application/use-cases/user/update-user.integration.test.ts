@@ -2,10 +2,11 @@ import { beforeAll, describe, expect, test } from 'bun:test';
 import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import { eq } from 'drizzle-orm';
+import { DrizzleUserRepository } from '../../../infrastructure/db/user-repository';
 import { UpdateUser } from './update-user';
 
 describe('Update User Name Integration Test', () => {
-  const useCase = new UpdateUser();
+  const useCase = new UpdateUser(new DrizzleUserRepository());
   const testUserId = 'test-update-user-id';
 
   beforeAll(async () => {

@@ -6,12 +6,14 @@ import {
   providerLocation as assignment,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
+import { DrizzleAddressRepository } from '../../../infrastructure/db/address-repository';
 import { DrizzleAssignmentRepository } from '../../../infrastructure/db/assignment-repository';
 import { RegisterExternalLocation } from './register-external-location';
 
 describe('Register External Location Integration Test', () => {
   const assignmentRepo = new DrizzleAssignmentRepository();
-  const useCase = new RegisterExternalLocation(assignmentRepo);
+  const addressRepo = new DrizzleAddressRepository();
+  const useCase = new RegisterExternalLocation(assignmentRepo, addressRepo);
 
   const testUserId = 'test-provider-external-1';
 

@@ -7,10 +7,15 @@ import {
   providerLocation as assignment,
   condominium,
 } from '@neighborhood-showcase/db/schema/showcase';
+import { DrizzleAnalyticsRepository } from '../../../infrastructure/db/analytics-repository';
+import { DrizzleAnnouncementRepository } from '../../../infrastructure/db/announcement-repository';
 import { GetProviderDashboardData } from './get-provider-dashboard-data';
 
 describe('Get Provider Dashboard Data Integration Test', () => {
-  const useCase = new GetProviderDashboardData();
+  const useCase = new GetProviderDashboardData(
+    new DrizzleAnnouncementRepository(),
+    new DrizzleAnalyticsRepository(),
+  );
 
   const providerId = 'dash-provider-id';
   const condoId = 'dash-condo-id';

@@ -1,6 +1,7 @@
 import { db } from '@neighborhood-showcase/db';
 import {
   announcement as announcementSchema,
+  assignment as assignmentSchema,
   providerLocation as assignSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { and, eq } from 'drizzle-orm';
@@ -146,5 +147,37 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
     }
 
     return this.mapper.toDomain(updated);
+  }
+
+  async hasApprovedResidentAssignment(providerId: string): Promise<boolean> {
+    const [legacyAssignment] = await db
+      .select({ id: assignmentSchema.id })
+      .from(assignmentSchema)
+      .where(
+        and(
+          eq(assignmentSchema.providerId, providerId),
+          eq(assignmentSchema.type, 'RESIDENT'),
+          eq(assignmentSchema.status, 'APPROVED'),
+        ),
+      )
+      .limit(1);
+
+    if (legacyAssignment !== undefined) {
+      return true;
+    }
+
+    const [found] = await db
+      .select({ id: assignSchema.id })
+      .from(assignSchema)
+      .where(
+        and(
+          eq(assignSchema.providerId, providerId),
+          eq(assignSchema.type, 'RESIDENT'),
+          eq(assignSchema.status, 'APPROVED'),
+        ),
+      )
+      .limit(1);
+
+    return found !== undefined;
   }
 }

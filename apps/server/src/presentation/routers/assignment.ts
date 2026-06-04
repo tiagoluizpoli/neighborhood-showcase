@@ -1,37 +1,19 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { ApproveAssignment } from '../../application/use-cases/assignment/approve-assignment';
-import { GetAssignment } from '../../application/use-cases/assignment/get-assignment';
 import {
   AssignmentNotFoundError,
   AssignmentWithoutCondominiumError,
-  GetCondominiumAssignment,
 } from '../../application/use-cases/assignment/get-condominium-assignment';
-import { ListPendingAssignments } from '../../application/use-cases/assignment/list-pending-assignments';
-import { ListProviderAssignments } from '../../application/use-cases/assignment/list-provider-assignments';
-import { RegisterExternalLocation } from '../../application/use-cases/assignment/register-external-location';
-import { RejectAssignment } from '../../application/use-cases/assignment/reject-assignment';
-import { RequestAssignment } from '../../application/use-cases/assignment/request-assignment';
-import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-repository';
+import { InvalidAddressError } from '../../application/use-cases/assignment/register-external-location';
+import type { AssignmentRepository } from '../../domain/repositories/assignment.repository';
+import { createAssignmentRouterDependencies } from '../../main/di';
 import { protectedProcedure, router } from '../trpc';
 
-const assignmentRepo = new DrizzleAssignmentRepository();
-const getCondominiumAssignmentUseCase = new GetCondominiumAssignment(
-  assignmentRepo,
-);
-const getAssignmentUseCase = new GetAssignment(assignmentRepo);
-const requestAssignmentUseCase = new RequestAssignment(assignmentRepo);
-const listPendingAssignmentsUseCase = new ListPendingAssignments(
-  assignmentRepo,
-);
-const listProviderAssignmentsUseCase = new ListProviderAssignments(
-  assignmentRepo,
-);
-const approveAssignmentUseCase = new ApproveAssignment(assignmentRepo);
-const rejectAssignmentUseCase = new RejectAssignment(assignmentRepo);
-const registerExternalUseCase = new RegisterExternalLocation(assignmentRepo);
-
-const checkModerator = async (userId: string, condominiumId: string) => {
+const checkModerator = async (
+  userId: string,
+  condominiumId: string,
+  assignmentRepo: AssignmentRepository,
+) => {
   const existing = await assignmentRepo.findByProviderAndCondo(
     userId,
     condominiumId,
@@ -49,126 +31,167 @@ const checkModerator = async (userId: string, condominiumId: string) => {
   }
 };
 
-export const assignmentRouter = router({
-  request: protectedProcedure
-    .input(
-      z.object({
-        condominiumId: z.string().min(1),
-        unitInfo: z.string().min(1).max(100),
-        proofOfResidency: z.string().optional(),
+export function createAssignmentRouter(
+  dependencies = createAssignmentRouterDependencies(),
+) {
+  const {
+    assignmentRepo,
+    getCondominiumAssignmentUseCase,
+    getAssignmentUseCase,
+    requestAssignmentUseCase,
+    listPendingAssignmentsUseCase,
+    listProviderAssignmentsUseCase,
+    approveAssignmentUseCase,
+    rejectAssignmentUseCase,
+    registerExternalUseCase,
+  } = dependencies;
+
+  return router({
+    request: protectedProcedure
+      .input(
+        z.object({
+          condominiumId: z.string().min(1),
+          unitInfo: z.string().min(1).max(100),
+          proofOfResidency: z.string().optional(),
+        }),
+      )
+      .mutation(async ({ input, ctx }) => {
+        const assign = await requestAssignmentUseCase.execute({
+          providerId: ctx.session.user.id,
+          condominiumId: input.condominiumId,
+          unitInfo: input.unitInfo,
+          proofOfResidency: input.proofOfResidency,
+        });
+        return assign.toDTO();
       }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const assign = await requestAssignmentUseCase.execute({
+
+    getMyAssignments: protectedProcedure.query(async ({ ctx }) => {
+      const results = await listProviderAssignmentsUseCase.execute({
         providerId: ctx.session.user.id,
-        condominiumId: input.condominiumId,
-        unitInfo: input.unitInfo,
-        proofOfResidency: input.proofOfResidency,
-      });
-      return assign.toDTO();
-    }),
-
-  getMyAssignments: protectedProcedure.query(async ({ ctx }) => {
-    const results = await listProviderAssignmentsUseCase.execute({
-      providerId: ctx.session.user.id,
-    });
-    return results.map((assign) => ({
-      ...assign.toDTO(),
-      condominium: assign.condominium,
-    }));
-  }),
-
-  listPending: protectedProcedure
-    .input(z.object({ condominiumId: z.string() }))
-    .query(async ({ input, ctx }) => {
-      await checkModerator(ctx.session.user.id, input.condominiumId);
-      const results = await listPendingAssignmentsUseCase.execute({
-        condominiumId: input.condominiumId,
       });
       return results.map((assign) => ({
         ...assign.toDTO(),
-        provider: assign.provider,
+        condominium: assign.condominium,
       }));
     }),
 
-  approve: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .mutation(async ({ input, ctx }) => {
-      const assign = await getAssignmentUseCase.execute({ id: input.id });
-      if (!assign) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Solicitação não encontrada.',
+    listPending: protectedProcedure
+      .input(z.object({ condominiumId: z.string() }))
+      .query(async ({ input, ctx }) => {
+        await checkModerator(
+          ctx.session.user.id,
+          input.condominiumId,
+          assignmentRepo,
+        );
+        const results = await listPendingAssignmentsUseCase.execute({
+          condominiumId: input.condominiumId,
         });
-      }
-      if (!assign.condominiumId) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Solicitação não vinculada a um condomínio.',
-        });
-      }
-      await checkModerator(ctx.session.user.id, assign.condominiumId);
-      const result = await approveAssignmentUseCase.execute({ id: input.id });
-      return result.toDTO();
-    }),
+        return results.map((assign) => ({
+          ...assign.toDTO(),
+          provider: assign.provider,
+        }));
+      }),
 
-  reject: protectedProcedure
-    .input(z.object({ id: z.string(), reason: z.string() }))
-    .mutation(async ({ input, ctx }) => {
-      try {
-        const assign = await getCondominiumAssignmentUseCase.execute({
-          id: input.id,
-        });
-        await checkModerator(ctx.session.user.id, assign.condominiumId);
-        const result = await rejectAssignmentUseCase.execute({
-          id: input.id,
-          reason: input.reason,
-        });
-        return result.toDTO();
-      } catch (error) {
-        if (error instanceof AssignmentNotFoundError) {
+    approve: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input, ctx }) => {
+        const assign = await getAssignmentUseCase.execute({ id: input.id });
+        if (!assign) {
           throw new TRPCError({
             code: 'NOT_FOUND',
-            message: error.message,
-            cause: error,
+            message: 'Solicitação não encontrada.',
           });
         }
-
-        if (error instanceof AssignmentWithoutCondominiumError) {
+        if (!assign.condominiumId) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: error.message,
-            cause: error,
+            message: 'Solicitação não vinculada a um condomínio.',
           });
         }
-
-        throw error;
-      }
-    }),
-
-  registerExternal: protectedProcedure
-    .input(
-      z.object({
-        cep: z.string().min(8).max(9),
-        street: z.string().min(1),
-        neighborhood: z.string().min(1),
-        city: z.string().min(1),
-        state: z.string().length(2),
-        number: z.string().min(1),
-        complement: z.string().optional(),
+        await checkModerator(
+          ctx.session.user.id,
+          assign.condominiumId,
+          assignmentRepo,
+        );
+        const result = await approveAssignmentUseCase.execute({ id: input.id });
+        return result.toDTO();
       }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const result = await registerExternalUseCase.execute({
-        providerId: ctx.session.user.id,
-        cep: input.cep,
-        street: input.street,
-        neighborhood: input.neighborhood,
-        city: input.city,
-        state: input.state,
-        number: input.number,
-        complement: input.complement,
-      });
-      return result.toDTO();
-    }),
-});
+
+    reject: protectedProcedure
+      .input(z.object({ id: z.string(), reason: z.string() }))
+      .mutation(async ({ input, ctx }) => {
+        try {
+          const assign = await getCondominiumAssignmentUseCase.execute({
+            id: input.id,
+          });
+          await checkModerator(
+            ctx.session.user.id,
+            assign.condominiumId,
+            assignmentRepo,
+          );
+          const result = await rejectAssignmentUseCase.execute({
+            id: input.id,
+            reason: input.reason,
+          });
+          return result.toDTO();
+        } catch (error) {
+          if (error instanceof AssignmentNotFoundError) {
+            throw new TRPCError({
+              code: 'NOT_FOUND',
+              message: error.message,
+              cause: error,
+            });
+          }
+
+          if (error instanceof AssignmentWithoutCondominiumError) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: error.message,
+              cause: error,
+            });
+          }
+
+          throw error;
+        }
+      }),
+
+    registerExternal: protectedProcedure
+      .input(
+        z.object({
+          cep: z.string().min(8).max(9),
+          street: z.string().min(1),
+          neighborhood: z.string().min(1),
+          city: z.string().min(1),
+          state: z.string().length(2),
+          number: z.string().min(1),
+          complement: z.string().optional(),
+        }),
+      )
+      .mutation(async ({ input, ctx }) => {
+        try {
+          const result = await registerExternalUseCase.execute({
+            providerId: ctx.session.user.id,
+            cep: input.cep,
+            street: input.street,
+            neighborhood: input.neighborhood,
+            city: input.city,
+            state: input.state,
+            number: input.number,
+            complement: input.complement,
+          });
+          return result.toDTO();
+        } catch (error) {
+          if (error instanceof InvalidAddressError) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: error.message,
+              cause: error,
+            });
+          }
+          throw error;
+        }
+      }),
+  });
+}
+
+export const assignmentRouter = createAssignmentRouter();

@@ -32,6 +32,7 @@ export interface AssignmentRepository {
   findByProviderId(providerId: string): Promise<AssignmentWithCondo[]>;
   findPendingByCondoId(condominiumId: string): Promise<AssignmentWithUser[]>;
   findById(id: string): Promise<Assignment | null>;
+  hasApprovedResidentAssignment(providerId: string): Promise<boolean>;
   updateStatus(
     id: string,
     status: 'APPROVED' | 'REJECTED' | 'PENDING',

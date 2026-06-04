@@ -7,6 +7,7 @@ import {
 } from '@neighborhood-showcase/db/schema/auth';
 import {
   address as addressSchema,
+  announcement as announcementSchema,
   condominium as condominiumSchema,
   providerLocation as providerLocationSchema,
   roleChangeLog as roleChangeLogSchema,
@@ -16,12 +17,41 @@ import type { User } from '../../domain/entities/user.entity';
 import type {
   ListProvidersRepositoryInput,
   ListUsersRepositoryInput,
+  UserProfileDTO,
   UserRepository,
 } from '../../domain/repositories/user.repository';
 import { UserMapper } from './mappers/user.mapper';
 
 export class DrizzleUserRepository implements UserRepository {
   private userMapper = new UserMapper();
+
+  async findProfileById(id: string): Promise<UserProfileDTO | null> {
+    const [row] = await db
+      .select({
+        id: userSchema.id,
+        name: userSchema.name,
+        email: userSchema.email,
+        phone: userSchema.phone,
+        socialLinks: userSchema.socialLinks,
+        isProviderVisible: userSchema.isProviderVisible,
+      })
+      .from(userSchema)
+      .where(eq(userSchema.id, id))
+      .limit(1);
+
+    if (!row) return null;
+    return {
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      phone: row.phone ?? null,
+      socialLinks: (row.socialLinks ?? {}) as Record<
+        string,
+        string | undefined
+      >,
+      isProviderVisible: row.isProviderVisible,
+    };
+  }
 
   async listProviders(input: ListProvidersRepositoryInput): Promise<User[]> {
     const geoConditions: SQL[] = [];
@@ -129,6 +159,42 @@ export class DrizzleUserRepository implements UserRepository {
     return this.userMapper.toDomain(row);
   }
 
+  async updateProfile(input: {
+    userId: string;
+    name?: string;
+    socialLinks?: {
+      whatsapp?: string;
+      phone?: string;
+      email?: string;
+      instagram?: string;
+      tiktok?: string;
+      facebook?: string;
+      website?: string;
+    };
+    isProviderVisible?: boolean;
+  }): Promise<void> {
+    const updateData: Record<string, unknown> = {
+      updatedAt: new Date(),
+    };
+
+    if (input.name !== undefined) {
+      updateData.name = input.name.trim();
+    }
+
+    if (input.socialLinks !== undefined) {
+      updateData.socialLinks = input.socialLinks;
+    }
+
+    if (input.isProviderVisible !== undefined) {
+      updateData.isProviderVisible = input.isProviderVisible;
+    }
+
+    await db
+      .update(userSchema)
+      .set(updateData)
+      .where(eq(userSchema.id, input.userId));
+  }
+
   async updateRole(
     id: string,
     role: 'PROVIDER' | 'SYSTEM_MANAGER',
@@ -189,6 +255,28 @@ export class DrizzleUserRepository implements UserRepository {
       throw new Error('User not found');
     }
     return this.userMapper.toDomain(row);
+  }
+
+  async deleteAccountById(userId: string): Promise<void> {
+    await db
+      .update(userSchema)
+      .set({
+        name: 'Anônimo',
+        email: `deleted-${userId}@lgpd.local`,
+        phone: null,
+        cpfHash: null,
+        deletedAt: new Date(),
+      })
+      .where(eq(userSchema.id, userId));
+
+    await db
+      .update(announcementSchema)
+      .set({
+        deletedAt: new Date(),
+      })
+      .where(eq(announcementSchema.providerId, userId));
+
+    await this.deleteSessionsAndAccountsByUserId(userId);
   }
 
   async deleteSessionsAndAccountsByUserId(userId: string): Promise<void> {

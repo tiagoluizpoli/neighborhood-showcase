@@ -1,10 +1,6 @@
-import { db } from '@neighborhood-showcase/db';
-import {
-  analyticsEvent as analyticsEventSchema,
-  announcement as announcementSchema,
-} from '@neighborhood-showcase/db/schema/showcase';
-import { TRPCError } from '@trpc/server';
-import { and, eq, gte, inArray, isNull } from 'drizzle-orm';
+import type { AnalyticsRepository } from '../../../domain/repositories/analytics.repository';
+import type { AnnouncementRepository } from '../../../domain/repositories/announcement.repository';
+import { DomainError } from '../../../shared/domain-error';
 
 export interface GetAnnouncementAnalyticsInput {
   announcementId?: string;
@@ -30,6 +26,18 @@ export interface AnnouncementAnalyticsResult {
   chartData: AnalyticsDataPoint[];
 }
 
+export class AnnouncementNotFoundError extends DomainError {
+  constructor() {
+    super('Anúncio não encontrado.');
+  }
+}
+
+export class AnnouncementAccessDeniedError extends DomainError {
+  constructor() {
+    super('Acesso negado. Você não é o proprietário deste anúncio.');
+  }
+}
+
 const formatDate = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -44,6 +52,11 @@ const formatMonth = (date: Date): string => {
 };
 
 export class GetAnnouncementAnalytics {
+  constructor(
+    private readonly announcementRepo: AnnouncementRepository,
+    private readonly analyticsRepo: AnalyticsRepository,
+  ) {}
+
   async execute(
     input: GetAnnouncementAnalyticsInput,
   ): Promise<AnnouncementAnalyticsResult> {
@@ -52,44 +65,18 @@ export class GetAnnouncementAnalytics {
     let announcementIds: string[] = [];
 
     if (announcementId) {
-      // Fetch the announcement to check existence and ownership
-      const [ann] = await db
-        .select({ providerId: announcementSchema.providerId })
-        .from(announcementSchema)
-        .where(
-          and(
-            eq(announcementSchema.id, announcementId),
-            isNull(announcementSchema.deletedAt),
-          ),
-        )
-        .limit(1);
-
-      if (!ann) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Anúncio não encontrado.',
-        });
+      const ann = await this.announcementRepo.findById(announcementId);
+      if (!ann || ann.deletedAt !== null) {
+        throw new AnnouncementNotFoundError();
       }
 
       if (ann.providerId !== providerId) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Acesso negado. Você não é o proprietário deste anúncio.',
-        });
+        throw new AnnouncementAccessDeniedError();
       }
       announcementIds = [announcementId];
     } else {
-      // Fetch all announcements owned by the provider
-      const userAnnouncements = await db
-        .select({ id: announcementSchema.id })
-        .from(announcementSchema)
-        .where(
-          and(
-            eq(announcementSchema.providerId, providerId),
-            isNull(announcementSchema.deletedAt),
-          ),
-        );
-      announcementIds = userAnnouncements.map((a) => a.id);
+      announcementIds =
+        await this.announcementRepo.findIdsByProviderId(providerId);
     }
 
     // Determine the start date and generate bucket labels
@@ -127,22 +114,10 @@ export class GetAnnouncementAnalytics {
       }
     }
 
-    // Fetch events from database
+    // Fetch events from repository
     const events =
       announcementIds.length > 0
-        ? await db
-            .select({
-              eventType: analyticsEventSchema.eventType,
-              targetType: analyticsEventSchema.targetType,
-              createdAt: analyticsEventSchema.createdAt,
-            })
-            .from(analyticsEventSchema)
-            .where(
-              and(
-                inArray(analyticsEventSchema.announcementId, announcementIds),
-                gte(analyticsEventSchema.createdAt, startDate),
-              ),
-            )
+        ? await this.analyticsRepo.findEvents(announcementIds, startDate)
         : [];
 
     // Initialize labels map

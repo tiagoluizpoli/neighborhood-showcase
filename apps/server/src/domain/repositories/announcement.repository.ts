@@ -3,6 +3,29 @@ import type {
   AnnouncementStatus,
 } from '../entities/announcement.entity';
 
+export interface ProviderAnnouncementDTO {
+  id: string;
+  providerId: string;
+  condominiumId: string | null;
+  title: string;
+  subtitle: string | null;
+  description: string;
+  priceCents: number | null;
+  imageUrl: string;
+  categoryId: string;
+  category: string;
+  tags: string[];
+  contactLinks: Record<string, string | undefined>;
+  showVerifiedBadge: boolean;
+  status: string;
+  createdAt: Date;
+  condoName: string | null;
+  condoCity: string;
+  condoState: string;
+  providerName: string;
+  providerAvatarUrl: string | null;
+}
+
 export interface PublicAnnouncementDTO {
   id: string;
   providerId: string;
@@ -20,9 +43,12 @@ export interface PublicAnnouncementDTO {
   status: string;
   createdAt: Date;
   category: string;
-  condoName: string;
+  condoName: string | null;
   condoCity: string;
   condoState: string;
+  condoNeighborhood?: string | null;
+  latitude?: string | null;
+  longitude?: string | null;
   providerName: string;
   providerAvatarUrl: string | null;
 }
@@ -44,6 +70,28 @@ export interface ModerationAnnouncementDTO {
   suspensionReason: string | null;
   createdAt: Date;
   providerName: string;
+}
+
+export interface DashboardAnnouncementDTO {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  description: string;
+  priceCents: number | null;
+  imageUrl: string;
+  category: string;
+  categoryId: string;
+  tags: string[];
+  contactLinks: Record<string, string | undefined>;
+  showVerifiedBadge: boolean;
+  flaggedForReview: boolean;
+  status: string;
+  paidAt: Date | null;
+  expiresAt: Date | null;
+  createdAt: Date;
+  suspensionReason: string | null;
+  condoName: string;
+  providerLocationId: string | null;
 }
 
 export interface ReportedAnnouncementDTO {
@@ -133,6 +181,11 @@ export interface AnnouncementRepository {
   create(input: CreateAnnouncementRepositoryInput): Promise<Announcement>;
   findById(id: string): Promise<Announcement | null>;
   findPublicById(id: string): Promise<PublicAnnouncementDTO | null>;
+  findActiveByProviderId(
+    providerId: string,
+    providerName: string,
+    providerAvatarUrl: string | null,
+  ): Promise<ProviderAnnouncementDTO[]>;
   listForModeration(
     condominiumId: string,
   ): Promise<ModerationAnnouncementDTO[]>;
@@ -147,4 +200,26 @@ export interface AnnouncementRepository {
   suspend(id: string, reason: string): Promise<void>;
   reinstate(id: string): Promise<void>;
   softDeleteAllByProviderId(providerId: string, reason: string): Promise<void>;
+  findIdsByProviderId(providerId: string): Promise<string[]>;
+  findDashboardByProviderId(
+    providerId: string,
+  ): Promise<DashboardAnnouncementDTO[]>;
+  findPublic(
+    input: ListPublicAnnouncementsInput,
+  ): Promise<PublicAnnouncementDTO[]>;
+}
+
+export interface ListPublicAnnouncementsInput {
+  latitude?: number;
+  longitude?: number;
+  condominiumId?: string;
+  categoryId?: string;
+  search?: string;
+  verifiedOnly?: boolean;
+  userCondoId?: string;
+  radiusKm?: number;
+  city?: string;
+  neighborhood?: string;
+  ipCity?: string;
+  ipState?: string;
 }

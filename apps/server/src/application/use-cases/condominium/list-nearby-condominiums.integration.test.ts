@@ -4,9 +4,11 @@ import { user } from '@neighborhood-showcase/db/schema/auth';
 import { condominium } from '@neighborhood-showcase/db/schema/showcase';
 import { sql } from 'drizzle-orm';
 import { DrizzleCondominiumRepository } from '../../../infrastructure/db/condominium-repository';
+import { ListNearbyCondominiums } from './list-nearby-condominiums';
 
 describe('List Nearby Condominiums Integration Test', () => {
   const condoRepo = new DrizzleCondominiumRepository();
+  const useCase = new ListNearbyCondominiums(condoRepo);
 
   const testUserId = 'nearby-creator-id';
   const condoCloseId = 'condo-close-id'; // ~50m away
@@ -81,11 +83,11 @@ describe('List Nearby Condominiums Integration Test', () => {
 
   test('findNearbyApproved returns condominiums sorted by proximity within radius', async () => {
     // 1. Search with 100m radius -> should only return the Close Condo
-    const resultsClose = await condoRepo.findNearbyApproved(
-      targetLat,
-      targetLng,
-      100,
-    );
+    const resultsClose = await useCase.execute({
+      latitude: targetLat,
+      longitude: targetLng,
+      radiusInMeters: 100,
+    });
     expect(resultsClose.length).toBe(1);
     const close = resultsClose[0];
     expect(close).toBeDefined();
@@ -94,11 +96,11 @@ describe('List Nearby Condominiums Integration Test', () => {
     expect(close.distance).toBeLessThan(100);
 
     // 2. Search with 1000m (1km) radius -> should return Close and Mid Condos, sorted by distance
-    const resultsMid = await condoRepo.findNearbyApproved(
-      targetLat,
-      targetLng,
-      1000,
-    );
+    const resultsMid = await useCase.execute({
+      latitude: targetLat,
+      longitude: targetLng,
+      radiusInMeters: 1000,
+    });
     expect(resultsMid.length).toBe(2);
     const midClose = resultsMid[0];
     const midFar = resultsMid[1];
@@ -111,11 +113,11 @@ describe('List Nearby Condominiums Integration Test', () => {
     expect(midClose.distance).toBeLessThan(midFar.distance);
 
     // 3. Search with 10000m (10km) radius -> should return all three Condos, sorted by distance
-    const resultsAll = await condoRepo.findNearbyApproved(
-      targetLat,
-      targetLng,
-      10000,
-    );
+    const resultsAll = await useCase.execute({
+      latitude: targetLat,
+      longitude: targetLng,
+      radiusInMeters: 10000,
+    });
     expect(resultsAll.length).toBe(3);
     const allClose = resultsAll[0];
     const allMid = resultsAll[1];

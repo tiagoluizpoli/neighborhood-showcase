@@ -1,6 +1,4 @@
-import { db } from '@neighborhood-showcase/db';
-import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
-import { eq } from 'drizzle-orm';
+import type { UserRepository } from '../../../domain/repositories/user.repository';
 
 export interface UpdateUserInput {
   userId: string;
@@ -18,33 +16,26 @@ export interface UpdateUserInput {
 }
 
 export class UpdateUser {
-  async execute(input: UpdateUserInput): Promise<{ success: boolean }> {
-    const { userId, name, socialLinks, isProviderVisible } = input;
+  constructor(private readonly userRepo: UserRepository) {}
 
-    const updateData: Record<string, unknown> = {
-      updatedAt: new Date(),
-    };
+  async execute(input: UpdateUserInput): Promise<{ success: boolean }> {
+    const { userId, socialLinks, isProviderVisible } = input;
+    let { name } = input;
 
     if (name !== undefined) {
       const trimmedName = name.trim();
       if (trimmedName.length < 3) {
         throw new Error('Name must be at least 3 characters long');
       }
-      updateData.name = trimmedName;
+      name = trimmedName;
     }
 
-    if (socialLinks !== undefined) {
-      updateData.socialLinks = socialLinks;
-    }
-
-    if (isProviderVisible !== undefined) {
-      updateData.isProviderVisible = isProviderVisible;
-    }
-
-    await db
-      .update(userSchema)
-      .set(updateData)
-      .where(eq(userSchema.id, userId));
+    await this.userRepo.updateProfile({
+      userId,
+      name,
+      socialLinks,
+      isProviderVisible,
+    });
 
     return { success: true };
   }

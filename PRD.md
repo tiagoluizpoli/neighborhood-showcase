@@ -108,6 +108,16 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
 51. As a System Manager, I want every user to appear as a potential provider by default (automatic on account creation), with an opt-out toggle, so that the directory is comprehensive.
 52. As a System Manager, I want moderators and admins who are also providers to appear in the directory, so that role does not hide provider status.
 
+### Backend Domain Alignment & Clean Architecture
+81. As a developer, I want `User` to remain the authentication identity root, so that provider capability is not mixed into login identity.
+82. As a developer, I want `Provider` to be represented by a separate relation and profile model, so that provider identity and provider operating context can grow independently.
+83. As a developer, I want `Provider Assignment` to replace the old provider-location concept as the canonical relation name, so that the table reflects both location and operating-state data.
+84. As a developer, I want `Provider Profile` to hold the public branding data for providers, so that account identity fields are not reused for company presentation.
+85. As a developer, I want global roles to follow the hierarchy `USER < SYSTEM_MANAGER < ADMINISTRATOR`, so that permission checks remain explicit and predictable.
+86. As a developer, I want `MODERATOR` to stay condo-scoped and out of the global role enum, so that condo authority does not leak into platform-wide authority.
+87. As a developer, I want backend wiring to live under `src/main/`, so that the composition root is easy to find and use-case construction stays centralized.
+88. As a developer, I want the remaining backend cleanup to proceed slice by slice with focused tests, so that architecture recovery stays behavior-preserving.
+
 ### Visual Consistency (Item 1)
 53. As a user of the platform, I want all UI components to be visually consistent (using `base-lyra` shadcn style with strict semantic tokens), so that the application feels cohesive and premium.
 54. As a developer, I want all shadcn components batch-installed fresh from the registry, so that no ad-hoc overrides corrupt the design system.
@@ -307,6 +317,15 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
 - Analytics-backed trending categories are deferred to aggregate/cached metrics.
 - Category admin UI is deferred.
 
+### Backend Domain Alignment & Clean Architecture
+- `User` remains the authentication identity root, while provider capability is modeled through separate relation/profile records.
+- `Provider Assignment` is the canonical relation for provider-to-condominium/address operating context.
+- `Provider Profile` owns public branding data such as company name, logo, banner, public description, and public contact links.
+- Global roles follow the hierarchy `USER < SYSTEM_MANAGER < ADMINISTRATOR`.
+- `MODERATOR` stays condo-scoped and is not a global user role.
+- Backend composition, server bootstrap, and DI wiring live under `src/main/`.
+- Remaining backend cleanup continues slice by slice with focused tests and no behavior changes unless a domain decision requires it.
+
 ### Module 19: Ralph Loop Skill Routing & Execution Order
 - Recommended implementation order:
   1. Backend-managed categories.
@@ -398,6 +417,12 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
    - Integration: public feed filters by category identity and `Todos` sends no filter.
    - Schema/API tests: Announcements reference categories by `categoryId`.
 
+13. **Backend Domain Alignment**
+   - Integration: global roles enforce the `USER < SYSTEM_MANAGER < ADMINISTRATOR` hierarchy.
+   - Integration: provider public profile reads use provider-profile data instead of auth identity fields.
+   - Integration: provider assignment queries support multiple operating contexts per provider.
+   - Integration: composition-root wiring keeps routers free of direct repository instantiation.
+
 ### Prior Art
 - Existing integration tests in `apps/web/src/routes/-analytics.test.tsx` and `-guards.test.ts` provide patterns for route guard testing and analytics verification.
 - Existing Vitest configuration and test PostgreSQL instance setup in the monorepo.
@@ -431,6 +456,5 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
 - **Dependency Additions**: `react-easy-crop` (frontend), `recharts` via shadcn charts (frontend), PostGIS extension (database). No new backend framework dependencies.
 - **Backward Compatibility**: The `/panel/*` route migration from the current `/dashboard/*`, `/admin`, `/moderation` routes should include redirects from old paths to prevent broken bookmarks.
 - **Grilling Session Reference**: All decisions in this PRD trace directly to the 34 questions resolved in [`backlog_grilling.md`](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/backlog_grilling.md) (Questions 15–34, covering Items 1–14).
-- **Public Home Follow-Up Reference**: Issues 56–62 capture the follow-up decisions from the public home grilling session and should be treated as completion work for this PRD, not a separate product direction.
-- **TDD Coverage Plan**: Public home follow-up tests are mapped in `.specify/memory/home_public_browsing_tdd_plan.md`; Ralph should use it as a vertical red-green guide, not as a horizontal "write every test first" checklist.
-- **Deferred Backlog**: Deliberately postponed items are tracked in `.specify/memory/deferred_backlog.md`.
+- **Issue Workflow**: Ralph should read this PRD first, then inspect `.specify/memory/issues/` for the active slices that need implementation next. The issue folder is the source of executable work.
+- **Deferred Backlog**: Deliberately postponed items remain tracked in `.specify/memory/deferred_backlog.md`.

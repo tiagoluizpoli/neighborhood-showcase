@@ -8,10 +8,11 @@ import {
   payment,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
+import { DrizzleUserRepository } from '../../../infrastructure/db/user-repository';
 import { DeleteUserAccount } from './delete-user-account';
 
 describe('Delete User Account LGPD Integration Test', () => {
-  const useCase = new DeleteUserAccount();
+  const useCase = new DeleteUserAccount(new DrizzleUserRepository());
 
   const userId = 'delete-user-id';
   const condoId = 'delete-condo-id';

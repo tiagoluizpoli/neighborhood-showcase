@@ -8,14 +8,16 @@ import {
 import { and, eq } from 'drizzle-orm';
 import { DrizzleAssignmentRepository } from '../../../infrastructure/db/assignment-repository';
 import { DrizzleCondominiumRepository } from '../../../infrastructure/db/condominium-repository';
+import { DrizzleUserRepository } from '../../../infrastructure/db/user-repository';
 import { ApproveCondominium } from './approve-condominium';
 import { RejectCondominium } from './reject-condominium';
 
 describe('Approve and Reject Condominium Integration Test', () => {
   const condoRepo = new DrizzleCondominiumRepository();
   const assignmentRepo = new DrizzleAssignmentRepository();
+  const userRepo = new DrizzleUserRepository();
   const approveUseCase = new ApproveCondominium(condoRepo, assignmentRepo);
-  const rejectUseCase = new RejectCondominium(condoRepo);
+  const rejectUseCase = new RejectCondominium(condoRepo, userRepo);
 
   const testUserId = 'condo-creator-id';
   const pendingCondoId = 'pending-condo-id';

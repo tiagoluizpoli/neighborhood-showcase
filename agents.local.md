@@ -200,14 +200,5 @@ Use cases receive their repository dependencies through constructor injection (p
 Integration test files (`*.integration.test.ts`, `*.test.ts`) are allowed to import from any layer for test setup purposes (e.g., seeding the database directly). This exception applies ONLY to test files, NEVER to production code.
 
 ## Current Plan Reference
-- [PRD v2: Backlog Overhaul Plan](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/PRD.md)
-- [Backlog Grilling Session Log](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/backlog_grilling.md)
-- [Issue 55: Backend Clean Architecture Sweep](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/55_backend_clean_architecture_sweep.md)
-- [Issue 56: Public Browsing Shell Navigation Separation](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/56_public_browsing_header_separation.md)
-- [Issue 57: Home Location Control & Geolocation Confidence Cleanup](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/57_home_location_control_geolocation_confidence_cleanup.md)
-- [Issue 58: Home Discovery Layout & First Viewport Cleanup](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/58_home_discovery_layout_first_viewport_cleanup.md)
-- [Issue 59: Announcement Card Spectrum-Inspired Redesign](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/59_announcement_card_spectrum_inspired_redesign.md)
-- [Issue 60: Announcement Detail Navigation Source of Truth](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/60_announcement_detail_navigation_source_of_truth.md)
-- [Issue 61: Home Feed Loading, Empty & Error States](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/61_home_feed_loading_empty_error_states.md)
-- [Issue 62: Backend-Managed Announcement Categories](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/issues/62_backend_managed_announcement_categories.md)
-- [TDD Plan: Public Home Browsing Completion](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/home_public_browsing_tdd_plan.md)
+- [Root PRD](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/PRD.md)
+- Issue specs live in `.specify/memory/issues/`; start with the active backend/public follow-ups in `55`, `56`, `63`, and `64`.

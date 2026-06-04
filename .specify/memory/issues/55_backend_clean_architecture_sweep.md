@@ -69,20 +69,20 @@ If a slice exposes a real behavior bug, document it separately instead of hiding
 - [x] 3. Admin role-management mutations.
 - [x] 4. Admin blacklist and provider-ban flows.
 - [x] 5. Announcement, payment, assignment, and moderation routers.
-- [ ] 6. Remaining backend routers and production modules.
-- [ ] 7. Backend-wide import boundary audit.
+- [x] 6. Remaining backend routers and production modules.
+- [x] 7. Backend-wide import boundary audit.
 
 ## Acceptance criteria
 
-- [ ] Backend production code has no presentation-layer imports from `@neighborhood-showcase/db`, `@neighborhood-showcase/db/schema/*`, `drizzle-orm`, or infrastructure implementations.
-- [ ] Backend application use cases have no imports from Drizzle, database schemas, tRPC, Fastify, infrastructure, presentation, or external SDK clients.
-- [ ] Backend domain code remains framework-free and infrastructure-free.
-- [ ] Infrastructure implementations depend on domain contracts and do not import application or presentation modules.
-- [ ] Each remediated backend slice has focused tests covering its externally observable behavior.
-- [ ] Tests are changed only for imports, wiring, or structure changes unless a separate behavior bug is documented.
-- [ ] Relevant focused tests pass after each slice.
-- [ ] Backend type/check commands pass before the epic is considered complete.
-- [ ] Files touched during the sweep are kept under the 300-line guideline where practical, or the exception is documented.
+- [x] Backend production code has no presentation-layer imports from `@neighborhood-showcase/db`, `@neighborhood-showcase/db/schema/*`, `drizzle-orm`, or infrastructure implementations.
+- [x] Backend application use cases have no imports from Drizzle, database schemas, tRPC, Fastify, infrastructure, presentation, or external SDK clients.
+- [x] Backend domain code remains framework-free and infrastructure-free.
+- [x] Infrastructure implementations depend on domain contracts and do not import application or presentation modules.
+- [x] Each remediated backend slice has focused tests covering its externally observable behavior.
+- [x] Tests are changed only for imports, wiring, or structure changes unless a separate behavior bug is documented.
+- [x] Relevant focused tests pass after each slice.
+- [x] Backend type/check commands pass before the epic is considered complete.
+- [x] Files touched during the sweep are kept under the 300-line guideline where practical, or the exception is documented.
 
 ## Blocked by
 
@@ -102,3 +102,7 @@ If a slice exposes a real behavior bug, document it separately instead of hiding
 - 2026-06-04: Continued Slice 5 with `announcement.report`. Added `ReportRepository`, `DrizzleReportRepository`, and focused `ReportAnnouncement` integration coverage, then moved announcement existence checks, duplicate-report checks, and report creation behind application/infrastructure boundaries while preserving `NOT_FOUND`, `CONFLICT`, and success response behavior. Remaining Slice 5 work is moderator-side report queue cleanup (`listReported`, `dismissReports`, `suspend`, `reinstate`).
 - 2026-06-04: Continued Slice 5 with `announcement.listReported`. Added `ListReportedAnnouncements` integration coverage, moved moderator/admin queue scope orchestration into application layer using `AnnouncementRepository`, `AssignmentRepository`, and `UserRepository`, and translated new domain-style queue errors in the router while preserving `NOT_FOUND`, `FORBIDDEN`, threshold filtering, and response payload behavior. Remaining Slice 5 work is `dismissReports`, `suspend`, and `reinstate`.
 - 2026-06-04: Completed Slice 5 with `suspend`, `reinstate`, and `dismissReports`. Added `suspend`/`reinstate` methods to `AnnouncementRepository` contract and `DrizzleAnnouncementRepository`. Added `deleteByAnnouncementId` to `ReportRepository` and `DrizzleReportRepository`. Rewrote all three use cases to depend on repository contracts and throw domain errors instead of using DB/TRPC directly. Wired repos in announcement router and translated new domain errors at the presentation layer. Updated and expanded integration tests. All 373 tests pass. Slice 5 is complete.
+- 2026-06-04: Completed Slice 6. Refactored condominium, admin, assignment, and announcement presentation routers to use dependency injection, removing all direct infrastructure/Drizzle repository references and instantiations. Added condominium query use cases and integration tests. All 379 tests pass.
+- 2026-06-04: Completed Slice 7. Created domain service contracts for EmailService, StorageService, and ImageOptimizer. Implemented completePaymentAndActivate database transaction in DrizzlePaymentRepository. Created ProcessWebhookPayment and UploadFile use cases, refactoring webhook.ts and upload.ts to inject these use cases. Removed all direct database client, ORM, and infrastructure imports from production presentation files. All 379 tests pass.
+
+

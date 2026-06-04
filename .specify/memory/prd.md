@@ -58,6 +58,16 @@ A mobile-first, geolocation-driven showcase application for local businesses and
 27. As a system manager, I want to manage a global CPF blacklist, so that banned users are locked out from ever registering again.
 28. As a system manager, I want to search and ban violating providers, so that all their active listings are immediately expunged.
 
+### Backend Domain Alignment & Clean Architecture
+29. As a developer, I want `User` to remain the authentication identity root, so that provider capability is not mixed into login identity.
+30. As a developer, I want `Provider` to be represented by a separate relation and profile model, so that provider identity and provider operating context can grow independently.
+31. As a developer, I want `Provider Assignment` to replace the old provider-location concept as the canonical relation name, so that the table reflects both location and operating-state data.
+32. As a developer, I want `Provider Profile` to hold the public branding data for providers, so that account identity fields are not reused for company presentation.
+33. As a developer, I want global roles to follow the hierarchy `USER < SYSTEM_MANAGER < ADMINISTRATOR`, so that permission checks remain explicit and predictable.
+34. As a developer, I want `MODERATOR` to stay condo-scoped and out of the global role enum, so that condo authority does not leak into platform-wide authority.
+35. As a developer, I want backend wiring to live under `src/main/`, so that the composition root is easy to find and use-case construction stays centralized.
+36. As a developer, I want the remaining backend cleanup to proceed slice by slice with focused tests, so that architecture recovery stays behavior-preserving.
+
 ---
 
 ## Implementation Decisions
@@ -69,6 +79,9 @@ A mobile-first, geolocation-driven showcase application for local businesses and
   - `apps/web` (Vite + React + TanStack Router) handles mobile-first frontend interfaces and local storage configurations.
 - **Clean Architecture Core**: Core domain logic, state machines, and use cases reside inside domain entities (e.g. `Announcement.ts`) in `apps/server/src/features/`. Infrastructure layers (Drizzle adapters, external S3 storage) implement agnostic repository ports.
 - **Security Gates**: All API endpoints querying Full Legal Names, CPFs, Unit IDs, and proof files are guarded by backend tRPC middleware ensuring the caller has a verified global `SYSTEM_MANAGER` role or is the approved `MODERATOR` of that specific condominium.
+- **Backend Composition Root**: `apps/server/src/main/` owns server bootstrap, app-router assembly, and DI wiring. Routers stay thin and depend on injected use cases instead of constructing repositories directly.
+- **Domain Separation**: `User` is the auth identity root. `Provider` is a separate relation/capability, `Provider Assignment` is the canonical operating-context relation, and `Provider Profile` is the public branding record.
+- **Role Hierarchy**: Global roles are `USER`, `SYSTEM_MANAGER`, and `ADMINISTRATOR`. `MODERATOR` remains condo-scoped through assignment data and is not a global role.
 
 ### Schema Decisions
 - **CPF Hashing**: CPFs are validated mathematically, then computed to `sha256(cpf)` before queries or storage in `users.cpfHash` and `blacklisted_identifiers.cpfHash`. Raw CPFs are never persisted in the database.
@@ -85,6 +98,7 @@ A mobile-first, geolocation-driven showcase application for local businesses and
 - **Unit Testing**: Validate CPF mathematical checking algorithms, image crop validators, and announcement state machine expiration calculations.
 - **Integration Testing**: Execute tests against a real test PostgreSQL instance and a local MinIO bucket to verify repository adapters, authorization middleware, and webhook signatures.
 - **End-to-End Testing**: Test entire user journeys (registration $\rightarrow$ block setup $\rightarrow$ checkout redirect $\rightarrow$ webhook payment $\rightarrow$ showcase listing) in a simulated browser state.
+- **Backend Refactor Testing**: Cover role hierarchy, provider profile, provider assignment, and composition-root wiring changes with focused integration tests that assert observable behavior rather than constructor details.
 
 ---
 

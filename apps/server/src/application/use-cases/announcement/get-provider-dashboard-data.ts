@@ -1,11 +1,5 @@
-import { db } from '@neighborhood-showcase/db';
-import {
-  analyticsEvent as analyticsEventSchema,
-  announcement as announcementSchema,
-  category as categorySchema,
-  condominium as condominiumSchema,
-} from '@neighborhood-showcase/db/schema/showcase';
-import { and, eq, inArray, isNull } from 'drizzle-orm';
+import type { AnalyticsRepository } from '../../../domain/repositories/analytics.repository';
+import type { AnnouncementRepository } from '../../../domain/repositories/announcement.repository';
 
 export interface GetProviderDashboardDataInput {
   providerId: string;
@@ -52,59 +46,26 @@ export interface ProviderDashboardData {
 }
 
 export class GetProviderDashboardData {
+  constructor(
+    private readonly announcementRepo: AnnouncementRepository,
+    private readonly analyticsRepo: AnalyticsRepository,
+  ) {}
+
   async execute(
     input: GetProviderDashboardDataInput,
   ): Promise<ProviderDashboardData> {
     const { providerId } = input;
 
     // Fetch all announcements owned by this provider that are not soft-deleted
-    const announcements = await db
-      .select({
-        id: announcementSchema.id,
-        title: announcementSchema.title,
-        subtitle: announcementSchema.subtitle,
-        description: announcementSchema.description,
-        priceCents: announcementSchema.priceCents,
-        imageUrl: announcementSchema.imageUrl,
-        categoryId: announcementSchema.categoryId,
-        categoryName: categorySchema.name,
-        tags: announcementSchema.tags,
-        contactLinks: announcementSchema.contactLinks,
-        showVerifiedBadge: announcementSchema.showVerifiedBadge,
-        flaggedForReview: announcementSchema.flaggedForReview,
-        status: announcementSchema.status,
-        paidAt: announcementSchema.paidAt,
-        expiresAt: announcementSchema.expiresAt,
-        createdAt: announcementSchema.createdAt,
-        suspensionReason: announcementSchema.suspensionReason,
-        condoName: condominiumSchema.name,
-        providerLocationId: announcementSchema.providerLocationId,
-      })
-      .from(announcementSchema)
-      .leftJoin(
-        condominiumSchema,
-        eq(announcementSchema.condominiumId, condominiumSchema.id),
-      )
-      .innerJoin(
-        categorySchema,
-        eq(announcementSchema.categoryId, categorySchema.id),
-      )
-      .where(
-        and(
-          eq(announcementSchema.providerId, providerId),
-          isNull(announcementSchema.deletedAt),
-        ),
-      );
+    const announcements =
+      await this.announcementRepo.findDashboardByProviderId(providerId);
 
     const announcementIds = announcements.map((a) => a.id);
     let totalImpressions = 0;
     let totalInteractions = 0;
 
     if (announcementIds.length > 0) {
-      const events = await db
-        .select()
-        .from(analyticsEventSchema)
-        .where(inArray(analyticsEventSchema.announcementId, announcementIds));
+      const events = await this.analyticsRepo.findEvents(announcementIds);
 
       for (const e of events) {
         if (e.eventType === 'IMPRESSION') {
@@ -133,7 +94,7 @@ export class GetProviderDashboardData {
         description: raw.description,
         priceCents: raw.priceCents,
         imageUrl: raw.imageUrl,
-        category: raw.categoryName,
+        category: raw.category,
         categoryId: raw.categoryId,
         tags: raw.tags,
         contactLinks:
