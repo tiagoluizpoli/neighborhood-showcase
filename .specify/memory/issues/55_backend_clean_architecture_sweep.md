@@ -68,7 +68,7 @@ If a slice exposes a real behavior bug, document it separately instead of hiding
 - [x] 2. Admin user listing query.
 - [x] 3. Admin role-management mutations.
 - [x] 4. Admin blacklist and provider-ban flows.
-- [ ] 5. Announcement, payment, assignment, and moderation routers.
+- [x] 5. Announcement, payment, assignment, and moderation routers.
 - [ ] 6. Remaining backend routers and production modules.
 - [ ] 7. Backend-wide import boundary audit.
 
@@ -101,3 +101,4 @@ If a slice exposes a real behavior bug, document it separately instead of hiding
 - 2026-06-04: Continued Slice 5 with `announcement.listCategories`. Added `CategoryRepository`, `DrizzleCategoryRepository`, and focused `ListActiveCategories` integration coverage, then routed category listing through application layer while preserving active-only ordered payload behavior. Remaining Slice 5 work is moderation/reporting cleanup.
 - 2026-06-04: Continued Slice 5 with `announcement.report`. Added `ReportRepository`, `DrizzleReportRepository`, and focused `ReportAnnouncement` integration coverage, then moved announcement existence checks, duplicate-report checks, and report creation behind application/infrastructure boundaries while preserving `NOT_FOUND`, `CONFLICT`, and success response behavior. Remaining Slice 5 work is moderator-side report queue cleanup (`listReported`, `dismissReports`, `suspend`, `reinstate`).
 - 2026-06-04: Continued Slice 5 with `announcement.listReported`. Added `ListReportedAnnouncements` integration coverage, moved moderator/admin queue scope orchestration into application layer using `AnnouncementRepository`, `AssignmentRepository`, and `UserRepository`, and translated new domain-style queue errors in the router while preserving `NOT_FOUND`, `FORBIDDEN`, threshold filtering, and response payload behavior. Remaining Slice 5 work is `dismissReports`, `suspend`, and `reinstate`.
+- 2026-06-04: Completed Slice 5 with `suspend`, `reinstate`, and `dismissReports`. Added `suspend`/`reinstate` methods to `AnnouncementRepository` contract and `DrizzleAnnouncementRepository`. Added `deleteByAnnouncementId` to `ReportRepository` and `DrizzleReportRepository`. Rewrote all three use cases to depend on repository contracts and throw domain errors instead of using DB/TRPC directly. Wired repos in announcement router and translated new domain errors at the presentation layer. Updated and expanded integration tests. All 373 tests pass. Slice 5 is complete.

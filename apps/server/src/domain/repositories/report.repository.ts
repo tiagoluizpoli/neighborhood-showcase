@@ -25,4 +25,5 @@ export interface ReportRepository {
     announcementId: string,
   ): Promise<ReportRecord | null>;
   create(input: CreateReportRepositoryInput): Promise<ReportRecord>;
+  deleteByAnnouncementId(announcementId: string): Promise<void>;
 }

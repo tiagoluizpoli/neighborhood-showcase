@@ -331,6 +331,28 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
     });
   }
 
+  async suspend(id: string, reason: string): Promise<void> {
+    await db
+      .update(announcementSchema)
+      .set({
+        status: 'SUSPENDED',
+        suspensionReason: reason,
+        flaggedForReview: false,
+      })
+      .where(eq(announcementSchema.id, id));
+  }
+
+  async reinstate(id: string): Promise<void> {
+    await db
+      .update(announcementSchema)
+      .set({
+        status: 'ACTIVE',
+        suspensionReason: null,
+        flaggedForReview: false,
+      })
+      .where(eq(announcementSchema.id, id));
+  }
+
   async softDeleteAllByProviderId(
     providerId: string,
     reason: string,

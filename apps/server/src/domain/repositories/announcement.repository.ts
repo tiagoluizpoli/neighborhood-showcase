@@ -144,5 +144,7 @@ export interface AnnouncementRepository {
     id: string,
     input: UpdateAnnouncementRepositoryInput,
   ): Promise<Announcement>;
+  suspend(id: string, reason: string): Promise<void>;
+  reinstate(id: string): Promise<void>;
   softDeleteAllByProviderId(providerId: string, reason: string): Promise<void>;
 }

@@ -1,6 +1,12 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { CreateAnnouncement } from '../../application/use-cases/announcement/create-announcement';
+import type {
+  DismissReportsAccessDeniedError,
+  DismissReportsActorNotFoundError,
+  DismissReportsNoBoundError,
+  DismissReportsNotFoundError,
+} from '../../application/use-cases/announcement/dismiss-reports';
 import { DismissReports } from '../../application/use-cases/announcement/dismiss-reports';
 import { GetAnnouncementAnalytics } from '../../application/use-cases/announcement/get-announcement-analytics';
 import { GetProviderDashboardData } from '../../application/use-cases/announcement/get-provider-dashboard-data';
@@ -19,13 +25,25 @@ import {
   ReportQueueAccessDeniedError,
   ReportQueueActorNotFoundError,
 } from '../../application/use-cases/announcement/list-reported-announcements';
-import { ReinstateAnnouncement } from '../../application/use-cases/announcement/reinstate-announcement';
+import {
+  ReinstateAnnouncement,
+  type ReinstateAnnouncementAccessDeniedError,
+  type ReinstateAnnouncementActorNotFoundError,
+  type ReinstateAnnouncementNoBoundError,
+  type ReinstateAnnouncementNotFoundError,
+} from '../../application/use-cases/announcement/reinstate-announcement';
 import {
   AnnouncementReportConflictError,
   AnnouncementReportNotFoundError,
   ReportAnnouncement,
 } from '../../application/use-cases/announcement/report-announcement';
-import { SuspendAnnouncement } from '../../application/use-cases/announcement/suspend-announcement';
+import {
+  SuspendAnnouncement,
+  type SuspendAnnouncementAccessDeniedError,
+  type SuspendAnnouncementActorNotFoundError,
+  type SuspendAnnouncementNoBoundError,
+  type SuspendAnnouncementNotFoundError,
+} from '../../application/use-cases/announcement/suspend-announcement';
 import { TrackAnalyticsEvent } from '../../application/use-cases/announcement/track-analytics-event';
 import {
   AnnouncementUpdateAccessDeniedError,
@@ -84,13 +102,26 @@ const listActiveCategoriesUseCase = new ListActiveCategories(categoryRepo);
 const trackAnalyticsEventUseCase = new TrackAnalyticsEvent();
 const getProviderDashboardDataUseCase = new GetProviderDashboardData();
 const getAnnouncementAnalyticsUseCase = new GetAnnouncementAnalytics();
-const suspendAnnouncementUseCase = new SuspendAnnouncement();
-const reinstateAnnouncementUseCase = new ReinstateAnnouncement();
+const suspendAnnouncementUseCase = new SuspendAnnouncement(
+  announcementRepo,
+  assignmentRepo,
+  userRepo,
+);
+const reinstateAnnouncementUseCase = new ReinstateAnnouncement(
+  announcementRepo,
+  assignmentRepo,
+  userRepo,
+);
 const reportAnnouncementUseCase = new ReportAnnouncement(
   announcementRepo,
   reportRepo,
 );
-const dismissReportsUseCase = new DismissReports();
+const dismissReportsUseCase = new DismissReports(
+  announcementRepo,
+  assignmentRepo,
+  reportRepo,
+  userRepo,
+);
 const listReportedAnnouncementsUseCase = new ListReportedAnnouncements(
   announcementRepo,
   assignmentRepo,
@@ -378,12 +409,56 @@ export const announcementRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      await suspendAnnouncementUseCase.execute({
-        announcementId: input.id,
-        moderatorId: ctx.session.user.id,
-        reason: input.reason,
-      });
-      return { success: true };
+      try {
+        await suspendAnnouncementUseCase.execute({
+          announcementId: input.id,
+          moderatorId: ctx.session.user.id,
+          reason: input.reason,
+        });
+        return { success: true };
+      } catch (error) {
+        if (
+          (error as SuspendAnnouncementNotFoundError).name ===
+          'SuspendAnnouncementNotFoundError'
+        ) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: (error as SuspendAnnouncementNotFoundError).message,
+            cause: error,
+          });
+        }
+        if (
+          (error as SuspendAnnouncementNoBoundError).name ===
+          'SuspendAnnouncementNoBoundError'
+        ) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: (error as SuspendAnnouncementNoBoundError).message,
+            cause: error,
+          });
+        }
+        if (
+          (error as SuspendAnnouncementActorNotFoundError).name ===
+          'SuspendAnnouncementActorNotFoundError'
+        ) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: (error as SuspendAnnouncementActorNotFoundError).message,
+            cause: error,
+          });
+        }
+        if (
+          (error as SuspendAnnouncementAccessDeniedError).name ===
+          'SuspendAnnouncementAccessDeniedError'
+        ) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: (error as SuspendAnnouncementAccessDeniedError).message,
+            cause: error,
+          });
+        }
+        throw error;
+      }
     }),
 
   reinstate: protectedProcedure
@@ -393,11 +468,55 @@ export const announcementRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      await reinstateAnnouncementUseCase.execute({
-        announcementId: input.id,
-        moderatorId: ctx.session.user.id,
-      });
-      return { success: true };
+      try {
+        await reinstateAnnouncementUseCase.execute({
+          announcementId: input.id,
+          moderatorId: ctx.session.user.id,
+        });
+        return { success: true };
+      } catch (error) {
+        if (
+          (error as ReinstateAnnouncementNotFoundError).name ===
+          'ReinstateAnnouncementNotFoundError'
+        ) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: (error as ReinstateAnnouncementNotFoundError).message,
+            cause: error,
+          });
+        }
+        if (
+          (error as ReinstateAnnouncementNoBoundError).name ===
+          'ReinstateAnnouncementNoBoundError'
+        ) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: (error as ReinstateAnnouncementNoBoundError).message,
+            cause: error,
+          });
+        }
+        if (
+          (error as ReinstateAnnouncementActorNotFoundError).name ===
+          'ReinstateAnnouncementActorNotFoundError'
+        ) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: (error as ReinstateAnnouncementActorNotFoundError).message,
+            cause: error,
+          });
+        }
+        if (
+          (error as ReinstateAnnouncementAccessDeniedError).name ===
+          'ReinstateAnnouncementAccessDeniedError'
+        ) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: (error as ReinstateAnnouncementAccessDeniedError).message,
+            cause: error,
+          });
+        }
+        throw error;
+      }
     }),
 
   report: protectedProcedure
@@ -482,11 +601,55 @@ export const announcementRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      await dismissReportsUseCase.execute({
-        announcementId: input.announcementId,
-        moderatorId: ctx.session.user.id,
-      });
-      return { success: true };
+      try {
+        await dismissReportsUseCase.execute({
+          announcementId: input.announcementId,
+          moderatorId: ctx.session.user.id,
+        });
+        return { success: true };
+      } catch (error) {
+        if (
+          (error as DismissReportsNotFoundError).name ===
+          'DismissReportsNotFoundError'
+        ) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: (error as DismissReportsNotFoundError).message,
+            cause: error,
+          });
+        }
+        if (
+          (error as DismissReportsActorNotFoundError).name ===
+          'DismissReportsActorNotFoundError'
+        ) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: (error as DismissReportsActorNotFoundError).message,
+            cause: error,
+          });
+        }
+        if (
+          (error as DismissReportsNoBoundError).name ===
+          'DismissReportsNoBoundError'
+        ) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: (error as DismissReportsNoBoundError).message,
+            cause: error,
+          });
+        }
+        if (
+          (error as DismissReportsAccessDeniedError).name ===
+          'DismissReportsAccessDeniedError'
+        ) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: (error as DismissReportsAccessDeniedError).message,
+            cause: error,
+          });
+        }
+        throw error;
+      }
     }),
 
   listCategories: publicProcedure.query(async () => {

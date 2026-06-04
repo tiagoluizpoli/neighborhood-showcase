@@ -44,4 +44,10 @@ export class DrizzleReportRepository implements ReportRepository {
 
     return report;
   }
+
+  async deleteByAnnouncementId(announcementId: string): Promise<void> {
+    await db
+      .delete(reportSchema)
+      .where(eq(reportSchema.announcementId, announcementId));
+  }
 }

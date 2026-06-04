@@ -1,11 +1,31 @@
-import { db } from '@neighborhood-showcase/db';
-import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
-import {
-  announcement as announcementSchema,
-  providerLocation as assignmentSchema,
-} from '@neighborhood-showcase/db/schema/showcase';
-import { TRPCError } from '@trpc/server';
-import { and, eq } from 'drizzle-orm';
+import type { AnnouncementRepository } from '../../../domain/repositories/announcement.repository';
+import type { AssignmentRepository } from '../../../domain/repositories/assignment.repository';
+import type { UserRepository } from '../../../domain/repositories/user.repository';
+import { DomainError } from '../../../shared/domain-error';
+
+export class SuspendAnnouncementNotFoundError extends DomainError {
+  constructor() {
+    super('Anúncio não encontrado.');
+  }
+}
+
+export class SuspendAnnouncementNoBoundError extends DomainError {
+  constructor() {
+    super('Anúncio não está associado a um condomínio.');
+  }
+}
+
+export class SuspendAnnouncementActorNotFoundError extends DomainError {
+  constructor() {
+    super('Usuário não encontrado.');
+  }
+}
+
+export class SuspendAnnouncementAccessDeniedError extends DomainError {
+  constructor() {
+    super('Acesso negado. Você não é moderador deste condomínio.');
+  }
+}
 
 export interface SuspendAnnouncementInput {
   announcementId: string;
@@ -14,75 +34,41 @@ export interface SuspendAnnouncementInput {
 }
 
 export class SuspendAnnouncement {
+  constructor(
+    private readonly announcementRepo: AnnouncementRepository,
+    private readonly assignmentRepo: AssignmentRepository,
+    private readonly userRepo: UserRepository,
+  ) {}
+
   async execute(input: SuspendAnnouncementInput): Promise<void> {
     const { announcementId, moderatorId, reason } = input;
 
-    // 1. Fetch announcement
-    const [ann] = await db
-      .select()
-      .from(announcementSchema)
-      .where(eq(announcementSchema.id, announcementId))
-      .limit(1);
-
+    const ann = await this.announcementRepo.findById(announcementId);
     if (!ann) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Anúncio não encontrado.',
-      });
+      throw new SuspendAnnouncementNotFoundError();
     }
 
     if (!ann.condominiumId) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Anúncio não está associado a um condomínio.',
-      });
+      throw new SuspendAnnouncementNoBoundError();
     }
 
-    // 2. Fetch acting user details to check for global SYSTEM_MANAGER role
-    const [actor] = await db
-      .select({ role: userSchema.role })
-      .from(userSchema)
-      .where(eq(userSchema.id, moderatorId))
-      .limit(1);
-
+    const actor = await this.userRepo.findById(moderatorId);
     if (!actor) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Usuário não encontrado.',
-      });
+      throw new SuspendAnnouncementActorNotFoundError();
     }
 
     if (actor.role !== 'SYSTEM_MANAGER') {
-      // Verify moderator permission for the announcement's condominium
-      const [isMod] = await db
-        .select()
-        .from(assignmentSchema)
-        .where(
-          and(
-            eq(assignmentSchema.providerId, moderatorId),
-            eq(assignmentSchema.condominiumId, ann.condominiumId),
-            eq(assignmentSchema.type, 'MODERATOR'),
-            eq(assignmentSchema.status, 'APPROVED'),
-          ),
-        )
-        .limit(1);
+      const assignment = await this.assignmentRepo.findByProviderCondoAndType(
+        moderatorId,
+        ann.condominiumId,
+        'MODERATOR',
+      );
 
-      if (!isMod) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Acesso negado. Você não é moderador deste condomínio.',
-        });
+      if (!assignment || assignment.status !== 'APPROVED') {
+        throw new SuspendAnnouncementAccessDeniedError();
       }
     }
 
-    // 3. Update announcement to SUSPENDED with reason
-    await db
-      .update(announcementSchema)
-      .set({
-        status: 'SUSPENDED',
-        suspensionReason: reason,
-        flaggedForReview: false,
-      })
-      .where(eq(announcementSchema.id, announcementId));
+    await this.announcementRepo.suspend(announcementId, reason);
   }
 }
