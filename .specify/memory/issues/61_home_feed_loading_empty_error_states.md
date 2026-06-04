@@ -54,15 +54,15 @@ If the announcement feed query fails:
 
 ## Acceptance criteria
 
-- [ ] Feed loading uses skeleton announcement cards instead of a centered spinner.
-- [ ] Skeleton grid follows the same responsive columns as the real card grid.
-- [ ] Discovery controls remain visible during loading, empty, and error states.
-- [ ] Feed is not blocked by IP fallback or GPS refresh.
-- [ ] Empty states reflect active search, category, verified-only, condominium, location, and no-inventory contexts.
-- [ ] Empty states include a relevant action where useful.
-- [ ] Feed query failures show a clear error state with `Tentar novamente`.
-- [ ] Raw technical errors are not exposed to Visitors.
-- [ ] Tests cover loading skeleton, contextual empty variants, query error, and retry behavior.
+- [x] Feed loading uses skeleton announcement cards instead of a centered spinner.
+- [x] Skeleton grid follows the same responsive columns as the real card grid.
+- [x] Discovery controls remain visible during loading, empty, and error states.
+- [x] Feed is not blocked by IP fallback or GPS refresh.
+- [x] Empty states reflect active search, category, verified-only, condominium, location, and no-inventory contexts.
+- [x] Empty states include a relevant action where useful.
+- [x] Feed query failures show a clear error state with `Tentar novamente`.
+- [x] Raw technical errors are not exposed to Visitors.
+- [x] Tests cover loading skeleton, contextual empty variants, query error, and retry behavior.
 
 ## Blocked by
 

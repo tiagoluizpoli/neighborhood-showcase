@@ -41,6 +41,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { AnnouncementCard } from '@/components/announcement-card';
+import { AnnouncementCardSkeleton } from '@/components/announcement-card-skeleton';
 import { authClient } from '@/lib/auth-client';
 import {
   confirmNearbyCondoSelection,
@@ -201,7 +202,12 @@ function PublicVitrineComponent() {
       return Date.now() - new Date(capturedAt).getTime() < 24 * 60 * 60 * 1000;
     })();
 
-  const { data: announcements, isLoading: isLoadingAds } = useQuery(
+  const {
+    data: announcements,
+    isLoading: isLoadingAds,
+    isError: isErrorAds,
+    refetch: refetchAds,
+  } = useQuery(
     trpc.announcement.listPublic.queryOptions({
       latitude: coords?.latitude,
       longitude: coords?.longitude,
@@ -485,6 +491,167 @@ function PublicVitrineComponent() {
       eventType: 'CONTACT_CLICK',
       targetType,
     });
+  };
+
+  const getEmptyStateContent = () => {
+    if (search.trim() !== '') {
+      return (
+        <div className="rounded-xl border bg-card py-20 text-center">
+          <Search className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+          <h3 className="mb-1 font-medium text-lg">
+            Nenhum resultado para "{search}"
+          </h3>
+          <p className="mx-auto mb-4 max-w-md px-4 text-muted-foreground text-sm">
+            Verifique a ortografia ou tente buscar por outros termos.
+          </p>
+          <Button onClick={() => setSearch('')} variant="outline" size="sm">
+            Limpar busca
+          </Button>
+        </div>
+      );
+    }
+
+    if (categoryId !== 'Todos') {
+      const categoryName =
+        backendCategories?.find((c) => c.id === categoryId)?.name || '';
+      return (
+        <div className="rounded-xl border bg-card py-20 text-center">
+          <SlidersHorizontal className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+          <h3 className="mb-1 font-medium text-lg">
+            Nenhum anúncio em {categoryName || categoryId}
+          </h3>
+          <p className="mx-auto mb-4 max-w-md px-4 text-muted-foreground text-sm">
+            Não encontramos listagens ativas nesta categoria no momento.
+          </p>
+          <Button
+            onClick={() => setCategoryId('Todos')}
+            variant="outline"
+            size="sm"
+          >
+            Ver todas as categorias
+          </Button>
+        </div>
+      );
+    }
+
+    if (verifiedOnly) {
+      return (
+        <div className="rounded-xl border bg-card py-20 text-center">
+          <CheckCircle2 className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+          <h3 className="mb-1 font-medium text-lg">
+            Nenhum morador verificado encontrado
+          </h3>
+          <p className="mx-auto mb-4 max-w-md px-4 text-muted-foreground text-sm">
+            Não encontramos prestadores que sejam moradores verificados com os
+            filtros atuais.
+          </p>
+          <Button
+            onClick={() => setVerifiedOnly(false)}
+            variant="outline"
+            size="sm"
+          >
+            Mostrar todos os prestadores
+          </Button>
+        </div>
+      );
+    }
+
+    if (filterByCondo && selectedCondo) {
+      return (
+        <div className="rounded-xl border bg-card py-20 text-center">
+          <MapPin className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+          <h3 className="mb-1 font-medium text-lg">
+            Ainda não há anúncios neste condomínio
+          </h3>
+          <p className="mx-auto mb-4 max-w-md px-4 text-muted-foreground text-sm">
+            Seja o primeiro a anunciar para seus vizinhos ou explore a região ao
+            redor.
+          </p>
+          <div className="flex justify-center gap-2">
+            <Button
+              onClick={() => setFilterByCondo(false)}
+              variant="outline"
+              size="sm"
+            >
+              Ver anúncios da região
+            </Button>
+            <Button
+              onClick={() => setIsLocationSelectorOpen(true)}
+              variant="outline"
+              size="sm"
+            >
+              Alterar condomínio
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    if (isGpsFresh && radiusKm === 10) {
+      return (
+        <div className="rounded-xl border bg-card py-20 text-center">
+          <MapPin className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+          <h3 className="mb-1 font-medium text-lg">
+            Nenhum anúncio encontrado nesta região
+          </h3>
+          <p className="mx-auto mb-4 max-w-md px-4 text-muted-foreground text-sm">
+            Não há serviços cadastrados em um raio de 10 km da sua localização.
+          </p>
+          <div className="flex justify-center gap-2">
+            <Button onClick={() => setRadiusKm(25)} variant="outline" size="sm">
+              Expandir raio para 25 km
+            </Button>
+            <Button onClick={revokeLocation} variant="outline" size="sm">
+              Limpar localização
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    if (selectedRegion || ipLocation || coords) {
+      return (
+        <div className="rounded-xl border bg-card py-20 text-center">
+          <MapPin className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+          <h3 className="mb-1 font-medium text-lg">
+            Nenhum anúncio encontrado nesta região
+          </h3>
+          <p className="mx-auto mb-4 max-w-md px-4 text-muted-foreground text-sm">
+            Tente buscar em outras cidades ou limpar sua localização atual.
+          </p>
+          <div className="flex justify-center gap-2">
+            <Button
+              onClick={() => setIsLocationSelectorOpen(true)}
+              variant="outline"
+              size="sm"
+            >
+              Ajustar localização
+            </Button>
+            <Button onClick={revokeLocation} variant="outline" size="sm">
+              Limpar localização
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="rounded-xl border bg-card py-20 text-center">
+        <SlidersHorizontal className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+        <h3 className="mb-1 font-medium text-lg">
+          Ainda não há anúncios publicados
+        </h3>
+        <p className="mx-auto mb-6 max-w-md px-4 text-muted-foreground text-sm">
+          Seja o primeiro prestador a divulgar seus serviços na plataforma!
+        </p>
+        <Link
+          to={session ? '/panel/dashboard' : '/auth'}
+          search={session ? undefined : { tab: 'signup' }}
+        >
+          <Button size="sm">Anunciar serviço</Button>
+        </Link>
+      </div>
+    );
   };
 
   const getLocationStatusText = () => {
@@ -925,10 +1092,24 @@ function PublicVitrineComponent() {
       </div>
 
       {/* Announcements Grid */}
-      {isLoadingAds ? (
-        <div className="flex flex-col items-center justify-center gap-3 py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground text-sm">Buscando listagens...</p>
+      {isErrorAds ? (
+        <div className="rounded-xl border border-destructive/20 bg-destructive/5 py-20 text-center">
+          <p className="font-semibold text-destructive text-lg">
+            Não conseguimos carregar os anúncios agora.
+          </p>
+          <Button
+            onClick={() => refetchAds()}
+            variant="outline"
+            className="mt-4"
+          >
+            Tentar novamente
+          </Button>
+        </div>
+      ) : isLoadingAds ? (
+        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <AnnouncementCardSkeleton key={i} />
+          ))}
         </div>
       ) : announcements && announcements.length > 0 ? (
         <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
@@ -949,16 +1130,7 @@ function PublicVitrineComponent() {
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border bg-card py-20 text-center">
-          <SlidersHorizontal className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-          <h3 className="mb-1 font-medium text-lg">
-            Nenhum anúncio encontrado
-          </h3>
-          <p className="mx-auto max-w-md px-4 text-muted-foreground text-sm">
-            Tente mudar a categoria, limpar o campo de busca ou selecionar outro
-            condomínio.
-          </p>
-        </div>
+        getEmptyStateContent()
       )}
 
       {/* Como Funciona Section */}

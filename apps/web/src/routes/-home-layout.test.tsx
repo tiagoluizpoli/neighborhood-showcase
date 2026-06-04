@@ -242,6 +242,23 @@ mock.module('react-i18next', () => ({
   }),
 }));
 
+export let mockListPublicData: any = [
+  {
+    id: 'ann-123',
+    title: 'Test Ad',
+    description: 'Test Description',
+    imageUrl: 'test.jpg',
+    category: 'Serviços',
+    contactLinks: {},
+    showVerifiedBadge: false,
+    condoCity: 'Florianópolis',
+    providerName: 'Test Provider',
+  },
+];
+export let mockListPublicLoading = false;
+export let mockListPublicError = false;
+export let mockListPublicRefetchCalled = false;
+
 mock.module('@tanstack/react-query', () => ({
   ...RealQuery,
   useQuery: (options: any) => {
@@ -252,25 +269,29 @@ mock.module('@tanstack/react-query', () => ({
       JSON.stringify(queryKey).includes('listPublic')
     ) {
       return {
-        data: [
-          {
-            id: 'ann-123',
-            title: 'Test Ad',
-            description: 'Test Description',
-            imageUrl: 'test.jpg',
-            category: 'Serviços',
-            contactLinks: {},
-            showVerifiedBadge: false,
-            condoCity: 'Florianópolis',
-            providerName: 'Test Provider',
-          },
-        ],
+        data: mockListPublicData,
+        isLoading: mockListPublicLoading,
+        isError: mockListPublicError,
+        refetch: () => {
+          mockListPublicRefetchCalled = true;
+        },
+      };
+    }
+    if (
+      queryHash.includes('listCategories') ||
+      JSON.stringify(queryKey).includes('listCategories')
+    ) {
+      return {
+        data: [{ id: 'cat-123', name: 'Alimentação' }],
         isLoading: false,
+        isError: false,
       };
     }
     return {
       data: [],
       isLoading: false,
+      isError: false,
+      refetch: () => {},
     };
   },
   useMutation: () => ({
@@ -291,6 +312,22 @@ const { Route: IndexRoute } = await import('./_portal.index');
 describe('Home Discovery Layout Shell', () => {
   beforeEach(() => {
     resetHookState();
+    mockListPublicData = [
+      {
+        id: 'ann-123',
+        title: 'Test Ad',
+        description: 'Test Description',
+        imageUrl: 'test.jpg',
+        category: 'Serviços',
+        contactLinks: {},
+        showVerifiedBadge: false,
+        condoCity: 'Florianópolis',
+        providerName: 'Test Provider',
+      },
+    ];
+    mockListPublicLoading = false;
+    mockListPublicError = false;
+    mockListPublicRefetchCalled = false;
   });
 
   test('uses wider page shell and keeps home section anchors', () => {
@@ -432,5 +469,198 @@ describe('Home Discovery Layout Shell', () => {
 
     const signInLinkAuth = findLinkByText(authSection, 'Já tem conta? Entrar');
     expect(signInLinkAuth).toBeNull();
+  });
+
+  test('renders skeleton cards when loading', () => {
+    mockListPublicLoading = true;
+    mockListPublicData = null;
+    mockListPublicError = false;
+
+    const component = IndexRoute.options.component;
+    const tree = renderComponent(component);
+
+    // Skeleton card container uses same grid classes
+    const gridNode = findNodeByProp(
+      tree,
+      'className',
+      'grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4',
+    );
+    expect(gridNode).toBeTruthy();
+    expect(gridNode.props.children.length).toBe(8);
+  });
+
+  test('renders error state and retry action on query failure', () => {
+    mockListPublicLoading = false;
+    mockListPublicData = null;
+    mockListPublicError = true;
+    mockListPublicRefetchCalled = false;
+
+    const component = IndexRoute.options.component;
+    const tree = renderComponent(component);
+
+    expect(
+      findNodeByText(tree, 'Não conseguimos carregar os anúncios agora.'),
+    ).toBeTruthy();
+
+    const retryBtn = findClickableNodeByText(tree, 'Tentar novamente');
+    expect(retryBtn).toBeTruthy();
+
+    // Trigger retry
+    retryBtn.props.onClick();
+    expect(mockListPublicRefetchCalled).toBe(true);
+  });
+
+  test('renders contextual empty state variants correctly', () => {
+    mockListPublicLoading = false;
+    mockListPublicData = [];
+    mockListPublicError = false;
+
+    const component = IndexRoute.options.component;
+
+    // 1. No filters and no announcements
+    localStorage.clear();
+    const treeNoFilters = renderComponent(component);
+    expect(
+      findNodeByText(treeNoFilters, 'Ainda não há anúncios publicados'),
+    ).toBeTruthy();
+    expect(findLinkByText(treeNoFilters, 'Anunciar serviço')).toBeTruthy();
+
+    // Reset hook state for next rendering sequence
+    resetHookState();
+
+    // 2. Search active
+    const treeSearch = renderComponent(component);
+    const searchInput = findNodeByProp(
+      treeSearch,
+      'placeholder',
+      'Buscar por serviços, comidas, produtos...',
+    );
+    expect(searchInput).toBeTruthy();
+    searchInput.props.onChange({ target: { value: 'pizza' } });
+    const searchActiveTree = renderComponent(component);
+    expect(
+      findNodeByText(searchActiveTree, 'Nenhum resultado para "pizza"'),
+    ).toBeTruthy();
+    const clearSearchBtn = findClickableNodeByText(
+      searchActiveTree,
+      'Limpar busca',
+    );
+    expect(clearSearchBtn).toBeTruthy();
+    clearSearchBtn.props.onClick();
+    const clearedSearchTree = renderComponent(component);
+    expect(
+      findNodeByText(clearedSearchTree, 'Nenhum resultado para "pizza"'),
+    ).toBeNull();
+
+    // Reset hook state for next rendering sequence
+    resetHookState();
+
+    // 3. Category active
+    const treeCategory = renderComponent(component);
+    const categoryBtn = findClickableNodeByText(treeCategory, 'Alimentação');
+    expect(categoryBtn).toBeTruthy();
+    categoryBtn.props.onClick();
+    const categoryActiveTree = renderComponent(component);
+    expect(
+      findNodeByText(categoryActiveTree, 'Nenhum anúncio em Alimentação'),
+    ).toBeTruthy();
+    const clearCategoryBtn = findClickableNodeByText(
+      categoryActiveTree,
+      'Ver todas as categorias',
+    );
+    expect(clearCategoryBtn).toBeTruthy();
+    clearCategoryBtn.props.onClick();
+
+    // Reset hook state for next rendering sequence
+    resetHookState();
+
+    // 4. Verified-only active
+    const treeVerified = renderComponent(component);
+    const verifiedSwitch = findNodeByProp(
+      treeVerified,
+      'id',
+      'verified-switch',
+    );
+    expect(verifiedSwitch).toBeTruthy();
+    verifiedSwitch.props.onCheckedChange(true);
+    const verifiedActiveTree = renderComponent(component);
+    expect(
+      findNodeByText(
+        verifiedActiveTree,
+        'Nenhum morador verificado encontrado',
+      ),
+    ).toBeTruthy();
+    const clearVerifiedBtn = findClickableNodeByText(
+      verifiedActiveTree,
+      'Mostrar todos os prestadores',
+    );
+    expect(clearVerifiedBtn).toBeTruthy();
+    clearVerifiedBtn.props.onClick();
+
+    // Reset hook state for next rendering sequence
+    resetHookState();
+
+    // 5. Selected condominium filter active
+    localStorage.setItem(
+      'user_condo',
+      JSON.stringify({ id: 'condo-123', name: 'Residencial Floripa' }),
+    );
+    renderComponent(component);
+    const treeCondo = renderComponent(component);
+    const condoSwitch = findNodeByProp(treeCondo, 'id', 'condo-filter-switch');
+    expect(condoSwitch).toBeTruthy();
+    condoSwitch.props.onCheckedChange(true);
+    const condoActiveTree = renderComponent(component);
+    expect(
+      findNodeByText(condoActiveTree, 'Ainda não há anúncios neste condomínio'),
+    ).toBeTruthy();
+    expect(
+      findClickableNodeByText(condoActiveTree, 'Ver anúncios da região'),
+    ).toBeTruthy();
+    expect(
+      findClickableNodeByText(condoActiveTree, 'Alterar condomínio'),
+    ).toBeTruthy();
+
+    // Reset hook state for next rendering sequence
+    resetHookState();
+
+    // 6. Region active
+    localStorage.setItem(
+      'user_region',
+      JSON.stringify({ city: 'Florianópolis' }),
+    );
+    renderComponent(component);
+    const treeRegion = renderComponent(component);
+    expect(
+      findNodeByText(treeRegion, 'Nenhum anúncio encontrado nesta região'),
+    ).toBeTruthy();
+    expect(
+      findClickableNodeByText(treeRegion, 'Ajustar localização'),
+    ).toBeTruthy();
+    expect(
+      findClickableNodeByText(treeRegion, 'Limpar localização'),
+    ).toBeTruthy();
+
+    // Reset hook state for next rendering sequence
+    resetHookState();
+
+    // 7. Fresh GPS active (radius expand option available)
+    localStorage.setItem('geolocation_preference', 'granted');
+    localStorage.setItem(
+      'user_coords',
+      JSON.stringify({
+        latitude: -27.59,
+        longitude: -48.54,
+        capturedAt: new Date().toISOString(),
+      }),
+    );
+    renderComponent(component);
+    const treeGps = renderComponent(component);
+    expect(
+      findNodeByText(treeGps, 'Nenhum anúncio encontrado nesta região'),
+    ).toBeTruthy();
+    expect(
+      findClickableNodeByText(treeGps, 'Expandir raio para 25 km'),
+    ).toBeTruthy();
   });
 });
