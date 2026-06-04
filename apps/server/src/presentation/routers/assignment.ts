@@ -1,6 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { ApproveAssignment } from '../../application/use-cases/assignment/approve-assignment';
+import { GetAssignment } from '../../application/use-cases/assignment/get-assignment';
 import { ListPendingAssignments } from '../../application/use-cases/assignment/list-pending-assignments';
 import { ListProviderAssignments } from '../../application/use-cases/assignment/list-provider-assignments';
 import { RegisterExternalLocation } from '../../application/use-cases/assignment/register-external-location';
@@ -10,6 +11,7 @@ import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-
 import { protectedProcedure, router } from '../trpc';
 
 const assignmentRepo = new DrizzleAssignmentRepository();
+const getAssignmentUseCase = new GetAssignment(assignmentRepo);
 const requestAssignmentUseCase = new RequestAssignment(assignmentRepo);
 const listPendingAssignmentsUseCase = new ListPendingAssignments(
   assignmentRepo,
@@ -84,7 +86,7 @@ export const assignmentRouter = router({
   approve: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const assign = await assignmentRepo.findById(input.id);
+      const assign = await getAssignmentUseCase.execute({ id: input.id });
       if (!assign) {
         throw new TRPCError({
           code: 'NOT_FOUND',
