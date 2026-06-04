@@ -111,6 +111,16 @@
     "search_placeholder": "Search for services, food, and products...",
     "filters": "Filters",
     "filters_title": "Browse filters",
-    "filters_description": "Refine the showcase by trust, condominium, and reach."
+    "filters_description": "Refine the showcase by trust, condominium, and reach.",
+    "how_it_works": {
+      "title": "How it works",
+      "step_1_title": "Explore near you",
+      "step_1_description": "Browse by region, condominium, category, or search.",
+      "step_2_title": "Check who is advertising",
+      "step_2_description": "Review provider identity, verification, local context, and details.",
+      "step_3_title": "Talk directly to the provider",
+      "step_3_description": "Reach out through WhatsApp, phone, email, or the public profile.",
+      "provider_note": "Want to advertise? Publish your service in the panel and appear to nearby residents."
+    }
   }
 }

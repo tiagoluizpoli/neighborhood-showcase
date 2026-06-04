@@ -111,6 +111,16 @@
     "search_placeholder": "Buscar por serviços, comidas, produtos...",
     "filters": "Filtros",
     "filters_title": "Filtros da busca",
-    "filters_description": "Refine a vitrine por confiança, condomínio e alcance."
+    "filters_description": "Refine a vitrine por confiança, condomínio e alcance.",
+    "how_it_works": {
+      "title": "Como funciona",
+      "step_1_title": "Explore perto de você",
+      "step_1_description": "Navegue por região, condomínio, categoria ou busca.",
+      "step_2_title": "Confira quem anuncia",
+      "step_2_description": "Veja identidade do prestador, verificação, contexto local e detalhes.",
+      "step_3_title": "Fale direto com o prestador",
+      "step_3_description": "Entre em contato por WhatsApp, telefone, email ou perfil público.",
+      "provider_note": "Quer anunciar? Publique seu serviço no painel e apareça para moradores próximos."
+    }
   }
 }

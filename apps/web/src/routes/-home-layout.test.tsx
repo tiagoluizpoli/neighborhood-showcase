@@ -187,6 +187,18 @@ mock.module('react-i18next', () => ({
         'home.filters': 'Filtros',
         'home.search_placeholder': 'Buscar por serviços, comidas, produtos...',
         'home.filters_title': 'Filtros da busca',
+        'home.how_it_works.title': 'Como funciona',
+        'home.how_it_works.step_1_title': 'Explore perto de você',
+        'home.how_it_works.step_1_description':
+          'Navegue por região, condomínio, categoria ou busca.',
+        'home.how_it_works.step_2_title': 'Confira quem anuncia',
+        'home.how_it_works.step_2_description':
+          'Veja identidade do prestador, verificação, contexto local e detalhes.',
+        'home.how_it_works.step_3_title': 'Fale direto com o prestador',
+        'home.how_it_works.step_3_description':
+          'Entre em contato por WhatsApp, telefone, email ou perfil público.',
+        'home.how_it_works.provider_note':
+          'Quer anunciar? Publique seu serviço no painel e apareça para moradores próximos.',
         'location.tab_region': 'Região',
         'location.tab_condo': 'Condomínio',
         'location.option_gps': 'Usar minha localização atual (GPS)',
@@ -283,5 +295,42 @@ describe('Home Discovery Layout Shell', () => {
     const tree = renderComponent(component);
 
     expect(findClickableNodeByText(tree, 'Filtros')).toBeTruthy();
+  });
+
+  test('renders compact visitor-first como-funciona steps with provider note', () => {
+    const component = IndexRoute.options.component;
+    const tree = renderComponent(component);
+    const howSection = findNodeByProp(tree, 'id', 'como-funciona');
+
+    expect(howSection).toBeTruthy();
+    expect(findNodeByText(howSection, 'Explore perto de você')).toBeTruthy();
+    expect(
+      findNodeByText(
+        howSection,
+        'Navegue por região, condomínio, categoria ou busca.',
+      ),
+    ).toBeTruthy();
+    expect(findNodeByText(howSection, 'Confira quem anuncia')).toBeTruthy();
+    expect(
+      findNodeByText(
+        howSection,
+        'Veja identidade do prestador, verificação, contexto local e detalhes.',
+      ),
+    ).toBeTruthy();
+    expect(
+      findNodeByText(howSection, 'Fale direto com o prestador'),
+    ).toBeTruthy();
+    expect(
+      findNodeByText(
+        howSection,
+        'Entre em contato por WhatsApp, telefone, email ou perfil público.',
+      ),
+    ).toBeTruthy();
+    expect(
+      findNodeByText(
+        howSection,
+        'Quer anunciar? Publique seu serviço no painel e apareça para moradores próximos.',
+      ),
+    ).toBeTruthy();
   });
 });

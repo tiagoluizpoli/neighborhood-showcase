@@ -1104,36 +1104,55 @@ function PublicVitrineComponent() {
       )}
 
       {/* Como Funciona Section */}
-      <div id="como-funciona" className="mt-16 rounded-xl border bg-card p-8">
-        <h3 className="mb-6 text-center font-bold text-lg">Como Funciona</h3>
-        <div className="grid grid-cols-1 gap-6 text-center sm:grid-cols-3">
-          <div>
-            <div className="mb-2 font-semibold text-primary">
-              1. Explore perto de você
+      <div id="como-funciona" className="mt-16 px-1">
+        <div className="mx-auto max-w-6xl">
+          <h3 className="mb-6 font-semibold text-lg md:text-xl">
+            {t('home.how_it_works.title')}
+          </h3>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="flex gap-3 rounded-xl border bg-background px-4 py-4">
+              <div className="rounded-lg bg-primary/10 p-2 text-primary">
+                <Search className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">
+                  {t('home.how_it_works.step_1_title')}
+                </p>
+                <p className="mt-1 text-muted-foreground text-sm">
+                  {t('home.how_it_works.step_1_description')}
+                </p>
+              </div>
             </div>
-            <p className="text-muted-foreground text-sm">
-              Descubra prestadores de serviços e produtos perto da sua
-              localização ou condomínio.
-            </p>
-          </div>
-          <div>
-            <div className="mb-2 font-semibold text-primary">
-              2. Confira quem anuncia
+            <div className="flex gap-3 rounded-xl border bg-background px-4 py-4">
+              <div className="rounded-lg bg-primary/10 p-2 text-primary">
+                <CheckCircle2 className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">
+                  {t('home.how_it_works.step_2_title')}
+                </p>
+                <p className="mt-1 text-muted-foreground text-sm">
+                  {t('home.how_it_works.step_2_description')}
+                </p>
+              </div>
             </div>
-            <p className="text-muted-foreground text-sm">
-              Veja o perfil dos prestadores e saiba quem são os moradores
-              verificados.
-            </p>
-          </div>
-          <div>
-            <div className="mb-2 font-semibold text-primary">
-              3. Fale direto com o prestador
+            <div className="flex gap-3 rounded-xl border bg-background px-4 py-4">
+              <div className="rounded-lg bg-primary/10 p-2 text-primary">
+                <MessageCircle className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">
+                  {t('home.how_it_works.step_3_title')}
+                </p>
+                <p className="mt-1 text-muted-foreground text-sm">
+                  {t('home.how_it_works.step_3_description')}
+                </p>
+              </div>
             </div>
-            <p className="text-muted-foreground text-sm">
-              Entre em contato via WhatsApp ou outros canais cadastrados com um
-              clique.
-            </p>
           </div>
+          <p className="mt-4 text-muted-foreground text-sm">
+            {t('home.how_it_works.provider_note')}
+          </p>
         </div>
       </div>
 

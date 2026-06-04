@@ -100,7 +100,7 @@ The home page currently uses a centered `max-w-6xl` container for the entire bro
 - [ ] `#anunciar` renders as a full-width CTA band, not a card.
 - [ ] Provider CTA includes `Anunciar serviço` and `Já tem conta? Entrar` actions with correct auth-aware routing.
 - [ ] Header does not add an extra primary provider CTA button beyond the `Anunciar` anchor.
-- [ ] `#como-funciona` renders as a compact Visitor-first 3-step section without cards or long marketing copy.
+- [x] `#como-funciona` renders as a compact Visitor-first 3-step section without cards or long marketing copy.
 - [ ] Layout avoids nested cards and oversized full-width alert/control surfaces.
 - [ ] Visual/regression tests or route-level UI assertions cover the main home-page layout states.
 
@@ -120,3 +120,9 @@ The home page currently uses a centered `max-w-6xl` container for the entire bro
 - Added mobile-only `Filtros` sheet so secondary filters no longer stack above the feed on small screens.
 - Removed the old standalone full-width radius block and kept radius controls embedded inside discovery filters only when fresh GPS is active.
 - Remaining work: denser announcement grid, compact visitor-first `#como-funciona`, full-width `#anunciar` CTA band, auth-aware CTA routing, and follow-up route-level assertions for those sections.
+
+## Iteration 5 Notes
+
+- Reworked `#como-funciona` into a compact Visitor-first 3-step section with short copy, small lucide icons, and a provider note under the steps.
+- Added route-level UI assertions for the new `#como-funciona` copy and provider note.
+- Remaining work: denser announcement grid, full-width `#anunciar` CTA band, auth-aware CTA routing, and final route-level assertions for the CTA section and overall layout finish.
