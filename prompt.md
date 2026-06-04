@@ -1,5 +1,5 @@
 ---
-issueId: 56_public_browsing_header_separation.md
+issueId: 60_announcement_detail_navigation_source_of_truth.md
 ---
 
 # MANDATORY CONTEXT

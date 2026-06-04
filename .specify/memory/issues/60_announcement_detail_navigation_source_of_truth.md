@@ -35,15 +35,15 @@ The home page currently manages `activeAdId`, pushes `/anuncios/:id` into browse
 
 ## Acceptance criteria
 
-- [ ] Clicking an announcement card navigates to `/anuncios/:id` through router navigation.
-- [ ] Home route no longer stores or synchronizes announcement detail state.
-- [ ] Home route no longer renders a duplicate detail preview modal.
-- [ ] `/anuncios/:id` remains the only detail page for full announcement information.
-- [ ] `IMPRESSION` tracking fires from the detail page only.
-- [ ] Browser back navigation returns to the home/feed route without custom `popstate` handling.
-- [ ] Card contact action does not navigate to detail.
-- [ ] Provider identity link navigates to `/prestadores/:id` and does not navigate to detail.
-- [ ] Tests cover card-to-detail navigation, back behavior where practical, and no duplicate impression tracking from the home route.
+- [x] Clicking an announcement card navigates to `/anuncios/:id` through router navigation.
+- [x] Home route no longer stores or synchronizes announcement detail state.
+- [x] Home route no longer renders a duplicate detail preview modal.
+- [x] `/anuncios/:id` remains the only detail page for full announcement information.
+- [x] `IMPRESSION` tracking fires from the detail page only.
+- [x] Browser back navigation returns to the home/feed route without custom `popstate` handling.
+- [x] Card contact action does not navigate to detail.
+- [x] Provider identity link navigates to `/prestadores/:id` and does not navigate to detail.
+- [x] Tests cover card-to-detail navigation, back behavior where practical, and no duplicate impression tracking from the home route.
 
 ## Blocked by
 

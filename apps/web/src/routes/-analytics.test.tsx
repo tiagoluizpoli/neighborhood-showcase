@@ -88,6 +88,25 @@ mock.module('@/lib/auth-client', () => ({
   },
 }));
 
+const mockNavigate = mock(() => {});
+mock.module('@tanstack/react-router', () => ({
+  createFileRoute: (_path: string) => (options: any) => ({
+    options,
+    useRouteContext: () => ({}),
+    useSearch: () => ({}),
+    useParams: () => ({}),
+  }),
+  Link: (props: any) => {
+    const { to, params, children, ...rest } = props;
+    return (
+      <a {...rest} data-to={to} data-params={JSON.stringify(params)}>
+        {children}
+      </a>
+    );
+  },
+  useNavigate: () => mockNavigate,
+}));
+
 let currentId = 'ann-123';
 const mockMutate = mock(() => {});
 const mockTrackEventMutation = {
@@ -277,5 +296,43 @@ describe('Analytics Impression Tracking tests', () => {
       (call) => call[0]?.eventType === 'IMPRESSION',
     );
     expect(impressionCalls.length).toBe(0);
+  });
+
+  test('Vitrine grid card click navigates to details route using router navigation', () => {
+    const vitrineComponent = IndexRoute.options.component;
+    const tree = renderComponent(vitrineComponent);
+
+    const findElement = (node: any, predicate: (el: any) => boolean): any => {
+      if (!node) return null;
+      if (predicate(node)) return node;
+      if (node.props?.children) {
+        const children = Array.isArray(node.props.children)
+          ? node.props.children
+          : [node.props.children];
+        for (const child of children) {
+          const found = findElement(child, predicate);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const card = findElement(tree, (el) =>
+      el.props?.className?.includes('group'),
+    );
+    expect(card).toBeDefined();
+
+    // Reset mockNavigate history
+    mockNavigate.mockClear();
+
+    // Click card
+    card.props.onClick();
+
+    // Expect navigate to have been called with correct path and params
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
+    expect(mockNavigate.mock.calls[0][0]).toEqual({
+      to: '/anuncios/$id',
+      params: { id: 'ann-123' },
+    });
   });
 });

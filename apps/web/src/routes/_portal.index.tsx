@@ -22,11 +22,9 @@ import {
 } from '@neighborhood-showcase/ui/components/dialog';
 import { Input } from '@neighborhood-showcase/ui/components/input';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import {
   CheckCircle2,
-  Globe,
-  Instagram,
   Loader2,
   MapPin,
   MessageCircle,
@@ -59,6 +57,7 @@ const getInitials = (name: string) => {
 };
 
 function PublicVitrineComponent() {
+  const navigate = useNavigate();
   const [selectedCondo, setSelectedCondo] = useState<SelectedCondo | null>(
     null,
   );
@@ -93,9 +92,6 @@ function PublicVitrineComponent() {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [filterByCondo, setFilterByCondo] = useState(false);
   const [radiusKm, setRadiusKm] = useState<number>(10);
-
-  // Detail view state
-  const [activeAdId, setActiveAdId] = useState<string | null>(null);
 
   const nearbyCondoPromptDismissed =
     localStorage.getItem(nearbyCondoDismissedStorageKey) === 'true';
@@ -142,11 +138,6 @@ function PublicVitrineComponent() {
       radiusKm: coords ? radiusKm : undefined,
     }),
   );
-
-  const activeAdQuery = useQuery({
-    ...trpc.announcement.getPublic.queryOptions({ id: activeAdId || '' }),
-    enabled: !!activeAdId,
-  });
 
   const trackEventMutation = useMutation(
     trpc.announcement.trackEvent.mutationOptions(),
@@ -263,40 +254,6 @@ function PublicVitrineComponent() {
       fetchIpFallback();
     }
   }, [geoPreference, fetchIpFallback]);
-
-  // 2. Synchronize URL path with activeAdId state & handle initial URL match
-  useEffect(() => {
-    const handlePopState = () => {
-      const path = window.location.pathname;
-      if (path.startsWith('/anuncios/')) {
-        const id = path.split('/')[2];
-        setActiveAdId(id);
-      } else {
-        setActiveAdId(null);
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-
-    // Initial check
-    const path = window.location.pathname;
-    if (path.startsWith('/anuncios/')) {
-      const id = path.split('/')[2];
-      setActiveAdId(id);
-    }
-
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  const openAdDetails = (id: string) => {
-    setActiveAdId(id);
-    window.history.pushState(null, '', `/anuncios/${id}`);
-  };
-
-  const closeAdDetails = () => {
-    setActiveAdId(null);
-    window.history.pushState(null, '', '/');
-  };
 
   const handleContactClick = (
     adId: string,
@@ -617,7 +574,9 @@ function PublicVitrineComponent() {
             return (
               <Card
                 key={ad.id}
-                onClick={() => openAdDetails(ad.id)}
+                onClick={() =>
+                  navigate({ to: '/anuncios/$id', params: { id: ad.id } })
+                }
                 className="group flex h-full cursor-pointer flex-col overflow-hidden border bg-card"
               >
                 <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
@@ -725,7 +684,10 @@ function PublicVitrineComponent() {
                           variant="outline"
                           onClick={(e) => {
                             e.stopPropagation();
-                            openAdDetails(ad.id);
+                            navigate({
+                              to: '/anuncios/$id',
+                              params: { id: ad.id },
+                            });
                           }}
                           className="h-8 shrink-0 text-xs"
                         >
@@ -906,199 +868,6 @@ function PublicVitrineComponent() {
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Detail Preview Drawer/Modal */}
-      {activeAdId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4">
-          <div className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-xl border bg-background">
-            <div className="flex items-center justify-between border-b p-4">
-              <span className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-                Visualizar Anúncio
-              </span>
-              <button
-                type="button"
-                onClick={closeAdDetails}
-                className="rounded-full p-1.5 text-muted-foreground hover:bg-muted"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto">
-              {activeAdQuery.isLoading ? (
-                <div className="flex flex-col items-center justify-center gap-2 py-20">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  <span className="text-muted-foreground text-xs">
-                    Carregando...
-                  </span>
-                </div>
-              ) : activeAdQuery.data ? (
-                <div>
-                  {/* Cover Image */}
-                  <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
-                    <img
-                      src={activeAdQuery.data.imageUrl}
-                      alt={activeAdQuery.data.title}
-                      className="h-full w-full object-cover object-center"
-                    />
-                    {activeAdQuery.data.showVerifiedBadge && (
-                      <div className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 font-semibold text-primary-foreground text-xs">
-                        <CheckCircle2 className="h-3.5 w-3.5 fill-current" />
-                        <span>Morador Verificado</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-6">
-                    {/* Category & Condo */}
-                    <div className="mb-3 flex flex-wrap items-center gap-2 text-muted-foreground text-xs">
-                      <span className="rounded-full bg-muted px-2.5 py-1 font-medium text-foreground">
-                        {activeAdQuery.data.category}
-                      </span>
-                      <span>•</span>
-                      <span>
-                        {activeAdQuery.data.condominiumId ? (
-                          `${activeAdQuery.data.condoName} (${activeAdQuery.data.condoCity} - ${activeAdQuery.data.condoState})`
-                        ) : (
-                          <span className="font-semibold text-warning">
-                            Prestador Externo ({activeAdQuery.data.condoCity} -{' '}
-                            {activeAdQuery.data.condoState})
-                          </span>
-                        )}
-                      </span>
-                    </div>
-
-                    {/* Title & Price */}
-                    <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                      <div>
-                        <h2 className="font-bold text-xl tracking-tight">
-                          {activeAdQuery.data.title}
-                        </h2>
-                        {activeAdQuery.data.subtitle && (
-                          <p className="mt-1 text-muted-foreground text-xs">
-                            {activeAdQuery.data.subtitle}
-                          </p>
-                        )}
-                      </div>
-                      {activeAdQuery.data.priceCents !== null &&
-                        activeAdQuery.data.priceCents !== undefined && (
-                          <span className="whitespace-nowrap font-bold text-lg text-success">
-                            {new Intl.NumberFormat('pt-BR', {
-                              style: 'currency',
-                              currency: 'BRL',
-                            }).format(activeAdQuery.data.priceCents / 100)}
-                          </span>
-                        )}
-                    </div>
-
-                    <hr className="my-4 border-muted" />
-
-                    {/* Description */}
-                    <div className="mb-6">
-                      <h4 className="mb-2 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-                        Descrição
-                      </h4>
-                      <p className="whitespace-pre-line text-foreground text-sm leading-relaxed">
-                        {activeAdQuery.data.description}
-                      </p>
-                    </div>
-
-                    {activeAdQuery.data.tags &&
-                      activeAdQuery.data.tags.length > 0 && (
-                        <div className="mb-6 flex flex-wrap gap-1.5">
-                          {activeAdQuery.data.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              className="rounded bg-muted/65 px-2 py-0.5 text-muted-foreground text-xs"
-                            >
-                              #{tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                    {/* Contacts */}
-                    <div>
-                      <h4 className="mb-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-                        Contatos do anunciante
-                      </h4>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        {activeAdQuery.data.contactLinks.whatsapp && (
-                          <a
-                            href={`https://wa.me/${activeAdQuery.data.contactLinks.whatsapp.replace(/\D/g, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={() =>
-                              handleContactClick(
-                                activeAdQuery.data.id,
-                                'WHATSAPP',
-                              )
-                            }
-                          >
-                            <Button className="w-full">
-                              <MessageCircle className="h-4.5 w-4.5" />
-                              WhatsApp
-                            </Button>
-                          </a>
-                        )}
-
-                        {activeAdQuery.data.contactLinks.instagram && (
-                          <a
-                            href={`https://instagram.com/${activeAdQuery.data.contactLinks.instagram.replace(/@/g, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={() =>
-                              handleContactClick(
-                                activeAdQuery.data.id,
-                                'INSTAGRAM',
-                              )
-                            }
-                          >
-                            <Button variant="outline" className="w-full">
-                              <Instagram className="h-4.5 w-4.5 text-muted-foreground" />
-                              Instagram
-                            </Button>
-                          </a>
-                        )}
-
-                        {activeAdQuery.data.contactLinks.website && (
-                          <a
-                            href={
-                              activeAdQuery.data.contactLinks.website.startsWith(
-                                'http',
-                              )
-                                ? activeAdQuery.data.contactLinks.website
-                                : `https://${activeAdQuery.data.contactLinks.website}`
-                            }
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={() =>
-                              handleContactClick(
-                                activeAdQuery.data.id,
-                                'WEBSITE',
-                              )
-                            }
-                            className="sm:col-span-2"
-                          >
-                            <Button variant="secondary" className="w-full">
-                              <Globe className="h-4.5 w-4.5 text-muted-foreground" />
-                              Website
-                            </Button>
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="py-10 text-center text-muted-foreground text-sm">
-                  Erro ao carregar dados do anúncio.
-                </div>
-              )}
             </div>
           </div>
         </div>
