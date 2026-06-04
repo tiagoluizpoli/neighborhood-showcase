@@ -21,6 +21,24 @@ import {
   DialogTitle,
 } from '@neighborhood-showcase/ui/components/dialog';
 import { Input } from '@neighborhood-showcase/ui/components/input';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@neighborhood-showcase/ui/components/popover';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@neighborhood-showcase/ui/components/sheet';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@neighborhood-showcase/ui/components/tabs';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import {
@@ -30,9 +48,9 @@ import {
   MessageCircle,
   Search,
   SlidersHorizontal,
-  X,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import {
   confirmNearbyCondoSelection,
@@ -56,35 +74,101 @@ const getInitials = (name: string) => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
+const getDistanceKm = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number => {
+  const R = 6371; // Radius of the earth in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+const getFreshStoredCoords = () => {
+  const savedCoords = localStorage.getItem('user_coords');
+  if (!savedCoords) return null;
+
+  try {
+    const parsed = JSON.parse(savedCoords);
+    if (
+      !parsed ||
+      typeof parsed.latitude !== 'number' ||
+      typeof parsed.longitude !== 'number'
+    ) {
+      return null;
+    }
+
+    const capturedAt = parsed.capturedAt || new Date().toISOString();
+    const ageMs = Date.now() - new Date(capturedAt).getTime();
+    if (ageMs >= 24 * 60 * 60 * 1000) {
+      return null;
+    }
+
+    return {
+      latitude: parsed.latitude,
+      longitude: parsed.longitude,
+      capturedAt,
+    };
+  } catch {
+    return null;
+  }
+};
+
 function PublicVitrineComponent() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
   const [selectedCondo, setSelectedCondo] = useState<SelectedCondo | null>(
     null,
   );
-  const [isSelectorOpen, setIsSelectorOpen] = useState(false);
-  const [condoSearchQuery, setCondoSearchQuery] = useState('');
-
-  // Geolocation states
-  const [geoPreference, setGeoPreference] = useState<string | null>(() =>
-    localStorage.getItem('geolocation_preference'),
-  );
-  const [isGeoDialogOpen, setIsGeoDialogOpen] = useState(
-    () => localStorage.getItem('geolocation_preference') === null,
-  );
-  const [coords, setCoords] = useState<{
-    latitude: number;
-    longitude: number;
+  const [selectedRegion, setSelectedRegion] = useState<{
+    city: string;
+    neighborhood?: string;
   } | null>(() => {
-    const savedCoords = localStorage.getItem('user_coords');
-    if (savedCoords) {
+    const saved = localStorage.getItem('user_region');
+    if (saved) {
       try {
-        return JSON.parse(savedCoords);
+        return JSON.parse(saved);
       } catch {
         return null;
       }
     }
     return null;
   });
+  const [isLocationSelectorOpen, setIsLocationSelectorOpen] = useState(false);
+  const [condoSearchQuery, setCondoSearchQuery] = useState('');
+  const [tempCity, setTempCity] = useState('');
+  const [tempNeighborhood, setTempNeighborhood] = useState('');
+
+  // Geolocation states
+  const [geoPreference, setGeoPreference] = useState<
+    'unset' | 'granted' | 'denied' | 'unavailable'
+  >(() => {
+    const pref = localStorage.getItem('geolocation_preference');
+    return (pref as 'unset' | 'granted' | 'denied' | 'unavailable') || 'unset';
+  });
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshFailed, setRefreshFailed] = useState(false);
+  const [coords, setCoords] = useState<{
+    latitude: number;
+    longitude: number;
+    capturedAt?: string;
+  } | null>(() => getFreshStoredCoords());
+
+  const [ipLocation, setIpLocation] = useState<{
+    city: string;
+    state: string;
+  } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Grid Filters
   const [search, setSearch] = useState('');
@@ -125,6 +209,14 @@ function PublicVitrineComponent() {
       ? deriveNearbyCondoMatch(nearbyCondoResults)
       : null;
 
+  const isGpsFresh =
+    geoPreference === 'granted' &&
+    coords !== null &&
+    (() => {
+      const capturedAt = coords.capturedAt || new Date().toISOString();
+      return Date.now() - new Date(capturedAt).getTime() < 24 * 60 * 60 * 1000;
+    })();
+
   const { data: announcements, isLoading: isLoadingAds } = useQuery(
     trpc.announcement.listPublic.queryOptions({
       latitude: coords?.latitude,
@@ -135,7 +227,11 @@ function PublicVitrineComponent() {
       search,
       verifiedOnly,
       userCondoId: selectedCondo?.id,
-      radiusKm: coords ? radiusKm : undefined,
+      radiusKm: isGpsFresh ? radiusKm : undefined,
+      city: selectedRegion?.city,
+      neighborhood: selectedRegion?.neighborhood,
+      ipCity: ipLocation?.city,
+      ipState: ipLocation?.state,
     }),
   );
 
@@ -150,120 +246,100 @@ function PublicVitrineComponent() {
       if (!res.ok) throw new Error('IP api failed');
       const data = await res.json();
       const city = data.city;
-      if (city) {
-        const resList = await fetch(
-          `${
-            import.meta.env.VITE_SERVER_URL || 'http://localhost:3000'
-          }/trpc/condominium.listApproved?input=${encodeURIComponent(
-            JSON.stringify({ query: city }),
-          )}`,
-        );
-        const json = await resList.json();
-        const condos = json?.result?.data as SelectedCondo[];
-
-        if (condos && condos.length > 0) {
-          // Set as selected condominium, but do NOT write to localStorage user_condo (LGPD compliance)
-          setSelectedCondo(condos[0]);
-          toast.info(`Localização estimada por IP: ${condos[0].name}`);
-        }
+      const region_code = data.region_code;
+      if (city && region_code) {
+        setIpLocation({ city, state: region_code });
       }
     } catch (err) {
       console.error('IP fallback failed:', err);
     }
   }, []);
 
+  const mapGeolocationError = useCallback(
+    (error: GeolocationPositionError) => {
+      if (error.code === error.PERMISSION_DENIED) {
+        localStorage.setItem('geolocation_preference', 'denied');
+        setGeoPreference('denied');
+        toast.error(t('location.err_permission_denied'));
+      } else if (error.code === error.POSITION_UNAVAILABLE) {
+        setGeoPreference('unavailable');
+        toast.error(t('location.err_position_unavailable'));
+      } else if (error.code === error.TIMEOUT) {
+        setGeoPreference('unavailable');
+        toast.error(t('location.err_timeout'));
+      } else {
+        setGeoPreference('unavailable');
+        toast.error(t('location.unavailable'));
+      }
+    },
+    [t],
+  );
+
   const handleGeoAllow = () => {
-    setIsGeoDialogOpen(false);
+    setIsLocationSelectorOpen(false);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          const coordsObj = { latitude, longitude };
+          const coordsObj = {
+            latitude,
+            longitude,
+            capturedAt: new Date().toISOString(),
+          };
           resetNearbyCondoSelectionPrompt();
           setCoords(coordsObj);
           localStorage.setItem('user_coords', JSON.stringify(coordsObj));
           localStorage.setItem('geolocation_preference', 'granted');
           setGeoPreference('granted');
-          toast.success('Localização ativada com sucesso!');
+          setRefreshFailed(false);
+          // Clear manual region/condo if gps selected
+          setSelectedRegion(null);
+          localStorage.removeItem('user_region');
+          setSelectedCondo(null);
+          localStorage.removeItem('user_condo');
+          toast.success(t('location.fresh_gps'));
         },
         (error) => {
           console.error('Geolocation failed:', error);
-          handleGeoDeny();
+          mapGeolocationError(error);
+          fetchIpFallback();
         },
       );
     } else {
-      handleGeoDeny();
+      setGeoPreference('unavailable');
+      toast.error(t('location.err_unsupported'));
+      fetchIpFallback();
     }
-  };
-
-  const handleGeoDeny = () => {
-    setIsGeoDialogOpen(false);
-    localStorage.setItem('geolocation_preference', 'denied');
-    setGeoPreference('denied');
-    toast.info('Localização desativada. Mostrando feed em ordem cronológica.');
-    fetchIpFallback();
   };
 
   const revokeLocation = () => {
     localStorage.removeItem('geolocation_preference');
     localStorage.removeItem('user_coords');
     localStorage.removeItem('user_condo');
+    localStorage.removeItem('user_region');
     resetNearbyCondoSelectionPrompt();
     setCoords(null);
     setSelectedCondo(null);
-    setGeoPreference(null);
+    setSelectedRegion(null);
+    setIpLocation(null);
+    setGeoPreference('unset');
     setRadiusKm(10);
-    setIsGeoDialogOpen(true);
-    toast.success('Localização revogada com sucesso.');
+    setIsLocationSelectorOpen(false);
+    toast.success(t('location.clear'));
+    fetchIpFallback();
   };
 
   const handleNearbyCondoConfirm = (condo: SelectedCondo) => {
     confirmNearbyCondoSelection(condo, setSelectedCondo);
-    toast.success(`Condomínio selecionado: ${condo.name}`);
+    // Clear manual region if condo selected
+    setSelectedRegion(null);
+    localStorage.removeItem('user_region');
+    toast.success(`${t('location.selected_condo')}: ${condo.name}`);
   };
 
   const handleNearbyCondoDismiss = () => {
     dismissNearbyCondoSelection(setSelectedCondo);
-    toast.info(
-      'Tudo bem. Você pode continuar navegando sem vincular um condomínio.',
-    );
-  };
-
-  // 1. Geolocation and initial condo load
-  useEffect(() => {
-    const savedCondo = localStorage.getItem('user_condo');
-    if (savedCondo) {
-      setSelectedCondo(JSON.parse(savedCondo));
-    }
-
-    if (geoPreference === 'granted') {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const { latitude, longitude } = position.coords;
-            const coordsObj = { latitude, longitude };
-            setCoords(coordsObj);
-            localStorage.setItem('user_coords', JSON.stringify(coordsObj));
-          },
-          (err) => {
-            console.error('Auto geolocation failed:', err);
-          },
-        );
-      }
-    } else if (geoPreference === 'denied') {
-      fetchIpFallback();
-    }
-  }, [geoPreference, fetchIpFallback]);
-
-  const handleContactClick = (
-    adId: string,
-    targetType: 'WHATSAPP' | 'INSTAGRAM' | 'WEBSITE',
-  ) => {
-    trackEventMutation.mutate({
-      announcementId: adId,
-      eventType: 'CONTACT_CLICK',
-      targetType,
-    });
+    toast.info(t('location.nearby_dismissed'));
   };
 
   const selectCondoManually = (condo: {
@@ -282,81 +358,357 @@ function PublicVitrineComponent() {
     };
     setSelectedCondo(selected);
     localStorage.setItem('user_condo', JSON.stringify(selected));
-    setIsSelectorOpen(false);
-    toast.success(`Condomínio selecionado: ${condo.name}`);
+
+    // Clear manual region and gps coords
+    setSelectedRegion(null);
+    localStorage.removeItem('user_region');
+    setCoords(null);
+    localStorage.removeItem('user_coords');
+    setGeoPreference('unset');
+    localStorage.setItem('geolocation_preference', 'unset');
+
+    setIsLocationSelectorOpen(false);
+    toast.success(`${t('location.selected_condo')}: ${condo.name}`);
+  };
+
+  const handleSaveRegion = () => {
+    if (!tempCity.trim()) {
+      toast.error(t('location.city_placeholder'));
+      return;
+    }
+    const region = {
+      city: tempCity.trim(),
+      neighborhood: tempNeighborhood.trim() || undefined,
+    };
+    setSelectedRegion(region);
+    localStorage.setItem('user_region', JSON.stringify(region));
+
+    // Clear manual condo and gps coords
+    setSelectedCondo(null);
+    localStorage.removeItem('user_condo');
+    setCoords(null);
+    localStorage.removeItem('user_coords');
+    setGeoPreference('unset');
+    localStorage.setItem('geolocation_preference', 'unset');
+
+    setIsLocationSelectorOpen(false);
+    toast.success(t('location.selected_condo'));
+  };
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Geolocation and initial condo load
+  useEffect(() => {
+    const savedCondo = localStorage.getItem('user_condo');
+    if (savedCondo) {
+      setSelectedCondo(JSON.parse(savedCondo));
+    }
+
+    const savedRegion = localStorage.getItem('user_region');
+    if (savedRegion) {
+      setSelectedRegion(JSON.parse(savedRegion));
+    }
+
+    const freshStoredCoords = getFreshStoredCoords();
+
+    if (freshStoredCoords) {
+      setCoords(freshStoredCoords);
+    }
+
+    // Background refresh if prior grant
+    if (geoPreference === 'granted') {
+      if (navigator.geolocation) {
+        setIsRefreshing(true);
+        setRefreshFailed(false);
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            const newCoordsObj = {
+              latitude,
+              longitude,
+              capturedAt: new Date().toISOString(),
+            };
+            setIsRefreshing(false);
+
+            if (freshStoredCoords) {
+              const distance = getDistanceKm(
+                freshStoredCoords.latitude,
+                freshStoredCoords.longitude,
+                latitude,
+                longitude,
+              );
+              // Use a 1 km movement threshold before updating ranking/state
+              if (distance >= 1) {
+                setCoords(newCoordsObj);
+                localStorage.setItem(
+                  'user_coords',
+                  JSON.stringify(newCoordsObj),
+                );
+              } else {
+                // Keep existing coords state to avoid re-fetch, but refresh storage timestamp
+                localStorage.setItem(
+                  'user_coords',
+                  JSON.stringify({
+                    ...freshStoredCoords,
+                    capturedAt: newCoordsObj.capturedAt,
+                  }),
+                );
+              }
+            } else {
+              setCoords(newCoordsObj);
+              localStorage.setItem('user_coords', JSON.stringify(newCoordsObj));
+            }
+          },
+          (error) => {
+            console.error('Background geolocation refresh failed:', error);
+            setIsRefreshing(false);
+            if (freshStoredCoords) {
+              setRefreshFailed(true);
+            } else {
+              mapGeolocationError(error);
+              fetchIpFallback();
+            }
+          },
+        );
+      } else {
+        if (freshStoredCoords) {
+          setRefreshFailed(true);
+        } else {
+          setGeoPreference('unavailable');
+          fetchIpFallback();
+        }
+      }
+    } else if (
+      geoPreference === 'denied' ||
+      geoPreference === 'unavailable' ||
+      (!freshStoredCoords && geoPreference === 'unset')
+    ) {
+      fetchIpFallback();
+    }
+  }, [geoPreference, fetchIpFallback, mapGeolocationError]);
+
+  const handleContactClick = (
+    adId: string,
+    targetType: 'WHATSAPP' | 'INSTAGRAM' | 'WEBSITE',
+  ) => {
+    trackEventMutation.mutate({
+      announcementId: adId,
+      eventType: 'CONTACT_CLICK',
+      targetType,
+    });
+  };
+
+  const getLocationStatusText = () => {
+    if (selectedCondo) {
+      return `${t('location.selected_condo')}: ${selectedCondo.name}`;
+    }
+    if (coords) {
+      if (isRefreshing) {
+        return t('location.refreshing_gps');
+      }
+      if (refreshFailed) {
+        return t('location.stale_gps_fail');
+      }
+      return t('location.fresh_gps');
+    }
+    if (selectedRegion) {
+      return selectedRegion.neighborhood
+        ? `${selectedRegion.city} - ${selectedRegion.neighborhood}`
+        : selectedRegion.city;
+    }
+    if (ipLocation) {
+      return `${t('location.ip_fallback')}: ${ipLocation.city}`;
+    }
+    if (geoPreference === 'denied') {
+      return t('location.denied');
+    }
+    if (geoPreference === 'unavailable') {
+      return t('location.unavailable');
+    }
+    return t('location.no_signal');
+  };
+
+  const renderSelectorContent = () => {
+    return (
+      <Tabs defaultValue="gps" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="gps" className="text-xs">
+            GPS
+          </TabsTrigger>
+          <TabsTrigger value="region" className="text-xs">
+            {t('location.tab_region')}
+          </TabsTrigger>
+          <TabsTrigger value="condo" className="text-xs">
+            {t('location.tab_condo')}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="gps" className="mt-4 space-y-4">
+          <div className="rounded-xl border bg-muted/40 p-4 text-center">
+            <MapPin className="mx-auto mb-2 h-6 w-6 animate-pulse text-primary" />
+            <p className="font-semibold text-sm">{t('location.option_gps')}</p>
+            <p className="mt-1 text-muted-foreground text-xs">
+              {t('location.option_gps_desc')}
+            </p>
+          </div>
+          <Button onClick={handleGeoAllow} className="w-full">
+            {t('location.option_gps')}
+          </Button>
+        </TabsContent>
+
+        <TabsContent value="region" className="mt-4 space-y-4">
+          <p className="text-muted-foreground text-xs">
+            {t('location.option_region_desc')}
+          </p>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <label
+                className="font-medium text-muted-foreground text-xs"
+                htmlFor="temp-city-input"
+              >
+                {t('location.city_placeholder')} *
+              </label>
+              <Input
+                id="temp-city-input"
+                placeholder={t('location.city_example')}
+                value={tempCity}
+                onChange={(e) => setTempCity(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <label
+                className="font-medium text-muted-foreground text-xs"
+                htmlFor="temp-neighborhood-input"
+              >
+                {t('location.neighborhood_placeholder')}
+              </label>
+              <Input
+                id="temp-neighborhood-input"
+                placeholder={t('location.neighborhood_example')}
+                value={tempNeighborhood}
+                onChange={(e) => setTempNeighborhood(e.target.value)}
+              />
+            </div>
+          </div>
+          <Button onClick={handleSaveRegion} className="w-full">
+            {t('moderation.confirm')}
+          </Button>
+        </TabsContent>
+
+        <TabsContent value="condo" className="mt-4 space-y-4">
+          <p className="text-muted-foreground text-xs">
+            {t('location.option_condo_desc')}
+          </p>
+          <div className="relative">
+            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder={t('location.condo_placeholder')}
+              value={condoSearchQuery}
+              onChange={(e) => setCondoSearchQuery(e.target.value)}
+              className="bg-muted pl-9"
+            />
+          </div>
+          <div className="max-h-48 space-y-2 overflow-y-auto pr-1">
+            {isSearchingCondos ? (
+              <div className="flex items-center justify-center gap-2 py-6">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                <span className="text-muted-foreground text-xs">
+                  {t('moderation.confirm')}
+                </span>
+              </div>
+            ) : condoSearchResults && condoSearchResults.length > 0 ? (
+              condoSearchResults.map((condo) => (
+                <button
+                  type="button"
+                  key={condo.id}
+                  onClick={() => selectCondoManually(condo)}
+                  className="flex w-full flex-col gap-0.5 rounded-lg border p-2.5 text-left hover:bg-muted"
+                >
+                  <span className="font-semibold text-xs">{condo.name}</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {condo.city} - {condo.state} • CEP: {condo.cep}
+                  </span>
+                </button>
+              ))
+            ) : (
+              <div className="py-6 text-center text-muted-foreground text-xs">
+                {t('location.condo_empty')}
+              </div>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
+    );
   };
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-6">
-      {/* Geolocation / Selected Condo Bar */}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-4">
+      {/* Geolocation / Selected Location Control */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-4">
         <div className="flex items-center gap-3">
           <div className="rounded-lg bg-primary/10 p-2 text-primary">
             <MapPin className="h-5 w-5" />
           </div>
           <div>
             <p className="font-medium text-muted-foreground text-xs">
-              Exibindo anúncios próximos a
+              {t('location.modal_title')}
             </p>
             <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setIsSelectorOpen(true)}
-                className="flex items-center gap-1 text-left font-semibold text-sm transition-colors hover:text-primary"
-              >
-                <span>
-                  {selectedCondo
-                    ? selectedCondo.name
-                    : 'Nenhum condomínio selecionado'}
-                </span>
-                <span className="font-normal text-primary text-xs">
-                  (Alterar)
-                </span>
-              </button>
-              {(selectedCondo || geoPreference) && (
+              <span className="font-semibold text-sm">
+                {getLocationStatusText()}
+              </span>
+              {(selectedCondo || coords || selectedRegion || ipLocation) && (
                 <button
                   type="button"
                   onClick={revokeLocation}
                   className="font-normal text-destructive text-xs hover:underline"
                 >
-                  (Limpar localização)
+                  ({t('location.clear')})
                 </button>
               )}
             </div>
           </div>
         </div>
-        {!selectedCondo && (
-          <Button onClick={() => setIsSelectorOpen(true)} size="sm">
-            Selecionar Condomínio
-          </Button>
-        )}
-      </div>
 
-      {/* Subtle Geolocation Denied Re-enable Banner */}
-      {geoPreference === 'denied' && (
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-warning/30 bg-warning/5 p-4 text-warning">
-          <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-warning/10 p-2 text-warning">
-              <MapPin className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="font-semibold text-sm">Localização desativada</p>
-              <p className="text-muted-foreground text-xs">
-                Ative a localização para ordenar os anúncios por proximidade de
-                você.
-              </p>
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsGeoDialogOpen(true)}
-            className="border-warning/30 hover:bg-warning/10 hover:text-warning"
-          >
-            Ativar Localização
-          </Button>
+        <div className="flex items-center gap-2">
+          {isMobile ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsLocationSelectorOpen(true)}
+            >
+              {t('location.change')}
+            </Button>
+          ) : (
+            <Popover
+              open={isLocationSelectorOpen}
+              onOpenChange={setIsLocationSelectorOpen}
+            >
+              <PopoverTrigger
+                render={
+                  <Button variant="outline" size="sm">
+                    {t('location.change')}
+                  </Button>
+                }
+              />
+              <PopoverContent className="w-96 p-5">
+                <h3 className="mb-1 font-bold text-sm">
+                  {t('location.modal_title')}
+                </h3>
+                <p className="mb-4 text-[10px] text-muted-foreground">
+                  {t('location.modal_desc')}
+                </p>
+                {renderSelectorContent()}
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Nearby Condominium Prompt */}
       {nearbyCondoMatch ? (
@@ -375,7 +727,9 @@ function PublicVitrineComponent() {
               </div>
               <DialogTitle className="font-bold text-xl">
                 {nearbyCondoMatch.mode === 'single'
-                  ? `Você mora no Condomínio ${nearbyCondoMatch.condo.name}?`
+                  ? t('location.nearby_single_title', {
+                      name: nearbyCondoMatch.condo.name,
+                    })
                   : 'Encontramos condomínios próximos a você'}
               </DialogTitle>
               <DialogDescription className="text-muted-foreground text-sm">
@@ -443,44 +797,6 @@ function PublicVitrineComponent() {
           </DialogContent>
         </Dialog>
       ) : null}
-
-      {/* Geolocation Permission Dialog */}
-      <Dialog open={isGeoDialogOpen} onOpenChange={setIsGeoDialogOpen}>
-        <DialogContent showCloseButton={false} className="max-w-md p-6">
-          <DialogHeader className="flex flex-col items-center gap-2 text-center">
-            <div className="mb-2 rounded-full bg-primary/10 p-3 text-primary">
-              <MapPin className="h-6 w-6" />
-            </div>
-            <DialogTitle className="font-bold text-xl">
-              Descubra serviços perto de você
-            </DialogTitle>
-            <DialogDescription className="mt-1 text-muted-foreground text-sm">
-              Ative a localização para podermos mostrar e ordenar os anúncios de
-              serviços e produtos mais próximos a você.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="my-4 rounded-xl border bg-muted/50 p-3.5 text-center text-muted-foreground text-xs leading-relaxed">
-            🔒 <strong>Privacidade & LGPD:</strong> Sua localização é utilizada
-            exclusivamente para personalizar a sua experiência no feed e nunca é
-            compartilhada com terceiros.
-          </div>
-          <DialogFooter className="mt-4 flex flex-col gap-2 sm:flex-row">
-            <Button
-              variant="outline"
-              onClick={handleGeoDeny}
-              className="w-full sm:w-auto sm:flex-1"
-            >
-              Agora não
-            </Button>
-            <Button
-              onClick={handleGeoAllow}
-              className="w-full sm:w-auto sm:flex-1"
-            >
-              Permitir
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Main Filter Section */}
       <div id="explorar" className="mb-8 flex flex-col gap-6">
@@ -715,7 +1031,7 @@ function PublicVitrineComponent() {
       )}
 
       {/* Geolocation Radius Controls */}
-      {geoPreference === 'granted' && coords !== null && (
+      {isGpsFresh && (
         <div
           className={`mt-8 rounded-xl border p-6 ${
             radiusKm === 25
@@ -731,13 +1047,13 @@ function PublicVitrineComponent() {
               <div>
                 <p className="font-semibold text-sm">
                   {radiusKm === 10
-                    ? 'Raio de busca: 10 km (Padrão)'
-                    : 'Raio de busca: 25 km (Expandido)'}
+                    ? t('location.radius_standard')
+                    : t('location.radius_expanded')}
                 </p>
                 <p className="text-muted-foreground text-xs">
                   {radiusKm === 10
-                    ? 'Procurando prestadores e condomínios próximos em Florianópolis e região.'
-                    : 'Atenção: Prestadores a distâncias maiores (até 25 km) podem não realizar entregas ou atendimentos na sua região.'}
+                    ? t('location.radius_standard_desc')
+                    : t('location.radius_expanded_desc')}
                 </p>
               </div>
             </div>
@@ -747,7 +1063,9 @@ function PublicVitrineComponent() {
               onClick={() => setRadiusKm(radiusKm === 10 ? 25 : 10)}
               className="w-full shrink-0 font-semibold sm:w-auto"
             >
-              {radiusKm === 10 ? 'Expandir para 25 km' : 'Voltar para 10 km'}
+              {radiusKm === 10
+                ? t('location.radius_expand')
+                : t('location.radius_shrink')}
             </Button>
           </div>
         </div>
@@ -804,73 +1122,27 @@ function PublicVitrineComponent() {
         </Link>
       </div>
 
-      {/* Manual Condominium Selector Modal */}
-      {isSelectorOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4">
-          <div className="w-full max-w-md overflow-hidden rounded-xl border bg-background">
-            <div className="flex items-center justify-between border-b p-5">
-              <h2 className="font-bold text-lg">Selecionar Condomínio</h2>
-              {selectedCondo && (
-                <button
-                  type="button"
-                  onClick={() => setIsSelectorOpen(false)}
-                  className="rounded-full p-1.5 text-muted-foreground hover:bg-muted"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-
-            <div className="p-5">
-              <p className="mb-4 text-muted-foreground text-xs">
-                Digite o nome, cidade ou CEP para buscar condomínios com
-                anúncios cadastrados na nossa rede.
-              </p>
-
-              <div className="relative mb-4">
-                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Ex: Jardim, Floripa, 88000..."
-                  value={condoSearchQuery}
-                  onChange={(e) => setCondoSearchQuery(e.target.value)}
-                  className="bg-muted pl-9"
-                  autoFocus
-                />
-              </div>
-
-              <div className="max-h-60 space-y-2 overflow-y-auto pr-1">
-                {isSearchingCondos ? (
-                  <div className="flex items-center justify-center gap-2 py-6">
-                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                    <span className="text-muted-foreground text-xs">
-                      Buscando...
-                    </span>
-                  </div>
-                ) : condoSearchResults && condoSearchResults.length > 0 ? (
-                  condoSearchResults.map((condo) => (
-                    <button
-                      type="button"
-                      key={condo.id}
-                      onClick={() => selectCondoManually(condo)}
-                      className="flex w-full flex-col gap-1 rounded-lg border p-3 text-left hover:bg-muted"
-                    >
-                      <span className="font-semibold text-sm">
-                        {condo.name}
-                      </span>
-                      <span className="text-muted-foreground text-xs">
-                        {condo.city} - {condo.state} • CEP: {condo.cep}
-                      </span>
-                    </button>
-                  ))
-                ) : (
-                  <div className="py-6 text-center text-muted-foreground text-xs">
-                    Nenhum condomínio aprovado encontrado.
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Mobile Location Selector Sheet */}
+      {isMobile && (
+        <Sheet
+          open={isLocationSelectorOpen}
+          onOpenChange={setIsLocationSelectorOpen}
+        >
+          <SheetContent
+            side="bottom"
+            className="max-h-[90vh] w-full overflow-y-auto border-t p-6"
+          >
+            <SheetHeader>
+              <SheetTitle className="font-bold text-lg">
+                {t('location.modal_title')}
+              </SheetTitle>
+              <SheetDescription className="text-muted-foreground text-xs">
+                {t('location.modal_desc')}
+              </SheetDescription>
+            </SheetHeader>
+            <div className="py-4">{renderSelectorContent()}</div>
+          </SheetContent>
+        </Sheet>
       )}
     </div>
   );

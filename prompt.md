@@ -1,5 +1,5 @@
 ---
-issueId: 60_announcement_detail_navigation_source_of_truth.md
+issueId: 57_home_location_control_geolocation_confidence_cleanup.md
 ---
 
 # MANDATORY CONTEXT

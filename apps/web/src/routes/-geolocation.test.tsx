@@ -28,6 +28,10 @@ global.window = {
     pushState: () => {},
   },
   navigator: {
+    maxTouchPoints: 0,
+    platform: 'Linux x86_64',
+    userAgent: 'bun-test',
+    vendor: 'Google Inc.',
     geolocation: {
       getCurrentPosition: (success: any, error: any) => {
         _mockGeolocationSuccessCallback = success;
@@ -36,6 +40,9 @@ global.window = {
     },
   },
 } as any;
+
+(global as typeof globalThis & { navigator?: unknown }).navigator =
+  global.window.navigator;
 
 global.localStorage = {
   getItem: (key: string) => savedItems[key] || null,
@@ -207,6 +214,77 @@ mock.module('react', () => ({
   },
 }));
 
+const mockNavigate = mock(() => {});
+mock.module('@tanstack/react-router', () => ({
+  createFileRoute: (_path: string) => (options: any) => ({
+    options,
+    useRouteContext: () => ({}),
+    useSearch: () => ({}),
+    useParams: () => ({}),
+  }),
+  Link: (props: any) => {
+    const { to, params, children, ...rest } = props;
+    return (
+      <a {...rest} data-to={to} data-params={JSON.stringify(params)}>
+        {children}
+      </a>
+    );
+  },
+  useNavigate: () => mockNavigate,
+}));
+
+mock.module('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, params?: Record<string, string>) => {
+      const translations: Record<string, string> = {
+        'location.change': 'Alterar',
+        'location.clear': 'Limpar localização',
+        'location.condo_empty': 'Nenhum condomínio aprovado encontrado.',
+        'location.condo_placeholder':
+          'Buscar condomínio pelo nome, cidade ou CEP',
+        'location.denied': 'Localização desativada',
+        'location.err_permission_denied': 'Localização desativada',
+        'location.err_position_unavailable':
+          'Não conseguimos encontrar sua localização agora',
+        'location.err_timeout': 'A localização demorou para responder',
+        'location.err_unsupported': 'Localização indisponível neste navegador',
+        'location.fresh_gps': 'Perto de você',
+        'location.ip_fallback': 'Região aproximada',
+        'location.modal_desc': 'Escolha como deseja personalizar o feed:',
+        'location.modal_title': 'Selecionar Localização',
+        'location.nearby_dismissed':
+          'Tudo bem. Você pode continuar navegando sem vincular um condomínio.',
+        'location.nearby_single_title': `Você mora no Condomínio ${params?.name}?`,
+        'location.no_signal': 'Todos os anúncios',
+        'location.option_condo_desc':
+          'Define um condomínio específico para priorizar no feed.',
+        'location.option_gps': 'Usar minha localização atual (GPS)',
+        'location.option_gps_desc':
+          'Ordena anúncios pela proximidade exata de você.',
+        'location.option_region_desc':
+          'Filtra anúncios por uma cidade e bairro específicos.',
+        'location.refreshing_gps': 'Perto da última localização',
+        'location.radius_expand': 'Expandir para 25 km',
+        'location.radius_expanded': 'Raio de busca: 25 km (Expandido)',
+        'location.radius_expanded_desc':
+          'Atenção: Prestadores a distâncias maiores (até 25 km) podem não realizar entregas ou atendimentos na sua região.',
+        'location.radius_shrink': 'Voltar para 10 km',
+        'location.radius_standard': 'Raio de busca: 10 km (Padrão)',
+        'location.radius_standard_desc':
+          'Procurando prestadores e condomínios próximos em Florianópolis e região.',
+        'location.selected_condo': 'Condomínio selecionado',
+        'location.stale_gps_fail': 'Última localização conhecida',
+        'location.tab_condo': 'Condomínio',
+        'location.tab_region': 'Região',
+        'location.unavailable': 'Localização indisponível',
+        'moderation.confirm': 'Confirmar',
+      };
+
+      return translations[key] ?? key;
+    },
+  }),
+}));
+
 // Mock @tanstack/react-query
 mock.module('@tanstack/react-query', () => ({
   ...RealQuery,
@@ -236,35 +314,64 @@ describe('Geolocation Permission Modal Flow', () => {
     resetHookState();
   });
 
-  test('Shows dialog on first visit when geolocation preference is not set', () => {
+  test('does not auto-open geolocation prompt on first visit', () => {
     const component = IndexRoute.options.component;
-    // Render
-    renderComponent(component);
+    const tree = renderComponent(component);
 
-    // Let's check hookState values to verify state of isGeoDialogOpen
-    // From _portal.index.tsx state declarations:
-    // index 0: selectedCondo (null)
-    // index 1: isSelectorOpen (false)
-    // index 2: condoSearchQuery ('')
-    // index 3: geoPreference (null)
-    // index 4: isGeoDialogOpen (true - since preference is null)
-    expect(hookState[4][0]).toBe(true);
+    expect(findNodeByText(tree, 'Todos os anúncios')).toBeTruthy();
+    expect(findNodeByText(tree, 'Descubra serviços perto de você')).toBeNull();
+    expect(_mockGeolocationSuccessCallback).toBeNull();
+    expect(_mockGeolocationErrorCallback).toBeNull();
   });
 
-  test('Does not show dialog if geolocation preference is already granted', () => {
+  test('refreshes precise location in the background after prior grant', () => {
     global.localStorage.setItem('geolocation_preference', 'granted');
+    global.localStorage.setItem(
+      'user_coords',
+      JSON.stringify({
+        latitude: -27.5969,
+        longitude: -48.5495,
+        capturedAt: new Date().toISOString(),
+      }),
+    );
+
     const component = IndexRoute.options.component;
-    renderComponent(component);
-    // isGeoDialogOpen should be false
-    expect(hookState[4][0]).toBe(false);
+    const tree = renderComponent(component);
+
+    expect(findNodeByText(tree, 'Perto de você')).toBeTruthy();
+    expect(findNodeByText(tree, 'Descubra serviços perto de você')).toBeNull();
+    expect(_mockGeolocationSuccessCallback).toBeFunction();
+    expect(_mockGeolocationErrorCallback).toBeFunction();
   });
 
-  test('Does not show dialog if geolocation preference is already denied', () => {
+  test('does not reuse stale stored GPS for radius controls', () => {
+    global.localStorage.setItem('geolocation_preference', 'granted');
+    global.localStorage.setItem(
+      'user_coords',
+      JSON.stringify({
+        latitude: -27.5969,
+        longitude: -48.5495,
+        capturedAt: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(),
+      }),
+    );
+
+    const component = IndexRoute.options.component;
+    const tree = renderComponent(component);
+
+    expect(findNodeByText(tree, 'Raio de busca: 10 km (Padrão)')).toBeNull();
+    expect(_mockGeolocationSuccessCallback).toBeFunction();
+    expect(_mockGeolocationErrorCallback).toBeFunction();
+  });
+
+  test('does not request geolocation automatically after explicit denial', () => {
     global.localStorage.setItem('geolocation_preference', 'denied');
     const component = IndexRoute.options.component;
-    renderComponent(component);
-    // isGeoDialogOpen should be false
-    expect(hookState[4][0]).toBe(false);
+    const tree = renderComponent(component);
+
+    expect(findNodeByText(tree, 'Localização desativada')).toBeTruthy();
+    expect(findNodeByText(tree, 'Descubra serviços perto de você')).toBeNull();
+    expect(_mockGeolocationSuccessCallback).toBeNull();
+    expect(_mockGeolocationErrorCallback).toBeNull();
   });
 
   test('Prompts for a nearby condominium and lets the user confirm it', () => {

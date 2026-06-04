@@ -390,4 +390,14 @@ describe('List Public Announcements Integration Test', () => {
       .where(eq(condominium.id, condoAId));
     await db.delete(address).where(eq(address.id, addressId));
   });
+
+  test('sorts by IP approximate region match when active', async () => {
+    // When ipCity and ipState are Curitiba/PR, ann-burger-c (Curitiba) should be ranked first.
+    const list = await useCase.execute({
+      ipCity: 'Curitiba',
+      ipState: 'PR',
+    });
+
+    expect(list[0]?.id).toBe('ann-burger-c');
+  });
 });

@@ -24,6 +24,8 @@ export interface ListPublicAnnouncementsInput {
   radiusKm?: number;
   city?: string;
   neighborhood?: string;
+  ipCity?: string;
+  ipState?: string;
 }
 
 export interface PublicAnnouncementItem {
@@ -227,13 +229,25 @@ export class ListPublicAnnouncements {
         if (!aCityMatch && bCityMatch) return 1;
       }
 
-      // Priority 2.5: Verified providers rank higher than unverified
+      // Priority 3: IP approximate region match (transparent, coarse relevance)
+      if (input.ipCity && input.ipState) {
+        const aIpMatch =
+          aCity.toLowerCase() === input.ipCity.toLowerCase() &&
+          aState.toLowerCase() === input.ipState.toLowerCase();
+        const bIpMatch =
+          bCity.toLowerCase() === input.ipCity.toLowerCase() &&
+          bState.toLowerCase() === input.ipState.toLowerCase();
+        if (aIpMatch && !bIpMatch) return -1;
+        if (!aIpMatch && bIpMatch) return 1;
+      }
+
+      // Priority 4: Verified providers rank higher than unverified
       const aVerified = a.announcement.showVerifiedBadge;
       const bVerified = b.announcement.showVerifiedBadge;
       if (aVerified && !bVerified) return -1;
       if (!aVerified && bVerified) return 1;
 
-      // Priority 3: Newest first
+      // Priority 5: Newest first
       return (
         b.announcement.createdAt.getTime() - a.announcement.createdAt.getTime()
       );

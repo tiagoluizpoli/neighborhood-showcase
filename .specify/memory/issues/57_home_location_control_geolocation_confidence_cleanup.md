@@ -96,25 +96,30 @@ Only explicit browser permission denial may persist as `denied`.
 
 ## Acceptance criteria
 
-- [ ] Home page does not auto-open the geolocation permission modal on first visit.
-- [ ] Browser geolocation prompt happens only after an explicit user action, except background refresh after prior grant.
-- [ ] Large first-viewport geolocation bars are replaced by one compact location/status control.
-- [ ] The control reflects `unset`, `granted`, `denied`, and `unavailable` states accurately.
-- [ ] Non-denial geolocation failures do not persist or display as user refusal.
-- [ ] IP fallback is automatic, transparent, session-only, and used only for coarse regional feed relevance.
-- [ ] GPS coordinates are stored with `capturedAt` and expire after 24 hours.
-- [ ] Previously granted GPS can refresh in the background on page load without using `watchPosition()`.
-- [ ] Refreshed GPS only updates ranking/state after a movement of at least 1 km.
-- [ ] Feed remains browsable when geolocation is unset, denied, unavailable, or IP fallback fails.
+- [x] Home page does not auto-open the geolocation permission modal on first visit.
+- [x] Browser geolocation prompt happens only after an explicit user action, except background refresh after prior grant.
+- [x] Large first-viewport geolocation bars are replaced by one compact location/status control.
+- [x] The control reflects `unset`, `granted`, `denied`, and `unavailable` states accurately.
+- [x] Non-denial geolocation failures do not persist or display as user refusal.
+- [x] IP fallback is automatic, transparent, session-only, and used only for coarse regional feed relevance.
+- [x] GPS coordinates are stored with `capturedAt` and expire after 24 hours.
+- [x] Previously granted GPS can refresh in the background on page load without using `watchPosition()`.
+- [x] Refreshed GPS only updates ranking/state after a movement of at least 1 km.
+- [x] Feed remains browsable when geolocation is unset, denied, unavailable, or IP fallback fails.
 - [ ] Manual region selection supports city-first filtering with optional neighborhood refinement.
 - [ ] Manual condominium selection sets preferred context without hard-filtering the feed by default.
 - [ ] `Somente este condomínio` remains available as a separate explicit filter.
-- [ ] Current custom condominium-only modal is replaced by a selector that supports region and condominium choices.
-- [ ] Default feed ranking follows relevance-first ordering with recency only as final tie-breaker.
-- [ ] Verified-only can still be used as a hard filter, while verified providers are boosted by default.
-- [ ] Radius control appears only for fresh GPS confidence and is capped at 25 km.
+- [x] Current custom condominium-only modal is replaced by a selector that supports region and condominium choices.
+- [x] Default feed ranking follows relevance-first ordering with recency only as final tie-breaker.
+- [x] Verified-only can still be used as a hard filter, while verified providers are boosted by default.
+- [x] Radius control appears only for fresh GPS confidence and is capped at 25 km.
 - [ ] Tests cover grant, explicit denial, non-denial failure, stored coordinate reuse, background refresh, IP fallback, manual region filter, and manual condominium context behavior.
 
 ## Blocked by
 
 - None.
+
+## Iteration 1 Notes
+
+- Verified first Ralph slice for Issue 57: browse-first home behavior, compact location control, explicit geolocation request, fresh/stale GPS handling, coarse IP fallback, and relevance inputs wired through frontend + backend.
+- Remaining work: add explicit automated coverage for non-denial failure UI, IP fallback wording, manual region filter behavior, and manual condominium preferred-context behavior before closing issue.

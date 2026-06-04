@@ -156,6 +156,8 @@ export const announcementRouter = router({
         radiusKm: z.number().max(25).optional(),
         city: z.string().optional(),
         neighborhood: z.string().optional(),
+        ipCity: z.string().optional(),
+        ipState: z.string().optional(),
       }),
     )
     .query(async ({ input }) => {
@@ -170,6 +172,8 @@ export const announcementRouter = router({
         radiusKm: input.radiusKm,
         city: input.city,
         neighborhood: input.neighborhood,
+        ipCity: input.ipCity,
+        ipState: input.ipState,
       });
     }),
 
