@@ -1,7 +1,4 @@
-import { db } from '@neighborhood-showcase/db';
-import { category as categorySchema } from '@neighborhood-showcase/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
-import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { CreateAnnouncement } from '../../application/use-cases/announcement/create-announcement';
 import { DismissReports } from '../../application/use-cases/announcement/dismiss-reports';
@@ -11,6 +8,7 @@ import {
   AnnouncementNotFoundError,
   GetPublicAnnouncement,
 } from '../../application/use-cases/announcement/get-public-announcement';
+import { ListActiveCategories } from '../../application/use-cases/announcement/list-active-categories';
 import {
   ListAnnouncementsForModeration,
   ModerationAccessDeniedError,
@@ -34,12 +32,14 @@ import {
 } from '../../application/use-cases/payment/get-payment-status';
 import { DrizzleAnnouncementRepository } from '../../infrastructure/db/announcement-repository';
 import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-repository';
+import { DrizzleCategoryRepository } from '../../infrastructure/db/category-repository';
 import { DrizzlePaymentRepository } from '../../infrastructure/db/payment-repository';
 import { AbacatePayClient } from '../../infrastructure/payment/abacatepay.client';
 import { protectedProcedure, publicProcedure, router } from '../trpc';
 
 const announcementRepo = new DrizzleAnnouncementRepository();
 const assignmentRepo = new DrizzleAssignmentRepository();
+const categoryRepo = new DrizzleCategoryRepository();
 const paymentRepo = new DrizzlePaymentRepository();
 const abacatePayClient = new AbacatePayClient();
 
@@ -68,6 +68,7 @@ const updateAnnouncementUseCase = new UpdateAnnouncement(
 );
 
 const listPublicAnnouncementsUseCase = new ListPublicAnnouncements();
+const listActiveCategoriesUseCase = new ListActiveCategories(categoryRepo);
 const trackAnalyticsEventUseCase = new TrackAnalyticsEvent();
 const getProviderDashboardDataUseCase = new GetProviderDashboardData();
 const getAnnouncementAnalyticsUseCase = new GetAnnouncementAnalytics();
@@ -430,10 +431,6 @@ export const announcementRouter = router({
     }),
 
   listCategories: publicProcedure.query(async () => {
-    return db
-      .select()
-      .from(categorySchema)
-      .where(eq(categorySchema.isActive, true))
-      .orderBy(categorySchema.displayOrder);
+    return listActiveCategoriesUseCase.execute();
   }),
 });
