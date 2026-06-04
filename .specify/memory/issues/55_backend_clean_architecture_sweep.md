@@ -64,13 +64,13 @@ If a slice exposes a real behavior bug, document it separately instead of hiding
 
 ## Suggested slice order
 
-1. Admin providers directory query.
-2. Admin user listing query.
-3. Admin role-management mutations.
-4. Admin blacklist and provider-ban flows.
-5. Announcement, payment, assignment, and moderation routers.
-6. Remaining backend routers and production modules.
-7. Backend-wide import boundary audit.
+- [x] 1. Admin providers directory query.
+- [ ] 2. Admin user listing query.
+- [ ] 3. Admin role-management mutations.
+- [ ] 4. Admin blacklist and provider-ban flows.
+- [ ] 5. Announcement, payment, assignment, and moderation routers.
+- [ ] 6. Remaining backend routers and production modules.
+- [ ] 7. Backend-wide import boundary audit.
 
 ## Acceptance criteria
 

@@ -7,20 +7,23 @@ import {
   user as userSchema,
 } from '@neighborhood-showcase/db/schema/auth';
 import {
-  address as addressSchema,
   announcement as announcementSchema,
   assignment as assignmentSchema,
   condominium as condominiumSchema,
-  providerLocation as providerLocationSchema,
   roleChangeLog as roleChangeLogSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
-import { and, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
+import { and, eq, ilike, or, type SQL } from 'drizzle-orm';
 import { z } from 'zod';
+import { ListProviders } from '../../application/use-cases/user/list-providers';
+import { DrizzleUserRepository } from '../../infrastructure/db/user-repository';
 import { protectedProcedure, router } from '../trpc';
 
 const userRoleSchema = z.enum(['PROVIDER', 'SYSTEM_MANAGER']);
 const userStatusSchema = z.enum(['ACTIVE', 'BANNED']);
+
+const userRepo = new DrizzleUserRepository();
+const listProvidersUseCase = new ListProviders(userRepo);
 
 export const adminRouter = router({
   listProviders: protectedProcedure
@@ -37,69 +40,14 @@ export const adminRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
       }
 
-      // Resolve qualifying user IDs: users with at least one providerLocation,
-      // filtered by geographic scope when provided.
-      const geoConditions: SQL[] = [];
+      const providers = await listProvidersUseCase.execute({
+        search: input.search,
+        condominiumId: input.condominiumId,
+        city: input.city,
+        neighborhood: input.neighborhood,
+      });
 
-      if (input.condominiumId) {
-        geoConditions.push(
-          eq(providerLocationSchema.condominiumId, input.condominiumId),
-        );
-      }
-
-      if (input.city) {
-        geoConditions.push(
-          or(
-            ilike(condominiumSchema.city, `%${input.city}%`),
-            ilike(addressSchema.city, `%${input.city}%`),
-          ) as SQL,
-        );
-      }
-
-      if (input.neighborhood) {
-        geoConditions.push(
-          ilike(addressSchema.neighborhood, `%${input.neighborhood}%`),
-        );
-      }
-
-      const qualifiedLocations = await db
-        .selectDistinct({ userId: providerLocationSchema.providerId })
-        .from(providerLocationSchema)
-        .leftJoin(
-          addressSchema,
-          eq(providerLocationSchema.addressId, addressSchema.id),
-        )
-        .leftJoin(
-          condominiumSchema,
-          eq(providerLocationSchema.condominiumId, condominiumSchema.id),
-        )
-        .where(geoConditions.length > 0 ? and(...geoConditions) : undefined);
-
-      const qualifiedUserIds = qualifiedLocations.map((l) => l.userId);
-
-      if (qualifiedUserIds.length === 0) {
-        return [];
-      }
-
-      const userConditions: SQL[] = [
-        inArray(userSchema.id, qualifiedUserIds),
-        eq(userSchema.isProviderVisible, true),
-      ];
-
-      if (input.search) {
-        const pattern = `%${input.search}%`;
-        userConditions.push(
-          or(
-            ilike(userSchema.name, pattern),
-            ilike(userSchema.email, pattern),
-          ) as SQL,
-        );
-      }
-
-      return db
-        .select()
-        .from(userSchema)
-        .where(and(...userConditions));
+      return providers.map((p) => p.toDTO());
     }),
 
   listUsers: protectedProcedure
