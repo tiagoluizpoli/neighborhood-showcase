@@ -2,6 +2,11 @@ import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { ApproveAssignment } from '../../application/use-cases/assignment/approve-assignment';
 import { GetAssignment } from '../../application/use-cases/assignment/get-assignment';
+import {
+  AssignmentNotFoundError,
+  AssignmentWithoutCondominiumError,
+  GetCondominiumAssignment,
+} from '../../application/use-cases/assignment/get-condominium-assignment';
 import { ListPendingAssignments } from '../../application/use-cases/assignment/list-pending-assignments';
 import { ListProviderAssignments } from '../../application/use-cases/assignment/list-provider-assignments';
 import { RegisterExternalLocation } from '../../application/use-cases/assignment/register-external-location';
@@ -11,6 +16,9 @@ import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-
 import { protectedProcedure, router } from '../trpc';
 
 const assignmentRepo = new DrizzleAssignmentRepository();
+const getCondominiumAssignmentUseCase = new GetCondominiumAssignment(
+  assignmentRepo,
+);
 const getAssignmentUseCase = new GetAssignment(assignmentRepo);
 const requestAssignmentUseCase = new RequestAssignment(assignmentRepo);
 const listPendingAssignmentsUseCase = new ListPendingAssignments(
@@ -107,25 +115,35 @@ export const assignmentRouter = router({
   reject: protectedProcedure
     .input(z.object({ id: z.string(), reason: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const assign = await assignmentRepo.findById(input.id);
-      if (!assign) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Solicitação não encontrada.',
+      try {
+        const assign = await getCondominiumAssignmentUseCase.execute({
+          id: input.id,
         });
-      }
-      if (!assign.condominiumId) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Solicitação não vinculada a um condomínio.',
+        await checkModerator(ctx.session.user.id, assign.condominiumId);
+        const result = await rejectAssignmentUseCase.execute({
+          id: input.id,
+          reason: input.reason,
         });
+        return result.toDTO();
+      } catch (error) {
+        if (error instanceof AssignmentNotFoundError) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: error.message,
+            cause: error,
+          });
+        }
+
+        if (error instanceof AssignmentWithoutCondominiumError) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: error.message,
+            cause: error,
+          });
+        }
+
+        throw error;
       }
-      await checkModerator(ctx.session.user.id, assign.condominiumId);
-      const result = await rejectAssignmentUseCase.execute({
-        id: input.id,
-        reason: input.reason,
-      });
-      return result.toDTO();
     }),
 
   registerExternal: protectedProcedure
