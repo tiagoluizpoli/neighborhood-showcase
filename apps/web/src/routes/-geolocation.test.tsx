@@ -7,6 +7,8 @@ import * as RealReact from 'react';
 let _mockGeolocationSuccessCallback: ((pos: any) => void) | null = null;
 let _mockGeolocationErrorCallback: ((err: any) => void) | null = null;
 let savedItems: Record<string, string | null> = {};
+let mockFetchJson: Record<string, unknown> = {};
+let lastListPublicInput: Record<string, unknown> | null = null;
 let mockNearbyCondoResults: Array<{
   condo: {
     id: string;
@@ -16,6 +18,13 @@ let mockNearbyCondoResults: Array<{
     cep: string;
   };
   distance: number;
+}> = [];
+let mockCondoSearchResults: Array<{
+  id: string;
+  name: string;
+  city: string;
+  state: string;
+  cep: string;
 }> = [];
 
 global.window = {
@@ -62,7 +71,7 @@ global.localStorage = {
 global.fetch = async () =>
   ({
     ok: true,
-    json: async () => ({}),
+    json: async () => mockFetchJson,
   }) as any;
 
 // Hook simulation state
@@ -75,7 +84,10 @@ const resetHookState = () => {
   hookState.length = 0;
   activeEffects.length = 0;
   savedItems = {};
+  mockFetchJson = {};
+  lastListPublicInput = null;
   mockNearbyCondoResults = [];
+  mockCondoSearchResults = [];
   _mockGeolocationSuccessCallback = null;
   _mockGeolocationErrorCallback = null;
 };
@@ -179,6 +191,26 @@ const findClickableNodeByText = (node: any, text: string): any | null => {
   return null;
 };
 
+const findNode = (node: any, predicate: (candidate: any) => boolean): any => {
+  if (node == null || typeof node === 'boolean') {
+    return null;
+  }
+
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const match = findNode(child, predicate);
+      if (match) return match;
+    }
+    return null;
+  }
+
+  if (typeof node === 'object' && predicate(node)) {
+    return node;
+  }
+
+  return findNode(node.props?.children, predicate);
+};
+
 // Mock react while preserving its internals and JSX runtime dependencies
 mock.module('react', () => ({
   ...RealReact,
@@ -256,6 +288,10 @@ mock.module('react-i18next', () => ({
           'Tudo bem. Você pode continuar navegando sem vincular um condomínio.',
         'location.nearby_single_title': `Você mora no Condomínio ${params?.name}?`,
         'location.no_signal': 'Todos os anúncios',
+        'location.city_placeholder': 'Digite a cidade',
+        'location.city_example': 'Ex: Florianópolis',
+        'location.neighborhood_placeholder': 'Digite o bairro (opcional)',
+        'location.neighborhood_example': 'Ex: Centro',
         'location.option_condo_desc':
           'Define um condomínio específico para priorizar no feed.',
         'location.option_gps': 'Usar minha localização atual (GPS)',
@@ -295,6 +331,17 @@ mock.module('@tanstack/react-query', () => ({
         data: mockNearbyCondoResults,
         isLoading: false,
       };
+    }
+
+    if (queryKey.includes('listApproved')) {
+      return {
+        data: mockCondoSearchResults,
+        isLoading: false,
+      };
+    }
+
+    if (queryKey.includes('listPublic')) {
+      lastListPublicInput = JSON.parse(queryKey)[1]?.input ?? null;
     }
 
     return {
@@ -525,6 +572,152 @@ describe('Geolocation Permission Modal Flow', () => {
       ),
     ).toBeTruthy();
     expect(findNodeByText(tree, 'Voltar para 10 km')).toBeTruthy();
+  });
+
+  test('keeps explicit denial wording even when IP fallback is available', async () => {
+    mockFetchJson = {
+      city: 'Florianópolis',
+      region_code: 'SC',
+    };
+    global.localStorage.setItem('geolocation_preference', 'denied');
+
+    const component = IndexRoute.options.component;
+    let tree = renderComponent(component);
+    await Promise.resolve();
+    tree = renderComponent(component);
+
+    expect(findNodeByText(tree, 'Localização desativada')).toBeTruthy();
+    expect(findNodeByText(tree, 'Região aproximada')).toBeNull();
+  });
+
+  test('shows unavailable wording for non-denial geolocation failure and does not persist denial', async () => {
+    mockFetchJson = {
+      city: 'Florianópolis',
+      region_code: 'SC',
+    };
+
+    const component = IndexRoute.options.component;
+    let tree = renderComponent(component);
+    hookState[2][1](true);
+    tree = renderComponent(component);
+
+    const gpsButton = findClickableNodeByText(
+      tree,
+      'Usar minha localização atual (GPS)',
+    );
+    expect(gpsButton).toBeTruthy();
+    gpsButton.props.onClick();
+
+    expect(_mockGeolocationErrorCallback).toBeFunction();
+    _mockGeolocationErrorCallback?.({
+      code: 2,
+      PERMISSION_DENIED: 1,
+      POSITION_UNAVAILABLE: 2,
+      TIMEOUT: 3,
+    });
+
+    await Promise.resolve();
+    tree = renderComponent(component);
+
+    expect(findNodeByText(tree, 'Localização indisponível')).toBeTruthy();
+    expect(global.localStorage.getItem('geolocation_preference')).toBeNull();
+  });
+
+  test('manual region selection applies explicit city and neighborhood filters without coarse IP fallback', async () => {
+    mockFetchJson = {
+      city: 'Florianópolis',
+      region_code: 'SC',
+    };
+
+    const component = IndexRoute.options.component;
+    let tree = renderComponent(component);
+    await Promise.resolve();
+    hookState[2][1](true);
+    tree = renderComponent(component);
+
+    const cityInput = findNode(
+      tree,
+      (candidate) => candidate?.props?.id === 'temp-city-input',
+    );
+    const neighborhoodInput = findNode(
+      tree,
+      (candidate) => candidate?.props?.id === 'temp-neighborhood-input',
+    );
+    expect(cityInput).toBeTruthy();
+    expect(neighborhoodInput).toBeTruthy();
+
+    cityInput.props.onChange({ target: { value: 'Florianópolis' } });
+    neighborhoodInput.props.onChange({ target: { value: 'Centro' } });
+    tree = renderComponent(component);
+
+    const confirmButton = findClickableNodeByText(tree, 'Confirmar');
+    expect(confirmButton).toBeTruthy();
+    confirmButton.props.onClick();
+
+    tree = renderComponent(component);
+
+    expect(findNodeByText(tree, 'Florianópolis - Centro')).toBeTruthy();
+    expect(global.localStorage.getItem('user_region')).toBe(
+      JSON.stringify({
+        city: 'Florianópolis',
+        neighborhood: 'Centro',
+      }),
+    );
+    expect(lastListPublicInput).toMatchObject({
+      city: 'Florianópolis',
+      neighborhood: 'Centro',
+    });
+    expect(lastListPublicInput?.userCondoId).toBeUndefined();
+    expect(lastListPublicInput?.ipCity).toBeUndefined();
+    expect(lastListPublicInput?.ipState).toBeUndefined();
+  });
+
+  test('manual condominium selection sets preferred context without hard filtering and clears coarse IP fallback', async () => {
+    mockFetchJson = {
+      city: 'Florianópolis',
+      region_code: 'SC',
+    };
+    mockCondoSearchResults = [
+      {
+        id: 'condo-manual-id',
+        name: 'Condomínio Manual',
+        city: 'Florianópolis',
+        state: 'SC',
+        cep: '88000003',
+      },
+    ];
+
+    const component = IndexRoute.options.component;
+    let tree = renderComponent(component);
+    await Promise.resolve();
+    hookState[2][1](true);
+    tree = renderComponent(component);
+
+    const condoButton = findClickableNodeByText(tree, 'Condomínio Manual');
+    expect(condoButton).toBeTruthy();
+    condoButton.props.onClick();
+
+    tree = renderComponent(component);
+
+    expect(
+      findNodeByText(tree, 'Condomínio selecionado: Condomínio Manual'),
+    ).toBeTruthy();
+    expect(findNodeByText(tree, 'Apenas neste condomínio')).toBeTruthy();
+    expect(global.localStorage.getItem('user_condo')).toBe(
+      JSON.stringify({
+        id: 'condo-manual-id',
+        name: 'Condomínio Manual',
+        city: 'Florianópolis',
+        state: 'SC',
+        cep: '88000003',
+      }),
+    );
+    expect(lastListPublicInput).toMatchObject({
+      userCondoId: 'condo-manual-id',
+    });
+    expect(lastListPublicInput?.condominiumId).toBeUndefined();
+    expect(lastListPublicInput?.ipCity).toBeUndefined();
+    expect(lastListPublicInput?.ipState).toBeUndefined();
   });
 });
 
