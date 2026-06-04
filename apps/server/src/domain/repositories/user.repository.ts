@@ -19,6 +19,8 @@ export interface UserRepository {
   findById(id: string): Promise<User | null>;
   updateRole(id: string, role: 'PROVIDER' | 'SYSTEM_MANAGER'): Promise<User>;
   updateProviderVisibility(id: string, isVisible: boolean): Promise<User>;
+  updateStatus(id: string, status: 'ACTIVE' | 'BANNED'): Promise<User>;
+  deleteSessionsAndAccountsByUserId(userId: string): Promise<void>;
   logRoleChange(input: {
     actorId: string;
     targetUserId: string;

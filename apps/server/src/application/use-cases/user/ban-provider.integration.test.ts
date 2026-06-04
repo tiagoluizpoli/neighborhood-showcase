@@ -1,4 +1,3 @@
-import crypto from 'node:crypto';
 import { beforeAll, describe, expect, test } from 'bun:test';
 import { db } from '@neighborhood-showcase/db';
 import {
@@ -12,13 +11,25 @@ import {
   condominium,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
+import { DrizzleAnnouncementRepository } from '../../../infrastructure/db/announcement-repository';
+import { DrizzleBlacklistRepository } from '../../../infrastructure/db/blacklist-repository';
+import { DrizzleUserRepository } from '../../../infrastructure/db/user-repository';
+import { BanProvider, ProviderNotFoundError } from './ban-provider';
 
-describe('Ban Provider Integration Test', () => {
-  const providerId = 'ban-provider-id';
-  const targetCpfHash = 'ban-cpf-hash-123';
+describe('BanProvider use case', () => {
+  const providerId = 'ban-provider-uc-id';
+  const targetCpfHash = 'ban-cpf-hash-uc-456';
+
+  const userRepo = new DrizzleUserRepository();
+  const blacklistRepo = new DrizzleBlacklistRepository();
+  const announcementRepo = new DrizzleAnnouncementRepository();
+  const banProvider = new BanProvider(
+    userRepo,
+    blacklistRepo,
+    announcementRepo,
+  );
 
   beforeAll(async () => {
-    // Clear tables
     await db.delete(announcement);
     await db.delete(condominium);
     await db.delete(session);
@@ -26,51 +37,46 @@ describe('Ban Provider Integration Test', () => {
     await db.delete(blacklistedIdentifier);
     await db.delete(user);
 
-    // Insert moderator/creator user first
     await db.insert(user).values({
-      id: 'creator-id',
+      id: 'creator-uc-id',
       name: 'Condo Creator',
-      email: 'creator@example.com',
+      email: 'creator-uc@example.com',
       role: 'PROVIDER',
       status: 'ACTIVE',
     });
 
-    // Insert condo
     await db.insert(condominium).values({
-      id: 'condo-ban-id',
-      name: 'Residencial Banning',
+      id: 'condo-ban-uc-id',
+      name: 'Residencial Banning UC',
       city: 'Florianópolis',
       state: 'SC',
-      cep: '88000000',
-      createdBy: 'creator-id',
+      cep: '88000001',
+      createdBy: 'creator-uc-id',
       status: 'APPROVED',
     });
 
-    // Insert provider with PII
     await db.insert(user).values({
       id: providerId,
-      name: 'Violating Provider',
-      email: 'violation@example.com',
+      name: 'Violating Provider UC',
+      email: 'violation-uc@example.com',
       role: 'PROVIDER',
       status: 'ACTIVE',
       phone: '11999999999',
       cpfHash: targetCpfHash,
     });
 
-    // Insert session and account
     await db.insert(session).values({
-      id: 'session-ban-id',
-      token: 'session-ban-token',
+      id: 'session-ban-uc-id',
+      token: 'session-ban-uc-token',
       expiresAt: new Date(Date.now() + 3600000),
       userId: providerId,
     });
 
-    // Insert active announcement
     await db.insert(announcement).values({
-      id: 'ann-ban-id',
+      id: 'ann-ban-uc-id',
       providerId,
-      condominiumId: 'condo-ban-id',
-      title: 'Bad Service',
+      condominiumId: 'condo-ban-uc-id',
+      title: 'Bad Service UC',
       description: 'Violates community guidelines.',
       imageUrl: 'https://example.com/bad.png',
       categoryId: 'cat-servicos',
@@ -80,44 +86,19 @@ describe('Ban Provider Integration Test', () => {
     });
   });
 
-  test('successfully bans a provider, revokes sessions, soft-deletes active announcements, and blacklists their CPF hash', async () => {
-    // Simulate Ban mutation behavior
-    const reasonForBan = 'Fraude comprovada';
-
-    // 1. Update target user to BANNED
-    await db
-      .update(user)
-      .set({ status: 'BANNED' })
-      .where(eq(user.id, providerId));
-
-    // 2. Add CPF hash to blacklist
-    await db.insert(blacklistedIdentifier).values({
-      id: crypto.randomUUID(),
-      cpfHash: targetCpfHash,
-      reason: reasonForBan,
+  test('bans provider, blacklists CPF hash, soft-deletes announcements, and revokes sessions', async () => {
+    const reason = 'Fraude comprovada';
+    await banProvider.execute({
+      actorId: 'creator-uc-id',
+      targetUserId: providerId,
+      reason,
     });
 
-    // 3. Remove/hide announcements (soft delete)
-    await db
-      .update(announcement)
-      .set({
-        deletedAt: new Date(),
-        status: 'SUSPENDED',
-        suspensionReason: `Banido globalmente: ${reasonForBan}`,
-      })
-      .where(eq(announcement.providerId, providerId));
-
-    // 4. Revoke sessions and accounts
-    await db.delete(session).where(eq(session.userId, providerId));
-    await db.delete(account).where(eq(account.userId, providerId));
-
-    // Assertions
     const [bannedUser] = await db
       .select()
       .from(user)
       .where(eq(user.id, providerId))
       .limit(1);
-    expect(bannedUser).toBeDefined();
     expect(bannedUser?.status).toBe('BANNED');
 
     const [blacklistRecord] = await db
@@ -126,21 +107,49 @@ describe('Ban Provider Integration Test', () => {
       .where(eq(blacklistedIdentifier.cpfHash, targetCpfHash))
       .limit(1);
     expect(blacklistRecord).toBeDefined();
-    expect(blacklistRecord?.reason).toBe(reasonForBan);
+    expect(blacklistRecord?.reason).toBe(reason);
 
     const [updatedAnn] = await db
       .select()
       .from(announcement)
-      .where(eq(announcement.id, 'ann-ban-id'))
+      .where(eq(announcement.id, 'ann-ban-uc-id'))
       .limit(1);
-    expect(updatedAnn).toBeDefined();
-    expect(updatedAnn?.deletedAt).not.toBeNull();
     expect(updatedAnn?.status).toBe('SUSPENDED');
+    expect(updatedAnn?.deletedAt).not.toBeNull();
+    expect(updatedAnn?.suspensionReason).toBe(`Banido globalmente: ${reason}`);
 
     const activeSessions = await db
       .select()
       .from(session)
       .where(eq(session.userId, providerId));
     expect(activeSessions).toHaveLength(0);
+  });
+
+  test('does not double-blacklist if CPF already present', async () => {
+    // Provider is already banned from above test; cpfHash already in blacklist.
+    // Run again — should not throw and not duplicate the entry.
+    await expect(
+      banProvider.execute({
+        actorId: 'creator-uc-id',
+        targetUserId: providerId,
+        reason: 'Second ban attempt',
+      }),
+    ).resolves.toBeUndefined();
+
+    const allEntries = await db
+      .select()
+      .from(blacklistedIdentifier)
+      .where(eq(blacklistedIdentifier.cpfHash, targetCpfHash));
+    expect(allEntries).toHaveLength(1);
+  });
+
+  test('throws ProviderNotFoundError for unknown user id', async () => {
+    await expect(
+      banProvider.execute({
+        actorId: 'creator-uc-id',
+        targetUserId: 'non-existent-user',
+        reason: 'Test',
+      }),
+    ).rejects.toBeInstanceOf(ProviderNotFoundError);
   });
 });

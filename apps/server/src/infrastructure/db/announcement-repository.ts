@@ -89,4 +89,18 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
 
     return this.mapper.toDomain(updated);
   }
+
+  async softDeleteAllByProviderId(
+    providerId: string,
+    reason: string,
+  ): Promise<void> {
+    await db
+      .update(announcementSchema)
+      .set({
+        deletedAt: new Date(),
+        status: 'SUSPENDED',
+        suspensionReason: reason,
+      })
+      .where(eq(announcementSchema.providerId, providerId));
+  }
 }

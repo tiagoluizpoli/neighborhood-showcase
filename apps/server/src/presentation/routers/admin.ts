@@ -1,19 +1,19 @@
-import crypto from 'node:crypto';
-import { db } from '@neighborhood-showcase/db';
-import {
-  account as accountSchema,
-  blacklistedIdentifier as blacklistSchema,
-  session as sessionSchema,
-  user as userSchema,
-} from '@neighborhood-showcase/db/schema/auth';
-import { announcement as announcementSchema } from '@neighborhood-showcase/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
-import { eq } from 'drizzle-orm';
 import { z } from 'zod';
+import {
+  AddBlacklist,
+  CpfAlreadyBlacklistedError,
+} from '../../application/use-cases/admin/add-blacklist';
+import { ListBlacklist } from '../../application/use-cases/admin/list-blacklist';
+import { RemoveBlacklist } from '../../application/use-cases/admin/remove-blacklist';
 import {
   AssignModerator,
   CondominiumNotFoundError,
 } from '../../application/use-cases/user/assign-moderator';
+import {
+  BanProvider,
+  ProviderNotFoundError,
+} from '../../application/use-cases/user/ban-provider';
 import { ListProviders } from '../../application/use-cases/user/list-providers';
 import { ListUsers } from '../../application/use-cases/user/list-users';
 import {
@@ -21,7 +21,9 @@ import {
   UserNotFoundError,
 } from '../../application/use-cases/user/promote-to-system-manager';
 import { ToggleProviderVisibility } from '../../application/use-cases/user/toggle-provider-visibility';
+import { DrizzleAnnouncementRepository } from '../../infrastructure/db/announcement-repository';
 import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-repository';
+import { DrizzleBlacklistRepository } from '../../infrastructure/db/blacklist-repository';
 import { DrizzleCondominiumRepository } from '../../infrastructure/db/condominium-repository';
 import { DrizzleUserRepository } from '../../infrastructure/db/user-repository';
 import { protectedProcedure, router } from '../trpc';
@@ -32,6 +34,8 @@ const userStatusSchema = z.enum(['ACTIVE', 'BANNED']);
 const userRepo = new DrizzleUserRepository();
 const condoRepo = new DrizzleCondominiumRepository();
 const assignmentRepo = new DrizzleAssignmentRepository();
+const blacklistRepo = new DrizzleBlacklistRepository();
+const announcementRepo = new DrizzleAnnouncementRepository();
 
 const listProvidersUseCase = new ListProviders(userRepo);
 const listUsersUseCase = new ListUsers(userRepo);
@@ -42,6 +46,14 @@ const assignModeratorUseCase = new AssignModerator(
   assignmentRepo,
 );
 const toggleProviderVisibilityUseCase = new ToggleProviderVisibility(userRepo);
+const banProviderUseCase = new BanProvider(
+  userRepo,
+  blacklistRepo,
+  announcementRepo,
+);
+const listBlacklistUseCase = new ListBlacklist(blacklistRepo);
+const addBlacklistUseCase = new AddBlacklist(blacklistRepo);
+const removeBlacklistUseCase = new RemoveBlacklist(blacklistRepo);
 
 export const adminRouter = router({
   listProviders: protectedProcedure
@@ -102,64 +114,31 @@ export const adminRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
       }
 
-      const [targetUser] = await db
-        .select()
-        .from(userSchema)
-        .where(eq(userSchema.id, input.id))
-        .limit(1);
-
-      if (!targetUser) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Usuário não encontrado.',
+      try {
+        await banProviderUseCase.execute({
+          actorId: ctx.session.user.id,
+          targetUserId: input.id,
+          reason: input.reason,
         });
-      }
-
-      // 1. Update user status to BANNED
-      await db
-        .update(userSchema)
-        .set({ status: 'BANNED' })
-        .where(eq(userSchema.id, input.id));
-
-      // 2. Add CPF hash to blacklist if available
-      if (targetUser.cpfHash) {
-        const [existing] = await db
-          .select()
-          .from(blacklistSchema)
-          .where(eq(blacklistSchema.cpfHash, targetUser.cpfHash))
-          .limit(1);
-
-        if (!existing) {
-          await db.insert(blacklistSchema).values({
-            id: crypto.randomUUID(),
-            cpfHash: targetUser.cpfHash,
-            reason: input.reason,
+        return { success: true };
+      } catch (error) {
+        if (error instanceof ProviderNotFoundError) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: error.message,
+            cause: error,
           });
         }
+        throw error;
       }
-
-      // 3. Remove/hide all their announcements (soft delete them)
-      await db
-        .update(announcementSchema)
-        .set({
-          deletedAt: new Date(),
-          status: 'SUSPENDED',
-          suspensionReason: `Banido globalmente: ${input.reason}`,
-        })
-        .where(eq(announcementSchema.providerId, input.id));
-
-      // 4. Revoke all sessions and accounts to log them out
-      await db.delete(sessionSchema).where(eq(sessionSchema.userId, input.id));
-      await db.delete(accountSchema).where(eq(accountSchema.userId, input.id));
-
-      return { success: true };
     }),
 
   listBlacklist: protectedProcedure.query(async ({ ctx }) => {
     if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
       throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
     }
-    return db.select().from(blacklistSchema);
+    const entries = await listBlacklistUseCase.execute();
+    return entries.map((e) => e.toDTO());
   }),
 
   addBlacklist: protectedProcedure
@@ -174,26 +153,22 @@ export const adminRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
       }
 
-      const [existing] = await db
-        .select()
-        .from(blacklistSchema)
-        .where(eq(blacklistSchema.cpfHash, input.cpfHash))
-        .limit(1);
-
-      if (existing) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Este CPF já está na lista negra.',
+      try {
+        await addBlacklistUseCase.execute({
+          cpfHash: input.cpfHash,
+          reason: input.reason,
         });
+        return { success: true };
+      } catch (error) {
+        if (error instanceof CpfAlreadyBlacklistedError) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: error.message,
+            cause: error,
+          });
+        }
+        throw error;
       }
-
-      await db.insert(blacklistSchema).values({
-        id: crypto.randomUUID(),
-        cpfHash: input.cpfHash,
-        reason: input.reason,
-      });
-
-      return { success: true };
     }),
 
   removeBlacklist: protectedProcedure
@@ -203,7 +178,7 @@ export const adminRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
       }
 
-      await db.delete(blacklistSchema).where(eq(blacklistSchema.id, input.id));
+      await removeBlacklistUseCase.execute({ id: input.id });
       return { success: true };
     }),
 

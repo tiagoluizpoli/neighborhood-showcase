@@ -62,4 +62,5 @@ export interface AnnouncementRepository {
     id: string,
     input: UpdateAnnouncementRepositoryInput,
   ): Promise<Announcement>;
+  softDeleteAllByProviderId(providerId: string, reason: string): Promise<void>;
 }

@@ -1,6 +1,10 @@
 import crypto from 'node:crypto';
 import { db } from '@neighborhood-showcase/db';
-import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
+import {
+  account as accountSchema,
+  session as sessionSchema,
+  user as userSchema,
+} from '@neighborhood-showcase/db/schema/auth';
 import {
   address as addressSchema,
   condominium as condominiumSchema,
@@ -172,5 +176,23 @@ export class DrizzleUserRepository implements UserRepository {
       newRole: input.newRole,
       condominiumId: input.condominiumId || null,
     });
+  }
+
+  async updateStatus(id: string, status: 'ACTIVE' | 'BANNED'): Promise<User> {
+    const [row] = await db
+      .update(userSchema)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(userSchema.id, id))
+      .returning();
+
+    if (!row) {
+      throw new Error('User not found');
+    }
+    return this.userMapper.toDomain(row);
+  }
+
+  async deleteSessionsAndAccountsByUserId(userId: string): Promise<void> {
+    await db.delete(sessionSchema).where(eq(sessionSchema.userId, userId));
+    await db.delete(accountSchema).where(eq(accountSchema.userId, userId));
   }
 }
