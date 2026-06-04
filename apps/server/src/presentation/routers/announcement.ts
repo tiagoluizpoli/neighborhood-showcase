@@ -1,11 +1,5 @@
 import { db } from '@neighborhood-showcase/db';
-import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
-import {
-  address as addressSchema,
-  category as categorySchema,
-  condominium as condominiumSchema,
-  providerLocation as providerLocationSchema,
-} from '@neighborhood-showcase/db/schema/showcase';
+import { category as categorySchema } from '@neighborhood-showcase/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
@@ -13,6 +7,10 @@ import { CreateAnnouncement } from '../../application/use-cases/announcement/cre
 import { DismissReports } from '../../application/use-cases/announcement/dismiss-reports';
 import { GetAnnouncementAnalytics } from '../../application/use-cases/announcement/get-announcement-analytics';
 import { GetProviderDashboardData } from '../../application/use-cases/announcement/get-provider-dashboard-data';
+import {
+  AnnouncementNotFoundError,
+  GetPublicAnnouncement,
+} from '../../application/use-cases/announcement/get-public-announcement';
 import {
   ListAnnouncementsForModeration,
   ModerationAccessDeniedError,
@@ -61,6 +59,9 @@ const getPaymentStatusUseCase = new GetPaymentStatus(
 );
 const listAnnouncementsForModerationUseCase =
   new ListAnnouncementsForModeration(announcementRepo, assignmentRepo);
+const getPublicAnnouncementUseCase = new GetPublicAnnouncement(
+  announcementRepo,
+);
 const updateAnnouncementUseCase = new UpdateAnnouncement(
   announcementRepo,
   assignmentRepo,
@@ -225,81 +226,21 @@ export const announcementRouter = router({
       }),
     )
     .query(async ({ input }) => {
-      const ann = await announcementRepo.findById(input.id);
-      if (!ann || ann.status !== 'ACTIVE') {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Anúncio não encontrado ou inativo.',
+      try {
+        return await getPublicAnnouncementUseCase.execute({
+          id: input.id,
         });
-      }
-
-      let condoName = '';
-      let condoCity = '';
-      let condoState = '';
-
-      if (ann.condominiumId) {
-        const [condo] = await db
-          .select()
-          .from(condominiumSchema)
-          .where(eq(condominiumSchema.id, ann.condominiumId))
-          .limit(1);
-        if (condo) {
-          condoName = condo.name;
-          condoCity = condo.city;
-          condoState = condo.state;
+      } catch (error) {
+        if (error instanceof AnnouncementNotFoundError) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: error.message,
+            cause: error,
+          });
         }
-      } else if (ann.providerLocationId) {
-        const [loc] = await db
-          .select({
-            city: addressSchema.city,
-            state: addressSchema.state,
-          })
-          .from(providerLocationSchema)
-          .innerJoin(
-            addressSchema,
-            eq(providerLocationSchema.addressId, addressSchema.id),
-          )
-          .where(eq(providerLocationSchema.id, ann.providerLocationId))
-          .limit(1);
-        if (loc) {
-          condoCity = loc.city;
-          condoState = loc.state;
-        }
+
+        throw error;
       }
-
-      let providerName = '';
-      let providerAvatarUrl: string | null = null;
-
-      const [provider] = await db
-        .select()
-        .from(userSchema)
-        .where(eq(userSchema.id, ann.providerId))
-        .limit(1);
-
-      if (provider) {
-        providerName = provider.name || '';
-        providerAvatarUrl = provider.image || null;
-      }
-
-      let categoryName = '';
-      const [cat] = await db
-        .select()
-        .from(categorySchema)
-        .where(eq(categorySchema.id, ann.categoryId))
-        .limit(1);
-      if (cat) {
-        categoryName = cat.name;
-      }
-
-      return {
-        ...ann.toDTO(),
-        category: categoryName,
-        condoName,
-        condoCity,
-        condoState,
-        providerName,
-        providerAvatarUrl,
-      };
     }),
 
   getDashboardData: protectedProcedure.query(async ({ ctx }) => {
