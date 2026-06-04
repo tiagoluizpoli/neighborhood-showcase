@@ -21,6 +21,11 @@ import { ReportAnnouncement } from '../../application/use-cases/announcement/rep
 import { SuspendAnnouncement } from '../../application/use-cases/announcement/suspend-announcement';
 import { TrackAnalyticsEvent } from '../../application/use-cases/announcement/track-analytics-event';
 import { GeneratePaymentIntent } from '../../application/use-cases/payment/generate-payment-intent';
+import {
+  AnnouncementAccessDeniedError,
+  GetPaymentStatus,
+  PaymentNotFoundError,
+} from '../../application/use-cases/payment/get-payment-status';
 import { DrizzleAnnouncementRepository } from '../../infrastructure/db/announcement-repository';
 import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-repository';
 import { DrizzlePaymentRepository } from '../../infrastructure/db/payment-repository';
@@ -41,6 +46,10 @@ const generatePaymentIntentUseCase = new GeneratePaymentIntent(
   announcementRepo,
   paymentRepo,
   abacatePayClient,
+);
+const getPaymentStatusUseCase = new GetPaymentStatus(
+  announcementRepo,
+  paymentRepo,
 );
 
 const listPublicAnnouncementsUseCase = new ListPublicAnnouncements();
@@ -116,31 +125,30 @@ export const announcementRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      const paymentRecord = await paymentRepo.findByAnnouncementId(
-        input.announcementId,
-      );
-
-      if (!paymentRecord) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Nenhum pagamento registrado para este anúncio.',
+      try {
+        return await getPaymentStatusUseCase.execute({
+          announcementId: input.announcementId,
+          providerId: ctx.session.user.id,
         });
-      }
+      } catch (error) {
+        if (error instanceof PaymentNotFoundError) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: error.message,
+            cause: error,
+          });
+        }
 
-      // Verify ownership of the announcement
-      const ann = await announcementRepo.findById(input.announcementId);
-      if (!ann || ann.providerId !== ctx.session.user.id) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Acesso negado. Você não é o proprietário deste anúncio.',
-        });
-      }
+        if (error instanceof AnnouncementAccessDeniedError) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: error.message,
+            cause: error,
+          });
+        }
 
-      return {
-        id: paymentRecord.id,
-        status: paymentRecord.status,
-        billingId: paymentRecord.billingId,
-      };
+        throw error;
+      }
     }),
 
   listPublic: publicProcedure
