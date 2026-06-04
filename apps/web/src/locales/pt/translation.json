@@ -121,6 +121,12 @@
       "step_3_title": "Fale direto com o prestador",
       "step_3_description": "Entre em contato por WhatsApp, telefone, email ou perfil público.",
       "provider_note": "Quer anunciar? Publique seu serviço no painel e apareça para moradores próximos."
+    },
+    "anunciar": {
+      "title": "Anuncie para quem mora perto",
+      "description": "Publique seus serviços ou produtos e seja visto por moradores do seu condomínio e região com facilidade e segurança.",
+      "cta": "Anunciar serviço",
+      "has_account": "Já tem conta? Entrar"
     }
   }
 }

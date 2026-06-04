@@ -121,6 +121,12 @@
       "step_3_title": "Talk directly to the provider",
       "step_3_description": "Reach out through WhatsApp, phone, email, or the public profile.",
       "provider_note": "Want to advertise? Publish your service in the panel and appear to nearby residents."
+    },
+    "anunciar": {
+      "title": "Advertise to those who live nearby",
+      "description": "Publish your services or products and get seen by residents in your condominium and region with ease and safety.",
+      "cta": "Advertise service",
+      "has_account": "Already have an account? Sign In"
     }
   }
 }

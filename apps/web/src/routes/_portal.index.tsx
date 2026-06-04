@@ -52,6 +52,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { authClient } from '@/lib/auth-client';
 import {
   confirmNearbyCondoSelection,
   deriveNearbyCondoMatch,
@@ -126,6 +127,7 @@ const getFreshStoredCoords = () => {
 function PublicVitrineComponent() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { data: session } = authClient.useSession();
 
   const [selectedCondo, setSelectedCondo] = useState<SelectedCondo | null>(
     null,
@@ -948,7 +950,7 @@ function PublicVitrineComponent() {
           <p className="text-muted-foreground text-sm">Buscando listagens...</p>
         </div>
       ) : announcements && announcements.length > 0 ? (
-        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
           {announcements.map((ad) => {
             const isLocal =
               selectedCondo && ad.condominiumId === selectedCondo.id;
@@ -1159,18 +1161,40 @@ function PublicVitrineComponent() {
       {/* Become a Provider Promo Section */}
       <div
         id="anunciar"
-        className="mt-16 rounded-xl border bg-muted/30 p-8 text-center"
+        className="-mx-4 mt-16 border-y bg-muted/30 px-6 py-12 text-center md:-mx-6 md:px-8 lg:-mx-8"
       >
-        <h3 className="mb-2 font-bold text-lg">
-          Quer divulgar seus serviços na sua vizinhança?
-        </h3>
-        <p className="mx-auto mb-4 max-w-lg text-muted-foreground text-sm">
-          Cadastre-se como prestador de serviços e anuncie para os moradores do
-          seu condomínio ou região com facilidade e confiança.
-        </p>
-        <Link to="/auth" search={{ tab: 'signup' }}>
-          <Button variant="default">Começar Agora (Anunciar Serviços)</Button>
-        </Link>
+        <div className="mx-auto max-w-3xl">
+          <h3 className="mb-2 font-bold text-xl md:text-2xl">
+            {t('home.anunciar.title')}
+          </h3>
+          <p className="mx-auto mb-6 max-w-xl text-muted-foreground text-sm md:text-base">
+            {t('home.anunciar.description')}
+          </p>
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            {session ? (
+              <Link to="/panel/dashboard">
+                <Button variant="default" size="lg">
+                  {t('home.anunciar.cta')}
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link to="/auth" search={{ tab: 'signup' }}>
+                  <Button variant="default" size="lg">
+                    {t('home.anunciar.cta')}
+                  </Button>
+                </Link>
+                <Link
+                  to="/auth"
+                  search={{ tab: 'signin' }}
+                  className="font-medium text-primary text-sm hover:underline"
+                >
+                  {t('home.anunciar.has_account')}
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Mobile Location Selector Sheet */}

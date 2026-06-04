@@ -94,15 +94,15 @@ The home page currently uses a centered `max-w-6xl` container for the entire bro
 - [x] Search, location/status, categories, and filters are grouped into one compact discovery controls area.
 - [x] Desktop controls are visible inline without large full-width control bars.
 - [x] Mobile secondary filters use a sheet/drawer instead of stacking all controls above the feed.
-- [ ] No public sort dropdown is introduced in the MVP layout cleanup.
+- [x] No public sort dropdown is introduced in the MVP layout cleanup.
 - [x] Radius control is not shown as a large full-width section and only appears when fresh GPS is active.
-- [ ] Announcement grid uses denser responsive columns while preserving card readability.
-- [ ] `#anunciar` renders as a full-width CTA band, not a card.
-- [ ] Provider CTA includes `Anunciar serviço` and `Já tem conta? Entrar` actions with correct auth-aware routing.
-- [ ] Header does not add an extra primary provider CTA button beyond the `Anunciar` anchor.
+- [x] Announcement grid uses denser responsive columns while preserving card readability.
+- [x] `#anunciar` renders as a full-width CTA band, not a card.
+- [x] Provider CTA includes `Anunciar serviço` and `Já tem conta? Entrar` actions with correct auth-aware routing.
+- [x] Header does not add an extra primary provider CTA button beyond the `Anunciar` anchor.
 - [x] `#como-funciona` renders as a compact Visitor-first 3-step section without cards or long marketing copy.
-- [ ] Layout avoids nested cards and oversized full-width alert/control surfaces.
-- [ ] Visual/regression tests or route-level UI assertions cover the main home-page layout states.
+- [x] Layout avoids nested cards and oversized full-width alert/control surfaces.
+- [x] Visual/regression tests or route-level UI assertions cover the main home-page layout states.
 
 ## Blocked by
 
@@ -126,3 +126,12 @@ The home page currently uses a centered `max-w-6xl` container for the entire bro
 - Reworked `#como-funciona` into a compact Visitor-first 3-step section with short copy, small lucide icons, and a provider note under the steps.
 - Added route-level UI assertions for the new `#como-funciona` copy and provider note.
 - Remaining work: denser announcement grid, full-width `#anunciar` CTA band, auth-aware CTA routing, and final route-level assertions for the CTA section and overall layout finish.
+
+## Iteration 6 Notes
+
+- Made the announcements grid columns denser for wide viewports (added `xl:grid-cols-4`).
+- Reworked the Become a Provider promo area (`#anunciar`) into a screen-edge full-width banner section with Top/Bottom borders.
+- Connected the primary CTA button (`Anunciar serviço`) and secondary link (`Já tem conta? Entrar`) to use the `authClient` session status for correct auth-aware routing.
+- Moved copy texts into Portuguese/English JSON translation files.
+- Wrote route-level test coverage asserting the dense columns, full-width styling classes, and auth-aware routing redirect links.
+- All acceptance criteria are successfully resolved and verified. Loop Terminated. <promise>NO MORE TASKS</promise>

@@ -127,6 +127,21 @@ const findNodeByProp = (node: any, propName: string, propValue: string) => {
   return findNodeByProp(node.props?.children, propName, propValue);
 };
 
+const findLinkByText = (node: any, text: string): any | null => {
+  if (node == null || typeof node === 'boolean') return null;
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const match = findLinkByText(child, text);
+      if (match) return match;
+    }
+    return null;
+  }
+  if (node.props?.to && getNodeText(node.props.children).includes(text)) {
+    return node;
+  }
+  return findLinkByText(node.props?.children, text);
+};
+
 mock.module('react', () => ({
   ...RealReact,
   useCallback: (fn: any) => fn,
@@ -199,6 +214,11 @@ mock.module('react-i18next', () => ({
           'Entre em contato por WhatsApp, telefone, email ou perfil público.',
         'home.how_it_works.provider_note':
           'Quer anunciar? Publique seu serviço no painel e apareça para moradores próximos.',
+        'home.anunciar.title': 'Anuncie para quem mora perto',
+        'home.anunciar.description':
+          'Publique seus serviços ou produtos e seja visto por moradores do seu condomínio e região com facilidade e segurança.',
+        'home.anunciar.cta': 'Anunciar serviço',
+        'home.anunciar.has_account': 'Já tem conta? Entrar',
         'location.tab_region': 'Região',
         'location.tab_condo': 'Condomínio',
         'location.option_gps': 'Usar minha localização atual (GPS)',
@@ -224,13 +244,46 @@ mock.module('react-i18next', () => ({
 
 mock.module('@tanstack/react-query', () => ({
   ...RealQuery,
-  useQuery: () => ({
-    data: [],
-    isLoading: false,
-  }),
+  useQuery: (options: any) => {
+    const queryKey = options?.queryKey || [];
+    const queryHash = options?.queryKeyHash || '';
+    if (
+      queryHash.includes('listPublic') ||
+      JSON.stringify(queryKey).includes('listPublic')
+    ) {
+      return {
+        data: [
+          {
+            id: 'ann-123',
+            title: 'Test Ad',
+            description: 'Test Description',
+            imageUrl: 'test.jpg',
+            category: 'Serviços',
+            contactLinks: {},
+            showVerifiedBadge: false,
+            condoCity: 'Florianópolis',
+            providerName: 'Test Provider',
+          },
+        ],
+        isLoading: false,
+      };
+    }
+    return {
+      data: [],
+      isLoading: false,
+    };
+  },
   useMutation: () => ({
     mutate: () => {},
   }),
+}));
+
+export let mockSession: any = null;
+
+mock.module('@/lib/auth-client', () => ({
+  authClient: {
+    useSession: () => ({ data: mockSession, isPending: false }),
+  },
 }));
 
 const { Route: IndexRoute } = await import('./_portal.index');
@@ -332,5 +385,52 @@ describe('Home Discovery Layout Shell', () => {
         'Quer anunciar? Publique seu serviço no painel e apareça para moradores próximos.',
       ),
     ).toBeTruthy();
+  });
+
+  test('uses dense responsive columns and handles #anunciar band states', () => {
+    // Assert denser announcement grid class (xl:grid-cols-4)
+    const component = IndexRoute.options.component;
+    const tree = renderComponent(component);
+
+    // Check grid layout classes
+    const gridNode = findNodeByProp(
+      tree,
+      'className',
+      'grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4',
+    );
+    expect(gridNode).toBeTruthy();
+
+    const anunciarSection = findNodeByProp(tree, 'id', 'anunciar');
+    expect(anunciarSection).toBeTruthy();
+    // Verify it uses negative margin classes for full width
+    expect(anunciarSection.props.className).toContain('-mx-4');
+    expect(anunciarSection.props.className).toContain('md:-mx-6');
+    expect(anunciarSection.props.className).toContain('lg:-mx-8');
+
+    // Test unauthenticated state
+    mockSession = null;
+    const treeUnauth = renderComponent(component);
+    const unauthSection = findNodeByProp(treeUnauth, 'id', 'anunciar');
+
+    const signUpLink = findLinkByText(unauthSection, 'Anunciar serviço');
+    expect(signUpLink).toBeTruthy();
+    expect(signUpLink.props.search).toEqual({ tab: 'signup' });
+
+    const signInLink = findLinkByText(unauthSection, 'Já tem conta? Entrar');
+    expect(signInLink).toBeTruthy();
+    expect(signInLink.props.to).toBe('/auth');
+    expect(signInLink.props.search).toEqual({ tab: 'signin' });
+
+    // Test authenticated state
+    mockSession = { user: { id: 'test-user-123' } };
+    const treeAuth = renderComponent(component);
+    const authSection = findNodeByProp(treeAuth, 'id', 'anunciar');
+
+    const dashboardLink = findLinkByText(authSection, 'Anunciar serviço');
+    expect(dashboardLink).toBeTruthy();
+    expect(dashboardLink.props.to).toBe('/panel/dashboard');
+
+    const signInLinkAuth = findLinkByText(authSection, 'Já tem conta? Entrar');
+    expect(signInLinkAuth).toBeNull();
   });
 });
