@@ -107,6 +107,10 @@
       "eyebrow": "Descubra perto de você",
       "title": "Explore serviços e ofertas da sua região",
       "description": "Busque por categoria, condomínio ou palavra-chave e fale direto com quem anuncia."
-    }
+    },
+    "search_placeholder": "Buscar por serviços, comidas, produtos...",
+    "filters": "Filtros",
+    "filters_title": "Filtros da busca",
+    "filters_description": "Refine a vitrine por confiança, condomínio e alcance."
   }
 }

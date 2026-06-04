@@ -93,6 +93,27 @@ const findNodeByText = (node: any, text: string): any | null => {
   return findNodeByText(node.props?.children, text);
 };
 
+const findClickableNodeByText = (node: any, text: string): any | null => {
+  if (node == null || typeof node === 'boolean') return null;
+  if (typeof node === 'string' || typeof node === 'number') return null;
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const match = findClickableNodeByText(child, text);
+      if (match) return match;
+    }
+    return null;
+  }
+
+  if (
+    typeof node.props?.onClick === 'function' &&
+    getNodeText(node.props?.children).includes(text)
+  ) {
+    return node;
+  }
+
+  return findClickableNodeByText(node.props?.children, text);
+};
+
 const findNodeByProp = (node: any, propName: string, propValue: string) => {
   if (node == null || typeof node === 'boolean') return null;
   if (Array.isArray(node)) {
@@ -163,6 +184,9 @@ mock.module('react-i18next', () => ({
         'location.change': 'Alterar',
         'location.no_signal': 'Todos os anúncios',
         'location.clear': 'Limpar localização',
+        'home.filters': 'Filtros',
+        'home.search_placeholder': 'Buscar por serviços, comidas, produtos...',
+        'home.filters_title': 'Filtros da busca',
         'location.tab_region': 'Região',
         'location.tab_condo': 'Condomínio',
         'location.option_gps': 'Usar minha localização atual (GPS)',
@@ -228,5 +252,36 @@ describe('Home Discovery Layout Shell', () => {
         'Busque por categoria, condomínio ou palavra-chave e fale direto com quem anuncia.',
       ),
     ).toBeTruthy();
+  });
+
+  test('groups search, location, categories, and filters inside compact discovery controls', () => {
+    const component = IndexRoute.options.component;
+    const tree = renderComponent(component);
+
+    const exploreSection = findNodeByProp(tree, 'id', 'explorar');
+    expect(exploreSection).toBeTruthy();
+    expect(
+      findNodeByProp(
+        exploreSection,
+        'placeholder',
+        'Buscar por serviços, comidas, produtos...',
+      ),
+    ).toBeTruthy();
+    expect(
+      findNodeByText(exploreSection, 'Selecionar Localização'),
+    ).toBeTruthy();
+    expect(
+      findNodeByText(exploreSection, 'Apenas moradores verificados'),
+    ).toBeTruthy();
+  });
+
+  test('shows Filtros action on mobile instead of stacking all controls inline', () => {
+    global.window.innerWidth = 375;
+    const component = IndexRoute.options.component;
+
+    renderComponent(component);
+    const tree = renderComponent(component);
+
+    expect(findClickableNodeByText(tree, 'Filtros')).toBeTruthy();
   });
 });

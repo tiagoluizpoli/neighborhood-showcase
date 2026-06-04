@@ -89,13 +89,13 @@ The home page currently uses a centered `max-w-6xl` container for the entire bro
 
 - [x] Home page no longer constrains the entire browsing experience to a centered `max-w-6xl` column.
 - [x] A compact hero band exists above discovery controls.
-- [ ] Discovery controls and the first announcement row are visible quickly on common laptop viewports.
+- [x] Discovery controls and the first announcement row are visible quickly on common laptop viewports.
 - [x] `#explorar`, `#como-funciona`, and `#anunciar` section targets exist and match the public header anchors.
-- [ ] Search, location/status, categories, and filters are grouped into one compact discovery controls area.
-- [ ] Desktop controls are visible inline without large full-width control bars.
-- [ ] Mobile secondary filters use a sheet/drawer instead of stacking all controls above the feed.
+- [x] Search, location/status, categories, and filters are grouped into one compact discovery controls area.
+- [x] Desktop controls are visible inline without large full-width control bars.
+- [x] Mobile secondary filters use a sheet/drawer instead of stacking all controls above the feed.
 - [ ] No public sort dropdown is introduced in the MVP layout cleanup.
-- [ ] Radius control is not shown as a large full-width section and only appears when fresh GPS is active.
+- [x] Radius control is not shown as a large full-width section and only appears when fresh GPS is active.
 - [ ] Announcement grid uses denser responsive columns while preserving card readability.
 - [ ] `#anunciar` renders as a full-width CTA band, not a card.
 - [ ] Provider CTA includes `Anunciar serviço` and `Já tem conta? Entrar` actions with correct auth-aware routing.
@@ -113,3 +113,10 @@ The home page currently uses a centered `max-w-6xl` container for the entire bro
 - Started Issue 58 by widening the home-page shell, removing the old `max-w-6xl` constraint, and introducing a compact hero band above discovery controls.
 - Added route-level UI assertions covering the wider shell, preserved section anchors, and new hero content.
 - Remaining work: compact discovery controls layout, denser feed viewport behavior, compact `#como-funciona`, full-width `#anunciar` CTA band, and mobile secondary-filter sheet behavior.
+
+## Iteration 4 Notes
+
+- Grouped search, location status, category pills, desktop toggles, and radius controls into one compact discovery-controls block under `#explorar`.
+- Added mobile-only `Filtros` sheet so secondary filters no longer stack above the feed on small screens.
+- Removed the old standalone full-width radius block and kept radius controls embedded inside discovery filters only when fresh GPS is active.
+- Remaining work: denser announcement grid, compact visitor-first `#como-funciona`, full-width `#anunciar` CTA band, auth-aware CTA routing, and follow-up route-level assertions for those sections.

@@ -169,6 +169,7 @@ function PublicVitrineComponent() {
     state: string;
   } | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isFiltersSheetOpen, setIsFiltersSheetOpen] = useState(false);
 
   // Grid Filters
   const [search, setSearch] = useState('');
@@ -662,68 +663,6 @@ function PublicVitrineComponent() {
         </div>
       </section>
 
-      {/* Geolocation / Selected Location Control */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-4">
-        <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-primary/10 p-2 text-primary">
-            <MapPin className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="font-medium text-muted-foreground text-xs">
-              {t('location.modal_title')}
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-semibold text-sm">
-                {getLocationStatusText()}
-              </span>
-              {(selectedCondo || coords || selectedRegion || ipLocation) && (
-                <button
-                  type="button"
-                  onClick={revokeLocation}
-                  className="font-normal text-destructive text-xs hover:underline"
-                >
-                  ({t('location.clear')})
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {isMobile ? (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsLocationSelectorOpen(true)}
-            >
-              {t('location.change')}
-            </Button>
-          ) : (
-            <Popover
-              open={isLocationSelectorOpen}
-              onOpenChange={setIsLocationSelectorOpen}
-            >
-              <PopoverTrigger
-                render={
-                  <Button variant="outline" size="sm">
-                    {t('location.change')}
-                  </Button>
-                }
-              />
-              <PopoverContent className="w-96 p-5">
-                <h3 className="mb-1 font-bold text-sm">
-                  {t('location.modal_title')}
-                </h3>
-                <p className="mb-4 text-[10px] text-muted-foreground">
-                  {t('location.modal_desc')}
-                </p>
-                {renderSelectorContent()}
-              </PopoverContent>
-            </Popover>
-          )}
-        </div>
-      </div>
-
       {/* Nearby Condominium Prompt */}
       {nearbyCondoMatch ? (
         <Dialog
@@ -813,72 +752,192 @@ function PublicVitrineComponent() {
       ) : null}
 
       {/* Main Filter Section */}
-      <div id="explorar" className="mb-8 flex flex-col gap-6">
-        <div className="flex flex-col gap-4 md:flex-row">
-          <div className="relative flex-1">
-            <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por serviços, comidas, produtos..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="bg-card py-5 pl-10"
-            />
-          </div>
-          <div className="flex items-center gap-2.5 self-start rounded-lg border bg-card px-4 py-2 md:self-auto">
-            <Checkbox
-              id="verified-switch"
-              checked={verifiedOnly}
-              onCheckedChange={(checked) => setVerifiedOnly(checked === true)}
-            />
-            <label
-              htmlFor="verified-switch"
-              className="cursor-pointer select-none font-medium text-sm"
-            >
-              Apenas moradores verificados
-            </label>
-          </div>
-          {selectedCondo && (
-            <div className="flex items-center gap-2.5 self-start rounded-lg border bg-card px-4 py-2 md:self-auto">
-              <Checkbox
-                id="condo-filter-switch"
-                checked={filterByCondo}
-                onCheckedChange={(checked) =>
-                  setFilterByCondo(checked === true)
-                }
-              />
-              <label
-                htmlFor="condo-filter-switch"
-                className="cursor-pointer select-none font-medium text-sm"
-              >
-                Apenas neste condomínio
-              </label>
-            </div>
-          )}
-        </div>
+      <div id="explorar" className="mb-8">
+        <div className="rounded-2xl border bg-card/70 p-4 shadow-sm md:p-5">
+          <div className="flex flex-col gap-4">
+            <div className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.9fr)_auto]">
+              <div className="relative min-w-0">
+                <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder={t('home.search_placeholder')}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="h-11 bg-background pl-10"
+                />
+              </div>
 
-        {/* Categories Tab Swiper */}
-        <div className="scrollbar-none flex gap-2 overflow-x-auto pb-2">
-          <Button
-            type="button"
-            onClick={() => setCategoryId('Todos')}
-            variant={categoryId === 'Todos' ? 'default' : 'outline'}
-            size="sm"
-            className="whitespace-nowrap"
-          >
-            Todos
-          </Button>
-          {backendCategories?.map((cat) => (
-            <Button
-              key={cat.id}
-              type="button"
-              onClick={() => setCategoryId(cat.id)}
-              variant={categoryId === cat.id ? 'default' : 'outline'}
-              size="sm"
-              className="whitespace-nowrap"
-            >
-              {cat.name}
-            </Button>
-          ))}
+              <div className="flex items-center justify-between gap-3 rounded-xl border bg-background px-4 py-3">
+                <div className="min-w-0">
+                  <p className="font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
+                    {t('location.modal_title')}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="truncate font-semibold text-sm">
+                      {getLocationStatusText()}
+                    </span>
+                    {(selectedCondo ||
+                      coords ||
+                      selectedRegion ||
+                      ipLocation) && (
+                      <button
+                        type="button"
+                        onClick={revokeLocation}
+                        className="font-normal text-destructive text-xs hover:underline"
+                      >
+                        ({t('location.clear')})
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex shrink-0 items-center gap-2">
+                  {isMobile ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsLocationSelectorOpen(true)}
+                    >
+                      {t('location.change')}
+                    </Button>
+                  ) : (
+                    <Popover
+                      open={isLocationSelectorOpen}
+                      onOpenChange={setIsLocationSelectorOpen}
+                    >
+                      <PopoverTrigger
+                        render={
+                          <Button variant="outline" size="sm">
+                            {t('location.change')}
+                          </Button>
+                        }
+                      />
+                      <PopoverContent className="w-96 p-5">
+                        <h3 className="mb-1 font-bold text-sm">
+                          {t('location.modal_title')}
+                        </h3>
+                        <p className="mb-4 text-[10px] text-muted-foreground">
+                          {t('location.modal_desc')}
+                        </p>
+                        {renderSelectorContent()}
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-start justify-end gap-2">
+                <div className="hidden flex-wrap items-center gap-2 md:flex">
+                  <div className="flex items-center gap-2 rounded-xl border bg-background px-3 py-2">
+                    <Checkbox
+                      id="verified-switch"
+                      checked={verifiedOnly}
+                      onCheckedChange={(checked) =>
+                        setVerifiedOnly(checked === true)
+                      }
+                    />
+                    <label
+                      htmlFor="verified-switch"
+                      className="cursor-pointer select-none font-medium text-sm"
+                    >
+                      Apenas moradores verificados
+                    </label>
+                  </div>
+                  {selectedCondo && (
+                    <div className="flex items-center gap-2 rounded-xl border bg-background px-3 py-2">
+                      <Checkbox
+                        id="condo-filter-switch"
+                        checked={filterByCondo}
+                        onCheckedChange={(checked) =>
+                          setFilterByCondo(checked === true)
+                        }
+                      />
+                      <label
+                        htmlFor="condo-filter-switch"
+                        className="cursor-pointer select-none font-medium text-sm"
+                      >
+                        Apenas neste condomínio
+                      </label>
+                    </div>
+                  )}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="md:hidden"
+                  onClick={() => setIsFiltersSheetOpen(true)}
+                >
+                  <SlidersHorizontal className="h-4 w-4" />
+                  <span>{t('home.filters')}</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Categories Tab Swiper */}
+            <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
+              <Button
+                type="button"
+                onClick={() => setCategoryId('Todos')}
+                variant={categoryId === 'Todos' ? 'default' : 'outline'}
+                size="sm"
+                className="whitespace-nowrap"
+              >
+                Todos
+              </Button>
+              {backendCategories?.map((cat) => (
+                <Button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setCategoryId(cat.id)}
+                  variant={categoryId === cat.id ? 'default' : 'outline'}
+                  size="sm"
+                  className="whitespace-nowrap"
+                >
+                  {cat.name}
+                </Button>
+              ))}
+            </div>
+
+            {isGpsFresh && (
+              <div
+                className={`flex flex-col gap-3 rounded-xl border px-4 py-3 md:flex-row md:items-center md:justify-between ${
+                  radiusKm === 25
+                    ? 'border-warning/40 bg-warning/5'
+                    : 'border-border bg-background'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <MapPin
+                    className={`mt-0.5 h-4 w-4 ${
+                      radiusKm === 25 ? 'text-warning' : 'text-primary'
+                    }`}
+                  />
+                  <div>
+                    <p className="font-semibold text-sm">
+                      {radiusKm === 10
+                        ? t('location.radius_standard')
+                        : t('location.radius_expanded')}
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                      {radiusKm === 10
+                        ? t('location.radius_standard_desc')
+                        : t('location.radius_expanded_desc')}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant={radiusKm === 10 ? 'outline' : 'secondary'}
+                  size="sm"
+                  onClick={() => setRadiusKm(radiusKm === 10 ? 25 : 10)}
+                  className="w-full shrink-0 md:w-auto"
+                >
+                  {radiusKm === 10
+                    ? t('location.radius_expand')
+                    : t('location.radius_shrink')}
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -1044,47 +1103,6 @@ function PublicVitrineComponent() {
         </div>
       )}
 
-      {/* Geolocation Radius Controls */}
-      {isGpsFresh && (
-        <div
-          className={`mt-8 rounded-xl border p-6 ${
-            radiusKm === 25
-              ? 'border-warning/40 bg-warning/5 text-warning-foreground'
-              : 'border-border bg-card'
-          }`}
-        >
-          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <div className="flex items-start gap-3">
-              <MapPin
-                className={`mt-0.5 h-5 w-5 ${radiusKm === 25 ? 'text-warning' : 'text-primary'}`}
-              />
-              <div>
-                <p className="font-semibold text-sm">
-                  {radiusKm === 10
-                    ? t('location.radius_standard')
-                    : t('location.radius_expanded')}
-                </p>
-                <p className="text-muted-foreground text-xs">
-                  {radiusKm === 10
-                    ? t('location.radius_standard_desc')
-                    : t('location.radius_expanded_desc')}
-                </p>
-              </div>
-            </div>
-            <Button
-              variant={radiusKm === 10 ? 'outline' : 'secondary'}
-              size="sm"
-              onClick={() => setRadiusKm(radiusKm === 10 ? 25 : 10)}
-              className="w-full shrink-0 font-semibold sm:w-auto"
-            >
-              {radiusKm === 10
-                ? t('location.radius_expand')
-                : t('location.radius_shrink')}
-            </Button>
-          </div>
-        </div>
-      )}
-
       {/* Como Funciona Section */}
       <div id="como-funciona" className="mt-16 rounded-xl border bg-card p-8">
         <h3 className="mb-6 text-center font-bold text-lg">Como Funciona</h3>
@@ -1158,6 +1176,80 @@ function PublicVitrineComponent() {
           </SheetContent>
         </Sheet>
       )}
+
+      <Sheet open={isFiltersSheetOpen} onOpenChange={setIsFiltersSheetOpen}>
+        <SheetContent
+          side="bottom"
+          className="max-h-[90vh] w-full overflow-y-auto border-t p-6 md:hidden"
+        >
+          <SheetHeader>
+            <SheetTitle className="font-bold text-lg">
+              {t('home.filters_title')}
+            </SheetTitle>
+            <SheetDescription className="text-muted-foreground text-xs">
+              {t('home.filters_description')}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="space-y-3 py-4">
+            <div className="flex items-center gap-2 rounded-xl border bg-background px-3 py-3">
+              <Checkbox
+                id="verified-switch-mobile"
+                checked={verifiedOnly}
+                onCheckedChange={(checked) => setVerifiedOnly(checked === true)}
+              />
+              <label
+                htmlFor="verified-switch-mobile"
+                className="cursor-pointer select-none font-medium text-sm"
+              >
+                Apenas moradores verificados
+              </label>
+            </div>
+
+            {selectedCondo && (
+              <div className="flex items-center gap-2 rounded-xl border bg-background px-3 py-3">
+                <Checkbox
+                  id="condo-filter-switch-mobile"
+                  checked={filterByCondo}
+                  onCheckedChange={(checked) =>
+                    setFilterByCondo(checked === true)
+                  }
+                />
+                <label
+                  htmlFor="condo-filter-switch-mobile"
+                  className="cursor-pointer select-none font-medium text-sm"
+                >
+                  Apenas neste condomínio
+                </label>
+              </div>
+            )}
+
+            {isGpsFresh && (
+              <div className="rounded-xl border bg-background px-4 py-3">
+                <p className="font-semibold text-sm">
+                  {radiusKm === 10
+                    ? t('location.radius_standard')
+                    : t('location.radius_expanded')}
+                </p>
+                <p className="mt-1 text-muted-foreground text-xs">
+                  {radiusKm === 10
+                    ? t('location.radius_standard_desc')
+                    : t('location.radius_expanded_desc')}
+                </p>
+                <Button
+                  variant={radiusKm === 10 ? 'outline' : 'secondary'}
+                  size="sm"
+                  onClick={() => setRadiusKm(radiusKm === 10 ? 25 : 10)}
+                  className="mt-3 w-full"
+                >
+                  {radiusKm === 10
+                    ? t('location.radius_expand')
+                    : t('location.radius_shrink')}
+                </Button>
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

@@ -107,6 +107,10 @@
       "eyebrow": "Discover nearby",
       "title": "Explore local services and offers",
       "description": "Browse by category, condominium, or keyword and talk directly to the provider."
-    }
+    },
+    "search_placeholder": "Search for services, food, and products...",
+    "filters": "Filters",
+    "filters_title": "Browse filters",
+    "filters_description": "Refine the showcase by trust, condominium, and reach."
   }
 }
