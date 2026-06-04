@@ -91,3 +91,4 @@ If a slice exposes a real behavior bug, document it separately instead of hiding
 ## Progress notes
 
 - 2026-06-04: Started Slice 5 with `assignment.getMyAssignments`. Added `ListProviderAssignments` use case and routed the procedure through application layer while preserving DTO output. Focused integration test passes. Remaining Slice 5 router procedures still pending.
+- 2026-06-04: Continued Slice 5 with `assignment.listPending`. Added `ListPendingAssignments` use case and routed the procedure through application layer while preserving provider-enriched DTO output. Focused integration test passes. `approve`, `reject`, and announcement/payment/moderation router cleanup still pending.
