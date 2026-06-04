@@ -14,7 +14,11 @@ import {
   ModerationAccessDeniedError,
 } from '../../application/use-cases/announcement/list-announcements-for-moderation';
 import { ListPublicAnnouncements } from '../../application/use-cases/announcement/list-public-announcements';
-import { ListReportedAnnouncements } from '../../application/use-cases/announcement/list-reported-announcements';
+import {
+  ListReportedAnnouncements,
+  ReportQueueAccessDeniedError,
+  ReportQueueActorNotFoundError,
+} from '../../application/use-cases/announcement/list-reported-announcements';
 import { ReinstateAnnouncement } from '../../application/use-cases/announcement/reinstate-announcement';
 import {
   AnnouncementReportConflictError,
@@ -39,6 +43,7 @@ import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-
 import { DrizzleCategoryRepository } from '../../infrastructure/db/category-repository';
 import { DrizzlePaymentRepository } from '../../infrastructure/db/payment-repository';
 import { DrizzleReportRepository } from '../../infrastructure/db/report-repository';
+import { DrizzleUserRepository } from '../../infrastructure/db/user-repository';
 import { AbacatePayClient } from '../../infrastructure/payment/abacatepay.client';
 import { protectedProcedure, publicProcedure, router } from '../trpc';
 
@@ -47,6 +52,7 @@ const assignmentRepo = new DrizzleAssignmentRepository();
 const categoryRepo = new DrizzleCategoryRepository();
 const paymentRepo = new DrizzlePaymentRepository();
 const reportRepo = new DrizzleReportRepository();
+const userRepo = new DrizzleUserRepository();
 const abacatePayClient = new AbacatePayClient();
 
 const createAnnouncementUseCase = new CreateAnnouncement(
@@ -85,7 +91,11 @@ const reportAnnouncementUseCase = new ReportAnnouncement(
   reportRepo,
 );
 const dismissReportsUseCase = new DismissReports();
-const listReportedAnnouncementsUseCase = new ListReportedAnnouncements();
+const listReportedAnnouncementsUseCase = new ListReportedAnnouncements(
+  announcementRepo,
+  assignmentRepo,
+  userRepo,
+);
 
 export const announcementRouter = router({
   create: protectedProcedure
@@ -439,10 +449,30 @@ export const announcementRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      return listReportedAnnouncementsUseCase.execute({
-        actorId: ctx.session.user.id,
-        threshold: input.threshold,
-      });
+      try {
+        return await listReportedAnnouncementsUseCase.execute({
+          actorId: ctx.session.user.id,
+          threshold: input.threshold,
+        });
+      } catch (error) {
+        if (error instanceof ReportQueueActorNotFoundError) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: error.message,
+            cause: error,
+          });
+        }
+
+        if (error instanceof ReportQueueAccessDeniedError) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: error.message,
+            cause: error,
+          });
+        }
+
+        throw error;
+      }
     }),
 
   dismissReports: protectedProcedure

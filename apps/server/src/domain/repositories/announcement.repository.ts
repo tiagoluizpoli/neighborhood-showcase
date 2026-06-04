@@ -46,6 +46,38 @@ export interface ModerationAnnouncementDTO {
   providerName: string;
 }
 
+export interface ReportedAnnouncementDTO {
+  id: string;
+  title: string;
+  imageUrl: string;
+  status: string;
+  suspensionReason: string | null;
+  createdAt: Date;
+  providerId: string;
+  providerName: string;
+  providerEmail: string;
+  totalReports: number;
+  reasonBreakdown: {
+    FRAUDE_GOLPE: number;
+    ASSEDIO_OFENSIVO: number;
+    SPAM: number;
+    SERVICO_ILEGAL: number;
+    OUTROS: number;
+  };
+  reports: Array<{
+    id: string;
+    reporterName: string;
+    reporterEmail: string;
+    reason: string;
+    createdAt: Date;
+  }>;
+}
+
+export interface ListReportedAnnouncementsRepositoryInput {
+  threshold: number;
+  condominiumIds?: string[];
+}
+
 export interface CreateAnnouncementRepositoryInput {
   id: string;
   providerId: string;
@@ -104,6 +136,9 @@ export interface AnnouncementRepository {
   listForModeration(
     condominiumId: string,
   ): Promise<ModerationAnnouncementDTO[]>;
+  listReported(
+    input: ListReportedAnnouncementsRepositoryInput,
+  ): Promise<ReportedAnnouncementDTO[]>;
   updateStatus(id: string, status: AnnouncementStatus): Promise<Announcement>;
   update(
     id: string,
