@@ -1,9 +1,11 @@
+import crypto from 'node:crypto';
 import { db } from '@neighborhood-showcase/db';
 import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
 import {
   address as addressSchema,
   condominium as condominiumSchema,
   providerLocation as providerLocationSchema,
+  roleChangeLog as roleChangeLogSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { and, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
 import type { User } from '../../domain/entities/user.entity';
@@ -110,5 +112,65 @@ export class DrizzleUserRepository implements UserRepository {
       .where(conditions.length > 0 ? and(...conditions) : undefined);
 
     return rows.map((row) => this.userMapper.toDomain(row));
+  }
+
+  async findById(id: string): Promise<User | null> {
+    const [row] = await db
+      .select()
+      .from(userSchema)
+      .where(eq(userSchema.id, id))
+      .limit(1);
+
+    if (!row) return null;
+    return this.userMapper.toDomain(row);
+  }
+
+  async updateRole(
+    id: string,
+    role: 'PROVIDER' | 'SYSTEM_MANAGER',
+  ): Promise<User> {
+    const [row] = await db
+      .update(userSchema)
+      .set({ role, updatedAt: new Date() })
+      .where(eq(userSchema.id, id))
+      .returning();
+
+    if (!row) {
+      throw new Error('User not found');
+    }
+    return this.userMapper.toDomain(row);
+  }
+
+  async updateProviderVisibility(
+    id: string,
+    isVisible: boolean,
+  ): Promise<User> {
+    const [row] = await db
+      .update(userSchema)
+      .set({ isProviderVisible: isVisible, updatedAt: new Date() })
+      .where(eq(userSchema.id, id))
+      .returning();
+
+    if (!row) {
+      throw new Error('User not found');
+    }
+    return this.userMapper.toDomain(row);
+  }
+
+  async logRoleChange(input: {
+    actorId: string;
+    targetUserId: string;
+    previousRole: string;
+    newRole: string;
+    condominiumId?: string;
+  }): Promise<void> {
+    await db.insert(roleChangeLogSchema).values({
+      id: crypto.randomUUID(),
+      actorId: input.actorId,
+      targetUserId: input.targetUserId,
+      previousRole: input.previousRole,
+      newRole: input.newRole,
+      condominiumId: input.condominiumId || null,
+    });
   }
 }

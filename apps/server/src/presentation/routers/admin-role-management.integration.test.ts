@@ -2,7 +2,7 @@ import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
-  assignment,
+  providerLocation as assignment,
   condominium,
   roleChangeLog,
 } from '@neighborhood-showcase/db/schema/showcase';

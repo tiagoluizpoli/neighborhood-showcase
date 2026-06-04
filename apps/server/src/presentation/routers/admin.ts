@@ -6,17 +6,23 @@ import {
   session as sessionSchema,
   user as userSchema,
 } from '@neighborhood-showcase/db/schema/auth';
-import {
-  announcement as announcementSchema,
-  assignment as assignmentSchema,
-  condominium as condominiumSchema,
-  roleChangeLog as roleChangeLogSchema,
-} from '@neighborhood-showcase/db/schema/showcase';
+import { announcement as announcementSchema } from '@neighborhood-showcase/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { z } from 'zod';
+import {
+  AssignModerator,
+  CondominiumNotFoundError,
+} from '../../application/use-cases/user/assign-moderator';
 import { ListProviders } from '../../application/use-cases/user/list-providers';
 import { ListUsers } from '../../application/use-cases/user/list-users';
+import {
+  PromoteToSystemManager,
+  UserNotFoundError,
+} from '../../application/use-cases/user/promote-to-system-manager';
+import { ToggleProviderVisibility } from '../../application/use-cases/user/toggle-provider-visibility';
+import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-repository';
+import { DrizzleCondominiumRepository } from '../../infrastructure/db/condominium-repository';
 import { DrizzleUserRepository } from '../../infrastructure/db/user-repository';
 import { protectedProcedure, router } from '../trpc';
 
@@ -24,8 +30,18 @@ const userRoleSchema = z.enum(['PROVIDER', 'SYSTEM_MANAGER']);
 const userStatusSchema = z.enum(['ACTIVE', 'BANNED']);
 
 const userRepo = new DrizzleUserRepository();
+const condoRepo = new DrizzleCondominiumRepository();
+const assignmentRepo = new DrizzleAssignmentRepository();
+
 const listProvidersUseCase = new ListProviders(userRepo);
 const listUsersUseCase = new ListUsers(userRepo);
+const promoteToSystemManagerUseCase = new PromoteToSystemManager(userRepo);
+const assignModeratorUseCase = new AssignModerator(
+  userRepo,
+  condoRepo,
+  assignmentRepo,
+);
+const toggleProviderVisibilityUseCase = new ToggleProviderVisibility(userRepo);
 
 export const adminRouter = router({
   listProviders: protectedProcedure
@@ -198,35 +214,22 @@ export const adminRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
       }
 
-      const [target] = await db
-        .select()
-        .from(userSchema)
-        .where(eq(userSchema.id, input.targetUserId))
-        .limit(1);
-
-      if (!target) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Usuário não encontrado.',
+      try {
+        await promoteToSystemManagerUseCase.execute({
+          actorId: ctx.session.user.id,
+          targetUserId: input.targetUserId,
         });
+        return { success: true };
+      } catch (error) {
+        if (error instanceof UserNotFoundError) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: error.message,
+            cause: error,
+          });
+        }
+        throw error;
       }
-
-      const previousRole = target.role;
-
-      await db
-        .update(userSchema)
-        .set({ role: 'SYSTEM_MANAGER' })
-        .where(eq(userSchema.id, input.targetUserId));
-
-      await db.insert(roleChangeLogSchema).values({
-        id: crypto.randomUUID(),
-        actorId: ctx.session.user.id,
-        targetUserId: input.targetUserId,
-        previousRole,
-        newRole: 'SYSTEM_MANAGER',
-      });
-
-      return { success: true };
     }),
 
   assignModerator: protectedProcedure
@@ -241,71 +244,26 @@ export const adminRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
       }
 
-      const [target] = await db
-        .select()
-        .from(userSchema)
-        .where(eq(userSchema.id, input.targetUserId))
-        .limit(1);
-
-      if (!target) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Usuário não encontrado.',
-        });
-      }
-
-      const [condo] = await db
-        .select({ id: condominiumSchema.id })
-        .from(condominiumSchema)
-        .where(eq(condominiumSchema.id, input.condominiumId))
-        .limit(1);
-
-      if (!condo) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Condomínio não encontrado.',
-        });
-      }
-
-      // Upsert: insert MODERATOR assignment (approved) if none exists for this pair.
-      const [existing] = await db
-        .select({ id: assignmentSchema.id })
-        .from(assignmentSchema)
-        .where(
-          and(
-            eq(assignmentSchema.providerId, input.targetUserId),
-            eq(assignmentSchema.condominiumId, input.condominiumId),
-            eq(assignmentSchema.type, 'MODERATOR'),
-          ),
-        )
-        .limit(1);
-
-      if (!existing) {
-        await db.insert(assignmentSchema).values({
-          id: crypto.randomUUID(),
-          providerId: input.targetUserId,
+      try {
+        await assignModeratorUseCase.execute({
+          actorId: ctx.session.user.id,
+          targetUserId: input.targetUserId,
           condominiumId: input.condominiumId,
-          type: 'MODERATOR',
-          status: 'APPROVED',
-          unitInfo: '',
         });
-      } else {
-        await db
-          .update(assignmentSchema)
-          .set({ status: 'APPROVED' })
-          .where(eq(assignmentSchema.id, existing.id));
+        return { success: true };
+      } catch (error) {
+        if (
+          error instanceof UserNotFoundError ||
+          error instanceof CondominiumNotFoundError
+        ) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: error.message,
+            cause: error,
+          });
+        }
+        throw error;
       }
-
-      await db.insert(roleChangeLogSchema).values({
-        id: crypto.randomUUID(),
-        actorId: ctx.session.user.id,
-        targetUserId: input.targetUserId,
-        previousRole: target.role,
-        newRole: 'MODERATOR',
-        condominiumId: input.condominiumId,
-      });
-
-      return { success: true };
     }),
 
   toggleProviderVisibility: protectedProcedure
@@ -315,26 +273,19 @@ export const adminRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
       }
 
-      const [target] = await db
-        .select()
-        .from(userSchema)
-        .where(eq(userSchema.id, input.targetUserId))
-        .limit(1);
-
-      if (!target) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Usuário não encontrado.',
+      try {
+        return await toggleProviderVisibilityUseCase.execute({
+          targetUserId: input.targetUserId,
         });
+      } catch (error) {
+        if (error instanceof UserNotFoundError) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: error.message,
+            cause: error,
+          });
+        }
+        throw error;
       }
-
-      const newVisibility = !target.isProviderVisible;
-
-      await db
-        .update(userSchema)
-        .set({ isProviderVisible: newVisibility })
-        .where(eq(userSchema.id, input.targetUserId));
-
-      return { isProviderVisible: newVisibility };
     }),
 });

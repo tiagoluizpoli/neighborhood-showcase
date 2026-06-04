@@ -66,7 +66,7 @@ If a slice exposes a real behavior bug, document it separately instead of hiding
 
 - [x] 1. Admin providers directory query.
 - [x] 2. Admin user listing query.
-- [ ] 3. Admin role-management mutations.
+- [x] 3. Admin role-management mutations.
 - [ ] 4. Admin blacklist and provider-ban flows.
 - [ ] 5. Announcement, payment, assignment, and moderation routers.
 - [ ] 6. Remaining backend routers and production modules.

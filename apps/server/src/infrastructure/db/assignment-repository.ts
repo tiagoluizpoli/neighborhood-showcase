@@ -59,6 +59,26 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
     return found ? this.mapper.toDomain(found) : null;
   }
 
+  async findByProviderCondoAndType(
+    providerId: string,
+    condominiumId: string,
+    type: 'MODERATOR' | 'RESIDENT',
+  ): Promise<Assignment | null> {
+    const [found] = await db
+      .select()
+      .from(assignSchema)
+      .where(
+        and(
+          eq(assignSchema.providerId, providerId),
+          eq(assignSchema.condominiumId, condominiumId),
+          eq(assignSchema.type, type),
+        ),
+      )
+      .limit(1);
+
+    return found ? this.mapper.toDomain(found) : null;
+  }
+
   async findByProviderId(providerId: string): Promise<AssignmentWithCondo[]> {
     const results = await db.query.providerLocation.findMany({
       where: eq(assignSchema.providerId, providerId),

@@ -24,6 +24,11 @@ export interface AssignmentRepository {
     providerId: string,
     condominiumId: string,
   ): Promise<Assignment | null>;
+  findByProviderCondoAndType(
+    providerId: string,
+    condominiumId: string,
+    type: 'MODERATOR' | 'RESIDENT',
+  ): Promise<Assignment | null>;
   findByProviderId(providerId: string): Promise<AssignmentWithCondo[]>;
   findPendingByCondoId(condominiumId: string): Promise<AssignmentWithUser[]>;
   findById(id: string): Promise<Assignment | null>;
