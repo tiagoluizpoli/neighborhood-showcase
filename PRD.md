@@ -118,6 +118,30 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
 57. As a Visitor, I want the geolocation permission modal to explicitly state that my location is used only for personalizing nearby announcements and is not shared with third parties, so that I can make an informed consent decision.
 58. As a Visitor, I want the system's IP-based city estimation to not be stored, tracked, or linked to my profile, so that my privacy is respected under LGPD legitimate interest.
 
+### Follow-Up — Public Home Browsing Completion (Issues 56–62)
+59. As a Visitor, I want the public shell to show public browsing navigation only, so that the home page does not feel like a private application dashboard.
+60. As a returning Provider, I want an obvious `Entrar` action when logged out and `Painel` when logged in, so that I can reach my provider tools without exposing private links to Visitors.
+61. As a Visitor, I want the public footer to repeat only public links, so that footer navigation matches the browsing experience.
+62. As a Visitor, I want exact geolocation to be optional and user-initiated, so that I can browse before making a permission decision.
+63. As a Visitor, I want location failures to be described accurately, so that a browser timeout or unavailable GPS is not treated as if I refused permission.
+64. As a Visitor, I want to browse by approximate region, manual city/neighborhood, selected Condominium, or precise location, so that I can control how local the feed is.
+65. As a Visitor, I want manual Condominium selection to prefer that Condominium without hiding other relevant Announcements, so that discovery remains broad.
+66. As a Visitor, I want `Somente este condomínio` as a separate filter, so that I can narrow the feed only when I choose to.
+67. As a Visitor, I want the feed sorted by relevance before recency, so that nearby, contextual, and verified Announcements appear first.
+68. As a Visitor, I want the home page to use the available page width, so that the feed feels like a real browsing surface instead of a centered form.
+69. As a Visitor, I want a compact hero, compact discovery controls, and the first Announcement row visible quickly, so that browsing remains the primary task.
+70. As a Visitor, I want `Como funciona` to explain the browsing flow in three short steps, so that I understand how to use the platform without reading marketing copy.
+71. As a Provider, I want a restrained `Anunciar` section with clear sign-up/sign-in routing, so that I can publish without distracting Visitors from browsing.
+72. As a Visitor, I want Announcement cards to use an image-led, offer-first hierarchy, so that I can understand each Announcement quickly.
+73. As a Visitor, I want Provider identity, verified trust, price/value, and one primary contact action on each card, so that I can evaluate and act without opening every detail page.
+74. As a Visitor, I want card clicks to navigate to `/anuncios/:id`, so that Announcement detail pages are shareable and browser back works naturally.
+75. As a Provider, I want detail impressions to be tracked only from the detail route, so that analytics are not inflated by duplicate home-page modal behavior.
+76. As a Visitor, I want feed loading, empty, and error states to be contextual and actionable, so that I know whether to wait, retry, or change filters.
+77. As a Visitor, I want categories to come from the backend, so that browsing filters match the categories Providers use when publishing.
+78. As a Provider, I want to select from backend-managed active categories when creating or editing an Announcement, so that my Announcement appears under a governed taxonomy.
+79. As a System Manager, I want category records to support display order and active/inactive state, so that category governance and future trending are possible.
+80. As a developer, I want Ralph Loop implementation guidance to state the required skills and testing expectations, so that the follow-up work does not recreate the quality debt left by the previous implementation.
+
 ---
 
 ## Implementation Decisions
@@ -198,6 +222,115 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
 - Reinstall all 8 existing components fresh from the registry.
 - Full route audit to strip all ad-hoc style overrides.
 
+### Module 12: Public Browsing Shell Navigation (Issue 56)
+- Public browsing routes use a dedicated public header and footer, separate from the private panel shell.
+- Public browsing routes include the home page, Announcement detail pages, and Provider profile pages.
+- The auth route is a focused auth experience, not part of the public browsing header.
+- The public header contains brand, `Explorar`, `Como funciona`, `Anunciar`, and one right-side action: `Entrar` for logged-out users or `Painel` for authenticated users.
+- The public footer contains brand, a one-line description, `Explorar`, `Como funciona`, `Anunciar`, and `Entrar`.
+- The public shell must never show private navigation such as `Dashboard`, `Admin`, `Moderação`, or the user menu.
+- Footer legal/support links are deferred until real routes exist; no dead placeholder links.
+
+### Module 13: Location Control & Relevance Confidence (Issue 57)
+- Replace first-load geolocation prompting with browse-first behavior and one compact location/status control.
+- Browser geolocation prompt is triggered only by explicit user action, except for background refresh after prior successful grant.
+- Supported location states: `unset`, `granted`, `denied`, and `unavailable`.
+- Persist precise GPS coordinates with `capturedAt`; reuse while fresh for 24 hours.
+- When fresh stored GPS exists, use it immediately and refresh in the background if permission was previously granted.
+- Update ranking/state from refreshed GPS only after movement of at least 1 km.
+- Do not use live `watchPosition()` in this MVP.
+- Preserve IP fallback as transparent, session-only, coarse regional relevance only.
+- IP fallback must not be stored, used for exact radius, used for exact distance copy, or used for Condominium matching.
+- Manual region selection is city-first, optional neighborhood, and acts as an explicit filter.
+- Manual Condominium selection sets preferred context by default, not a hard filter.
+- `Somente este condomínio` remains a separate explicit filter.
+- Default feed ranking is relevance-first: confirmed Condominium match, fresh GPS proximity, manual region match, IP approximate region match, verified Provider boost, then recency.
+- Verified Providers are boosted by default; verified-only remains an explicit hard filter.
+- Radius control appears only for fresh GPS, defaults to 10 km, and can expand to 25 km with warning.
+- No public sort dropdown is introduced in this MVP.
+
+### Module 14: Home Discovery Layout & Sections (Issue 58)
+- Replace the centered, stacked home page with a full-width discovery layout.
+- Add a compact hero band above discovery controls.
+- Keep discovery controls and the first Announcement row visible quickly on common laptop screens.
+- Page order: public header, compact hero, `#explorar`, `#como-funciona`, `#anunciar`, footer.
+- `#explorar` contains discovery controls and Announcement feed.
+- Desktop controls are inline and compact; mobile keeps search/location visible and moves secondary filters into a sheet/drawer.
+- Announcement grid density: one column mobile, two columns small tablet, three or four columns desktop, up to four on wide desktop unless five remains readable.
+- `#como-funciona` is a compact Visitor-first three-step section: `Explore perto de você`, `Confira quem anuncia`, `Fale direto com o prestador`.
+- `#anunciar` is a full-width Provider CTA band, not a centered card.
+- Provider CTA uses `Anuncie para quem mora perto`, primary `Anunciar serviço`, and secondary `Já tem conta? Entrar`.
+- Provider CTA routes to sign-up for new logged-out Providers, sign-in for returning logged-out Providers, and panel for authenticated Providers.
+
+### Module 15: Announcement Card Redesign (Issue 59)
+- Use the Spectrum UI Product Card as visual reference, adapted for Announcements rather than ecommerce.
+- Extract a reusable Announcement card component.
+- Card hierarchy: offer/image, Provider identity, trust/relevance, primary action, extra metadata.
+- Whole-card navigation opens the Announcement detail route and must be keyboard-accessible.
+- Provider identity links to the Provider profile and does not trigger detail navigation.
+- Contact action does not trigger detail navigation and tracks contact clicks.
+- Use exactly one primary action: WhatsApp, phone, email, or details fallback.
+- Keep secondary contact/social links on detail/profile pages.
+- Price/value is prominent when present and absent gracefully when missing.
+- Verified trust signal appears near Provider identity, not as noisy duplicate image badges.
+- External Providers are treated neutrally with city/neighborhood context, not warning-style copy.
+- Location/proximity copy follows the confidence rules from Module 13.
+
+### Module 16: Announcement Detail Source of Truth (Issue 60)
+- Remove home-page detail preview/modal behavior.
+- The `/anuncios/:id` route is the only full Announcement detail rendering surface.
+- Card click uses router navigation to the detail route.
+- Detail route remains the single source of truth for `IMPRESSION` tracking.
+- Browser back returns naturally to the home/feed route.
+- Card contact and Provider interactions remain independent from detail navigation.
+
+### Module 17: Feed Loading, Empty, And Error States (Issue 61)
+- Keep discovery controls visible during loading, empty, and error states.
+- Replace centered spinner with feed-shaped skeleton Announcement cards using the same responsive grid density as real cards.
+- Do not block feed rendering while IP fallback, GPS refresh, or location confidence checks run.
+- Empty states are contextual by search, category, verified-only, selected Condominium, region/location, and no-inventory state.
+- Feed query failures show `Não conseguimos carregar os anúncios agora.` and a `Tentar novamente` action.
+- Raw technical errors are not exposed to Visitors.
+- Location-control errors remain separate from feed-loading errors.
+
+### Module 18: Backend-Managed Announcement Categories (Issue 62)
+- Add a backend-managed category table.
+- Announcements reference `categoryId` instead of storing free-text category strings.
+- Seed MVP categories: `Alimentação`, `Serviços`, `Produtos`, `Vagas`, `Eventos`, `Outros`.
+- Category records include `id`, `slug`, `name`, optional `description`, optional `icon`, `displayOrder`, and `isActive`.
+- Public category filters fetch active categories from backend.
+- Provider create/edit Announcement flow uses active backend categories.
+- Public listing filters by backend category identity.
+- `Todos` remains UI-only and means no category filter is sent.
+- Public quick filters use backend display order for MVP.
+- Public home/feed requests must not scan raw analytics events for trending categories.
+- Analytics-backed trending categories are deferred to aggregate/cached metrics.
+- Category admin UI is deferred.
+
+### Module 19: Ralph Loop Skill Routing & Execution Order
+- Recommended implementation order:
+  1. Backend-managed categories.
+  2. Public browsing shell.
+  3. Announcement detail source of truth.
+  4. Location control and relevance state.
+  5. Home discovery layout and section anchors.
+  6. Announcement card extraction/redesign.
+  7. Feed loading, empty, and error states.
+  8. Final public-route regression sweep.
+- Required skills for all slices: `karpathy-guidelines`, `test-master`, `test-cases`.
+- Public shell and route navigation: `react-architect`, TanStack Router navigation/auth skills, `test-frontend`, `test-e2e`.
+- Home layout, card, footer, CTA, and visual states: `frontend-specialist`, `shadcn-specialist`, `tailwind-architect`, `taste-design`, `web-design-guidelines`, `test-frontend`.
+- Location control and client state: `react-architect`, TanStack Router search-param guidance if URL state is introduced, `test-frontend`, `test-e2e`.
+- Backend categories: `backend-specialist`, `drizzle-orm`, `zod-4`, `test-backend`, `test-coverage`.
+- Backend category work must respect the Clean Architecture sweep rules from Issue 55.
+- All user-facing copy introduced by Modules 12–18 must follow the existing i18n strategy. Portuguese phrases in this PRD define intended copy, not permission to hardcode strings in components.
+- If implementation requires UI changes beyond this PRD, stop, log in the UI decision log, and ask for approval.
+
+### Follow-Up Supersession Rule
+- Modules 12–18 are completion/correction work for the public home implementation left behind by the prior backlog pass.
+- If Modules 12–18 conflict with earlier public-home wording in Modules 1, 8, 9, 10, or 11, the newer Modules 12–18 take precedence for public browsing behavior.
+- This is especially important for geolocation prompting, IP fallback presentation, public shell navigation, Announcement card behavior, detail navigation, category filtering, and first-viewport layout.
+
 ---
 
 ## Testing Decisions
@@ -234,6 +367,37 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
 6. **Analytics Queries**
    - Integration: Verify time-period aggregation queries return correct counts for seeded analytics events across daily, weekly, and monthly granularities.
 
+7. **Public Browsing Shell**
+   - Route/component tests: logged-out public shell shows `Entrar`, logged-in public shell shows `Painel`, and no public shell state shows private navigation.
+   - Route/component tests: footer links resolve only to existing public anchors/routes.
+   - E2E: auth route remains focused and panel routes remain separate.
+
+8. **Location Control & Relevance**
+   - Component tests: unset, granted, explicit denial, unavailable, stored GPS freshness, background refresh, IP fallback, manual region filter, manual Condominium context.
+   - Integration: public feed ranking respects relevance-first ordering and radius only applies with fresh GPS.
+   - E2E: Visitor can browse without granting precise location.
+
+9. **Home Discovery Layout**
+   - Route/component tests: `#explorar`, `#como-funciona`, and `#anunciar` targets exist.
+   - Visual/regression checks: discovery controls and first Announcement row remain visible quickly on common desktop viewports.
+   - Mobile tests: secondary filters are available through sheet/drawer behavior.
+   - i18n tests/checks: new public shell, location, empty-state, card, and CTA copy is sourced from locale resources.
+
+10. **Announcement Card & Detail Navigation**
+   - Component tests: card navigation, keyboard access, Provider profile link, primary contact fallback, contact click tracking, verified display, and price display.
+   - Route tests: home route no longer renders duplicate detail modal or tracks detail state.
+   - Analytics tests: `IMPRESSION` fires from detail route only.
+
+11. **Feed States**
+   - Component tests: skeleton loading grid, contextual empty states, feed query error, retry action, and controls staying visible.
+   - Regression tests: IP fallback and GPS refresh do not block feed rendering.
+
+12. **Backend-Managed Categories**
+   - Integration: categories are seeded and active categories can be listed.
+   - Integration: Provider create/edit flow assigns backend category identity.
+   - Integration: public feed filters by category identity and `Todos` sends no filter.
+   - Schema/API tests: Announcements reference categories by `categoryId`.
+
 ### Prior Art
 - Existing integration tests in `apps/web/src/routes/-analytics.test.tsx` and `-guards.test.ts` provide patterns for route guard testing and analytics verification.
 - Existing Vitest configuration and test PostgreSQL instance setup in the monorepo.
@@ -250,6 +414,13 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
 - **Provider avatar/logo upload**: Providers use initials fallback for now. Custom avatar upload is a future enhancement.
 - **Advanced analytics**: Funnel analysis, A/B testing, heatmaps, or custom event tracking beyond `IMPRESSION` and `CONTACT_CLICK`.
 - **Multi-language expansion**: The existing i18n system (EN/PT) is maintained but not expanded to new languages.
+- **Public Provider directory page**: Header uses `Anunciar` for MVP; a public Provider directory remains deferred.
+- **Legal/privacy/terms/support pages**: Footer must not link to missing pages; these pages are deferred.
+- **Category admin UI**: Category records are seeded and backend-managed, but admin CRUD is deferred.
+- **Analytics-backed trending categories**: Trending must use aggregate/cached metrics later and must not scan raw analytics on public home requests.
+- **Public sort controls**: Relevance-first sorting remains implicit for MVP.
+- **Live location tracking**: `watchPosition()` is deferred.
+- **Announcement detail visual redesign**: This follow-up only removes the modal/source-of-truth duplication; detail page polish is deferred.
 
 ---
 
@@ -260,3 +431,6 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
 - **Dependency Additions**: `react-easy-crop` (frontend), `recharts` via shadcn charts (frontend), PostGIS extension (database). No new backend framework dependencies.
 - **Backward Compatibility**: The `/panel/*` route migration from the current `/dashboard/*`, `/admin`, `/moderation` routes should include redirects from old paths to prevent broken bookmarks.
 - **Grilling Session Reference**: All decisions in this PRD trace directly to the 34 questions resolved in [`backlog_grilling.md`](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/backlog_grilling.md) (Questions 15–34, covering Items 1–14).
+- **Public Home Follow-Up Reference**: Issues 56–62 capture the follow-up decisions from the public home grilling session and should be treated as completion work for this PRD, not a separate product direction.
+- **TDD Coverage Plan**: Public home follow-up tests are mapped in `.specify/memory/home_public_browsing_tdd_plan.md`; Ralph should use it as a vertical red-green guide, not as a horizontal "write every test first" checklist.
+- **Deferred Backlog**: Deliberately postponed items are tracked in `.specify/memory/deferred_backlog.md`.
