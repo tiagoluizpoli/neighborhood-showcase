@@ -9,6 +9,7 @@ import { and, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
 import type { User } from '../../domain/entities/user.entity';
 import type {
   ListProvidersRepositoryInput,
+  ListUsersRepositoryInput,
   UserRepository,
 } from '../../domain/repositories/user.repository';
 import { UserMapper } from './mappers/user.mapper';
@@ -78,6 +79,35 @@ export class DrizzleUserRepository implements UserRepository {
       .select()
       .from(userSchema)
       .where(and(...userConditions));
+
+    return rows.map((row) => this.userMapper.toDomain(row));
+  }
+
+  async listUsers(input: ListUsersRepositoryInput): Promise<User[]> {
+    const conditions: SQL[] = [];
+
+    if (input.search) {
+      const pattern = `%${input.search}%`;
+      conditions.push(
+        or(
+          ilike(userSchema.name, pattern),
+          ilike(userSchema.email, pattern),
+        ) as SQL,
+      );
+    }
+
+    if (input.role) {
+      conditions.push(eq(userSchema.role, input.role));
+    }
+
+    if (input.status) {
+      conditions.push(eq(userSchema.status, input.status));
+    }
+
+    const rows = await db
+      .select()
+      .from(userSchema)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
 
     return rows.map((row) => this.userMapper.toDomain(row));
   }

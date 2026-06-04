@@ -65,7 +65,7 @@ If a slice exposes a real behavior bug, document it separately instead of hiding
 ## Suggested slice order
 
 - [x] 1. Admin providers directory query.
-- [ ] 2. Admin user listing query.
+- [x] 2. Admin user listing query.
 - [ ] 3. Admin role-management mutations.
 - [ ] 4. Admin blacklist and provider-ban flows.
 - [ ] 5. Announcement, payment, assignment, and moderation routers.

@@ -13,9 +13,10 @@ import {
   roleChangeLog as roleChangeLogSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { TRPCError } from '@trpc/server';
-import { and, eq, ilike, or, type SQL } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { ListProviders } from '../../application/use-cases/user/list-providers';
+import { ListUsers } from '../../application/use-cases/user/list-users';
 import { DrizzleUserRepository } from '../../infrastructure/db/user-repository';
 import { protectedProcedure, router } from '../trpc';
 
@@ -24,6 +25,7 @@ const userStatusSchema = z.enum(['ACTIVE', 'BANNED']);
 
 const userRepo = new DrizzleUserRepository();
 const listProvidersUseCase = new ListProviders(userRepo);
+const listUsersUseCase = new ListUsers(userRepo);
 
 export const adminRouter = router({
   listProviders: protectedProcedure
@@ -63,30 +65,13 @@ export const adminRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
       }
 
-      const conditions: SQL[] = [];
+      const users = await listUsersUseCase.execute({
+        search: input.search,
+        role: input.role,
+        status: input.status,
+      });
 
-      if (input.search) {
-        const pattern = `%${input.search}%`;
-        conditions.push(
-          or(
-            ilike(userSchema.name, pattern),
-            ilike(userSchema.email, pattern),
-          ) as SQL,
-        );
-      }
-
-      if (input.role) {
-        conditions.push(eq(userSchema.role, input.role));
-      }
-
-      if (input.status) {
-        conditions.push(eq(userSchema.status, input.status));
-      }
-
-      return db
-        .select()
-        .from(userSchema)
-        .where(conditions.length > 0 ? and(...conditions) : undefined);
+      return users.map((u) => u.toDTO());
     }),
 
   banProvider: protectedProcedure
