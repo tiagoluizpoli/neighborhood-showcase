@@ -23,6 +23,11 @@ import { ReinstateAnnouncement } from '../../application/use-cases/announcement/
 import { ReportAnnouncement } from '../../application/use-cases/announcement/report-announcement';
 import { SuspendAnnouncement } from '../../application/use-cases/announcement/suspend-announcement';
 import { TrackAnalyticsEvent } from '../../application/use-cases/announcement/track-analytics-event';
+import {
+  AnnouncementUpdateAccessDeniedError,
+  UpdateAnnouncement,
+  VerifiedBadgeEligibilityError,
+} from '../../application/use-cases/announcement/update-announcement';
 import { GeneratePaymentIntent } from '../../application/use-cases/payment/generate-payment-intent';
 import {
   AnnouncementAccessDeniedError,
@@ -56,6 +61,10 @@ const getPaymentStatusUseCase = new GetPaymentStatus(
 );
 const listAnnouncementsForModerationUseCase =
   new ListAnnouncementsForModeration(announcementRepo, assignmentRepo);
+const updateAnnouncementUseCase = new UpdateAnnouncement(
+  announcementRepo,
+  assignmentRepo,
+);
 
 const listPublicAnnouncementsUseCase = new ListPublicAnnouncements();
 const trackAnalyticsEventUseCase = new TrackAnalyticsEvent();
@@ -338,61 +347,41 @@ export const announcementRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const ann = await announcementRepo.findById(input.id);
-      if (!ann || ann.providerId !== ctx.session.user.id) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Acesso negado. Você não é o proprietário deste anúncio.',
+      try {
+        const updatedAnn = await updateAnnouncementUseCase.execute({
+          actorId: ctx.session.user.id,
+          announcementId: input.id,
+          title: input.title,
+          subtitle: input.subtitle,
+          description: input.description,
+          priceCents: input.priceCents,
+          imageUrl: input.imageUrl,
+          categoryId: input.categoryId,
+          tags: input.tags,
+          contactLinks: input.contactLinks,
+          showVerifiedBadge: input.showVerifiedBadge,
         });
-      }
 
-      if (input.showVerifiedBadge) {
-        if (!ann.providerLocationId) {
+        return updatedAnn.toDTO();
+      } catch (error) {
+        if (error instanceof AnnouncementUpdateAccessDeniedError) {
           throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message:
-              'Selo de morador verificado está disponível apenas para moradores aprovados.',
+            code: 'FORBIDDEN',
+            message: error.message,
+            cause: error,
           });
         }
-        const assignment = await assignmentRepo.findById(
-          ann.providerLocationId,
-        );
-        if (
-          !assignment ||
-          assignment.status !== 'APPROVED' ||
-          assignment.type !== 'RESIDENT'
-        ) {
+
+        if (error instanceof VerifiedBadgeEligibilityError) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message:
-              'Selo de morador verificado está disponível apenas para moradores aprovados.',
+            message: error.message,
+            cause: error,
           });
         }
+
+        throw error;
       }
-
-      const newStatus = ann.status === 'SUSPENDED' ? 'ACTIVE' : ann.status;
-
-      const updatedAnn = await announcementRepo.update(input.id, {
-        title: input.title,
-        subtitle: input.subtitle,
-        description: input.description,
-        priceCents: input.priceCents,
-        imageUrl: input.imageUrl,
-        categoryId: input.categoryId,
-        tags: input.tags,
-        contactLinks: input.contactLinks,
-        showVerifiedBadge: input.showVerifiedBadge,
-        status: newStatus as
-          | 'DRAFT'
-          | 'PENDING_PAYMENT'
-          | 'ACTIVE'
-          | 'EXPIRED'
-          | 'SUSPENDED',
-        flaggedForReview: true,
-        suspensionReason: null,
-      });
-
-      return updatedAnn.toDTO();
     }),
 
   listForModeration: protectedProcedure
