@@ -10,15 +10,10 @@ import {
 import { Input } from '@neighborhood-showcase/ui/components/input';
 import { Label } from '@neighborhood-showcase/ui/components/label';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import {
-  ArrowLeft,
-  Building,
-  Loader2,
-  Search,
-  UploadCloud,
-} from 'lucide-react';
+import { ArrowLeft, Building, Loader2, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { ProviderDashboardCondoSetupResidentProofUpload } from './-provider-dashboard-condo-setup-resident-proof-upload';
 import { trpc } from '@/utils/trpc';
 
 type ApprovedCondoOption = {
@@ -242,39 +237,9 @@ export function ProviderDashboardCondoSetupResidentFlow({
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label>Comprovante de Residência (Opcional)</Label>
-                <div className="flex justify-center rounded-lg border border border-dashed bg-muted/50 px-6 py-8 transition-colors hover:border">
-                  <div className="space-y-2 text-center">
-                    <UploadCloud className="mx-auto h-10 w-10 text-muted-foreground" />
-                    <div className="flex justify-center text-muted-foreground text-sm">
-                      <label
-                        htmlFor="proof-upload"
-                        className="relative cursor-pointer rounded-md font-semibold text-primary hover:text-primary"
-                      >
-                        <span>Enviar comprovante</span>
-                        <input
-                          id="proof-upload"
-                          name="proof-upload"
-                          type="file"
-                          accept="application/pdf,image/*"
-                          className="sr-only"
-                          onChange={(e) => {
-                            const files = e.target.files;
-                            if (files && files.length > 0) {
-                              setProofFile(files[0]);
-                            }
-                          }}
-                        />
-                      </label>
-                    </div>
-                    <p className="text-muted-foreground text-xs">
-                      Contas de água, luz ou contrato de locação (PDF/Imagem até
-                      10MB)
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <ProviderDashboardCondoSetupResidentProofUpload
+                onChange={setProofFile}
+              />
 
               <Button
                 type="submit"
