@@ -1,4 +1,7 @@
-# Feature-sliced backend structure over classic layered Clean Architecture
+# Superseded: Feature-sliced backend structure over classic layered Clean Architecture
+
+> Superseded by `0004-layered-clean-architecture-supersedes-feature-sliced-backend.md`.
+> Kept for decision history only.
 
 We organize `apps/server/src/` by feature (condominium, announcement, provider, assignment) rather than by architectural layer (domain, application, infrastructure, presentation). Each feature folder contains its entity, repository interface, Drizzle adapter, use cases, and tRPC router. Cross-cutting infrastructure (AbacatePay, Telegram, Sharp, storage) lives in a shared `infra/` directory.
 

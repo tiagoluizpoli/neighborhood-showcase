@@ -1,6 +1,8 @@
-# Product Requirement Document (PRD) — Neighborhood Showcase v2: Backlog Overhaul
+# Product Requirement Document (PRD) — Neighborhood Showcase v4: Backlog Overhaul + Whole-Codebase Remediation
 
 This PRD defines the scope, user stories, implementation decisions, and test criteria for the 14-item backlog overhaul of the Neighborhood Showcase platform. All decisions were resolved during a grilling session (Questions 15–34) documented in [`backlog_grilling.md`](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/backlog_grilling.md).
+
+It also includes the current whole-codebase remediation program captured in `.specify/memory/PRD-v4-whole-codebase-remediation.md`, so Ralph Loop can read product scope and active architecture-recovery context from one root document.
 
 ---
 
@@ -14,6 +16,7 @@ The Neighborhood Showcase platform has a functional MVP but suffers from signifi
 4. **Monolithic layout**: The public consumer portal and the authenticated provider/admin panel share the same layout, leaking authentication concerns into the browsing experience.
 5. **Admin blind spots**: Role management is CLI-only, the providers directory has filtering bugs, and the blacklist requires raw CPF hashes.
 6. **Limited analytics**: Providers see only aggregate metrics — no per-announcement breakdowns, no charts, no time-period filtering.
+7. **Whole-codebase remediation debt**: the repo now carries role-enforcement drift, Provider Profile privacy drift, oversized shallow modules, and outdated architecture documentation that must be corrected slice by slice without destabilizing product behavior.
 
 ---
 
@@ -25,6 +28,7 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
 - **For Providers**: An upgraded authenticated panel (`/panel/*`) with a sidebar navigation, premium image cropper (`react-easy-crop`), per-announcement analytics with charts, an account management page, and expanded social/contact channels.
 - **For Moderators**: A moderation queue with spotlight flagging for reported announcements, multi-condominium management, and role-grouped sidebar navigation.
 - **For System Managers**: A full user/role management UI with strict hierarchy enforcement and audit trail, a reporting review queue replacing the raw CPF blacklist, and geographic filtering in the providers directory.
+- **For the codebase itself**: A risk-first remediation program that aligns role enforcement, Provider Profile privacy rules, layered Clean Architecture documentation, and oversized route/server seams so Ralph Loop can execute safe recovery slices with full context.
 
 ---
 
@@ -151,6 +155,19 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
 78. As a Provider, I want to select from backend-managed active categories when creating or editing an Announcement, so that my Announcement appears under a governed taxonomy.
 79. As a System Manager, I want category records to support display order and active/inactive state, so that category governance and future trending are possible.
 80. As a developer, I want Ralph Loop implementation guidance to state the required skills and testing expectations, so that the follow-up work does not recreate the quality debt left by the previous implementation.
+
+### Whole-Codebase Remediation & Ralph Loop Context
+81. As an `Administrator`, I want all current global-admin web entry points to accept my role wherever `System Manager` access is already intended, so that the role hierarchy is enforced consistently.
+82. As a `Provider`, I want my `Provider Profile` visibility setting to control the entire public seam, so that hiding my public profile actually makes it unavailable to `Visitors`.
+83. As a `Visitor`, I want hidden `Provider Profiles` to behave as not found everywhere public, so that privacy rules are consistent.
+84. As a developer, I want Provider Profile provisioning to happen only through explicit write paths, so that reads do not silently mutate storage.
+85. As a developer, I want oversized backend `Announcement` interfaces decomposed by domain capability, so that public browsing, provider dashboard, moderation, and reporting stop sharing one shallow server seam.
+86. As a `Visitor`, I want the public browsing route family to remain stable while its internal code is decomposed into deeper modules, so that architecture recovery does not regress discovery behavior.
+87. As a `Provider`, I want the Provider Dashboard route family to preserve editing, analytics, payment, and setup behavior while its code is decomposed, so that cleanup does not disrupt business flows.
+88. As a `Moderator` or `System Manager`, I want moderation/admin route families to preserve role behavior while being decomposed, so that operational surfaces remain stable.
+89. As a developer, I want the backend architecture ADRs to reflect the actual layered Clean Architecture direction, so that future loops and reviews follow the correct seam.
+90. As a developer running Ralph Loop, I want the root PRD to include the whole-codebase remediation order and rationale, so that loop runs are not blind to the current recovery program.
+91. As a developer, I want export-surface cleanup and bundle-warning cleanup tracked as deliberate follow-up work, so that architecture and runtime performance improve together.
 
 ---
 
@@ -326,6 +343,36 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
 - Backend composition, server bootstrap, and DI wiring live under `src/main/`.
 - Remaining backend cleanup continues slice by slice with focused tests and no behavior changes unless a domain decision requires it.
 
+### Module 20: Whole-Codebase Remediation Program (Issues 65–73)
+- Remediation work is executed risk-first and behavior-preserving by default.
+- The execution order is:
+  1. global-admin web route parity
+  2. Provider Profile public visibility enforcement
+  3. Provider Profile explicit provisioning and pure reads
+  4. Announcement server interface decomposition
+  5. Public Vitrine route-family decomposition
+  6. Provider Dashboard route-family decomposition
+  7. Moderation/Admin route-family decomposition
+  8. frontend export-surface and bundle cleanup
+- Large frontend and backend decompositions must not be mixed into the same batch as urgent correctness or privacy fixes.
+
+### Module 21: Active Backend Architecture Source Of Truth
+- The active backend seam is layered Clean Architecture, not feature slicing.
+- The primary backend layers are:
+  - `presentation/`
+  - `application/`
+  - `domain/`
+  - `infrastructure/`
+  - `main/`
+- `docs/adr/0004-layered-clean-architecture-supersedes-feature-sliced-backend.md` supersedes `docs/adr/0001-feature-sliced-backend.md`.
+- Future backend remediation should optimize for layer purity and truthful dependency direction, not for a return to feature-sliced folders.
+
+### Module 22: Provider Profile Public-Seam Contract
+- `Provider Profile` visibility gates the entire public seam, not only public directory listing.
+- If a Provider Profile is hidden, public profile lookup should behave as not found for Visitors.
+- Provider Profile reads must be pure reads. No production read path should create or update provider-profile rows implicitly.
+- Any provisioning or backfill strategy must happen through an explicit write path, setup path, or migration-backed path.
+
 ### Module 19: Ralph Loop Skill Routing & Execution Order
 - Recommended implementation order:
   1. Backend-managed categories.
@@ -423,6 +470,14 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
    - Integration: provider assignment queries support multiple operating contexts per provider.
    - Integration: composition-root wiring keeps routers free of direct repository instantiation.
 
+14. **Whole-Codebase Remediation**
+   - Integration/route tests: global-admin entry points accept both `SYSTEM_MANAGER` and `ADMINISTRATOR` where intended.
+   - Integration: hidden Provider Profiles are excluded from the entire public seam, not only the directory.
+   - Integration: Provider Profile read paths do not mutate storage implicitly.
+   - Backend decomposition tests: public announcement, provider dashboard, moderation, and reporting behavior stay stable through seam cleanup.
+   - Frontend decomposition tests: route behavior, filter/state behavior, and role-gated behavior remain stable while files are split.
+   - Build validation: the relevant web build path is rerun so bundle-size warnings remain visible and deliberate.
+
 ### Prior Art
 - Existing integration tests in `apps/web/src/routes/-analytics.test.tsx` and `-guards.test.ts` provide patterns for route guard testing and analytics verification.
 - Existing Vitest configuration and test PostgreSQL instance setup in the monorepo.
@@ -458,3 +513,5 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
 - **Grilling Session Reference**: All decisions in this PRD trace directly to the 34 questions resolved in [`backlog_grilling.md`](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/backlog_grilling.md) (Questions 15–34, covering Items 1–14).
 - **Issue Workflow**: Ralph should read this PRD first, then inspect `.specify/memory/issues/` for the active slices that need implementation next. The issue folder is the source of executable work.
 - **Deferred Backlog**: Deliberately postponed items remain tracked in `.specify/memory/deferred_backlog.md`.
+- **Whole-Codebase Remediation Queue**: Ralph Loop should also treat `.specify/memory/issues/65` through `.specify/memory/issues/73` as the active remediation program created from the full-codebase audit.
+- **Architecture Source Of Truth**: The backend seam is documented in `docs/adr/0004-layered-clean-architecture-supersedes-feature-sliced-backend.md`, which supersedes the older feature-sliced ADR.
