@@ -111,7 +111,7 @@ export function createAuth() {
               body: {
                 ...body,
                 cpfHash: cpfHashVal,
-                role: 'PROVIDER',
+                role: 'USER',
                 status: 'ACTIVE',
                 phone: phone || null,
               },

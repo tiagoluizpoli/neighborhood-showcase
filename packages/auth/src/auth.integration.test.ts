@@ -56,7 +56,7 @@ describe('Better Auth Signup Integration with CPF Validation', () => {
 
     expect(dbUser).toBeDefined();
     expect(dbUser.cpfHash).toBe(hashCPF(testCPF));
-    expect(dbUser.role).toBe('PROVIDER');
+    expect(dbUser.role).toBe('USER');
     expect(dbUser.status).toBe('ACTIVE');
     expect(dbUser.phone).toBe('+5511999999999');
   });
