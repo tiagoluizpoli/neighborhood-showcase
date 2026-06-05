@@ -32,7 +32,7 @@ This reduces locality and makes the route seam shallow.
 
 ## Acceptance criteria
 
-- [ ] The route seam becomes a composition point rather than the home of all policy and rendering details.
+- [x] The route seam becomes a composition point rather than the home of all policy and rendering details.
 - [x] Geolocation and localStorage policy move behind smaller internal modules with clear responsibilities.
 - [x] Public browsing behavior remains unchanged unless a separately approved behavior fix is documented.
 - [x] Focused route/component tests cover the extracted behavior seams.
@@ -47,3 +47,4 @@ This reduces locality and makes the route seam shallow.
 - 2026-06-05: Created from the architecture review after identifying `_portal.index.tsx` as one of the largest and shallowest route modules in the repo.
 - 2026-06-05: Iteration 2 extracted the public vitrine geolocation/localStorage seam into internal route-family modules (`portal/-public-vitrine-location*`), kept browse behavior unchanged, reduced `_portal.index.tsx` from 1326 lines to 864 lines, and passed focused geolocation/home-layout coverage plus full `bun run test`, `bun run check-types`, and `bun run check`. The next Issue 70 slice should target filter/query-state and rendering fragments so the route becomes a thinner composition point.
 - 2026-06-05: Iteration 3 extracted the public vitrine filter/query-state seam into internal route-family modules (`portal/-public-vitrine-filters*`), moved desktop/mobile filter and location surfaces behind dedicated modules, reduced `_portal.index.tsx` from 864 lines to 591 lines, and added focused query-state coverage plus refreshed geolocation/home-layout coverage. Public browse behavior stayed unchanged, and `bun run test`, `bun run check-types`, and `bun run check` all passed. The next Issue 70 slice should target announcement-grid/empty-state view fragments to finish thinning the route seam.
+- 2026-06-05: Iteration 4 completed Issue 70 by extracting the remaining public vitrine render fragments into internal route-family modules (`portal/-public-vitrine-announcement-grid.tsx`, `-public-vitrine-empty-state.tsx`, `-public-vitrine-nearby-condo-prompt.tsx`, and `-public-vitrine-marketing-sections.tsx`), reducing `_portal.index.tsx` from 591 lines to 241 lines while keeping browse behavior unchanged. Added focused view-fragment coverage in `portal/-public-vitrine-view.test.ts`, refreshed home-layout/geolocation coverage, and passed `bun run test`, `bun run check-types`, and `bun run check`. Ralph Loop can move next to Issue 71; the large bundle warning remains tracked under Issue 73.
