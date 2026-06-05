@@ -134,6 +134,9 @@ const { ProviderDashboardAnalyticsModal } = await import(
 const { ProviderDashboardEditImageField } = await import(
   './panel/-provider-dashboard-edit-image-field'
 );
+const { ProviderDashboardEditFormFields } = await import(
+  './panel/-provider-dashboard-edit-form-fields'
+);
 Route.useRouteContext = () => ({
   session: { data: { user: { name: 'John Analytics' } } },
 });
@@ -358,5 +361,50 @@ describe('Dashboard Analytics & Action Buttons Unit Tests', () => {
       (el) => el.props?.children === 'Alterar Imagem',
     );
     expect(changeImageButton).toBeDefined();
+  });
+
+  test('edit form fields render extracted content controls and verification copy', () => {
+    const tree = renderComponent(() =>
+      ProviderDashboardEditFormFields({
+        backendCategories: [{ id: 'cat-1', name: 'Serviços Gerais' }],
+        canVerify: false,
+        categoryId: 'cat-1',
+        description: 'Descrição longa o suficiente',
+        imageUrl: 'preview.jpg',
+        instagram: '@prestador',
+        isUploading: false,
+        price: '',
+        showVerifiedBadge: false,
+        subtitle: 'Subtítulo',
+        title: 'Título',
+        website: 'https://site.test',
+        whatsapp: '47999999999',
+        onCategoryIdChange: () => {},
+        onDescriptionChange: () => {},
+        onImageUrlChange: () => {},
+        onInstagramChange: () => {},
+        onPriceChange: () => {},
+        onShowVerifiedBadgeChange: () => {},
+        onSubtitleChange: () => {},
+        onTitleChange: () => {},
+        onUploadingChange: () => {},
+        onWebsiteChange: () => {},
+        onWhatsappChange: () => {},
+      }),
+    );
+
+    const contactHeader = findElement(
+      tree,
+      (el) => el.props?.children === 'Meios de Contato (Forneça ao menos um)',
+    );
+    expect(contactHeader).toBeDefined();
+
+    const verifiedCopy = findElement(
+      tree,
+      (el) =>
+        typeof el.props?.children === 'string' &&
+        el.props.children.includes('Exibir Selo de Morador Verificado'),
+    );
+    expect(verifiedCopy).toBeDefined();
   });
 });
