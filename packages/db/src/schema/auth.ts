@@ -9,7 +9,11 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core';
 
-export const userRoleEnum = pgEnum('user_role', ['PROVIDER', 'SYSTEM_MANAGER']);
+export const userRoleEnum = pgEnum('user_role', [
+  'USER',
+  'SYSTEM_MANAGER',
+  'ADMINISTRATOR',
+]);
 export const userStatusEnum = pgEnum('user_status', ['ACTIVE', 'BANNED']);
 
 export const user = pgTable('user', {
@@ -20,7 +24,7 @@ export const user = pgTable('user', {
   image: text('image'),
   // Custom Extensions for Neighborhood Showcase
   cpfHash: text('cpf_hash').unique(),
-  role: userRoleEnum('role').default('PROVIDER').notNull(),
+  role: userRoleEnum('role').default('USER').notNull(),
   status: userStatusEnum('status').default('ACTIVE').notNull(),
   phone: text('phone'),
   socialLinks: jsonb('social_links')
