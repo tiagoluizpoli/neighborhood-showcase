@@ -21,36 +21,26 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@neighborhood-showcase/ui/components/sheet';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@neighborhood-showcase/ui/components/tabs';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import {
   CheckCircle2,
-  Loader2,
   MapPin,
   MessageCircle,
   Search,
   SlidersHorizontal,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
 import { AnnouncementCard } from '@/components/announcement-card';
 import { AnnouncementCardSkeleton } from '@/components/announcement-card-skeleton';
 import { authClient } from '@/lib/auth-client';
+import { usePublicVitrineLocation } from '@/routes/portal/-public-vitrine-location';
+import { PublicVitrineLocationSelector } from '@/routes/portal/-public-vitrine-location-selector';
+import { getNearbyCondoMatch } from '@/routes/portal/-public-vitrine-location-support';
 import {
-  confirmNearbyCondoSelection,
-  deriveNearbyCondoMatch,
-  dismissNearbyCondoSelection,
   formatNearbyCondoDistance,
   nearbyCondoDismissedStorageKey,
-  resetNearbyCondoSelectionPrompt,
-  type NearbyCondoSelection as SelectedCondo,
 } from '@/utils/condominium-proximity';
 import { trpc } from '@/utils/trpc';
 
@@ -58,112 +48,43 @@ export const Route = createFileRoute('/_portal/')({
   component: PublicVitrineComponent,
 });
 
-const getDistanceKm = (
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-): number => {
-  const R = 6371; // Radius of the earth in km
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
-
-const getFreshStoredCoords = () => {
-  const savedCoords = localStorage.getItem('user_coords');
-  if (!savedCoords) return null;
-
-  try {
-    const parsed = JSON.parse(savedCoords);
-    if (
-      !parsed ||
-      typeof parsed.latitude !== 'number' ||
-      typeof parsed.longitude !== 'number'
-    ) {
-      return null;
-    }
-
-    const capturedAt = parsed.capturedAt || new Date().toISOString();
-    const ageMs = Date.now() - new Date(capturedAt).getTime();
-    if (ageMs >= 24 * 60 * 60 * 1000) {
-      return null;
-    }
-
-    return {
-      latitude: parsed.latitude,
-      longitude: parsed.longitude,
-      capturedAt,
-    };
-  } catch {
-    return null;
-  }
-};
-
 function PublicVitrineComponent() {
   const { t } = useTranslation();
   const { data: session } = authClient.useSession();
-
-  const [selectedCondo, setSelectedCondo] = useState<SelectedCondo | null>(
-    null,
-  );
-  const [selectedRegion, setSelectedRegion] = useState<{
-    city: string;
-    neighborhood?: string;
-  } | null>(() => {
-    const saved = localStorage.getItem('user_region');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  });
-  const [isLocationSelectorOpen, setIsLocationSelectorOpen] = useState(false);
-  const [condoSearchQuery, setCondoSearchQuery] = useState('');
-  const [tempCity, setTempCity] = useState('');
-  const [tempNeighborhood, setTempNeighborhood] = useState('');
-
-  // Geolocation states
-  const [geoPreference, setGeoPreference] = useState<
-    'unset' | 'granted' | 'denied' | 'unavailable'
-  >(() => {
-    const pref = localStorage.getItem('geolocation_preference');
-    return (pref as 'unset' | 'granted' | 'denied' | 'unavailable') || 'unset';
-  });
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [refreshFailed, setRefreshFailed] = useState(false);
-  const [coords, setCoords] = useState<{
-    latitude: number;
-    longitude: number;
-    capturedAt?: string;
-  } | null>(() => getFreshStoredCoords());
-
-  const [ipLocation, setIpLocation] = useState<{
-    city: string;
-    state: string;
-  } | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isFiltersSheetOpen, setIsFiltersSheetOpen] = useState(false);
+  const {
+    coords,
+    condoSearchQuery,
+    geoPreference,
+    getLocationStatusText,
+    handleGeoAllow,
+    handleNearbyCondoConfirm,
+    handleNearbyCondoDismiss,
+    handleSaveRegion,
+    ipLocation,
+    isFiltersSheetOpen,
+    isGpsFresh,
+    isLocationSelectorOpen,
+    isMobile,
+    radiusKm,
+    revokeLocation,
+    selectCondoManually,
+    selectedCondo,
+    selectedRegion,
+    setCondoSearchQuery,
+    setFilterSheetOpen,
+    setIsLocationSelectorOpen,
+    setRadiusKm,
+    setTempCity,
+    setTempNeighborhood,
+    tempCity,
+    tempNeighborhood,
+  } = usePublicVitrineLocation({ t });
 
   // Grid Filters
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState('Todos');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [filterByCondo, setFilterByCondo] = useState(false);
-  const [radiusKm, setRadiusKm] = useState<number>(10);
-
-  const nearbyCondoPromptDismissed =
-    localStorage.getItem(nearbyCondoDismissedStorageKey) === 'true';
 
   // tRPC Queries
   const { data: backendCategories } = useQuery(
@@ -184,23 +105,13 @@ function PublicVitrineComponent() {
       { enabled: geoPreference === 'granted' && coords !== null },
     ),
   );
-
-  const nearbyCondoMatch =
-    geoPreference === 'granted' &&
-    !selectedCondo &&
-    !nearbyCondoPromptDismissed &&
-    nearbyCondoResults &&
-    nearbyCondoResults.length > 0
-      ? deriveNearbyCondoMatch(nearbyCondoResults)
-      : null;
-
-  const isGpsFresh =
-    geoPreference === 'granted' &&
-    coords !== null &&
-    (() => {
-      const capturedAt = coords.capturedAt || new Date().toISOString();
-      return Date.now() - new Date(capturedAt).getTime() < 24 * 60 * 60 * 1000;
-    })();
+  const nearbyCondoMatch = getNearbyCondoMatch({
+    geoPreference,
+    nearbyCondoPromptDismissed:
+      localStorage.getItem(nearbyCondoDismissedStorageKey) === 'true',
+    nearbyCondoResults,
+    selectedCondo,
+  });
 
   const {
     data: announcements,
@@ -228,259 +139,6 @@ function PublicVitrineComponent() {
   const trackEventMutation = useMutation(
     trpc.announcement.trackEvent.mutationOptions(),
   );
-
-  // Fallback IP estimation
-  const fetchIpFallback = useCallback(async () => {
-    try {
-      const res = await fetch('https://ipapi.co/json/');
-      if (!res.ok) throw new Error('IP api failed');
-      const data = await res.json();
-      const city = data.city;
-      const region_code = data.region_code;
-      if (city && region_code) {
-        setIpLocation({ city, state: region_code });
-      }
-    } catch (err) {
-      console.error('IP fallback failed:', err);
-    }
-  }, []);
-
-  const mapGeolocationError = useCallback(
-    (error: GeolocationPositionError) => {
-      if (error.code === error.PERMISSION_DENIED) {
-        localStorage.setItem('geolocation_preference', 'denied');
-        setGeoPreference('denied');
-        toast.error(t('location.err_permission_denied'));
-      } else if (error.code === error.POSITION_UNAVAILABLE) {
-        setGeoPreference('unavailable');
-        toast.error(t('location.err_position_unavailable'));
-      } else if (error.code === error.TIMEOUT) {
-        setGeoPreference('unavailable');
-        toast.error(t('location.err_timeout'));
-      } else {
-        setGeoPreference('unavailable');
-        toast.error(t('location.unavailable'));
-      }
-    },
-    [t],
-  );
-
-  const handleGeoAllow = () => {
-    setIsLocationSelectorOpen(false);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          const coordsObj = {
-            latitude,
-            longitude,
-            capturedAt: new Date().toISOString(),
-          };
-          resetNearbyCondoSelectionPrompt();
-          setCoords(coordsObj);
-          localStorage.setItem('user_coords', JSON.stringify(coordsObj));
-          localStorage.setItem('geolocation_preference', 'granted');
-          setGeoPreference('granted');
-          setRefreshFailed(false);
-          // Clear manual region/condo if gps selected
-          setSelectedRegion(null);
-          localStorage.removeItem('user_region');
-          setSelectedCondo(null);
-          localStorage.removeItem('user_condo');
-          toast.success(t('location.fresh_gps'));
-        },
-        (error) => {
-          console.error('Geolocation failed:', error);
-          mapGeolocationError(error);
-          fetchIpFallback();
-        },
-      );
-    } else {
-      setGeoPreference('unavailable');
-      toast.error(t('location.err_unsupported'));
-      fetchIpFallback();
-    }
-  };
-
-  const revokeLocation = () => {
-    localStorage.removeItem('geolocation_preference');
-    localStorage.removeItem('user_coords');
-    localStorage.removeItem('user_condo');
-    localStorage.removeItem('user_region');
-    resetNearbyCondoSelectionPrompt();
-    setCoords(null);
-    setSelectedCondo(null);
-    setSelectedRegion(null);
-    setIpLocation(null);
-    setGeoPreference('unset');
-    setRadiusKm(10);
-    setIsLocationSelectorOpen(false);
-    toast.success(t('location.clear'));
-    fetchIpFallback();
-  };
-
-  const handleNearbyCondoConfirm = (condo: SelectedCondo) => {
-    confirmNearbyCondoSelection(condo, setSelectedCondo);
-    // Clear manual region if condo selected
-    setSelectedRegion(null);
-    localStorage.removeItem('user_region');
-    toast.success(`${t('location.selected_condo')}: ${condo.name}`);
-  };
-
-  const handleNearbyCondoDismiss = () => {
-    dismissNearbyCondoSelection(setSelectedCondo);
-    toast.info(t('location.nearby_dismissed'));
-  };
-
-  const selectCondoManually = (condo: {
-    id: string;
-    name: string;
-    city: string;
-    state: string;
-    cep: string;
-  }) => {
-    const selected = {
-      id: condo.id,
-      name: condo.name,
-      city: condo.city,
-      state: condo.state,
-      cep: condo.cep,
-    };
-    setSelectedCondo(selected);
-    localStorage.setItem('user_condo', JSON.stringify(selected));
-
-    // Clear manual region and gps coords
-    setSelectedRegion(null);
-    localStorage.removeItem('user_region');
-    setCoords(null);
-    localStorage.removeItem('user_coords');
-    setGeoPreference('unset');
-    localStorage.setItem('geolocation_preference', 'unset');
-
-    setIsLocationSelectorOpen(false);
-    toast.success(`${t('location.selected_condo')}: ${condo.name}`);
-  };
-
-  const handleSaveRegion = () => {
-    if (!tempCity.trim()) {
-      toast.error(t('location.city_placeholder'));
-      return;
-    }
-    const region = {
-      city: tempCity.trim(),
-      neighborhood: tempNeighborhood.trim() || undefined,
-    };
-    setSelectedRegion(region);
-    localStorage.setItem('user_region', JSON.stringify(region));
-
-    // Clear manual condo and gps coords
-    setSelectedCondo(null);
-    localStorage.removeItem('user_condo');
-    setCoords(null);
-    localStorage.removeItem('user_coords');
-    setGeoPreference('unset');
-    localStorage.setItem('geolocation_preference', 'unset');
-
-    setIsLocationSelectorOpen(false);
-    toast.success(t('location.selected_condo'));
-  };
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Geolocation and initial condo load
-  useEffect(() => {
-    const savedCondo = localStorage.getItem('user_condo');
-    if (savedCondo) {
-      setSelectedCondo(JSON.parse(savedCondo));
-    }
-
-    const savedRegion = localStorage.getItem('user_region');
-    if (savedRegion) {
-      setSelectedRegion(JSON.parse(savedRegion));
-    }
-
-    const freshStoredCoords = getFreshStoredCoords();
-
-    if (freshStoredCoords) {
-      setCoords(freshStoredCoords);
-    }
-
-    // Background refresh if prior grant
-    if (geoPreference === 'granted') {
-      if (navigator.geolocation) {
-        setIsRefreshing(true);
-        setRefreshFailed(false);
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            const newCoordsObj = {
-              latitude,
-              longitude,
-              capturedAt: new Date().toISOString(),
-            };
-            setIsRefreshing(false);
-
-            if (freshStoredCoords) {
-              const distance = getDistanceKm(
-                freshStoredCoords.latitude,
-                freshStoredCoords.longitude,
-                latitude,
-                longitude,
-              );
-              // Use a 1 km movement threshold before updating ranking/state
-              if (distance >= 1) {
-                setCoords(newCoordsObj);
-                localStorage.setItem(
-                  'user_coords',
-                  JSON.stringify(newCoordsObj),
-                );
-              } else {
-                // Keep existing coords state to avoid re-fetch, but refresh storage timestamp
-                localStorage.setItem(
-                  'user_coords',
-                  JSON.stringify({
-                    ...freshStoredCoords,
-                    capturedAt: newCoordsObj.capturedAt,
-                  }),
-                );
-              }
-            } else {
-              setCoords(newCoordsObj);
-              localStorage.setItem('user_coords', JSON.stringify(newCoordsObj));
-            }
-          },
-          (error) => {
-            console.error('Background geolocation refresh failed:', error);
-            setIsRefreshing(false);
-            if (freshStoredCoords) {
-              setRefreshFailed(true);
-            } else {
-              mapGeolocationError(error);
-              fetchIpFallback();
-            }
-          },
-        );
-      } else {
-        if (freshStoredCoords) {
-          setRefreshFailed(true);
-        } else {
-          setGeoPreference('unavailable');
-          fetchIpFallback();
-        }
-      }
-    } else if (
-      geoPreference === 'denied' ||
-      geoPreference === 'unavailable' ||
-      (!freshStoredCoords && geoPreference === 'unset')
-    ) {
-      fetchIpFallback();
-    }
-  }, [geoPreference, fetchIpFallback, mapGeolocationError]);
 
   const handleContactClick = (
     adId: string,
@@ -651,149 +309,6 @@ function PublicVitrineComponent() {
           <Button size="sm">Anunciar serviço</Button>
         </Link>
       </div>
-    );
-  };
-
-  const getLocationStatusText = () => {
-    if (selectedCondo) {
-      return `${t('location.selected_condo')}: ${selectedCondo.name}`;
-    }
-    if (coords) {
-      if (isRefreshing) {
-        return t('location.refreshing_gps');
-      }
-      if (refreshFailed) {
-        return t('location.stale_gps_fail');
-      }
-      return t('location.fresh_gps');
-    }
-    if (selectedRegion) {
-      return selectedRegion.neighborhood
-        ? `${selectedRegion.city} - ${selectedRegion.neighborhood}`
-        : selectedRegion.city;
-    }
-    if (ipLocation) {
-      return `${t('location.ip_fallback')}: ${ipLocation.city}`;
-    }
-    if (geoPreference === 'denied') {
-      return t('location.denied');
-    }
-    if (geoPreference === 'unavailable') {
-      return t('location.unavailable');
-    }
-    return t('location.no_signal');
-  };
-
-  const renderSelectorContent = () => {
-    return (
-      <Tabs defaultValue="gps" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="gps" className="text-xs">
-            GPS
-          </TabsTrigger>
-          <TabsTrigger value="region" className="text-xs">
-            {t('location.tab_region')}
-          </TabsTrigger>
-          <TabsTrigger value="condo" className="text-xs">
-            {t('location.tab_condo')}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="gps" className="mt-4 space-y-4">
-          <div className="rounded-xl border bg-muted/40 p-4 text-center">
-            <MapPin className="mx-auto mb-2 h-6 w-6 animate-pulse text-primary" />
-            <p className="font-semibold text-sm">{t('location.option_gps')}</p>
-            <p className="mt-1 text-muted-foreground text-xs">
-              {t('location.option_gps_desc')}
-            </p>
-          </div>
-          <Button onClick={handleGeoAllow} className="w-full">
-            {t('location.option_gps')}
-          </Button>
-        </TabsContent>
-
-        <TabsContent value="region" className="mt-4 space-y-4">
-          <p className="text-muted-foreground text-xs">
-            {t('location.option_region_desc')}
-          </p>
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <label
-                className="font-medium text-muted-foreground text-xs"
-                htmlFor="temp-city-input"
-              >
-                {t('location.city_placeholder')} *
-              </label>
-              <Input
-                id="temp-city-input"
-                placeholder={t('location.city_example')}
-                value={tempCity}
-                onChange={(e) => setTempCity(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <label
-                className="font-medium text-muted-foreground text-xs"
-                htmlFor="temp-neighborhood-input"
-              >
-                {t('location.neighborhood_placeholder')}
-              </label>
-              <Input
-                id="temp-neighborhood-input"
-                placeholder={t('location.neighborhood_example')}
-                value={tempNeighborhood}
-                onChange={(e) => setTempNeighborhood(e.target.value)}
-              />
-            </div>
-          </div>
-          <Button onClick={handleSaveRegion} className="w-full">
-            {t('moderation.confirm')}
-          </Button>
-        </TabsContent>
-
-        <TabsContent value="condo" className="mt-4 space-y-4">
-          <p className="text-muted-foreground text-xs">
-            {t('location.option_condo_desc')}
-          </p>
-          <div className="relative">
-            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder={t('location.condo_placeholder')}
-              value={condoSearchQuery}
-              onChange={(e) => setCondoSearchQuery(e.target.value)}
-              className="bg-muted pl-9"
-            />
-          </div>
-          <div className="max-h-48 space-y-2 overflow-y-auto pr-1">
-            {isSearchingCondos ? (
-              <div className="flex items-center justify-center gap-2 py-6">
-                <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                <span className="text-muted-foreground text-xs">
-                  {t('moderation.confirm')}
-                </span>
-              </div>
-            ) : condoSearchResults && condoSearchResults.length > 0 ? (
-              condoSearchResults.map((condo) => (
-                <button
-                  type="button"
-                  key={condo.id}
-                  onClick={() => selectCondoManually(condo)}
-                  className="flex w-full flex-col gap-0.5 rounded-lg border p-2.5 text-left hover:bg-muted"
-                >
-                  <span className="font-semibold text-xs">{condo.name}</span>
-                  <span className="text-[10px] text-muted-foreground">
-                    {condo.city} - {condo.state} • CEP: {condo.cep}
-                  </span>
-                </button>
-              ))
-            ) : (
-              <div className="py-6 text-center text-muted-foreground text-xs">
-                {t('location.condo_empty')}
-              </div>
-            )}
-          </div>
-        </TabsContent>
-      </Tabs>
     );
   };
 
@@ -968,7 +483,20 @@ function PublicVitrineComponent() {
                         <p className="mb-4 text-[10px] text-muted-foreground">
                           {t('location.modal_desc')}
                         </p>
-                        {renderSelectorContent()}
+                        {PublicVitrineLocationSelector({
+                          condoSearchQuery,
+                          condoSearchResults,
+                          isSearchingCondos,
+                          onCondoSearchQueryChange: setCondoSearchQuery,
+                          onGeoAllow: handleGeoAllow,
+                          onSaveRegion: handleSaveRegion,
+                          onSelectCondo: selectCondoManually,
+                          onTempCityChange: setTempCity,
+                          onTempNeighborhoodChange: setTempNeighborhood,
+                          t,
+                          tempCity,
+                          tempNeighborhood,
+                        })}
                       </PopoverContent>
                     </Popover>
                   )}
@@ -1015,7 +543,7 @@ function PublicVitrineComponent() {
                   variant="outline"
                   size="sm"
                   className="md:hidden"
-                  onClick={() => setIsFiltersSheetOpen(true)}
+                  onClick={() => setFilterSheetOpen(true)}
                 >
                   <SlidersHorizontal className="h-4 w-4" />
                   <span>{t('home.filters')}</span>
@@ -1243,12 +771,27 @@ function PublicVitrineComponent() {
                 {t('location.modal_desc')}
               </SheetDescription>
             </SheetHeader>
-            <div className="py-4">{renderSelectorContent()}</div>
+            <div className="py-4">
+              {PublicVitrineLocationSelector({
+                condoSearchQuery,
+                condoSearchResults,
+                isSearchingCondos,
+                onCondoSearchQueryChange: setCondoSearchQuery,
+                onGeoAllow: handleGeoAllow,
+                onSaveRegion: handleSaveRegion,
+                onSelectCondo: selectCondoManually,
+                onTempCityChange: setTempCity,
+                onTempNeighborhoodChange: setTempNeighborhood,
+                t,
+                tempCity,
+                tempNeighborhood,
+              })}
+            </div>
           </SheetContent>
         </Sheet>
       )}
 
-      <Sheet open={isFiltersSheetOpen} onOpenChange={setIsFiltersSheetOpen}>
+      <Sheet open={isFiltersSheetOpen} onOpenChange={setFilterSheetOpen}>
         <SheetContent
           side="bottom"
           className="max-h-[90vh] w-full overflow-y-auto border-t p-6 md:hidden"
