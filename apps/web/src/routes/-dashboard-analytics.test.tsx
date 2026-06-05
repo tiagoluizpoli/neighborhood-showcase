@@ -131,6 +131,9 @@ const { Route } = await import('./panel.dashboard.index');
 const { ProviderDashboardAnalyticsModal } = await import(
   './panel/-provider-dashboard-analytics-modal'
 );
+const { ProviderDashboardEditImageField } = await import(
+  './panel/-provider-dashboard-edit-image-field'
+);
 Route.useRouteContext = () => ({
   session: { data: { user: { name: 'John Analytics' } } },
 });
@@ -333,5 +336,27 @@ describe('Dashboard Analytics & Action Buttons Unit Tests', () => {
         ['7 Dias', '30 Dias', '12 Meses'].includes(el.props?.children),
     );
     expect(periodButtons.length).toBe(3);
+  });
+
+  test('edit image field renders preview and upload controls from extracted seam', () => {
+    const tree = renderComponent(() =>
+      ProviderDashboardEditImageField({
+        imageUrl: 'preview.jpg',
+        onImageUrlChange: () => {},
+        onUploadingChange: () => {},
+      }),
+    );
+
+    const imagePreview = findElement(
+      tree,
+      (el) => el.type === 'img' && el.props?.src === 'preview.jpg',
+    );
+    expect(imagePreview).toBeDefined();
+
+    const changeImageButton = findElement(
+      tree,
+      (el) => el.props?.children === 'Alterar Imagem',
+    );
+    expect(changeImageButton).toBeDefined();
   });
 });
