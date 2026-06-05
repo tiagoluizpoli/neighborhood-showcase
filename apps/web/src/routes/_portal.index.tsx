@@ -1,5 +1,4 @@
 import { Button } from '@neighborhood-showcase/ui/components/button';
-import { Checkbox } from '@neighborhood-showcase/ui/components/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -8,19 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@neighborhood-showcase/ui/components/dialog';
-import { Input } from '@neighborhood-showcase/ui/components/input';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@neighborhood-showcase/ui/components/popover';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@neighborhood-showcase/ui/components/sheet';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import {
@@ -30,13 +16,18 @@ import {
   Search,
   SlidersHorizontal,
 } from 'lucide-react';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AnnouncementCard } from '@/components/announcement-card';
 import { AnnouncementCardSkeleton } from '@/components/announcement-card-skeleton';
 import { authClient } from '@/lib/auth-client';
+import { PublicVitrineFilterControls } from '@/routes/portal/-public-vitrine-filter-controls';
+import {
+  allPublicVitrineCategoriesId,
+  buildPublicAnnouncementQueryInput,
+  hasPublicVitrineIpFallback,
+  usePublicVitrineFilters,
+} from '@/routes/portal/-public-vitrine-filters';
 import { usePublicVitrineLocation } from '@/routes/portal/-public-vitrine-location';
-import { PublicVitrineLocationSelector } from '@/routes/portal/-public-vitrine-location-selector';
 import { getNearbyCondoMatch } from '@/routes/portal/-public-vitrine-location-support';
 import {
   formatNearbyCondoDistance,
@@ -80,11 +71,16 @@ function PublicVitrineComponent() {
     tempNeighborhood,
   } = usePublicVitrineLocation({ t });
 
-  // Grid Filters
-  const [search, setSearch] = useState('');
-  const [categoryId, setCategoryId] = useState('Todos');
-  const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const [filterByCondo, setFilterByCondo] = useState(false);
+  const {
+    categoryId,
+    filterByCondo,
+    search,
+    setCategoryId,
+    setFilterByCondo,
+    setSearch,
+    setVerifiedOnly,
+    verifiedOnly,
+  } = usePublicVitrineFilters();
 
   // tRPC Queries
   const { data: backendCategories } = useQuery(
@@ -119,21 +115,23 @@ function PublicVitrineComponent() {
     isError: isErrorAds,
     refetch: refetchAds,
   } = useQuery(
-    trpc.announcement.listPublic.queryOptions({
-      latitude: coords?.latitude,
-      longitude: coords?.longitude,
-      condominiumId:
-        filterByCondo && selectedCondo ? selectedCondo.id : undefined,
-      categoryId: categoryId === 'Todos' ? undefined : categoryId,
-      search,
-      verifiedOnly,
-      userCondoId: selectedCondo?.id,
-      radiusKm: isGpsFresh ? radiusKm : undefined,
-      city: selectedRegion?.city,
-      neighborhood: selectedRegion?.neighborhood,
-      ipCity: ipLocation?.city,
-      ipState: ipLocation?.state,
-    }),
+    trpc.announcement.listPublic.queryOptions(
+      buildPublicAnnouncementQueryInput({
+        coords,
+        filters: {
+          categoryId,
+          filterByCondo,
+          search,
+          verifiedOnly,
+        },
+        geoPreference,
+        ipLocation,
+        isGpsFresh,
+        radiusKm,
+        selectedCondo,
+        selectedRegion,
+      }),
+    ),
   );
 
   const trackEventMutation = useMutation(
@@ -169,7 +167,7 @@ function PublicVitrineComponent() {
       );
     }
 
-    if (categoryId !== 'Todos') {
+    if (categoryId !== allPublicVitrineCategoriesId) {
       const categoryName =
         backendCategories?.find((c) => c.id === categoryId)?.name || '';
       return (
@@ -417,207 +415,43 @@ function PublicVitrineComponent() {
       ) : null}
 
       {/* Main Filter Section */}
-      <div id="explorar" className="mb-8">
-        <div className="rounded-2xl border bg-card/70 p-4 shadow-sm md:p-5">
-          <div className="flex flex-col gap-4">
-            <div className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.9fr)_auto]">
-              <div className="relative min-w-0">
-                <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder={t('home.search_placeholder')}
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="h-11 bg-background pl-10"
-                />
-              </div>
-
-              <div className="flex items-center justify-between gap-3 rounded-xl border bg-background px-4 py-3">
-                <div className="min-w-0">
-                  <p className="font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
-                    {t('location.modal_title')}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="truncate font-semibold text-sm">
-                      {getLocationStatusText()}
-                    </span>
-                    {(selectedCondo ||
-                      coords ||
-                      selectedRegion ||
-                      ipLocation) && (
-                      <button
-                        type="button"
-                        onClick={revokeLocation}
-                        className="font-normal text-destructive text-xs hover:underline"
-                      >
-                        ({t('location.clear')})
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-2">
-                  {isMobile ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsLocationSelectorOpen(true)}
-                    >
-                      {t('location.change')}
-                    </Button>
-                  ) : (
-                    <Popover
-                      open={isLocationSelectorOpen}
-                      onOpenChange={setIsLocationSelectorOpen}
-                    >
-                      <PopoverTrigger
-                        render={
-                          <Button variant="outline" size="sm">
-                            {t('location.change')}
-                          </Button>
-                        }
-                      />
-                      <PopoverContent className="w-96 p-5">
-                        <h3 className="mb-1 font-bold text-sm">
-                          {t('location.modal_title')}
-                        </h3>
-                        <p className="mb-4 text-[10px] text-muted-foreground">
-                          {t('location.modal_desc')}
-                        </p>
-                        {PublicVitrineLocationSelector({
-                          condoSearchQuery,
-                          condoSearchResults,
-                          isSearchingCondos,
-                          onCondoSearchQueryChange: setCondoSearchQuery,
-                          onGeoAllow: handleGeoAllow,
-                          onSaveRegion: handleSaveRegion,
-                          onSelectCondo: selectCondoManually,
-                          onTempCityChange: setTempCity,
-                          onTempNeighborhoodChange: setTempNeighborhood,
-                          t,
-                          tempCity,
-                          tempNeighborhood,
-                        })}
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-start justify-end gap-2">
-                <div className="hidden flex-wrap items-center gap-2 md:flex">
-                  <div className="flex items-center gap-2 rounded-xl border bg-background px-3 py-2">
-                    <Checkbox
-                      id="verified-switch"
-                      checked={verifiedOnly}
-                      onCheckedChange={(checked) =>
-                        setVerifiedOnly(checked === true)
-                      }
-                    />
-                    <label
-                      htmlFor="verified-switch"
-                      className="cursor-pointer select-none font-medium text-sm"
-                    >
-                      Apenas moradores verificados
-                    </label>
-                  </div>
-                  {selectedCondo && (
-                    <div className="flex items-center gap-2 rounded-xl border bg-background px-3 py-2">
-                      <Checkbox
-                        id="condo-filter-switch"
-                        checked={filterByCondo}
-                        onCheckedChange={(checked) =>
-                          setFilterByCondo(checked === true)
-                        }
-                      />
-                      <label
-                        htmlFor="condo-filter-switch"
-                        className="cursor-pointer select-none font-medium text-sm"
-                      >
-                        Apenas neste condomínio
-                      </label>
-                    </div>
-                  )}
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="md:hidden"
-                  onClick={() => setFilterSheetOpen(true)}
-                >
-                  <SlidersHorizontal className="h-4 w-4" />
-                  <span>{t('home.filters')}</span>
-                </Button>
-              </div>
-            </div>
-
-            {/* Categories Tab Swiper */}
-            <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
-              <Button
-                type="button"
-                onClick={() => setCategoryId('Todos')}
-                variant={categoryId === 'Todos' ? 'default' : 'outline'}
-                size="sm"
-                className="whitespace-nowrap"
-              >
-                Todos
-              </Button>
-              {backendCategories?.map((cat) => (
-                <Button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setCategoryId(cat.id)}
-                  variant={categoryId === cat.id ? 'default' : 'outline'}
-                  size="sm"
-                  className="whitespace-nowrap"
-                >
-                  {cat.name}
-                </Button>
-              ))}
-            </div>
-
-            {isGpsFresh && (
-              <div
-                className={`flex flex-col gap-3 rounded-xl border px-4 py-3 md:flex-row md:items-center md:justify-between ${
-                  radiusKm === 25
-                    ? 'border-warning/40 bg-warning/5'
-                    : 'border-border bg-background'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <MapPin
-                    className={`mt-0.5 h-4 w-4 ${
-                      radiusKm === 25 ? 'text-warning' : 'text-primary'
-                    }`}
-                  />
-                  <div>
-                    <p className="font-semibold text-sm">
-                      {radiusKm === 10
-                        ? t('location.radius_standard')
-                        : t('location.radius_expanded')}
-                    </p>
-                    <p className="text-muted-foreground text-xs">
-                      {radiusKm === 10
-                        ? t('location.radius_standard_desc')
-                        : t('location.radius_expanded_desc')}
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  variant={radiusKm === 10 ? 'outline' : 'secondary'}
-                  size="sm"
-                  onClick={() => setRadiusKm(radiusKm === 10 ? 25 : 10)}
-                  className="w-full shrink-0 md:w-auto"
-                >
-                  {radiusKm === 10
-                    ? t('location.radius_expand')
-                    : t('location.radius_shrink')}
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      {PublicVitrineFilterControls({
+        backendCategories,
+        categoryId,
+        condoSearchQuery,
+        condoSearchResults,
+        filterByCondo,
+        getLocationStatusText,
+        isFiltersSheetOpen,
+        isGpsFresh,
+        isLocationSelectorOpen,
+        isMobile,
+        isSearchingCondos,
+        onCategoryChange: setCategoryId,
+        onCondoSearchQueryChange: setCondoSearchQuery,
+        onFilterByCondoChange: setFilterByCondo,
+        onFilterSheetOpenChange: setFilterSheetOpen,
+        onGeoAllow: handleGeoAllow,
+        onLocationSelectorOpenChange: setIsLocationSelectorOpen,
+        onRadiusToggle: () => setRadiusKm(radiusKm === 10 ? 25 : 10),
+        onRevokeLocation: revokeLocation,
+        onSaveRegion: handleSaveRegion,
+        onSearchChange: setSearch,
+        onSelectCondo: selectCondoManually,
+        onTempCityChange: setTempCity,
+        onTempNeighborhoodChange: setTempNeighborhood,
+        onVerifiedOnlyChange: setVerifiedOnly,
+        radiusKm,
+        search,
+        selectedCondo,
+        showLocationClearAction: Boolean(
+          selectedCondo || coords || selectedRegion || ipLocation,
+        ),
+        t,
+        tempCity,
+        tempNeighborhood,
+        verifiedOnly,
+      })}
 
       {/* Announcements Grid */}
       {isErrorAds ? (
@@ -648,11 +482,11 @@ function PublicVitrineComponent() {
               selectedCondo={selectedCondo}
               visitorCoords={coords}
               isGpsFresh={isGpsFresh}
-              hasIpFallback={
-                geoPreference !== 'granted' &&
-                coords === null &&
-                ipLocation !== null
-              }
+              hasIpFallback={hasPublicVitrineIpFallback({
+                coords,
+                geoPreference,
+                ipLocation,
+              })}
               onContactClick={handleContactClick}
             />
           ))}
@@ -752,118 +586,6 @@ function PublicVitrineComponent() {
           </div>
         </div>
       </div>
-
-      {/* Mobile Location Selector Sheet */}
-      {isMobile && (
-        <Sheet
-          open={isLocationSelectorOpen}
-          onOpenChange={setIsLocationSelectorOpen}
-        >
-          <SheetContent
-            side="bottom"
-            className="max-h-[90vh] w-full overflow-y-auto border-t p-6"
-          >
-            <SheetHeader>
-              <SheetTitle className="font-bold text-lg">
-                {t('location.modal_title')}
-              </SheetTitle>
-              <SheetDescription className="text-muted-foreground text-xs">
-                {t('location.modal_desc')}
-              </SheetDescription>
-            </SheetHeader>
-            <div className="py-4">
-              {PublicVitrineLocationSelector({
-                condoSearchQuery,
-                condoSearchResults,
-                isSearchingCondos,
-                onCondoSearchQueryChange: setCondoSearchQuery,
-                onGeoAllow: handleGeoAllow,
-                onSaveRegion: handleSaveRegion,
-                onSelectCondo: selectCondoManually,
-                onTempCityChange: setTempCity,
-                onTempNeighborhoodChange: setTempNeighborhood,
-                t,
-                tempCity,
-                tempNeighborhood,
-              })}
-            </div>
-          </SheetContent>
-        </Sheet>
-      )}
-
-      <Sheet open={isFiltersSheetOpen} onOpenChange={setFilterSheetOpen}>
-        <SheetContent
-          side="bottom"
-          className="max-h-[90vh] w-full overflow-y-auto border-t p-6 md:hidden"
-        >
-          <SheetHeader>
-            <SheetTitle className="font-bold text-lg">
-              {t('home.filters_title')}
-            </SheetTitle>
-            <SheetDescription className="text-muted-foreground text-xs">
-              {t('home.filters_description')}
-            </SheetDescription>
-          </SheetHeader>
-          <div className="space-y-3 py-4">
-            <div className="flex items-center gap-2 rounded-xl border bg-background px-3 py-3">
-              <Checkbox
-                id="verified-switch-mobile"
-                checked={verifiedOnly}
-                onCheckedChange={(checked) => setVerifiedOnly(checked === true)}
-              />
-              <label
-                htmlFor="verified-switch-mobile"
-                className="cursor-pointer select-none font-medium text-sm"
-              >
-                Apenas moradores verificados
-              </label>
-            </div>
-
-            {selectedCondo && (
-              <div className="flex items-center gap-2 rounded-xl border bg-background px-3 py-3">
-                <Checkbox
-                  id="condo-filter-switch-mobile"
-                  checked={filterByCondo}
-                  onCheckedChange={(checked) =>
-                    setFilterByCondo(checked === true)
-                  }
-                />
-                <label
-                  htmlFor="condo-filter-switch-mobile"
-                  className="cursor-pointer select-none font-medium text-sm"
-                >
-                  Apenas neste condomínio
-                </label>
-              </div>
-            )}
-
-            {isGpsFresh && (
-              <div className="rounded-xl border bg-background px-4 py-3">
-                <p className="font-semibold text-sm">
-                  {radiusKm === 10
-                    ? t('location.radius_standard')
-                    : t('location.radius_expanded')}
-                </p>
-                <p className="mt-1 text-muted-foreground text-xs">
-                  {radiusKm === 10
-                    ? t('location.radius_standard_desc')
-                    : t('location.radius_expanded_desc')}
-                </p>
-                <Button
-                  variant={radiusKm === 10 ? 'outline' : 'secondary'}
-                  size="sm"
-                  onClick={() => setRadiusKm(radiusKm === 10 ? 25 : 10)}
-                  className="mt-3 w-full"
-                >
-                  {radiusKm === 10
-                    ? t('location.radius_expand')
-                    : t('location.radius_shrink')}
-                </Button>
-              </div>
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }
