@@ -1,10 +1,9 @@
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { ModeToggle } from './mode-toggle';
 import { authClient } from '@/lib/auth-client';
 
 export default function Header() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { data: session } = authClient.useSession();
 
   return (
@@ -40,23 +39,7 @@ export default function Header() {
           </Link>
         </nav>
 
-        {/* Actions & Utilities */}
-        <div className="flex items-center gap-4">
-          <select
-            value={i18n.language}
-            onChange={(e) => i18n.changeLanguage(e.target.value)}
-            className="cursor-pointer rounded border border-input bg-transparent px-2 py-1 text-foreground text-sm outline-none"
-          >
-            <option value="pt" className="bg-background text-foreground">
-              PT
-            </option>
-            <option value="en" className="bg-background text-foreground">
-              EN
-            </option>
-          </select>
-
-          <ModeToggle />
-
+        <div className="flex items-center">
           {session ? (
             <Link
               to="/panel/dashboard"

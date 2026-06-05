@@ -87,6 +87,21 @@ mock.module('@/components/mode-toggle', () => ({
 }));
 
 // Helper to traverse node tree to find text or properties
+const findNodeByText = (node: any, text: string): any => {
+  if (!node) return null;
+  if (typeof node === 'string') return node.includes(text) ? node : null;
+  if (node.props?.children) {
+    const children = Array.isArray(node.props.children)
+      ? node.props.children
+      : [node.props.children];
+    for (const child of children) {
+      const found = findNodeByText(child, text);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
 const findNodeByProp = (node: any, propName: string, propValue: any): any => {
   if (!node) return null;
   if (node.props?.[propName] === propValue) return node;
@@ -120,6 +135,11 @@ describe('Public Shell Header & Footer Tests', () => {
     // Does not render dashboard (Painel) links in logged-out mode
     const dashboardLink = findNodeByProp(tree, 'to', '/panel/dashboard');
     expect(dashboardLink).toBeNull();
+
+    // Public shell header stays focused: no theme or language utilities
+    expect(findNodeByText(tree, 'ModeToggle')).toBeNull();
+    expect(findNodeByText(tree, 'PT')).toBeNull();
+    expect(findNodeByText(tree, 'EN')).toBeNull();
   });
 
   test('Logged-in header renders dashboard link and no login link', async () => {
@@ -143,6 +163,11 @@ describe('Public Shell Header & Footer Tests', () => {
     // Does not render login link
     const loginLink = findNodeByProp(tree, 'to', '/auth');
     expect(loginLink).toBeNull();
+
+    // Public shell header stays focused: no theme or language utilities
+    expect(findNodeByText(tree, 'ModeToggle')).toBeNull();
+    expect(findNodeByText(tree, 'PT')).toBeNull();
+    expect(findNodeByText(tree, 'EN')).toBeNull();
   });
 
   test('Public header renders navigation anchors to Explorar, Como Funciona, and Anunciar', async () => {
