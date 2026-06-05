@@ -6,10 +6,6 @@ import type {
   DismissReportsNoBoundError,
   DismissReportsNotFoundError,
 } from '../../application/use-cases/announcement/dismiss-reports';
-import {
-  AnnouncementAccessDeniedError as AnalyticsAnnouncementAccessDeniedError,
-  AnnouncementNotFoundError as AnalyticsAnnouncementNotFoundError,
-} from '../../application/use-cases/announcement/get-announcement-analytics';
 import { ModerationAccessDeniedError } from '../../application/use-cases/announcement/list-announcements-for-moderation';
 import {
   ReportQueueAccessDeniedError,
@@ -31,227 +27,35 @@ import type {
   SuspendAnnouncementNoBoundError,
   SuspendAnnouncementNotFoundError,
 } from '../../application/use-cases/announcement/suspend-announcement';
-import {
-  AnnouncementUpdateAccessDeniedError,
-  VerifiedBadgeEligibilityError,
-} from '../../application/use-cases/announcement/update-announcement';
-import {
-  AnnouncementAccessDeniedError,
-  PaymentNotFoundError,
-} from '../../application/use-cases/payment/get-payment-status';
 import { createAnnouncementRouterDependencies } from '../../main/di';
 import { protectedProcedure, router } from '../trpc';
+import { createProviderAnnouncementRouter } from './announcement/provider';
 import { createPublicAnnouncementRouter } from './announcement/public';
 
+function createRouterError(
+  code: 'BAD_REQUEST' | 'CONFLICT' | 'FORBIDDEN' | 'NOT_FOUND',
+  error: Error,
+) {
+  return new TRPCError({
+    code,
+    message: error.message,
+    cause: error,
+  });
+}
 export function createAnnouncementRouter(
   dependencies = createAnnouncementRouterDependencies(),
 ) {
   const {
-    createAnnouncementUseCase,
-    generatePaymentIntentUseCase,
-    getPaymentStatusUseCase,
     listAnnouncementsForModerationUseCase,
-    updateAnnouncementUseCase,
-    getProviderDashboardDataUseCase,
-    getAnnouncementAnalyticsUseCase,
     suspendAnnouncementUseCase,
     reinstateAnnouncementUseCase,
     reportAnnouncementUseCase,
     dismissReportsUseCase,
     listReportedAnnouncementsUseCase,
   } = dependencies;
-
   return router({
     ...createPublicAnnouncementRouter(dependencies),
-
-    create: protectedProcedure
-      .input(
-        z.object({
-          providerAssignmentId: z.string().min(1),
-          title: z.string().min(3).max(100),
-          subtitle: z.string().nullable().optional(),
-          description: z.string().min(10).max(2000),
-          priceCents: z.number().nullable().optional(),
-          imageUrl: z.string().min(1),
-          categoryId: z.string().min(1),
-          tags: z.array(z.string()),
-          contactLinks: z.object({
-            whatsapp: z.string().optional(),
-            phone: z.string().optional(),
-            email: z.string().optional(),
-            instagram: z.string().optional(),
-            tiktok: z.string().optional(),
-            facebook: z.string().optional(),
-            website: z.string().optional(),
-          }),
-          showVerifiedBadge: z.boolean(),
-        }),
-      )
-      .mutation(async ({ input, ctx }) => {
-        const ann = await createAnnouncementUseCase.execute({
-          providerId: ctx.session.user.id,
-          providerAssignmentId: input.providerAssignmentId,
-          title: input.title,
-          subtitle: input.subtitle,
-          description: input.description,
-          priceCents: input.priceCents,
-          imageUrl: input.imageUrl,
-          categoryId: input.categoryId,
-          tags: input.tags,
-          contactLinks: input.contactLinks,
-          showVerifiedBadge: input.showVerifiedBadge,
-        });
-        return ann.toDTO();
-      }),
-
-    getPaymentDetails: protectedProcedure
-      .input(
-        z.object({
-          announcementId: z.string().min(1),
-        }),
-      )
-      .mutation(async ({ input, ctx }) => {
-        return generatePaymentIntentUseCase.execute({
-          announcementId: input.announcementId,
-          providerId: ctx.session.user.id,
-          customerName: ctx.session.user.name || 'Provedor',
-          customerEmail: ctx.session.user.email,
-        });
-      }),
-
-    getPaymentStatus: protectedProcedure
-      .input(
-        z.object({
-          announcementId: z.string().min(1),
-        }),
-      )
-      .query(async ({ input, ctx }) => {
-        try {
-          return await getPaymentStatusUseCase.execute({
-            announcementId: input.announcementId,
-            providerId: ctx.session.user.id,
-          });
-        } catch (error) {
-          if (error instanceof PaymentNotFoundError) {
-            throw new TRPCError({
-              code: 'NOT_FOUND',
-              message: error.message,
-              cause: error,
-            });
-          }
-
-          if (error instanceof AnnouncementAccessDeniedError) {
-            throw new TRPCError({
-              code: 'FORBIDDEN',
-              message: error.message,
-              cause: error,
-            });
-          }
-
-          throw error;
-        }
-      }),
-
-    getDashboardData: protectedProcedure.query(async ({ ctx }) => {
-      return getProviderDashboardDataUseCase.execute({
-        providerId: ctx.session.user.id,
-      });
-    }),
-
-    getAnalytics: protectedProcedure
-      .input(
-        z.object({
-          announcementId: z.string().min(1).optional(),
-          period: z.enum(['7d', '30d', '12m']),
-        }),
-      )
-      .query(async ({ input, ctx }) => {
-        try {
-          return await getAnnouncementAnalyticsUseCase.execute({
-            announcementId: input.announcementId,
-            providerId: ctx.session.user.id,
-            period: input.period,
-          });
-        } catch (error) {
-          if (error instanceof AnalyticsAnnouncementNotFoundError) {
-            throw new TRPCError({
-              code: 'NOT_FOUND',
-              message: error.message,
-              cause: error,
-            });
-          }
-          if (error instanceof AnalyticsAnnouncementAccessDeniedError) {
-            throw new TRPCError({
-              code: 'FORBIDDEN',
-              message: error.message,
-              cause: error,
-            });
-          }
-          throw error;
-        }
-      }),
-
-    update: protectedProcedure
-      .input(
-        z.object({
-          id: z.string().min(1),
-          title: z.string().min(3).max(100),
-          subtitle: z.string().nullable().optional(),
-          description: z.string().min(10).max(2000),
-          priceCents: z.number().nullable().optional(),
-          imageUrl: z.string().min(1),
-          categoryId: z.string().min(1),
-          tags: z.array(z.string()),
-          contactLinks: z.object({
-            whatsapp: z.string().optional(),
-            phone: z.string().optional(),
-            email: z.string().optional(),
-            instagram: z.string().optional(),
-            tiktok: z.string().optional(),
-            facebook: z.string().optional(),
-            website: z.string().optional(),
-          }),
-          showVerifiedBadge: z.boolean(),
-        }),
-      )
-      .mutation(async ({ input, ctx }) => {
-        try {
-          const updatedAnn = await updateAnnouncementUseCase.execute({
-            actorId: ctx.session.user.id,
-            announcementId: input.id,
-            title: input.title,
-            subtitle: input.subtitle,
-            description: input.description,
-            priceCents: input.priceCents,
-            imageUrl: input.imageUrl,
-            categoryId: input.categoryId,
-            tags: input.tags,
-            contactLinks: input.contactLinks,
-            showVerifiedBadge: input.showVerifiedBadge,
-          });
-
-          return updatedAnn.toDTO();
-        } catch (error) {
-          if (error instanceof AnnouncementUpdateAccessDeniedError) {
-            throw new TRPCError({
-              code: 'FORBIDDEN',
-              message: error.message,
-              cause: error,
-            });
-          }
-
-          if (error instanceof VerifiedBadgeEligibilityError) {
-            throw new TRPCError({
-              code: 'BAD_REQUEST',
-              message: error.message,
-              cause: error,
-            });
-          }
-
-          throw error;
-        }
-      }),
-
+    ...createProviderAnnouncementRouter(dependencies),
     listForModeration: protectedProcedure
       .input(
         z.object({
@@ -266,13 +70,8 @@ export function createAnnouncementRouter(
           });
         } catch (error) {
           if (error instanceof ModerationAccessDeniedError) {
-            throw new TRPCError({
-              code: 'FORBIDDEN',
-              message: error.message,
-              cause: error,
-            });
+            throw createRouterError('FORBIDDEN', error);
           }
-
           throw error;
         }
       }),
@@ -297,41 +96,37 @@ export function createAnnouncementRouter(
             (error as SuspendAnnouncementNotFoundError).name ===
             'SuspendAnnouncementNotFoundError'
           ) {
-            throw new TRPCError({
-              code: 'NOT_FOUND',
-              message: (error as SuspendAnnouncementNotFoundError).message,
-              cause: error,
-            });
+            throw createRouterError(
+              'NOT_FOUND',
+              error as SuspendAnnouncementNotFoundError,
+            );
           }
           if (
             (error as SuspendAnnouncementNoBoundError).name ===
             'SuspendAnnouncementNoBoundError'
           ) {
-            throw new TRPCError({
-              code: 'BAD_REQUEST',
-              message: (error as SuspendAnnouncementNoBoundError).message,
-              cause: error,
-            });
+            throw createRouterError(
+              'BAD_REQUEST',
+              error as SuspendAnnouncementNoBoundError,
+            );
           }
           if (
             (error as SuspendAnnouncementActorNotFoundError).name ===
             'SuspendAnnouncementActorNotFoundError'
           ) {
-            throw new TRPCError({
-              code: 'NOT_FOUND',
-              message: (error as SuspendAnnouncementActorNotFoundError).message,
-              cause: error,
-            });
+            throw createRouterError(
+              'NOT_FOUND',
+              error as SuspendAnnouncementActorNotFoundError,
+            );
           }
           if (
             (error as SuspendAnnouncementAccessDeniedError).name ===
             'SuspendAnnouncementAccessDeniedError'
           ) {
-            throw new TRPCError({
-              code: 'FORBIDDEN',
-              message: (error as SuspendAnnouncementAccessDeniedError).message,
-              cause: error,
-            });
+            throw createRouterError(
+              'FORBIDDEN',
+              error as SuspendAnnouncementAccessDeniedError,
+            );
           }
           throw error;
         }
@@ -355,43 +150,37 @@ export function createAnnouncementRouter(
             (error as ReinstateAnnouncementNotFoundError).name ===
             'ReinstateAnnouncementNotFoundError'
           ) {
-            throw new TRPCError({
-              code: 'NOT_FOUND',
-              message: (error as ReinstateAnnouncementNotFoundError).message,
-              cause: error,
-            });
+            throw createRouterError(
+              'NOT_FOUND',
+              error as ReinstateAnnouncementNotFoundError,
+            );
           }
           if (
             (error as ReinstateAnnouncementNoBoundError).name ===
             'ReinstateAnnouncementNoBoundError'
           ) {
-            throw new TRPCError({
-              code: 'BAD_REQUEST',
-              message: (error as ReinstateAnnouncementNoBoundError).message,
-              cause: error,
-            });
+            throw createRouterError(
+              'BAD_REQUEST',
+              error as ReinstateAnnouncementNoBoundError,
+            );
           }
           if (
             (error as ReinstateAnnouncementActorNotFoundError).name ===
             'ReinstateAnnouncementActorNotFoundError'
           ) {
-            throw new TRPCError({
-              code: 'NOT_FOUND',
-              message: (error as ReinstateAnnouncementActorNotFoundError)
-                .message,
-              cause: error,
-            });
+            throw createRouterError(
+              'NOT_FOUND',
+              error as ReinstateAnnouncementActorNotFoundError,
+            );
           }
           if (
             (error as ReinstateAnnouncementAccessDeniedError).name ===
             'ReinstateAnnouncementAccessDeniedError'
           ) {
-            throw new TRPCError({
-              code: 'FORBIDDEN',
-              message: (error as ReinstateAnnouncementAccessDeniedError)
-                .message,
-              cause: error,
-            });
+            throw createRouterError(
+              'FORBIDDEN',
+              error as ReinstateAnnouncementAccessDeniedError,
+            );
           }
           throw error;
         }
@@ -420,21 +209,11 @@ export function createAnnouncementRouter(
           return { success: true };
         } catch (error) {
           if (error instanceof AnnouncementReportNotFoundError) {
-            throw new TRPCError({
-              code: 'NOT_FOUND',
-              message: error.message,
-              cause: error,
-            });
+            throw createRouterError('NOT_FOUND', error);
           }
-
           if (error instanceof AnnouncementReportConflictError) {
-            throw new TRPCError({
-              code: 'CONFLICT',
-              message: error.message,
-              cause: error,
-            });
+            throw createRouterError('CONFLICT', error);
           }
-
           throw error;
         }
       }),
@@ -453,21 +232,11 @@ export function createAnnouncementRouter(
           });
         } catch (error) {
           if (error instanceof ReportQueueActorNotFoundError) {
-            throw new TRPCError({
-              code: 'NOT_FOUND',
-              message: error.message,
-              cause: error,
-            });
+            throw createRouterError('NOT_FOUND', error);
           }
-
           if (error instanceof ReportQueueAccessDeniedError) {
-            throw new TRPCError({
-              code: 'FORBIDDEN',
-              message: error.message,
-              cause: error,
-            });
+            throw createRouterError('FORBIDDEN', error);
           }
-
           throw error;
         }
       }),
@@ -490,41 +259,37 @@ export function createAnnouncementRouter(
             (error as DismissReportsNotFoundError).name ===
             'DismissReportsNotFoundError'
           ) {
-            throw new TRPCError({
-              code: 'NOT_FOUND',
-              message: (error as DismissReportsNotFoundError).message,
-              cause: error,
-            });
+            throw createRouterError(
+              'NOT_FOUND',
+              error as DismissReportsNotFoundError,
+            );
           }
           if (
             (error as DismissReportsActorNotFoundError).name ===
             'DismissReportsActorNotFoundError'
           ) {
-            throw new TRPCError({
-              code: 'NOT_FOUND',
-              message: (error as DismissReportsActorNotFoundError).message,
-              cause: error,
-            });
+            throw createRouterError(
+              'NOT_FOUND',
+              error as DismissReportsActorNotFoundError,
+            );
           }
           if (
             (error as DismissReportsNoBoundError).name ===
             'DismissReportsNoBoundError'
           ) {
-            throw new TRPCError({
-              code: 'FORBIDDEN',
-              message: (error as DismissReportsNoBoundError).message,
-              cause: error,
-            });
+            throw createRouterError(
+              'FORBIDDEN',
+              error as DismissReportsNoBoundError,
+            );
           }
           if (
             (error as DismissReportsAccessDeniedError).name ===
             'DismissReportsAccessDeniedError'
           ) {
-            throw new TRPCError({
-              code: 'FORBIDDEN',
-              message: (error as DismissReportsAccessDeniedError).message,
-              cause: error,
-            });
+            throw createRouterError(
+              'FORBIDDEN',
+              error as DismissReportsAccessDeniedError,
+            );
           }
           throw error;
         }
