@@ -60,4 +60,5 @@ Keep it concise.
 ONLY WORK ON A SINGLE TASK.
 Keep the worktree clean after each task.
 Update `/progress.txt` and the active issue markdown with checked tasks and notes.
+If you come across dirty files, code smells or any other kind of things that must be addressed and it is not on the current scope (or in next tasks), save it to `.specify/memory/deferred_backlog.md` (create it if not present).
 Follow the Karpathy Guidelines, caveman communication, and the clean-architecture rules in `agents.local.md`.
