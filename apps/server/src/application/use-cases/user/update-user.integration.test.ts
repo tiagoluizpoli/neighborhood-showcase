@@ -47,6 +47,15 @@ describe('Update User Name Integration Test', () => {
   });
 
   test('successfully updates user social links and provider visibility', async () => {
+    const [profileBeforeUpdate] = await db
+      .select()
+      .from(providerProfile)
+      .where(eq(providerProfile.providerId, testUserId))
+      .limit(1);
+
+    expect(profileBeforeUpdate).toBeDefined();
+    expect(profileBeforeUpdate?.displayName).toBe('New Premium Name');
+
     const result = await useCase.execute({
       userId: testUserId,
       socialLinks: {

@@ -28,12 +28,12 @@ The user explicitly approved the opposite model during grill-with-docs:
 
 ## Acceptance criteria
 
-- [ ] No production read path creates or updates provider-profile rows implicitly.
-- [ ] Provider-profile provisioning happens through an explicit write path or migration-backed setup path.
-- [ ] Public and private read methods return existing data or absence without mutating storage.
-- [ ] The new seam preserves currently intended observable behavior except for the already-approved visibility correction.
-- [ ] Focused backend tests cover no-profile, visible-profile, hidden-profile, and profile-update scenarios.
-- [ ] `bun run check`, `bun run check-types`, and focused backend tests pass.
+- [x] No production read path creates or updates provider-profile rows implicitly.
+- [x] Provider-profile provisioning happens through an explicit write path or migration-backed setup path.
+- [x] Public and private read methods return existing data or absence without mutating storage.
+- [x] The new seam preserves currently intended observable behavior except for the already-approved visibility correction.
+- [x] Focused backend tests cover no-profile, visible-profile, hidden-profile, and profile-update scenarios.
+- [x] `bun run check`, `bun run check-types`, and focused backend tests pass.
 
 ## Blocked by
 
@@ -42,3 +42,4 @@ The user explicitly approved the opposite model during grill-with-docs:
 ## Progress notes
 
 - 2026-06-05: Scope clarified during grill-with-docs. The repository should stop performing `ensureProviderProfile` writes during reads and move provisioning behind an explicit write seam.
+- 2026-06-05: Completed by removing `ensureProviderProfile` from `DrizzleUserRepository` read paths, preserving fallback read behavior in memory, and proving the seam with focused integration tests for public fallback, private fallback, hidden-profile rejection, and explicit profile updates.

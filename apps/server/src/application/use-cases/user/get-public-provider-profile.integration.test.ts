@@ -116,6 +116,43 @@ describe('GetPublicProviderProfile use case', () => {
     );
   });
 
+  test('returns auth fallback data when no provider_profile exists without creating one', async () => {
+    await db
+      .delete(providerProfile)
+      .where(eq(providerProfile.providerId, providerId));
+
+    const result = await useCase.execute({ providerId });
+
+    expect(result.provider.name).toBe('Auth Identity Name');
+    expect(result.provider.avatarUrl).toBe(
+      'https://cdn.example.com/auth-avatar.jpg',
+    );
+    expect(result.provider.socialLinks).toEqual({});
+    expect(result.announcements[0]?.providerName).toBe('Auth Identity Name');
+    expect(result.announcements[0]?.providerAvatarUrl).toBe(
+      'https://cdn.example.com/auth-avatar.jpg',
+    );
+
+    const [profileRow] = await db
+      .select()
+      .from(providerProfile)
+      .where(eq(providerProfile.providerId, providerId))
+      .limit(1);
+
+    expect(profileRow).toBeUndefined();
+
+    await db.insert(providerProfile).values({
+      providerId,
+      displayName: 'Provider Branding Name',
+      avatarUrl: 'https://cdn.example.com/provider-avatar.jpg',
+      socialLinks: {
+        whatsapp: '5511999999999',
+        instagram: 'provider-branding',
+      },
+      isProviderVisible: true,
+    });
+  });
+
   test('throws not found for banned providers', async () => {
     await db
       .update(user)

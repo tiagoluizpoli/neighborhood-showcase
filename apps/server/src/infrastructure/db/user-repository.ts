@@ -27,36 +27,6 @@ import { UserMapper } from './mappers/user.mapper';
 export class DrizzleUserRepository implements UserRepository {
   private userMapper = new UserMapper();
 
-  private async ensureProviderProfile(input: {
-    userId: string;
-    fallbackName: string;
-    fallbackAvatarUrl: string | null;
-  }) {
-    const [profile] = await db
-      .insert(providerProfileSchema)
-      .values({
-        providerId: input.userId,
-        displayName: input.fallbackName,
-        avatarUrl: input.fallbackAvatarUrl,
-        socialLinks: {},
-        isProviderVisible: true,
-      })
-      .onConflictDoNothing()
-      .returning();
-
-    if (profile) {
-      return profile;
-    }
-
-    const [existing] = await db
-      .select()
-      .from(providerProfileSchema)
-      .where(eq(providerProfileSchema.providerId, input.userId))
-      .limit(1);
-
-    return existing ?? null;
-  }
-
   async findProfileById(id: string): Promise<UserProfileDTO | null> {
     const [row] = await db
       .select({
@@ -78,28 +48,16 @@ export class DrizzleUserRepository implements UserRepository {
 
     if (!row) return null;
 
-    const profile =
-      row.socialLinks !== null && row.isProviderVisible !== null
-        ? {
-            socialLinks: row.socialLinks,
-            isProviderVisible: row.isProviderVisible,
-          }
-        : await this.ensureProviderProfile({
-            userId: row.id,
-            fallbackName: row.name,
-            fallbackAvatarUrl: row.image ?? null,
-          });
-
     return {
       id: row.id,
       name: row.name,
       email: row.email,
       phone: row.phone ?? null,
-      socialLinks: (profile?.socialLinks ?? {}) as Record<
+      socialLinks: (row.socialLinks ?? {}) as Record<
         string,
         string | undefined
       >,
-      isProviderVisible: profile?.isProviderVisible ?? true,
+      isProviderVisible: row.isProviderVisible ?? true,
     };
   }
 
@@ -130,29 +88,15 @@ export class DrizzleUserRepository implements UserRepository {
       return null;
     }
 
-    const profile =
-      row.profileName !== null
-        ? {
-            displayName: row.profileName,
-            avatarUrl: row.profileAvatarUrl,
-            socialLinks: row.socialLinks,
-            isProviderVisible: row.isProviderVisible,
-          }
-        : await this.ensureProviderProfile({
-            userId: row.id,
-            fallbackName: row.fallbackName,
-            fallbackAvatarUrl: row.fallbackAvatarUrl ?? null,
-          });
-
-    if (profile?.isProviderVisible === false) {
+    if (row.isProviderVisible === false) {
       return null;
     }
 
     return {
       id: row.id,
-      name: profile?.displayName ?? row.fallbackName,
-      avatarUrl: profile?.avatarUrl ?? null,
-      socialLinks: (profile?.socialLinks ?? {}) as Record<
+      name: row.profileName ?? row.fallbackName,
+      avatarUrl: row.profileAvatarUrl ?? row.fallbackAvatarUrl ?? null,
+      socialLinks: (row.socialLinks ?? {}) as Record<
         string,
         string | undefined
       >,
@@ -301,18 +245,6 @@ export class DrizzleUserRepository implements UserRepository {
 
     if (!row) return null;
 
-    const profile =
-      row.socialLinks !== null && row.isProviderVisible !== null
-        ? {
-            socialLinks: row.socialLinks,
-            isProviderVisible: row.isProviderVisible,
-          }
-        : await this.ensureProviderProfile({
-            userId: row.user.id,
-            fallbackName: row.user.name,
-            fallbackAvatarUrl: row.user.image ?? null,
-          });
-
     return new User(
       {
         name: row.user.name,
@@ -323,11 +255,11 @@ export class DrizzleUserRepository implements UserRepository {
         role: row.user.role,
         status: row.user.status,
         phone: row.user.phone,
-        socialLinks: (profile?.socialLinks ?? {}) as Record<
+        socialLinks: (row.socialLinks ?? {}) as Record<
           string,
           string | undefined
         >,
-        isProviderVisible: profile?.isProviderVisible ?? true,
+        isProviderVisible: row.isProviderVisible ?? true,
         createdAt: row.user.createdAt,
         updatedAt: row.user.updatedAt,
         deletedAt: row.user.deletedAt,
