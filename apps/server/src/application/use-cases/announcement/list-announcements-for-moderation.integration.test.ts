@@ -139,13 +139,16 @@ describe('ListAnnouncementsForModeration use case', () => {
       actorId: moderatorId,
       condominiumId: condoId,
     });
+    const suspendedAnnouncement = results.find(
+      (item) => item.id === 'moderation-list-suspended-id',
+    );
 
     expect(results).toHaveLength(2);
     expect(results.map((item) => item.id).sort()).toEqual(
       ['moderation-list-active-id', 'moderation-list-suspended-id'].sort(),
     );
     expect(results[0]?.providerName).toBe('Provider User');
-    expect(results[1]?.suspensionReason).toBe('Previous violation');
+    expect(suspendedAnnouncement?.suspensionReason).toBe('Previous violation');
   });
 
   test('throws ModerationAccessDeniedError for non-moderator user', async () => {
