@@ -116,6 +116,7 @@ export class DrizzleUserRepository implements UserRepository {
         profileName: providerProfileSchema.displayName,
         profileAvatarUrl: providerProfileSchema.avatarUrl,
         socialLinks: providerProfileSchema.socialLinks,
+        isProviderVisible: providerProfileSchema.isProviderVisible,
       })
       .from(userSchema)
       .leftJoin(
@@ -135,12 +136,17 @@ export class DrizzleUserRepository implements UserRepository {
             displayName: row.profileName,
             avatarUrl: row.profileAvatarUrl,
             socialLinks: row.socialLinks,
+            isProviderVisible: row.isProviderVisible,
           }
         : await this.ensureProviderProfile({
             userId: row.id,
             fallbackName: row.fallbackName,
             fallbackAvatarUrl: row.fallbackAvatarUrl ?? null,
           });
+
+    if (profile?.isProviderVisible === false) {
+      return null;
+    }
 
     return {
       id: row.id,

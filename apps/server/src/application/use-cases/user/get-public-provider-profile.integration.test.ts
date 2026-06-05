@@ -122,7 +122,7 @@ describe('GetPublicProviderProfile use case', () => {
       .set({ status: 'BANNED' })
       .where(eq(user.id, providerId));
 
-    expect(useCase.execute({ providerId })).rejects.toBeInstanceOf(
+    await expect(useCase.execute({ providerId })).rejects.toBeInstanceOf(
       PublicProviderNotFoundError,
     );
 
@@ -130,5 +130,21 @@ describe('GetPublicProviderProfile use case', () => {
       .update(user)
       .set({ status: 'ACTIVE' })
       .where(eq(user.id, providerId));
+  });
+
+  test('throws not found for hidden providers', async () => {
+    await db
+      .update(providerProfile)
+      .set({ isProviderVisible: false })
+      .where(eq(providerProfile.providerId, providerId));
+
+    await expect(useCase.execute({ providerId })).rejects.toBeInstanceOf(
+      PublicProviderNotFoundError,
+    );
+
+    await db
+      .update(providerProfile)
+      .set({ isProviderVisible: true })
+      .where(eq(providerProfile.providerId, providerId));
   });
 });

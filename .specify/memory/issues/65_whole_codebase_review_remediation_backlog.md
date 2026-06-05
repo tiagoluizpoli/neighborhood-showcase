@@ -20,7 +20,7 @@ The review found four major categories of work:
 ## Child issue order
 
 - [x] `66_admin_global_access_route_parity.md`
-- [ ] `67_provider_profile_public_visibility_enforcement.md`
+- [x] `67_provider_profile_public_visibility_enforcement.md`
 - [ ] `68_provider_profile_explicit_provisioning_and_pure_reads.md`
 - [ ] `69_announcement_server_interface_decomposition.md`
 - [ ] `70_public_vitrine_route_family_decomposition.md`
