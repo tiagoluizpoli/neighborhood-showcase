@@ -16,7 +16,10 @@ export const Route = createFileRoute('/panel/dashboard')({
     }
 
     try {
-      if (session.data.user.role === 'SYSTEM_MANAGER') {
+      if (
+        session.data.user.role === 'SYSTEM_MANAGER' ||
+        session.data.user.role === 'ADMINISTRATOR'
+      ) {
         return;
       }
 

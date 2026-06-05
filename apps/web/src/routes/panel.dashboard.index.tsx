@@ -70,7 +70,7 @@ interface DashboardAnnouncementItem {
   createdAt: string;
   suspensionReason: string | null;
   condoName: string;
-  providerLocationId: string | null;
+  providerAssignmentId: string | null;
 }
 
 function DashboardIndexComponent() {
@@ -832,7 +832,7 @@ function EditAnnouncementModal({
   const assignments = assignmentsQuery.data;
 
   const selectedAssignment = assignments?.find(
-    (a) => a.id === ad.providerLocationId,
+    (a) => a.id === ad.providerAssignmentId,
   );
   const canVerify =
     selectedAssignment?.type === 'RESIDENT' &&

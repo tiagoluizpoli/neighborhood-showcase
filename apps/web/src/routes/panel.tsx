@@ -69,7 +69,9 @@ function PanelLayout() {
       a.status === 'APPROVED' &&
       a.condominiumId !== null,
   );
-  const hasSystemManagerRole = session?.data?.user.role === 'SYSTEM_MANAGER';
+  const hasSystemManagerRole =
+    session?.data?.user.role === 'SYSTEM_MANAGER' ||
+    session?.data?.user.role === 'ADMINISTRATOR';
 
   return (
     <SidebarProvider>

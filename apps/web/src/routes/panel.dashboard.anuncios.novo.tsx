@@ -185,7 +185,7 @@ function NewAnnouncementComponent() {
 
       // Submit mutation
       createMutation.mutate({
-        providerLocationId: selectedLocationId,
+        providerAssignmentId: selectedLocationId,
         title,
         subtitle: subtitle || null,
         description,

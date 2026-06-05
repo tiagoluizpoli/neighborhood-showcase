@@ -55,9 +55,10 @@ export const Route = createFileRoute('/panel/moderation')({
         a.condominiumId !== null,
     );
 
-    // Bypass redirect for SYSTEM_MANAGER
+    // Bypass redirect for SYSTEM_MANAGER and ADMINISTRATOR
     if (
       session.data.user.role !== 'SYSTEM_MANAGER' &&
+      session.data.user.role !== 'ADMINISTRATOR' &&
       moderatorAssignments.length === 0
     ) {
       throw redirect({
@@ -77,7 +78,9 @@ function ModerationDashboard() {
   const { session, moderatorAssignments } = Route.useRouteContext();
   const { t } = useTranslation();
 
-  const isSystemManager = session.data?.user?.role === 'SYSTEM_MANAGER';
+  const isSystemManager =
+    session.data?.user?.role === 'SYSTEM_MANAGER' ||
+    session.data?.user?.role === 'ADMINISTRATOR';
 
   // Selected condo context state
   const [selectedCondoId, setSelectedCondoId] = useState<string>(

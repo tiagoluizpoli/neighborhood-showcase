@@ -210,7 +210,7 @@ describe('Moderation Dashboard Component Visuals', () => {
     expect(findElementByText(tree, 'moderation.ban')).not.toBeNull();
 
     // 2. PROVIDER context
-    mockSession = { data: { user: { role: 'PROVIDER' } } };
+    mockSession = { data: { user: { role: 'USER' } } };
     resetHookState();
     tree = renderComponent(component);
     expect(findElementByText(tree, 'moderation.ban')).toBeNull();

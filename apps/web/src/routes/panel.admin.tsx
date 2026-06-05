@@ -73,7 +73,7 @@ function AdminDashboard() {
   // User management state
   const [userSearch, setUserSearch] = useState('');
   const [userRoleFilter, setUserRoleFilter] = useState<
-    'PROVIDER' | 'SYSTEM_MANAGER' | ''
+    'USER' | 'SYSTEM_MANAGER' | 'ADMINISTRATOR' | ''
   >('');
   const [userStatusFilter, setUserStatusFilter] = useState<
     'ACTIVE' | 'BANNED' | ''
@@ -744,14 +744,19 @@ function AdminDashboard() {
                   value={userRoleFilter}
                   onChange={(e) =>
                     setUserRoleFilter(
-                      e.target.value as 'PROVIDER' | 'SYSTEM_MANAGER' | '',
+                      e.target.value as
+                        | 'USER'
+                        | 'SYSTEM_MANAGER'
+                        | 'ADMINISTRATOR'
+                        | '',
                     )
                   }
                   className="rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm"
                 >
                   <option value="">Todos os papéis</option>
-                  <option value="PROVIDER">Provider</option>
+                  <option value="USER">User</option>
                   <option value="SYSTEM_MANAGER">System Manager</option>
+                  <option value="ADMINISTRATOR">Administrator</option>
                 </select>
                 <select
                   value={userStatusFilter}
@@ -808,14 +813,17 @@ function AdminDashboard() {
                         <td className="px-6 py-4">
                           <span
                             className={`rounded-full border px-2.5 py-0.5 font-semibold text-xs ${
-                              u.role === 'SYSTEM_MANAGER'
+                              u.role === 'SYSTEM_MANAGER' ||
+                              u.role === 'ADMINISTRATOR'
                                 ? 'border-primary/20 bg-primary/10 text-primary'
                                 : 'border-border bg-muted text-muted-foreground'
                             }`}
                           >
-                            {u.role === 'SYSTEM_MANAGER'
-                              ? 'System Manager'
-                              : 'Provider'}
+                            {u.role === 'ADMINISTRATOR'
+                              ? 'Administrator'
+                              : u.role === 'SYSTEM_MANAGER'
+                                ? 'System Manager'
+                                : 'User'}
                           </span>
                         </td>
                         <td className="px-6 py-4">
@@ -856,6 +864,7 @@ function AdminDashboard() {
                           <div className="flex flex-col items-end gap-2">
                             {/* Promote to System Manager */}
                             {u.role !== 'SYSTEM_MANAGER' &&
+                              u.role !== 'ADMINISTRATOR' &&
                               u.status === 'ACTIVE' &&
                               (promotingUserId === u.id ? (
                                 <div className="inline-flex w-52 flex-col gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3 text-left">
