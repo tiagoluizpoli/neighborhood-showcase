@@ -128,6 +128,9 @@ mock.module('@tanstack/react-router', () => ({
 }));
 
 const { Route } = await import('./panel.dashboard.index');
+const { ProviderDashboardAnalyticsModal } = await import(
+  './panel/-provider-dashboard-analytics-modal'
+);
 Route.useRouteContext = () => ({
   session: { data: { user: { name: 'John Analytics' } } },
 });
@@ -307,5 +310,28 @@ describe('Dashboard Analytics & Action Buttons Unit Tests', () => {
     // Rerender after state change
     const treeUpdated = renderComponent(Component);
     expect(treeUpdated).toBeDefined();
+  });
+
+  test('analytics modal renders extracted metrics view with period controls', () => {
+    const tree = renderComponent(() =>
+      ProviderDashboardAnalyticsModal({
+        ad: mockDashboardData.announcements.active[0],
+        onClose: () => {},
+      }),
+    );
+
+    const metricsTitle = findElement(
+      tree,
+      (el) => el.props?.children === 'Métricas: ',
+    );
+    expect(metricsTitle).toBeDefined();
+
+    const periodButtons = findAllElements(
+      tree,
+      (el) =>
+        el.type === 'button' &&
+        ['7 Dias', '30 Dias', '12 Meses'].includes(el.props?.children),
+    );
+    expect(periodButtons.length).toBe(3);
   });
 });

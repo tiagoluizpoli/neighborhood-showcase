@@ -43,3 +43,4 @@ This creates oversized shallow modules and makes behavior hard to reason about i
 ## Progress notes
 
 - 2026-06-05: Created from the architecture review after identifying `panel.dashboard.index.tsx` and `panel.dashboard.condo-setup.tsx` as oversized route-family anchors.
+- 2026-06-05: Iteration 2 started by extracting the provider announcement analytics modal behind an internal `panel/` route-family module plus a shared dashboard announcement type, keeping `panel.dashboard.index.tsx` as the composition layer for analytics-display state while preserving existing behavior and adding focused modal coverage.

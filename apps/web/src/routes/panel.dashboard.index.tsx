@@ -35,6 +35,8 @@ import Cropper, { type Area } from 'react-easy-crop';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { ProviderDashboardAnalyticsModal } from './panel/-provider-dashboard-analytics-modal';
+import type { ProviderDashboardAnnouncementItem } from './panel/-provider-dashboard-types';
 import { getCroppedImg } from '@/utils/crop-image';
 import { trpc } from '@/utils/trpc';
 
@@ -46,32 +48,6 @@ export const Route = createFileRoute('/panel/dashboard/')({
   validateSearch: (search) => dashboardSearchSchema.parse(search),
   component: DashboardIndexComponent,
 });
-
-interface DashboardAnnouncementItem {
-  id: string;
-  title: string;
-  subtitle: string | null;
-  description: string;
-  priceCents: number | null;
-  imageUrl: string;
-  category: string;
-  categoryId: string;
-  tags: string[];
-  contactLinks: {
-    whatsapp?: string;
-    instagram?: string;
-    website?: string;
-  };
-  showVerifiedBadge: boolean;
-  flaggedForReview: boolean;
-  status: 'DRAFT' | 'PENDING_PAYMENT' | 'ACTIVE' | 'EXPIRED' | 'SUSPENDED';
-  paidAt: string | null;
-  expiresAt: string | null;
-  createdAt: string;
-  suspensionReason: string | null;
-  condoName: string;
-  providerAssignmentId: string | null;
-}
 
 function DashboardIndexComponent() {
   const { session } = Route.useRouteContext();
@@ -92,12 +68,11 @@ function DashboardIndexComponent() {
   const [activeTab, setActiveTab] = useState<
     'active' | 'draft' | 'expired' | 'suspended'
   >('active');
-  const [editingAd, setEditingAd] = useState<DashboardAnnouncementItem | null>(
-    null,
-  );
+  const [editingAd, setEditingAd] =
+    useState<ProviderDashboardAnnouncementItem | null>(null);
   const [period, setPeriod] = useState<'7d' | '30d' | '12m'>('7d');
   const [viewingAnalyticsAd, setViewingAnalyticsAd] =
-    useState<DashboardAnnouncementItem | null>(null);
+    useState<ProviderDashboardAnnouncementItem | null>(null);
 
   // Fetch dashboard data
   const dashboardQuery = useQuery(
@@ -576,7 +551,7 @@ function DashboardIndexComponent() {
 
       {/* Analytics Modal */}
       {viewingAnalyticsAd && (
-        <AnnouncementAnalyticsModal
+        <ProviderDashboardAnalyticsModal
           ad={viewingAnalyticsAd}
           onClose={() => setViewingAnalyticsAd(null)}
         />
@@ -623,14 +598,14 @@ function AnnouncementCard({
   isRenewing = false,
   onViewAnalytics,
 }: {
-  ad: DashboardAnnouncementItem;
+  ad: ProviderDashboardAnnouncementItem;
   onEdit: () => void;
   formatDate: (str: string | null) => string;
   formatPrice: (val: number | null) => string;
   onPay?: () => void;
   onRenew?: () => void;
   isRenewing?: boolean;
-  onViewAnalytics?: (ad: DashboardAnnouncementItem) => void;
+  onViewAnalytics?: (ad: ProviderDashboardAnnouncementItem) => void;
 }) {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border bg-card text-card-foreground shadow-sm">
@@ -818,7 +793,7 @@ function EditAnnouncementModal({
   onClose,
   onSuccess,
 }: {
-  ad: DashboardAnnouncementItem;
+  ad: ProviderDashboardAnnouncementItem;
   onClose: () => void;
   onSuccess: () => void;
 }) {
@@ -1301,191 +1276,6 @@ function EditAnnouncementModal({
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function AnnouncementAnalyticsModal({
-  ad,
-  onClose,
-}: {
-  ad: DashboardAnnouncementItem;
-  onClose: () => void;
-}) {
-  const [period, setPeriod] = useState<'7d' | '30d' | '12m'>('7d');
-  const analyticsQuery = useQuery(
-    trpc.announcement.getAnalytics.queryOptions({
-      announcementId: ad.id,
-      period,
-    }),
-  );
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4">
-      <div className="relative w-full max-w-3xl rounded-xl border bg-card p-6">
-        {/* Close Button */}
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute top-4 right-4 rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
-        >
-          <X className="h-5 w-5" />
-        </button>
-
-        {/* Header */}
-        <div className="mb-6">
-          <h3 className="font-bold text-foreground text-xl">
-            Métricas: {ad.title}
-          </h3>
-          <p className="mt-0.5 text-muted-foreground text-xs">
-            Analise a conversão e visualizações do seu anúncio no período
-            selecionado.
-          </p>
-        </div>
-
-        {/* Period Selector & Stats */}
-        <div className="mb-6 flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex gap-4">
-            <div>
-              <p className="font-semibold text-[10px] text-muted-foreground uppercase">
-                Visualizações
-              </p>
-              <p className="font-bold text-foreground text-xl">
-                {analyticsQuery.data?.summary.totalImpressions ?? 0}
-              </p>
-            </div>
-            <div>
-              <p className="font-semibold text-[10px] text-muted-foreground uppercase">
-                Interações
-              </p>
-              <p className="font-bold text-foreground text-xl">
-                {analyticsQuery.data?.summary.totalClicks ?? 0}
-              </p>
-            </div>
-            <div>
-              <p className="font-semibold text-[10px] text-muted-foreground uppercase">
-                Conversão
-              </p>
-              <p className="font-bold text-foreground text-xl">
-                {analyticsQuery.data?.summary.conversionRate ?? 0}%
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            {(['7d', '30d', '12m'] as const).map((p) => (
-              <button
-                key={p}
-                type="button"
-                onClick={() => setPeriod(p)}
-                className={`rounded-lg px-2.5 py-1 font-medium text-xs transition-all ${
-                  period === p
-                    ? 'bg-primary text-primary-foreground shadow-xs'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                }`}
-              >
-                {p === '7d' ? '7 Dias' : p === '30d' ? '30 Dias' : '12 Meses'}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Chart */}
-        {analyticsQuery.isLoading ? (
-          <div className="flex h-[260px] flex-col items-center justify-center space-y-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground text-xs">
-              Carregando métricas...
-            </p>
-          </div>
-        ) : analyticsQuery.isError ? (
-          <div className="flex h-[260px] flex-col items-center justify-center space-y-4 text-center">
-            <AlertTriangle className="h-10 w-10 text-destructive" />
-            <p className="text-muted-foreground text-xs">
-              Erro ao carregar métricas.
-            </p>
-          </div>
-        ) : (
-          <div className="h-[260px] w-full">
-            <ChartContainer
-              config={{
-                impressions: {
-                  label: 'Visualizações',
-                  color: 'var(--chart-1)',
-                },
-                clicks: {
-                  label: 'Interações',
-                  color: 'var(--chart-2)',
-                },
-              }}
-              className="h-full w-full"
-            >
-              <BarChart data={analyticsQuery.data?.chartData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  vertical={false}
-                  stroke="var(--border)"
-                />
-                <XAxis
-                  dataKey="label"
-                  stroke="var(--muted-foreground)"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => {
-                    if (period === '12m') {
-                      const [year, month] = value.split('-');
-                      const monthNames = [
-                        'Jan',
-                        'Fev',
-                        'Mar',
-                        'Abr',
-                        'Mai',
-                        'Jun',
-                        'Jul',
-                        'Ago',
-                        'Set',
-                        'Out',
-                        'Nov',
-                        'Dez',
-                      ];
-                      return `${monthNames[Number.parseInt(month, 10) - 1]}/${year.slice(2)}`;
-                    }
-                    const parts = value.split('-');
-                    if (parts.length === 3) {
-                      return `${parts[2]}/${parts[1]}`;
-                    }
-                    return value;
-                  }}
-                />
-                <YAxis
-                  stroke="var(--muted-foreground)"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                  allowDecimals={false}
-                />
-                <ChartTooltip
-                  cursor={{ fill: 'var(--muted)' }}
-                  content={<ChartTooltipContent indicator="line" />}
-                />
-                <Bar
-                  dataKey="impressions"
-                  name="Visualizações"
-                  fill="var(--color-impressions)"
-                  radius={[4, 4, 0, 0]}
-                />
-                <Bar
-                  dataKey="clicks"
-                  name="Interações"
-                  fill="var(--color-clicks)"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ChartContainer>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
