@@ -73,3 +73,4 @@ The review found four major categories of work:
 
 - 2026-06-05: Created from a whole-codebase audit run in full-codebase mode rather than diff-only mode. The audit reviewed backend, web, shared packages, architecture docs, and current ADRs, then converted the findings into a Ralph Loop backlog.
 - 2026-06-05: `docs/adr/0004-layered-clean-architecture-supersedes-feature-sliced-backend.md` was added immediately so the repo now has a truthful architecture source of record before the remediation slices begin.
+- 2026-06-05: Issue 69 is now in progress. The first decomposition slice extracted the public announcement server seam while preserving behavior and passing full validation.

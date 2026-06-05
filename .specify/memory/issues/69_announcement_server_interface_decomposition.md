@@ -51,3 +51,5 @@ Group by shared seam rather than file count. A reasonable target split is:
 ## Progress notes
 
 - 2026-06-05: Created from the whole-codebase architecture review. This is intentionally a seam-deepening issue, not a one-file extraction exercise.
+- 2026-06-05: Iteration 2 extracted the public announcement seam into dedicated router and repository public modules. Public browse behavior stayed unchanged under focused public router and use-case coverage plus full `bun run test`, `bun run check-types`, and `bun run check`.
+- 2026-06-05: Remaining work is still provider dashboard, payment, moderation, and reporting decomposition. Issue 69 stays open.
