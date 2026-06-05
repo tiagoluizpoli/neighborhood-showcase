@@ -83,6 +83,8 @@ mock.module('react', () => ({
 
 let mockDashboardData: any = null;
 let mockAnalyticsData: any = null;
+let mockAssignmentsData: any = null;
+let mockCategoriesData: any = null;
 let mockDashboardIsLoading = false;
 let mockAnalyticsIsLoading = false;
 
@@ -98,6 +100,20 @@ mock.module('@tanstack/react-query', () => ({
       return {
         data: mockAnalyticsData,
         isLoading: mockAnalyticsIsLoading,
+        isError: false,
+      };
+    }
+    if (queryKeyStr.includes('getMyAssignments')) {
+      return {
+        data: mockAssignmentsData,
+        isLoading: false,
+        isError: false,
+      };
+    }
+    if (queryKeyStr.includes('listCategories')) {
+      return {
+        data: mockCategoriesData,
+        isLoading: false,
         isError: false,
       };
     }
@@ -137,6 +153,9 @@ const { ProviderDashboardEditImageField } = await import(
 const { ProviderDashboardEditFormFields } = await import(
   './panel/-provider-dashboard-edit-form-fields'
 );
+const { ProviderDashboardEditModal } = await import(
+  './panel/-provider-dashboard-edit-modal'
+);
 Route.useRouteContext = () => ({
   session: { data: { user: { name: 'John Analytics' } } },
 });
@@ -147,6 +166,14 @@ describe('Dashboard Analytics & Action Buttons Unit Tests', () => {
     resetHookState();
     mockDashboardIsLoading = false;
     mockAnalyticsIsLoading = false;
+    mockAssignmentsData = [
+      {
+        id: 'assign-1',
+        type: 'RESIDENT',
+        status: 'APPROVED',
+      },
+    ];
+    mockCategoriesData = [{ id: 'cat-1', name: 'Serviços Gerais' }];
     mockDashboardData = {
       stats: {
         totalImpressions: 15,
@@ -163,6 +190,7 @@ describe('Dashboard Analytics & Action Buttons Unit Tests', () => {
             priceCents: 5000,
             imageUrl: 'plumbing.jpg',
             category: 'Serviços Gerais',
+            categoryId: 'cat-1',
             tags: [],
             contactLinks: {},
             showVerifiedBadge: true,
@@ -173,7 +201,7 @@ describe('Dashboard Analytics & Action Buttons Unit Tests', () => {
             createdAt: new Date().toISOString(),
             suspensionReason: null,
             condoName: 'Plaza Green',
-            providerLocationId: null,
+            providerAssignmentId: 'assign-1',
           },
         ],
         draft: [],
@@ -406,5 +434,27 @@ describe('Dashboard Analytics & Action Buttons Unit Tests', () => {
         el.props.children.includes('Exibir Selo de Morador Verificado'),
     );
     expect(verifiedCopy).toBeDefined();
+  });
+
+  test('edit modal renders extracted shell with save action', () => {
+    const tree = renderComponent(() =>
+      ProviderDashboardEditModal({
+        ad: mockDashboardData.announcements.active[0],
+        onClose: () => {},
+        onSuccess: () => {},
+      }),
+    );
+
+    const modalTitle = findElement(
+      tree,
+      (el) => el.props?.children === 'Editar Anúncio',
+    );
+    expect(modalTitle).toBeDefined();
+
+    const saveButton = findElement(
+      tree,
+      (el) => el.props?.children === 'Salvar Alterações',
+    );
+    expect(saveButton).toBeDefined();
   });
 });
