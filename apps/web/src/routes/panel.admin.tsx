@@ -40,7 +40,10 @@ export const Route = createFileRoute('/panel/admin')({
       });
     }
 
-    if (session.data.user.role !== 'SYSTEM_MANAGER') {
+    if (
+      session.data.user.role !== 'SYSTEM_MANAGER' &&
+      session.data.user.role !== 'ADMINISTRATOR'
+    ) {
       throw redirect({
         to: '/panel/dashboard',
         search: {

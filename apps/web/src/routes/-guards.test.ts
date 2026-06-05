@@ -297,7 +297,7 @@ describe('Route Guards Redirection & Security', () => {
       }
     });
 
-    test('redirects authenticated users without SYSTEM_MANAGER role to /panel/dashboard with Página não encontrada message', async () => {
+    test('redirects authenticated users without global admin role to /panel/dashboard with Página não encontrada message', async () => {
       mockGetSession.mockImplementation(() =>
         Promise.resolve({
           data: {
@@ -358,6 +358,35 @@ describe('Route Guards Redirection & Security', () => {
         session: { data: { user: { role: string } } };
       };
       expect(resolvedCtx.session.data.user.role).toBe('SYSTEM_MANAGER');
+    });
+
+    test('allows ADMINISTRATOR role access to admin page', async () => {
+      mockGetSession.mockImplementation(() =>
+        Promise.resolve({
+          data: {
+            user: { id: '1', role: 'ADMINISTRATOR' },
+            session: {},
+          },
+        } as unknown as {
+          data: {
+            user: { id: string; role: string };
+            session: Record<string, unknown>;
+          } | null;
+        }),
+      );
+
+      const ctx = await AdminRoute.options.beforeLoad?.({
+        location: { pathname: '/panel/admin' },
+        params: {},
+        search: {},
+      } as unknown as Parameters<
+        NonNullable<typeof AdminRoute.options.beforeLoad>
+      >[0]);
+      expect(ctx).toBeDefined();
+      const resolvedCtx = ctx as {
+        session: { data: { user: { role: string } } };
+      };
+      expect(resolvedCtx.session.data.user.role).toBe('ADMINISTRATOR');
     });
   });
 });
