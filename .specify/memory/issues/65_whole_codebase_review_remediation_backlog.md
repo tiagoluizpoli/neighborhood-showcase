@@ -22,7 +22,7 @@ The review found four major categories of work:
 - [x] `66_admin_global_access_route_parity.md`
 - [x] `67_provider_profile_public_visibility_enforcement.md`
 - [x] `68_provider_profile_explicit_provisioning_and_pure_reads.md`
-- [ ] `69_announcement_server_interface_decomposition.md`
+- [x] `69_announcement_server_interface_decomposition.md`
 - [ ] `70_public_vitrine_route_family_decomposition.md`
 - [ ] `71_provider_dashboard_route_family_decomposition.md`
 - [ ] `72_moderation_admin_route_family_decomposition.md`
@@ -75,3 +75,4 @@ The review found four major categories of work:
 - 2026-06-05: `docs/adr/0004-layered-clean-architecture-supersedes-feature-sliced-backend.md` was added immediately so the repo now has a truthful architecture source of record before the remediation slices begin.
 - 2026-06-05: Issue 69 is now in progress. The first decomposition slice extracted the public announcement server seam while preserving behavior and passing full validation.
 - 2026-06-05: Issue 69 continued with a provider-owned seam extraction for announcement create/update, dashboard/analytics, and payment entrypoints. Validation stayed green under focused provider/payment coverage plus full `bun run test`, `bun run check-types`, and `bun run check`; moderation and reporting decomposition remain for a later Issue 69 iteration.
+- 2026-06-05: Issue 69 is now complete after extracting the remaining moderation/reporting announcement seam into dedicated router and repository modules. Validation stayed green under focused moderation/reporting coverage plus full `bun run test`, `bun run check-types`, and `bun run check`; Ralph Loop can move next to Issue 70.

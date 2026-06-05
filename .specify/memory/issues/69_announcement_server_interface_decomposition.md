@@ -38,11 +38,11 @@ Group by shared seam rather than file count. A reasonable target split is:
 
 ## Acceptance criteria
 
-- [ ] Production behavior remains unchanged unless a separately approved behavior fix is documented.
-- [ ] Router and repository interfaces are decomposed by domain capability, not arbitrary helper extraction.
-- [ ] Files touched in the slice move materially closer to the local 300-line rule.
-- [ ] Focused tests continue to cover public announcement, provider dashboard, payment, moderation, and reporting behavior.
-- [ ] `bun run check`, `bun run check-types`, and relevant focused tests pass.
+- [x] Production behavior remains unchanged unless a separately approved behavior fix is documented.
+- [x] Router and repository interfaces are decomposed by domain capability, not arbitrary helper extraction.
+- [x] Files touched in the slice move materially closer to the local 300-line rule.
+- [x] Focused tests continue to cover public announcement, provider dashboard, payment, moderation, and reporting behavior.
+- [x] `bun run check`, `bun run check-types`, and relevant focused tests pass.
 
 ## Blocked by
 
@@ -53,4 +53,4 @@ Group by shared seam rather than file count. A reasonable target split is:
 - 2026-06-05: Created from the whole-codebase architecture review. This is intentionally a seam-deepening issue, not a one-file extraction exercise.
 - 2026-06-05: Iteration 2 extracted the public announcement seam into dedicated router and repository public modules. Public browse behavior stayed unchanged under focused public router and use-case coverage plus full `bun run test`, `bun run check-types`, and `bun run check`.
 - 2026-06-05: Iteration 3 extracted the provider-owned announcement seam into dedicated router and repository provider modules, covering create/update, dashboard/analytics, and payment entrypoints while leaving moderation/reporting behavior unchanged. `announcement.ts` and `announcement-repository.ts` both now meet the local 300-line rule or move materially closer, and focused provider/payment tests plus full `bun run test`, `bun run check-types`, and `bun run check` passed.
-- 2026-06-05: Remaining work is still provider dashboard, payment, moderation, and reporting decomposition. Issue 69 stays open.
+- 2026-06-05: Iteration 4 extracted the remaining moderation/reporting announcement seam into dedicated router and repository modules. `announcement.ts` is now a thin aggregator, the repository entry file is down to a narrow delegating surface, focused moderation/reporting coverage stayed green, and full `bun run test`, `bun run check-types`, and `bun run check` passed. Issue 69 is complete.

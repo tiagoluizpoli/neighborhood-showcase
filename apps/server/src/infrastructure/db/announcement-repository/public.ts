@@ -1,4 +1,10 @@
 export {
+  listAnnouncementsForModeration,
+  listReportedAnnouncements,
+  reinstateAnnouncement,
+  suspendAnnouncement,
+} from './moderation';
+export {
   createAnnouncement,
   findActiveAnnouncementsByProviderId,
   findAnnouncementById,

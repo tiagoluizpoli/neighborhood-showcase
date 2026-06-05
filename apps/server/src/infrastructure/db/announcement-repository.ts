@@ -1,11 +1,6 @@
 import { db } from '@neighborhood-showcase/db';
-import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
-import {
-  announcement as announcementSchema,
-  category as categorySchema,
-  report as reportSchema,
-} from '@neighborhood-showcase/db/schema/showcase';
-import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { announcement as announcementSchema } from '@neighborhood-showcase/db/schema/showcase';
+import { eq } from 'drizzle-orm';
 import type {
   Announcement,
   AnnouncementStatus,
@@ -29,7 +24,11 @@ import {
   findAnnouncementIdsByProviderId,
   findDashboardAnnouncementsByProviderId,
   findPublicAnnouncementById,
+  listAnnouncementsForModeration,
   listPublicAnnouncements,
+  listReportedAnnouncements,
+  reinstateAnnouncement,
+  suspendAnnouncement,
   updateAnnouncement,
   updateAnnouncementStatus,
 } from './announcement-repository/public';
@@ -69,173 +68,21 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
   async listForModeration(
     condominiumId: string,
   ): Promise<ModerationAnnouncementDTO[]> {
-    const rows = await db
-      .select({
-        id: announcementSchema.id,
-        title: announcementSchema.title,
-        subtitle: announcementSchema.subtitle,
-        description: announcementSchema.description,
-        priceCents: announcementSchema.priceCents,
-        imageUrl: announcementSchema.imageUrl,
-        category: categorySchema.name,
-        categoryId: announcementSchema.categoryId,
-        tags: announcementSchema.tags,
-        contactLinks: announcementSchema.contactLinks,
-        showVerifiedBadge: announcementSchema.showVerifiedBadge,
-        flaggedForReview: announcementSchema.flaggedForReview,
-        status: announcementSchema.status,
-        suspensionReason: announcementSchema.suspensionReason,
-        createdAt: announcementSchema.createdAt,
-        providerName: userSchema.name,
-      })
-      .from(announcementSchema)
-      .innerJoin(userSchema, eq(announcementSchema.providerId, userSchema.id))
-      .innerJoin(
-        categorySchema,
-        eq(announcementSchema.categoryId, categorySchema.id),
-      )
-      .where(
-        and(
-          eq(announcementSchema.condominiumId, condominiumId),
-          inArray(announcementSchema.status, ['ACTIVE', 'SUSPENDED']),
-          isNull(announcementSchema.deletedAt),
-        ),
-      );
-
-    return rows.map((row) => ({
-      ...row,
-      contactLinks: row.contactLinks as Record<string, string | undefined>,
-      providerName: row.providerName ?? '',
-    }));
+    return listAnnouncementsForModeration(condominiumId);
   }
 
   async listReported(
     input: ListReportedAnnouncementsRepositoryInput,
   ): Promise<ReportedAnnouncementDTO[]> {
-    const announcementFilter = input.condominiumIds
-      ? and(
-          isNull(announcementSchema.deletedAt),
-          inArray(announcementSchema.condominiumId, input.condominiumIds),
-        )
-      : isNull(announcementSchema.deletedAt);
-
-    const spotlightedAnnouncements = await db
-      .select({
-        id: announcementSchema.id,
-        title: announcementSchema.title,
-        imageUrl: announcementSchema.imageUrl,
-        status: announcementSchema.status,
-        suspensionReason: announcementSchema.suspensionReason,
-        createdAt: announcementSchema.createdAt,
-        providerId: announcementSchema.providerId,
-        providerName: userSchema.name,
-        providerEmail: userSchema.email,
-        reportCount:
-          sql<number>`count(distinct ${reportSchema.reporterId})`.mapWith(
-            Number,
-          ),
-      })
-      .from(announcementSchema)
-      .innerJoin(userSchema, eq(announcementSchema.providerId, userSchema.id))
-      .innerJoin(
-        reportSchema,
-        eq(reportSchema.announcementId, announcementSchema.id),
-      )
-      .where(announcementFilter)
-      .groupBy(
-        announcementSchema.id,
-        announcementSchema.title,
-        announcementSchema.imageUrl,
-        announcementSchema.status,
-        announcementSchema.suspensionReason,
-        announcementSchema.createdAt,
-        announcementSchema.providerId,
-        userSchema.name,
-        userSchema.email,
-      )
-      .having(
-        sql`count(distinct ${reportSchema.reporterId}) >= ${input.threshold}`,
-      );
-
-    if (spotlightedAnnouncements.length === 0) {
-      return [];
-    }
-
-    const targetIds = spotlightedAnnouncements.map((item) => item.id);
-    const allReports = await db
-      .select({
-        id: reportSchema.id,
-        announcementId: reportSchema.announcementId,
-        reason: reportSchema.reason,
-        createdAt: reportSchema.createdAt,
-        reporterName: userSchema.name,
-        reporterEmail: userSchema.email,
-      })
-      .from(reportSchema)
-      .innerJoin(userSchema, eq(reportSchema.reporterId, userSchema.id))
-      .where(inArray(reportSchema.announcementId, targetIds));
-
-    return spotlightedAnnouncements.map((announcement) => {
-      const reports = allReports.filter(
-        (report) => report.announcementId === announcement.id,
-      );
-      const reasonBreakdown = {
-        FRAUDE_GOLPE: 0,
-        ASSEDIO_OFENSIVO: 0,
-        SPAM: 0,
-        SERVICO_ILEGAL: 0,
-        OUTROS: 0,
-      };
-
-      for (const report of reports) {
-        if (report.reason in reasonBreakdown) {
-          reasonBreakdown[report.reason as keyof typeof reasonBreakdown] += 1;
-        }
-      }
-
-      return {
-        id: announcement.id,
-        title: announcement.title,
-        imageUrl: announcement.imageUrl,
-        status: announcement.status,
-        suspensionReason: announcement.suspensionReason,
-        createdAt: announcement.createdAt,
-        providerId: announcement.providerId,
-        providerName: announcement.providerName ?? '',
-        providerEmail: announcement.providerEmail ?? '',
-        totalReports: announcement.reportCount,
-        reasonBreakdown,
-        reports: reports.map((report) => ({
-          id: report.id,
-          reporterName: report.reporterName ?? '',
-          reporterEmail: report.reporterEmail ?? '',
-          reason: report.reason,
-          createdAt: report.createdAt,
-        })),
-      };
-    });
+    return listReportedAnnouncements(input);
   }
 
   async suspend(id: string, reason: string): Promise<void> {
-    await db
-      .update(announcementSchema)
-      .set({
-        status: 'SUSPENDED',
-        suspensionReason: reason,
-        flaggedForReview: false,
-      })
-      .where(eq(announcementSchema.id, id));
+    await suspendAnnouncement(id, reason);
   }
 
   async reinstate(id: string): Promise<void> {
-    await db
-      .update(announcementSchema)
-      .set({
-        status: 'ACTIVE',
-        suspensionReason: null,
-        flaggedForReview: false,
-      })
-      .where(eq(announcementSchema.id, id));
+    await reinstateAnnouncement(id);
   }
 
   async softDeleteAllByProviderId(
