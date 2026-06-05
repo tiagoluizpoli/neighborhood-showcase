@@ -22,7 +22,7 @@ describe('Request Condominium Integration Test', () => {
       name: 'Test Creator',
       email: 'creator@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
   });

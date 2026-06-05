@@ -3,7 +3,7 @@ import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement,
-  providerLocation as assignment,
+  providerAssignment as assignment,
   condominium,
   report as reportSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
@@ -67,7 +67,7 @@ describe('Suspend and Reinstate Announcement Integration Test', () => {
       name: 'Provider User',
       email: 'susp-provider@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
 
@@ -77,7 +77,7 @@ describe('Suspend and Reinstate Announcement Integration Test', () => {
       name: 'Mod User',
       email: 'susp-mod@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
 
@@ -163,7 +163,7 @@ describe('Suspend and Reinstate Announcement Integration Test', () => {
       name: 'Fake Mod',
       email: 'susp-fake@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
 
@@ -183,7 +183,7 @@ describe('Suspend and Reinstate Announcement Integration Test', () => {
       name: 'Fake Mod 2',
       email: 'susp-fake2@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
 
@@ -224,7 +224,7 @@ describe('Suspend and Reinstate Announcement Integration Test', () => {
       name: 'Fake Mod 3',
       email: 'susp-fake3@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
 

@@ -1,1 +1,3 @@
-import './main/index';
+import { startServer } from './main/index';
+
+void startServer();

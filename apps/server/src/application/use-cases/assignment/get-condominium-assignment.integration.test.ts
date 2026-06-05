@@ -4,7 +4,7 @@ import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   address,
   condominium,
-  providerLocation,
+  providerAssignment,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { DrizzleAssignmentRepository } from '../../../infrastructure/db/assignment-repository';
 import {
@@ -24,7 +24,7 @@ describe('GetCondominiumAssignment use case', () => {
   const getCondominiumAssignment = new GetCondominiumAssignment(assignmentRepo);
 
   beforeAll(async () => {
-    await db.delete(providerLocation);
+    await db.delete(providerAssignment);
     await db.delete(condominium);
     await db.delete(address);
     await db.delete(user);
@@ -34,7 +34,7 @@ describe('GetCondominiumAssignment use case', () => {
       name: 'Condo Assignment User',
       email: 'condo-assignment-user@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
 
@@ -57,7 +57,7 @@ describe('GetCondominiumAssignment use case', () => {
       status: 'APPROVED',
     });
 
-    await db.insert(providerLocation).values([
+    await db.insert(providerAssignment).values([
       {
         id: residentAssignmentId,
         providerId,

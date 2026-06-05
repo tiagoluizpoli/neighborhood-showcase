@@ -4,7 +4,7 @@ import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement,
   condominium,
-  providerLocation,
+  providerAssignment,
   report as reportSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { DrizzleAnnouncementRepository } from '../../../infrastructure/db/announcement-repository';
@@ -46,7 +46,7 @@ describe('ListReportedAnnouncements use case', () => {
   beforeEach(async () => {
     await db.delete(reportSchema);
     await db.delete(announcement);
-    await db.delete(providerLocation);
+    await db.delete(providerAssignment);
     await db.delete(condominium);
     await db.delete(user);
 
@@ -64,7 +64,7 @@ describe('ListReportedAnnouncements use case', () => {
         name: 'Moderator A',
         email: 'reported-uc-moda@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       {
@@ -72,7 +72,7 @@ describe('ListReportedAnnouncements use case', () => {
         name: 'Moderator B',
         email: 'reported-uc-modb@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       {
@@ -80,7 +80,7 @@ describe('ListReportedAnnouncements use case', () => {
         name: 'Mary Provider',
         email: 'reported-uc-provider@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       ...reporterIds.map((id, index) => ({
@@ -88,7 +88,7 @@ describe('ListReportedAnnouncements use case', () => {
         name: `Reporter ${index + 1}`,
         email: `reported-uc-reporter-${index + 1}@example.com`,
         emailVerified: true,
-        role: 'PROVIDER' as const,
+        role: 'USER' as const,
         status: 'ACTIVE' as const,
       })),
     ]);
@@ -114,7 +114,7 @@ describe('ListReportedAnnouncements use case', () => {
       },
     ]);
 
-    await db.insert(providerLocation).values([
+    await db.insert(providerAssignment).values([
       {
         id: 'reported-uc-assign-moda',
         providerId: modAId,

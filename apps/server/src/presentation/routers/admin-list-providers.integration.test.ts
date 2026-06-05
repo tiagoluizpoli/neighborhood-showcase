@@ -4,7 +4,8 @@ import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   address,
   condominium,
-  providerLocation,
+  providerAssignment,
+  providerProfile,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { appRouter } from './index';
 
@@ -24,7 +25,8 @@ describe('Admin listProviders Integration Tests', () => {
 
   beforeAll(async () => {
     // Clean up
-    await db.delete(providerLocation);
+    await db.delete(providerAssignment);
+    await db.delete(providerProfile);
     await db.delete(condominium);
     await db.delete(address);
     await db.delete(user);
@@ -76,11 +78,16 @@ describe('Admin listProviders Integration Tests', () => {
       name: 'Resident Provider',
       email: 'resident@alp.test',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
+    });
+    await db.insert(providerProfile).values({
+      providerId: providerResidentId,
+      displayName: 'Resident Provider',
+      socialLinks: {},
       isProviderVisible: true,
     });
-    await db.insert(providerLocation).values({
+    await db.insert(providerAssignment).values({
       id: locationResidentId,
       providerId: providerResidentId,
       type: 'RESIDENT',
@@ -94,11 +101,16 @@ describe('Admin listProviders Integration Tests', () => {
       name: 'External Provider',
       email: 'external@alp.test',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
+    });
+    await db.insert(providerProfile).values({
+      providerId: providerExternalId,
+      displayName: 'External Provider',
+      socialLinks: {},
       isProviderVisible: true,
     });
-    await db.insert(providerLocation).values({
+    await db.insert(providerAssignment).values({
       id: locationExternalId,
       providerId: providerExternalId,
       type: 'EXTERNAL',
@@ -114,9 +126,14 @@ describe('Admin listProviders Integration Tests', () => {
       emailVerified: true,
       role: 'SYSTEM_MANAGER',
       status: 'ACTIVE',
+    });
+    await db.insert(providerProfile).values({
+      providerId: systemManagerProviderId,
+      displayName: 'Manager Provider',
+      socialLinks: {},
       isProviderVisible: true,
     });
-    await db.insert(providerLocation).values({
+    await db.insert(providerAssignment).values({
       id: locationSysManagerId,
       providerId: systemManagerProviderId,
       type: 'EXTERNAL',
@@ -130,8 +147,13 @@ describe('Admin listProviders Integration Tests', () => {
       name: 'Invisible Provider',
       email: 'invisible@alp.test',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
+    });
+    await db.insert(providerProfile).values({
+      providerId: invisibleProviderId,
+      displayName: 'Invisible Provider',
+      socialLinks: {},
       isProviderVisible: false,
     });
   });
@@ -240,7 +262,7 @@ describe('Admin listProviders Integration Tests', () => {
           name: 'Resident Provider',
           email: 'resident@alp.test',
           emailVerified: true,
-          role: 'PROVIDER' as const,
+          role: 'USER' as const,
           status: 'ACTIVE' as const,
           image: null,
           createdAt: new Date(),

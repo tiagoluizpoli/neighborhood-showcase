@@ -3,7 +3,7 @@ import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   condominium,
-  providerLocation,
+  providerAssignment,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { DrizzleAssignmentRepository } from '../../../infrastructure/db/assignment-repository';
 import { ListProviderAssignments } from './list-provider-assignments';
@@ -17,7 +17,7 @@ describe('ListProviderAssignments use case', () => {
   const listProviderAssignments = new ListProviderAssignments(assignmentRepo);
 
   beforeAll(async () => {
-    await db.delete(providerLocation);
+    await db.delete(providerAssignment);
     await db.delete(condominium);
     await db.delete(user);
 
@@ -27,7 +27,7 @@ describe('ListProviderAssignments use case', () => {
         name: 'Assignments Provider',
         email: 'assignments-provider@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       {
@@ -35,7 +35,7 @@ describe('ListProviderAssignments use case', () => {
         name: 'Other Provider',
         email: 'other-provider@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
     ]);
@@ -50,7 +50,7 @@ describe('ListProviderAssignments use case', () => {
       status: 'APPROVED',
     });
 
-    await db.insert(providerLocation).values([
+    await db.insert(providerAssignment).values([
       {
         id: 'list-assignments-resident-id',
         providerId,

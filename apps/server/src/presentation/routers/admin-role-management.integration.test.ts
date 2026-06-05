@@ -2,7 +2,7 @@ import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
-  providerLocation as assignment,
+  providerAssignment as assignment,
   condominium,
   roleChangeLog,
 } from '@neighborhood-showcase/db/schema/showcase';
@@ -11,8 +11,9 @@ import { appRouter } from './index';
 
 describe('Admin role management Integration Tests', () => {
   const adminId = 'arm-admin-id';
-  const providerId = 'arm-provider-id';
-  const provider2Id = 'arm-provider2-id';
+  const administratorId = 'arm-administrator-id';
+  const userId = 'arm-user-id';
+  const user2Id = 'arm-user2-id';
   const condoId = 'arm-condo-id';
 
   beforeAll(async () => {
@@ -23,6 +24,14 @@ describe('Admin role management Integration Tests', () => {
 
     await db.insert(user).values([
       {
+        id: administratorId,
+        name: 'Admin Root',
+        email: 'root@arm.test',
+        emailVerified: true,
+        role: 'ADMINISTRATOR',
+        status: 'ACTIVE',
+      },
+      {
         id: adminId,
         name: 'Admin One',
         email: 'admin1@arm.test',
@@ -31,19 +40,19 @@ describe('Admin role management Integration Tests', () => {
         status: 'ACTIVE',
       },
       {
-        id: providerId,
-        name: 'Provider One',
-        email: 'provider1@arm.test',
+        id: userId,
+        name: 'User One',
+        email: 'user1@arm.test',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       {
-        id: provider2Id,
-        name: 'Provider Two',
-        email: 'provider2@arm.test',
+        id: user2Id,
+        name: 'User Two',
+        email: 'user2@arm.test',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
     ]);
@@ -65,12 +74,12 @@ describe('Admin role management Integration Tests', () => {
     await db.delete(assignment);
     await db
       .update(user)
-      .set({ role: 'PROVIDER', isProviderVisible: true })
-      .where(eq(user.id, providerId));
+      .set({ role: 'USER', isProviderVisible: true })
+      .where(eq(user.id, userId));
     await db
       .update(user)
-      .set({ role: 'PROVIDER', isProviderVisible: true })
-      .where(eq(user.id, provider2Id));
+      .set({ role: 'USER', isProviderVisible: true })
+      .where(eq(user.id, user2Id));
   });
 
   const createAdminCaller = () =>
@@ -101,14 +110,14 @@ describe('Admin role management Integration Tests', () => {
       },
     });
 
-  const createProviderCaller = () =>
+  const createUserCaller = () =>
     appRouter.createCaller({
       auth: null,
       session: {
         session: {
-          id: 'sess-arm-provider',
-          userId: providerId,
-          token: 'tok-arm-provider',
+          id: 'sess-arm-user',
+          userId,
+          token: 'tok-arm-user',
           expiresAt: new Date(Date.now() + 3600000),
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -116,11 +125,39 @@ describe('Admin role management Integration Tests', () => {
           ipAddress: null,
         },
         user: {
-          id: providerId,
-          name: 'Provider One',
-          email: 'provider1@arm.test',
+          id: userId,
+          name: 'User One',
+          email: 'user1@arm.test',
           emailVerified: true,
-          role: 'PROVIDER' as const,
+          role: 'USER' as const,
+          status: 'ACTIVE' as const,
+          image: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      },
+    });
+
+  const createAdministratorCaller = () =>
+    appRouter.createCaller({
+      auth: null,
+      session: {
+        session: {
+          id: 'sess-arm-administrator',
+          userId: administratorId,
+          token: 'tok-arm-administrator',
+          expiresAt: new Date(Date.now() + 3600000),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userAgent: null,
+          ipAddress: null,
+        },
+        user: {
+          id: administratorId,
+          name: 'Admin Root',
+          email: 'root@arm.test',
+          emailVerified: true,
+          role: 'ADMINISTRATOR' as const,
           status: 'ACTIVE' as const,
           image: null,
           createdAt: new Date(),
@@ -131,17 +168,17 @@ describe('Admin role management Integration Tests', () => {
 
   // --- promoteToSystemManager ---
 
-  test('promoteToSystemManager: promotes PROVIDER to SYSTEM_MANAGER', async () => {
+  test('promoteToSystemManager: promotes USER to SYSTEM_MANAGER', async () => {
     const caller = createAdminCaller();
     const result = await caller.admin.promoteToSystemManager({
-      targetUserId: providerId,
+      targetUserId: userId,
     });
     expect(result.success).toBe(true);
 
     const [updated] = await db
       .select()
       .from(user)
-      .where(eq(user.id, providerId))
+      .where(eq(user.id, userId))
       .limit(1);
     expect(updated).toBeDefined();
     // biome-ignore lint/style/noNonNullAssertion: guarded by toBeDefined above
@@ -150,7 +187,7 @@ describe('Admin role management Integration Tests', () => {
 
   test('promoteToSystemManager: writes audit log entry', async () => {
     const caller = createAdminCaller();
-    await caller.admin.promoteToSystemManager({ targetUserId: providerId });
+    await caller.admin.promoteToSystemManager({ targetUserId: userId });
 
     const logs = await db.select().from(roleChangeLog);
     expect(logs.length).toBe(1);
@@ -158,16 +195,32 @@ describe('Admin role management Integration Tests', () => {
     expect(log).toBeDefined();
     // biome-ignore lint/style/noNonNullAssertion: guarded by toBeDefined above
     expect(log!.actorId).toBe(adminId);
-    expect(log?.targetUserId).toBe(providerId);
-    expect(log?.previousRole).toBe('PROVIDER');
+    expect(log?.targetUserId).toBe(userId);
+    expect(log?.previousRole).toBe('USER');
     expect(log?.newRole).toBe('SYSTEM_MANAGER');
     expect(log?.condominiumId).toBeNull();
   });
 
-  test('promoteToSystemManager: rejects non-SYSTEM_MANAGER callers', async () => {
-    const caller = createProviderCaller();
+  test('promoteToSystemManager: allows ADMINISTRATOR callers', async () => {
+    const caller = createAdministratorCaller();
+    const result = await caller.admin.promoteToSystemManager({
+      targetUserId: userId,
+    });
+
+    expect(result.success).toBe(true);
+
+    const [updated] = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
+    expect(updated?.role).toBe('SYSTEM_MANAGER');
+  });
+
+  test('promoteToSystemManager: rejects non-global-admin callers', async () => {
+    const caller = createUserCaller();
     expect(
-      caller.admin.promoteToSystemManager({ targetUserId: provider2Id }),
+      caller.admin.promoteToSystemManager({ targetUserId: user2Id }),
     ).rejects.toThrow();
   });
 
@@ -183,7 +236,7 @@ describe('Admin role management Integration Tests', () => {
   test('assignModerator: creates approved MODERATOR assignment for target user', async () => {
     const caller = createAdminCaller();
     const result = await caller.admin.assignModerator({
-      targetUserId: providerId,
+      targetUserId: userId,
       condominiumId: condoId,
     });
     expect(result.success).toBe(true);
@@ -191,7 +244,7 @@ describe('Admin role management Integration Tests', () => {
     const [created] = await db
       .select()
       .from(assignment)
-      .where(eq(assignment.providerId, providerId))
+      .where(eq(assignment.providerId, userId))
       .limit(1);
     expect(created).toBeDefined();
     // biome-ignore lint/style/noNonNullAssertion: guarded by toBeDefined above
@@ -202,7 +255,7 @@ describe('Admin role management Integration Tests', () => {
   test('assignModerator: writes audit log with condominiumId', async () => {
     const caller = createAdminCaller();
     await caller.admin.assignModerator({
-      targetUserId: providerId,
+      targetUserId: userId,
       condominiumId: condoId,
     });
 
@@ -212,17 +265,27 @@ describe('Admin role management Integration Tests', () => {
     expect(log).toBeDefined();
     // biome-ignore lint/style/noNonNullAssertion: guarded by toBeDefined above
     expect(log!.actorId).toBe(adminId);
-    expect(log?.targetUserId).toBe(providerId);
-    expect(log?.previousRole).toBe('PROVIDER');
+    expect(log?.targetUserId).toBe(userId);
+    expect(log?.previousRole).toBe('USER');
     expect(log?.newRole).toBe('MODERATOR');
     expect(log?.condominiumId).toBe(condoId);
   });
 
-  test('assignModerator: rejects non-SYSTEM_MANAGER callers', async () => {
-    const caller = createProviderCaller();
+  test('assignModerator: allows ADMINISTRATOR callers', async () => {
+    const caller = createAdministratorCaller();
+    const result = await caller.admin.assignModerator({
+      targetUserId: userId,
+      condominiumId: condoId,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  test('assignModerator: rejects non-global-admin callers', async () => {
+    const caller = createUserCaller();
     expect(
       caller.admin.assignModerator({
-        targetUserId: provider2Id,
+        targetUserId: user2Id,
         condominiumId: condoId,
       }),
     ).rejects.toThrow();
@@ -242,7 +305,7 @@ describe('Admin role management Integration Tests', () => {
     const caller = createAdminCaller();
     expect(
       caller.admin.assignModerator({
-        targetUserId: providerId,
+        targetUserId: userId,
         condominiumId: 'nonexistent-condo',
       }),
     ).rejects.toThrow();
@@ -254,20 +317,29 @@ describe('Admin role management Integration Tests', () => {
     const caller = createAdminCaller();
 
     const result = await caller.admin.toggleProviderVisibility({
-      targetUserId: providerId,
+      targetUserId: userId,
     });
     expect(result.isProviderVisible).toBe(false);
 
     const result2 = await caller.admin.toggleProviderVisibility({
-      targetUserId: providerId,
+      targetUserId: userId,
     });
     expect(result2.isProviderVisible).toBe(true);
   });
 
-  test('toggleProviderVisibility: rejects non-SYSTEM_MANAGER callers', async () => {
-    const caller = createProviderCaller();
+  test('toggleProviderVisibility: allows ADMINISTRATOR callers', async () => {
+    const caller = createAdministratorCaller();
+    const result = await caller.admin.toggleProviderVisibility({
+      targetUserId: userId,
+    });
+
+    expect(result.isProviderVisible).toBe(false);
+  });
+
+  test('toggleProviderVisibility: rejects non-global-admin callers', async () => {
+    const caller = createUserCaller();
     expect(
-      caller.admin.toggleProviderVisibility({ targetUserId: provider2Id }),
+      caller.admin.toggleProviderVisibility({ targetUserId: user2Id }),
     ).rejects.toThrow();
   });
 });

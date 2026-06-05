@@ -36,7 +36,7 @@ describe('GetPaymentStatus use case', () => {
         name: 'Payment Owner',
         email: 'payment-owner@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       {
@@ -44,7 +44,7 @@ describe('GetPaymentStatus use case', () => {
         name: 'Other Provider',
         email: 'payment-other@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
     ]);

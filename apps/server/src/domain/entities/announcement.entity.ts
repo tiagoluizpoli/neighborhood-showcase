@@ -35,7 +35,7 @@ export class AnnouncementContactRequiredError extends DomainError {
 export interface AnnouncementProps extends AuditableProps {
   providerId: string;
   condominiumId: string | null;
-  providerLocationId: string | null;
+  providerAssignmentId: string | null;
   title: string;
   subtitle?: string | null;
   description: string;
@@ -142,8 +142,8 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
     return this.props.condominiumId;
   }
 
-  get providerLocationId(): string | null {
-    return this.props.providerLocationId;
+  get providerAssignmentId(): string | null {
+    return this.props.providerAssignmentId;
   }
 
   get title(): string {

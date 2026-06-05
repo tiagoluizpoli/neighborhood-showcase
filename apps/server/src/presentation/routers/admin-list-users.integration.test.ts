@@ -5,7 +5,8 @@ import { appRouter } from './index';
 
 describe('Admin listUsers Integration Tests', () => {
   const adminId = 'alu-admin-id';
-  const providerId = 'alu-provider-id';
+  const administratorId = 'alu-administrator-id';
+  const userId = 'alu-user-id';
   const bannedUserId = 'alu-banned-user-id';
   const anotherManagerId = 'alu-manager2-id';
 
@@ -13,6 +14,14 @@ describe('Admin listUsers Integration Tests', () => {
     await db.delete(user);
 
     await db.insert(user).values([
+      {
+        id: administratorId,
+        name: 'Admin Root',
+        email: 'root@alu.test',
+        emailVerified: true,
+        role: 'ADMINISTRATOR',
+        status: 'ACTIVE',
+      },
       {
         id: adminId,
         name: 'Admin Superuser',
@@ -22,11 +31,11 @@ describe('Admin listUsers Integration Tests', () => {
         status: 'ACTIVE',
       },
       {
-        id: providerId,
-        name: 'Alice Provider',
+        id: userId,
+        name: 'Alice User',
         email: 'alice@alu.test',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       {
@@ -34,7 +43,7 @@ describe('Admin listUsers Integration Tests', () => {
         name: 'Bob Banned',
         email: 'bob@alu.test',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'BANNED',
       },
       {
@@ -76,16 +85,45 @@ describe('Admin listUsers Integration Tests', () => {
       },
     });
 
+  const createAdministratorCaller = () =>
+    appRouter.createCaller({
+      auth: null,
+      session: {
+        session: {
+          id: 'sess-alu-administrator',
+          userId: administratorId,
+          token: 'tok-alu-administrator',
+          expiresAt: new Date(Date.now() + 3600000),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userAgent: null,
+          ipAddress: null,
+        },
+        user: {
+          id: administratorId,
+          name: 'Admin Root',
+          email: 'root@alu.test',
+          emailVerified: true,
+          role: 'ADMINISTRATOR' as const,
+          status: 'ACTIVE' as const,
+          image: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      },
+    });
+
   test('returns all users when no filters provided', async () => {
     const caller = createAdminCaller();
     const result = await caller.admin.listUsers({});
 
     const ids = result.map((u) => u.id);
     expect(ids).toContain(adminId);
-    expect(ids).toContain(providerId);
+    expect(ids).toContain(administratorId);
+    expect(ids).toContain(userId);
     expect(ids).toContain(bannedUserId);
     expect(ids).toContain(anotherManagerId);
-    expect(result.length).toBeGreaterThanOrEqual(4);
+    expect(result.length).toBeGreaterThanOrEqual(5);
   });
 
   test('filters by name search (case-insensitive)', async () => {
@@ -93,7 +131,7 @@ describe('Admin listUsers Integration Tests', () => {
     const result = await caller.admin.listUsers({ search: 'alice' });
 
     const ids = result.map((u) => u.id);
-    expect(ids).toContain(providerId);
+    expect(ids).toContain(userId);
     expect(ids).not.toContain(bannedUserId);
     expect(ids).not.toContain(anotherManagerId);
   });
@@ -104,7 +142,7 @@ describe('Admin listUsers Integration Tests', () => {
 
     const ids = result.map((u) => u.id);
     expect(ids).toContain(anotherManagerId);
-    expect(ids).not.toContain(providerId);
+    expect(ids).not.toContain(userId);
   });
 
   test('filters by role SYSTEM_MANAGER', async () => {
@@ -114,16 +152,23 @@ describe('Admin listUsers Integration Tests', () => {
     const ids = result.map((u) => u.id);
     expect(ids).toContain(adminId);
     expect(ids).toContain(anotherManagerId);
-    expect(ids).not.toContain(providerId);
+    expect(ids).not.toContain(userId);
     expect(ids).not.toContain(bannedUserId);
   });
 
-  test('filters by role PROVIDER', async () => {
+  test('filters by role ADMINISTRATOR', async () => {
     const caller = createAdminCaller();
-    const result = await caller.admin.listUsers({ role: 'PROVIDER' });
+    const result = await caller.admin.listUsers({ role: 'ADMINISTRATOR' });
+
+    expect(result.map((u) => u.id)).toEqual([administratorId]);
+  });
+
+  test('filters by role USER', async () => {
+    const caller = createAdminCaller();
+    const result = await caller.admin.listUsers({ role: 'USER' });
 
     const ids = result.map((u) => u.id);
-    expect(ids).toContain(providerId);
+    expect(ids).toContain(userId);
     expect(ids).toContain(bannedUserId);
     expect(ids).not.toContain(adminId);
   });
@@ -134,7 +179,7 @@ describe('Admin listUsers Integration Tests', () => {
 
     const ids = result.map((u) => u.id);
     expect(ids).toContain(bannedUserId);
-    expect(ids).not.toContain(providerId);
+    expect(ids).not.toContain(userId);
     expect(ids).not.toContain(adminId);
   });
 
@@ -142,24 +187,31 @@ describe('Admin listUsers Integration Tests', () => {
     const caller = createAdminCaller();
     const result = await caller.admin.listUsers({
       search: 'alu.test',
-      role: 'PROVIDER',
+      role: 'USER',
     });
 
     const ids = result.map((u) => u.id);
-    expect(ids).toContain(providerId);
+    expect(ids).toContain(userId);
     expect(ids).toContain(bannedUserId);
     expect(ids).not.toContain(adminId);
     expect(ids).not.toContain(anotherManagerId);
   });
 
-  test('rejects non-SYSTEM_MANAGER callers', async () => {
-    const providerCaller = appRouter.createCaller({
+  test('allows ADMINISTRATOR callers', async () => {
+    const caller = createAdministratorCaller();
+    const result = await caller.admin.listUsers({ role: 'ADMINISTRATOR' });
+
+    expect(result.map((entry) => entry.id)).toEqual([administratorId]);
+  });
+
+  test('rejects non-global-admin callers', async () => {
+    const userCaller = appRouter.createCaller({
       auth: null,
       session: {
         session: {
-          id: 'sess-alu-provider',
-          userId: providerId,
-          token: 'tok-alu-provider',
+          id: 'sess-alu-user',
+          userId,
+          token: 'tok-alu-user',
           expiresAt: new Date(Date.now() + 3600000),
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -167,11 +219,11 @@ describe('Admin listUsers Integration Tests', () => {
           ipAddress: null,
         },
         user: {
-          id: providerId,
-          name: 'Alice Provider',
+          id: userId,
+          name: 'Alice User',
           email: 'alice@alu.test',
           emailVerified: true,
-          role: 'PROVIDER' as const,
+          role: 'USER' as const,
           status: 'ACTIVE' as const,
           image: null,
           createdAt: new Date(),
@@ -180,6 +232,6 @@ describe('Admin listUsers Integration Tests', () => {
       },
     });
 
-    expect(providerCaller.admin.listUsers({})).rejects.toThrow();
+    expect(userCaller.admin.listUsers({})).rejects.toThrow();
   });
 });

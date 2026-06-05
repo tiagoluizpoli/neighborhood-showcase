@@ -41,7 +41,7 @@ describe('BanProvider use case', () => {
       id: 'creator-uc-id',
       name: 'Condo Creator',
       email: 'creator-uc@example.com',
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
 
@@ -59,7 +59,7 @@ describe('BanProvider use case', () => {
       id: providerId,
       name: 'Violating Provider UC',
       email: 'violation-uc@example.com',
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
       phone: '11999999999',
       cpfHash: targetCpfHash,

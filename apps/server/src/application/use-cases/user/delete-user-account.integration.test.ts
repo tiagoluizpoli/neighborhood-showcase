@@ -3,7 +3,7 @@ import { db } from '@neighborhood-showcase/db';
 import { account, session, user } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement,
-  providerLocation as assignment,
+  providerAssignment as assignment,
   condominium,
   payment,
 } from '@neighborhood-showcase/db/schema/showcase';
@@ -34,7 +34,7 @@ describe('Delete User Account LGPD Integration Test', () => {
       name: 'João da Silva',
       email: 'joao@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
       phone: '11999999999',
       cpfHash: 'hashed-cpf-123',

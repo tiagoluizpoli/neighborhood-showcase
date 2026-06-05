@@ -9,6 +9,15 @@ export interface UserProfileDTO {
   isProviderVisible: boolean;
 }
 
+export interface PublicProviderProfileDTO {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  socialLinks: Record<string, string | undefined>;
+  status: 'ACTIVE' | 'BANNED';
+  deletedAt?: Date | null;
+}
+
 export interface ListProvidersRepositoryInput {
   search?: string;
   condominiumId?: string;
@@ -18,12 +27,13 @@ export interface ListProvidersRepositoryInput {
 
 export interface ListUsersRepositoryInput {
   search?: string;
-  role?: 'PROVIDER' | 'SYSTEM_MANAGER';
+  role?: 'USER' | 'SYSTEM_MANAGER' | 'ADMINISTRATOR';
   status?: 'ACTIVE' | 'BANNED';
 }
 
 export interface UserRepository {
   findProfileById(id: string): Promise<UserProfileDTO | null>;
+  findPublicProviderById(id: string): Promise<PublicProviderProfileDTO | null>;
   listProviders(input: ListProvidersRepositoryInput): Promise<User[]>;
   listUsers(input: ListUsersRepositoryInput): Promise<User[]>;
   findById(id: string): Promise<User | null>;
@@ -41,7 +51,10 @@ export interface UserRepository {
     };
     isProviderVisible?: boolean;
   }): Promise<void>;
-  updateRole(id: string, role: 'PROVIDER' | 'SYSTEM_MANAGER'): Promise<User>;
+  updateRole(
+    id: string,
+    role: 'USER' | 'SYSTEM_MANAGER' | 'ADMINISTRATOR',
+  ): Promise<User>;
   updateProviderVisibility(id: string, isVisible: boolean): Promise<User>;
   updateStatus(id: string, status: 'ACTIVE' | 'BANNED'): Promise<User>;
   deleteAccountById(userId: string): Promise<void>;

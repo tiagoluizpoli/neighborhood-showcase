@@ -17,7 +17,7 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
   async execute(input: CreateAnnouncementInput): Promise<Announcement> {
     // Enforce that user must have an approved location context
     const assignment = await this.assignmentRepo.findById(
-      input.providerLocationId,
+      input.providerAssignmentId,
     );
 
     if (
@@ -36,7 +36,7 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
     new Announcement({
       providerId: input.providerId,
       condominiumId: assignment.condominiumId,
-      providerLocationId: assignment.id,
+      providerAssignmentId: assignment.id,
       title: input.title,
       subtitle: input.subtitle || null,
       description: input.description,
@@ -76,7 +76,7 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
       id,
       providerId: input.providerId,
       condominiumId: assignment.condominiumId,
-      providerLocationId: assignment.id,
+      providerAssignmentId: assignment.id,
       title: input.title,
       subtitle: input.subtitle || null,
       description: input.description,

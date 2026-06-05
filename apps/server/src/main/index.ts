@@ -6,6 +6,7 @@ import {
   type FastifyTRPCPluginOptions,
   fastifyTRPCPlugin,
 } from '@trpc/server/adapters/fastify';
+import type { FastifyInstance } from 'fastify';
 import Fastify from 'fastify';
 import fastifyRawBody from 'fastify-raw-body';
 // Use Cases
@@ -33,93 +34,113 @@ const baseCorsConfig = {
   maxAge: 86400,
 };
 
-const fastify = Fastify({
-  logger: true,
-});
+interface MainDependencies {
+  processWebhookPayment: ProcessWebhookPayment;
+  uploadFile: UploadFile;
+}
 
-// Dependency Injection Composition
-const paymentRepo = new DrizzlePaymentRepository();
-const announcementRepo = new DrizzleAnnouncementRepository();
-const userRepo = new DrizzleUserRepository();
-const emailService = new ResendEmailService();
+export function createMainDependencies(): MainDependencies {
+  const paymentRepo = new DrizzlePaymentRepository();
+  const announcementRepo = new DrizzleAnnouncementRepository();
+  const userRepo = new DrizzleUserRepository();
+  const emailService = new ResendEmailService();
 
-const processWebhookPayment = new ProcessWebhookPayment(
-  paymentRepo,
-  announcementRepo,
-  userRepo,
-  emailService,
-);
+  const processWebhookPayment = new ProcessWebhookPayment(
+    paymentRepo,
+    announcementRepo,
+    userRepo,
+    emailService,
+  );
 
-const storageService = new S3StorageService();
-const imageOptimizer = new SharpImageOptimizer();
-const uploadFile = new UploadFile(storageService, imageOptimizer);
+  const storageService = new S3StorageService();
+  const imageOptimizer = new SharpImageOptimizer();
+  const uploadFile = new UploadFile(storageService, imageOptimizer);
 
-fastify.register(fastifyCors, baseCorsConfig);
-fastify.register(fastifyMultipart, {
-  limits: {
-    fileSize: 10 * 1024 * 1024,
-  },
-});
-fastify.register(fastifyRawBody, {
-  field: 'rawBody',
-  global: false,
-  encoding: 'utf8',
-  runFirst: true,
-});
-fastify.register(uploadRoutes, { uploadFile });
-fastify.register(webhookRoutes, { processWebhookPayment });
+  return {
+    processWebhookPayment,
+    uploadFile,
+  };
+}
 
-fastify.route({
-  method: ['GET', 'POST'],
-  url: '/api/auth/*',
-  async handler(request, reply) {
-    try {
-      const url = new URL(request.url, `http://${request.headers.host}`);
-      const headers = new Headers();
-      Object.entries(request.headers).forEach(([key, value]) => {
-        if (value) headers.append(key, value.toString());
-      });
-      const req = new Request(url.toString(), {
-        method: request.method,
-        headers,
-        body: request.body ? JSON.stringify(request.body) : undefined,
-      });
-      const response = await auth.handler(req);
-      reply.status(response.status);
-      response.headers.forEach((value, key) => {
-        reply.header(key, value);
-      });
-      reply.send(response.body ? await response.text() : null);
-    } catch (error) {
-      fastify.log.error({ err: error }, 'Authentication Error:');
-      reply.status(500).send({
-        error: 'Internal authentication error',
-        code: 'AUTH_FAILURE',
-      });
-    }
-  },
-});
+export function createServer(): FastifyInstance {
+  const fastify = Fastify({
+    logger: true,
+  });
+  const { processWebhookPayment, uploadFile } = createMainDependencies();
 
-fastify.register(fastifyTRPCPlugin, {
-  prefix: '/trpc',
-  trpcOptions: {
-    router: appRouter,
-    createContext,
-    onError({ path, error }) {
-      console.error(`Error in tRPC handler on path '${path}':`, error);
+  fastify.register(fastifyCors, baseCorsConfig);
+  fastify.register(fastifyMultipart, {
+    limits: {
+      fileSize: 10 * 1024 * 1024,
     },
-  } satisfies FastifyTRPCPluginOptions<AppRouter>['trpcOptions'],
-});
+  });
+  fastify.register(fastifyRawBody, {
+    field: 'rawBody',
+    global: false,
+    encoding: 'utf8',
+    runFirst: true,
+  });
+  fastify.register(uploadRoutes, { uploadFile });
+  fastify.register(webhookRoutes, { processWebhookPayment });
 
-fastify.get('/', async () => {
-  return 'OK';
-});
+  fastify.route({
+    method: ['GET', 'POST'],
+    url: '/api/auth/*',
+    async handler(request, reply) {
+      try {
+        const url = new URL(request.url, `http://${request.headers.host}`);
+        const headers = new Headers();
+        Object.entries(request.headers).forEach(([key, value]) => {
+          if (value) headers.append(key, value.toString());
+        });
+        const req = new Request(url.toString(), {
+          method: request.method,
+          headers,
+          body: request.body ? JSON.stringify(request.body) : undefined,
+        });
+        const response = await auth.handler(req);
+        reply.status(response.status);
+        response.headers.forEach((value, key) => {
+          reply.header(key, value);
+        });
+        reply.send(response.body ? await response.text() : null);
+      } catch (error) {
+        fastify.log.error({ err: error }, 'Authentication Error:');
+        reply.status(500).send({
+          error: 'Internal authentication error',
+          code: 'AUTH_FAILURE',
+        });
+      }
+    },
+  });
 
-fastify.listen({ port: 3000 }, async (err) => {
-  if (err) {
-    fastify.log.error(err);
+  fastify.register(fastifyTRPCPlugin, {
+    prefix: '/trpc',
+    trpcOptions: {
+      router: appRouter,
+      createContext,
+      onError({ path, error }) {
+        console.error(`Error in tRPC handler on path '${path}':`, error);
+      },
+    } satisfies FastifyTRPCPluginOptions<AppRouter>['trpcOptions'],
+  });
+
+  fastify.get('/', async () => {
+    return 'OK';
+  });
+
+  return fastify;
+}
+
+export async function startServer() {
+  const fastify = createServer();
+
+  try {
+    await fastify.listen({ port: 3000 });
+    await initUnleash();
+    console.log('Server running on port 3000');
+  } catch (error) {
+    fastify.log.error(error);
     process.exit(1);
   }
-  await initUnleash();
-  console.log('Server running on port 3000');
-});
+}

@@ -4,9 +4,10 @@ import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   address,
   announcement,
-  providerLocation as assignment,
+  providerAssignment as assignment,
   condominium,
   payment,
+  providerProfile,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq, sql } from 'drizzle-orm';
 import { DrizzleAnnouncementRepository } from '../../../infrastructure/db/announcement-repository';
@@ -26,6 +27,7 @@ describe('List Public Announcements Integration Test', () => {
     // Clear tables
     await db.delete(payment);
     await db.delete(announcement);
+    await db.delete(providerProfile);
     await db.delete(assignment);
     await db.delete(condominium);
     await db.delete(user);
@@ -35,11 +37,19 @@ describe('List Public Announcements Integration Test', () => {
     // Insert user
     await db.insert(user).values({
       id: providerId,
-      name: 'List Provider',
+      name: 'Auth List Provider',
       email: 'list@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
+    });
+
+    await db.insert(providerProfile).values({
+      providerId,
+      displayName: 'Branded List Provider',
+      avatarUrl: 'https://example.com/branded-list-provider.png',
+      socialLinks: {},
+      isProviderVisible: true,
     });
 
     // Insert condominiums
@@ -137,6 +147,7 @@ describe('List Public Announcements Integration Test', () => {
   afterAll(async () => {
     await db.delete(payment);
     await db.delete(announcement);
+    await db.delete(providerProfile);
     await db.delete(assignment);
     await db.delete(condominium);
     await db.delete(user);
@@ -152,8 +163,10 @@ describe('List Public Announcements Integration Test', () => {
     expect(ids).not.toContain('ann-draft-a');
 
     // Verify provider details are mapped correctly
-    expect(list[0]?.providerName).toBe('List Provider');
-    expect(list[0]?.providerAvatarUrl).toBeNull();
+    expect(list[0]?.providerName).toBe('Branded List Provider');
+    expect(list[0]?.providerAvatarUrl).toBe(
+      'https://example.com/branded-list-provider.png',
+    );
   });
 
   test('filters by category', async () => {
@@ -237,7 +250,7 @@ describe('List Public Announcements Integration Test', () => {
     await db.insert(announcement).values({
       id: 'ann-ext-pizza',
       providerId,
-      providerLocationId: extLocationId,
+      providerAssignmentId: extLocationId,
       condominiumId: null,
       title: 'Ext Pizza Delivery',
       description: 'Best pizza delivery in Florianópolis',

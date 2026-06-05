@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
 import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
+import { providerProfile } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 import { DrizzleUserRepository } from '../../../infrastructure/db/user-repository';
 import { UpdateUser } from './update-user';
@@ -11,6 +12,9 @@ describe('Update User Name Integration Test', () => {
 
   beforeAll(async () => {
     // Clear user table for this user ID
+    await db
+      .delete(providerProfile)
+      .where(eq(providerProfile.providerId, testUserId));
     await db.delete(user).where(eq(user.id, testUserId));
 
     // Insert test user
@@ -18,7 +22,7 @@ describe('Update User Name Integration Test', () => {
       id: testUserId,
       name: 'Old Name',
       email: 'update-test@example.com',
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
   });
@@ -55,19 +59,19 @@ describe('Update User Name Integration Test', () => {
 
     expect(result.success).toBe(true);
 
-    const [updatedUser] = await db
+    const [updatedProfile] = await db
       .select()
-      .from(user)
-      .where(eq(user.id, testUserId))
+      .from(providerProfile)
+      .where(eq(providerProfile.providerId, testUserId))
       .limit(1);
 
-    expect(updatedUser).toBeDefined();
-    expect(updatedUser?.socialLinks).toEqual({
+    expect(updatedProfile).toBeDefined();
+    expect(updatedProfile?.socialLinks).toEqual({
       whatsapp: '5511999999999',
       instagram: 'https://instagram.com/myprofile',
       website: 'https://mywebsite.com',
     });
-    expect(updatedUser?.isProviderVisible).toBe(false);
+    expect(updatedProfile?.isProviderVisible).toBe(false);
   });
 
   test('fails if name is too short', async () => {

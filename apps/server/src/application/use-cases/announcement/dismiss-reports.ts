@@ -54,7 +54,7 @@ export class DismissReports {
       throw new DismissReportsActorNotFoundError();
     }
 
-    if (actor.role !== 'SYSTEM_MANAGER') {
+    if (actor.role !== 'SYSTEM_MANAGER' && actor.role !== 'ADMINISTRATOR') {
       if (!ann.condominiumId) {
         throw new DismissReportsNoBoundError();
       }

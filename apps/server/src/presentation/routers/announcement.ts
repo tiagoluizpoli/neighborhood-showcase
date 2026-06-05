@@ -69,7 +69,7 @@ export function createAnnouncementRouter(
     create: protectedProcedure
       .input(
         z.object({
-          providerLocationId: z.string().min(1),
+          providerAssignmentId: z.string().min(1),
           title: z.string().min(3).max(100),
           subtitle: z.string().nullable().optional(),
           description: z.string().min(10).max(2000),
@@ -92,7 +92,7 @@ export function createAnnouncementRouter(
       .mutation(async ({ input, ctx }) => {
         const ann = await createAnnouncementUseCase.execute({
           providerId: ctx.session.user.id,
-          providerLocationId: input.providerLocationId,
+          providerAssignmentId: input.providerAssignmentId,
           title: input.title,
           subtitle: input.subtitle,
           description: input.description,

@@ -37,9 +37,15 @@ export class GetPublicProviderProfile {
   async execute(
     input: GetPublicProviderProfileInput,
   ): Promise<PublicProviderProfileResult> {
-    const user = await this.userRepo.findById(input.providerId);
+    const provider = await this.userRepo.findPublicProviderById(
+      input.providerId,
+    );
 
-    if (!user || user.status === 'BANNED' || user.deletedAt != null) {
+    if (
+      !provider ||
+      provider.status === 'BANNED' ||
+      provider.deletedAt != null
+    ) {
       throw new PublicProviderNotFoundError();
     }
 
@@ -49,16 +55,16 @@ export class GetPublicProviderProfile {
 
     const announcements = await this.announcementRepo.findActiveByProviderId(
       input.providerId,
-      user.name,
-      user.image ?? null,
+      provider.name,
+      provider.avatarUrl,
     );
 
     return {
       provider: {
-        id: user.id,
-        name: user.name,
-        avatarUrl: user.image ?? null,
-        socialLinks: user.socialLinks as Record<string, string | undefined>,
+        id: provider.id,
+        name: provider.name,
+        avatarUrl: provider.avatarUrl,
+        socialLinks: provider.socialLinks,
         isVerified,
       },
       announcements,

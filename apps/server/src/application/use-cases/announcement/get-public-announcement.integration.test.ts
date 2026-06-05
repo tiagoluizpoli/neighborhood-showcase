@@ -4,6 +4,7 @@ import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement,
   condominium,
+  providerProfile,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { DrizzleAnnouncementRepository } from '../../../infrastructure/db/announcement-repository';
 import {
@@ -22,17 +23,26 @@ describe('GetPublicAnnouncement use case', () => {
 
   beforeEach(async () => {
     await db.delete(announcement);
+    await db.delete(providerProfile);
     await db.delete(condominium);
     await db.delete(user);
 
     await db.insert(user).values({
       id: providerId,
-      name: 'Public Provider',
+      name: 'Auth Identity Provider',
       email: 'public-provider@example.com',
       image: 'https://example.com/avatar.png',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
+    });
+
+    await db.insert(providerProfile).values({
+      providerId,
+      displayName: 'Provider Profile Brand',
+      avatarUrl: 'https://example.com/provider-profile-avatar.png',
+      socialLinks: {},
+      isProviderVisible: true,
     });
 
     await db.insert(condominium).values({
@@ -84,8 +94,10 @@ describe('GetPublicAnnouncement use case', () => {
     expect(result.condoName).toBe('Public Condo');
     expect(result.condoCity).toBe('Florianopolis');
     expect(result.condoState).toBe('SC');
-    expect(result.providerName).toBe('Public Provider');
-    expect(result.providerAvatarUrl).toBe('https://example.com/avatar.png');
+    expect(result.providerName).toBe('Provider Profile Brand');
+    expect(result.providerAvatarUrl).toBe(
+      'https://example.com/provider-profile-avatar.png',
+    );
   });
 
   test('throws AnnouncementNotFoundError for suspended announcement', async () => {

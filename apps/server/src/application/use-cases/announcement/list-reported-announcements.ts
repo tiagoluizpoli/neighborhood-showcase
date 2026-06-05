@@ -39,7 +39,7 @@ export class ListReportedAnnouncements {
       throw new ReportQueueActorNotFoundError();
     }
 
-    if (actor.role === 'SYSTEM_MANAGER') {
+    if (actor.role === 'SYSTEM_MANAGER' || actor.role === 'ADMINISTRATOR') {
       return this.announcementRepo.listReported({
         threshold: input.threshold ?? 5,
       });

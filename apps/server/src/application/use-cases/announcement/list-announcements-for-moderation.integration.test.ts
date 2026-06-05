@@ -4,7 +4,7 @@ import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement,
   condominium,
-  providerLocation,
+  providerAssignment,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { DrizzleAnnouncementRepository } from '../../../infrastructure/db/announcement-repository';
 import { DrizzleAssignmentRepository } from '../../../infrastructure/db/assignment-repository';
@@ -29,7 +29,7 @@ describe('ListAnnouncementsForModeration use case', () => {
 
   beforeAll(async () => {
     await db.delete(announcement);
-    await db.delete(providerLocation);
+    await db.delete(providerAssignment);
     await db.delete(condominium);
     await db.delete(user);
 
@@ -39,7 +39,7 @@ describe('ListAnnouncementsForModeration use case', () => {
         name: 'Moderator User',
         email: 'moderator-list@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       {
@@ -47,7 +47,7 @@ describe('ListAnnouncementsForModeration use case', () => {
         name: 'Provider User',
         email: 'provider-list@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       {
@@ -55,7 +55,7 @@ describe('ListAnnouncementsForModeration use case', () => {
         name: 'Outsider User',
         email: 'outsider-list@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
     ]);
@@ -81,7 +81,7 @@ describe('ListAnnouncementsForModeration use case', () => {
       },
     ]);
 
-    await db.insert(providerLocation).values({
+    await db.insert(providerAssignment).values({
       id: 'moderation-list-moderator-assignment-id',
       providerId: moderatorId,
       condominiumId: condoId,

@@ -6,7 +6,7 @@ export interface UserProps extends AuditableProps {
   emailVerified: boolean;
   image?: string | null;
   cpfHash?: string | null;
-  role: 'PROVIDER' | 'SYSTEM_MANAGER';
+  role: 'USER' | 'SYSTEM_MANAGER' | 'ADMINISTRATOR';
   status: 'ACTIVE' | 'BANNED';
   phone?: string | null;
   socialLinks: {
@@ -43,7 +43,7 @@ export class User extends AuditableEntity<UserProps> {
     return this.props.cpfHash;
   }
 
-  get role(): 'PROVIDER' | 'SYSTEM_MANAGER' {
+  get role(): 'USER' | 'SYSTEM_MANAGER' | 'ADMINISTRATOR' {
     return this.props.role;
   }
 

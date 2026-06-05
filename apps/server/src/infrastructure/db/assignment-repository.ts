@@ -1,8 +1,7 @@
 import { db } from '@neighborhood-showcase/db';
 import {
   announcement as announcementSchema,
-  assignment as assignmentSchema,
-  providerLocation as assignSchema,
+  providerAssignment as assignSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { and, eq } from 'drizzle-orm';
 import type {
@@ -81,7 +80,7 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
   }
 
   async findByProviderId(providerId: string): Promise<AssignmentWithCondo[]> {
-    const results = await db.query.providerLocation.findMany({
+    const results = await db.query.providerAssignment.findMany({
       where: eq(assignSchema.providerId, providerId),
       with: {
         condominium: true,
@@ -98,7 +97,7 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
   async findPendingByCondoId(
     condominiumId: string,
   ): Promise<AssignmentWithUser[]> {
-    const results = await db.query.providerLocation.findMany({
+    const results = await db.query.providerAssignment.findMany({
       where: and(
         eq(assignSchema.condominiumId, condominiumId),
         eq(assignSchema.status, 'PENDING'),
@@ -143,29 +142,13 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
       await db
         .update(announcementSchema)
         .set({ showVerifiedBadge: false })
-        .where(eq(announcementSchema.providerLocationId, id));
+        .where(eq(announcementSchema.providerAssignmentId, id));
     }
 
     return this.mapper.toDomain(updated);
   }
 
   async hasApprovedResidentAssignment(providerId: string): Promise<boolean> {
-    const [legacyAssignment] = await db
-      .select({ id: assignmentSchema.id })
-      .from(assignmentSchema)
-      .where(
-        and(
-          eq(assignmentSchema.providerId, providerId),
-          eq(assignmentSchema.type, 'RESIDENT'),
-          eq(assignmentSchema.status, 'APPROVED'),
-        ),
-      )
-      .limit(1);
-
-    if (legacyAssignment !== undefined) {
-      return true;
-    }
-
     const [found] = await db
       .select({ id: assignSchema.id })
       .from(assignSchema)

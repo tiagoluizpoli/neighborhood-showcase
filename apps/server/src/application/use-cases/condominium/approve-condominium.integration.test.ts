@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
-  providerLocation as assignment,
+  providerAssignment as assignment,
   condominium,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { and, eq } from 'drizzle-orm';
@@ -34,7 +34,7 @@ describe('Approve and Reject Condominium Integration Test', () => {
       name: 'Condo Síndico',
       email: 'sindico@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
 

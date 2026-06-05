@@ -45,7 +45,10 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
 });
 
 export const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+  if (
+    ctx.session.user.role !== 'SYSTEM_MANAGER' &&
+    ctx.session.user.role !== 'ADMINISTRATOR'
+  ) {
     throw new TRPCError({
       code: 'FORBIDDEN',
       message: 'Apenas administradores globais podem realizar esta ação.',

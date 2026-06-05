@@ -3,7 +3,7 @@ import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   condominium,
-  providerLocation,
+  providerAssignment,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { DrizzleAssignmentRepository } from '../../../infrastructure/db/assignment-repository';
 import { ListPendingAssignments } from './list-pending-assignments';
@@ -18,7 +18,7 @@ describe('ListPendingAssignments use case', () => {
   const listPendingAssignments = new ListPendingAssignments(assignmentRepo);
 
   beforeAll(async () => {
-    await db.delete(providerLocation);
+    await db.delete(providerAssignment);
     await db.delete(condominium);
     await db.delete(user);
 
@@ -28,7 +28,7 @@ describe('ListPendingAssignments use case', () => {
         name: 'Moderator User',
         email: 'moderator@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       {
@@ -36,7 +36,7 @@ describe('ListPendingAssignments use case', () => {
         name: 'Pending User',
         email: 'pending@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       {
@@ -44,7 +44,7 @@ describe('ListPendingAssignments use case', () => {
         name: 'Approved User',
         email: 'approved@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
     ]);
@@ -59,7 +59,7 @@ describe('ListPendingAssignments use case', () => {
       status: 'APPROVED',
     });
 
-    await db.insert(providerLocation).values([
+    await db.insert(providerAssignment).values([
       {
         id: 'list-pending-moderator-assignment-id',
         providerId: moderatorId,

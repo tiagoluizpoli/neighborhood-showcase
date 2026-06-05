@@ -32,7 +32,7 @@ export class AnnouncementMapper
       {
         providerId: raw.providerId,
         condominiumId: raw.condominiumId,
-        providerLocationId: raw.providerLocationId,
+        providerAssignmentId: raw.providerAssignmentId,
         title: raw.title,
         subtitle: raw.subtitle,
         description: raw.description,
@@ -67,7 +67,7 @@ export class AnnouncementMapper
       id: entity.id,
       providerId: entity.providerId,
       condominiumId: entity.condominiumId,
-      providerLocationId: entity.providerLocationId,
+      providerAssignmentId: entity.providerAssignmentId,
       title: entity.title,
       subtitle: entity.subtitle,
       description: entity.description,

@@ -3,7 +3,7 @@ import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   address,
-  providerLocation as assignment,
+  providerAssignment as assignment,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 import { DrizzleAddressRepository } from '../../../infrastructure/db/address-repository';
@@ -29,7 +29,7 @@ describe('Register External Location Integration Test', () => {
       name: 'Test External Provider',
       email: 'external@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
   });

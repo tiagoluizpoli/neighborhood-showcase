@@ -3,7 +3,7 @@ import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement,
-  providerLocation as assignment,
+  providerAssignment as assignment,
   condominium,
   payment,
 } from '@neighborhood-showcase/db/schema/showcase';
@@ -41,7 +41,7 @@ describe('Generate Payment Intent Integration Test', () => {
       name: 'John Payment Provider',
       email: 'john-payment@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
 

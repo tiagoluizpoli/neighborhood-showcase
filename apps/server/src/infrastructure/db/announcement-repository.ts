@@ -5,7 +5,8 @@ import {
   announcement as announcementSchema,
   category as categorySchema,
   condominium as condominiumSchema,
-  providerLocation as providerLocationSchema,
+  providerAssignment as providerAssignmentSchema,
+  providerProfile as providerProfileSchema,
   report as reportSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { env } from '@neighborhood-showcase/env/server';
@@ -53,7 +54,7 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
         id: input.id,
         providerId: input.providerId,
         condominiumId: input.condominiumId || null,
-        providerLocationId: input.providerLocationId || null,
+        providerAssignmentId: input.providerAssignmentId || null,
         title: input.title,
         subtitle: input.subtitle || null,
         description: input.description,
@@ -145,15 +146,15 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
         condoCity = condo.city;
         condoState = condo.state;
       }
-    } else if (found.providerLocationId) {
+    } else if (found.providerAssignmentId) {
       const [loc] = await db
         .select({ city: addressSchema.city, state: addressSchema.state })
-        .from(providerLocationSchema)
+        .from(providerAssignmentSchema)
         .innerJoin(
           addressSchema,
-          eq(providerLocationSchema.addressId, addressSchema.id),
+          eq(providerAssignmentSchema.addressId, addressSchema.id),
         )
-        .where(eq(providerLocationSchema.id, found.providerLocationId))
+        .where(eq(providerAssignmentSchema.id, found.providerAssignmentId))
         .limit(1);
       if (loc) {
         condoCity = loc.city;
@@ -162,8 +163,17 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
     }
 
     const [provider] = await db
-      .select({ name: userSchema.name, image: userSchema.image })
+      .select({
+        name: userSchema.name,
+        image: userSchema.image,
+        profileName: providerProfileSchema.displayName,
+        profileAvatarUrl: providerProfileSchema.avatarUrl,
+      })
       .from(userSchema)
+      .leftJoin(
+        providerProfileSchema,
+        eq(providerProfileSchema.providerId, userSchema.id),
+      )
       .where(eq(userSchema.id, found.providerId))
       .limit(1);
 
@@ -177,7 +187,7 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
       id: found.id,
       providerId: found.providerId,
       condominiumId: found.condominiumId,
-      providerLocationId: found.providerLocationId,
+      providerAssignmentId: found.providerAssignmentId,
       title: found.title,
       subtitle: found.subtitle,
       description: found.description,
@@ -193,8 +203,8 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
       condoName,
       condoCity,
       condoState,
-      providerName: provider?.name ?? '',
-      providerAvatarUrl: provider?.image ?? null,
+      providerName: provider?.profileName ?? provider?.name ?? '',
+      providerAvatarUrl: provider?.profileAvatarUrl ?? provider?.image ?? null,
     };
   }
 
@@ -422,12 +432,15 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
         eq(announcementSchema.condominiumId, condominiumSchema.id),
       )
       .leftJoin(
-        providerLocationSchema,
-        eq(announcementSchema.providerLocationId, providerLocationSchema.id),
+        providerAssignmentSchema,
+        eq(
+          announcementSchema.providerAssignmentId,
+          providerAssignmentSchema.id,
+        ),
       )
       .leftJoin(
         addressSchema,
-        eq(providerLocationSchema.addressId, addressSchema.id),
+        eq(providerAssignmentSchema.addressId, addressSchema.id),
       )
       .where(
         and(
@@ -500,7 +513,7 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
         createdAt: announcementSchema.createdAt,
         suspensionReason: announcementSchema.suspensionReason,
         condoName: condominiumSchema.name,
-        providerLocationId: announcementSchema.providerLocationId,
+        providerAssignmentId: announcementSchema.providerAssignmentId,
       })
       .from(announcementSchema)
       .leftJoin(
@@ -540,7 +553,7 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
       createdAt: row.createdAt,
       suspensionReason: row.suspensionReason ?? null,
       condoName: row.condoName || '',
-      providerLocationId: row.providerLocationId ?? null,
+      providerAssignmentId: row.providerAssignmentId ?? null,
     }));
   }
 
@@ -626,7 +639,7 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
       const radiusKm = input.radiusKm ?? env.FEED_RADIUS_KM;
       const radiusMeters = radiusKm * 1000;
       conditions.push(
-        sql`ST_DWithin(COALESCE(${condominiumSchema.geog}, ${providerLocationSchema.geog}), ${visitorPoint}, ${radiusMeters})`,
+        sql`ST_DWithin(COALESCE(${condominiumSchema.geog}, ${providerAssignmentSchema.geog}), ${visitorPoint}, ${radiusMeters})`,
       );
     }
 
@@ -635,14 +648,19 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
       .select({
         announcement: announcementSchema,
         condominium: condominiumSchema,
-        providerLocation: providerLocationSchema,
+        providerAssignment: providerAssignmentSchema,
         providerAddress: addressSchema,
         condoAddress: condoAddress,
         provider: userSchema,
+        providerProfile: providerProfileSchema,
         category: categorySchema,
       })
       .from(announcementSchema)
       .innerJoin(userSchema, eq(announcementSchema.providerId, userSchema.id))
+      .leftJoin(
+        providerProfileSchema,
+        eq(providerProfileSchema.providerId, userSchema.id),
+      )
       .innerJoin(
         categorySchema,
         eq(announcementSchema.categoryId, categorySchema.id),
@@ -653,22 +671,26 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
       )
       .leftJoin(condoAddress, eq(condominiumSchema.addressId, condoAddress.id))
       .leftJoin(
-        providerLocationSchema,
-        eq(announcementSchema.providerLocationId, providerLocationSchema.id),
+        providerAssignmentSchema,
+        eq(
+          announcementSchema.providerAssignmentId,
+          providerAssignmentSchema.id,
+        ),
       )
       .leftJoin(
         addressSchema,
-        eq(providerLocationSchema.addressId, addressSchema.id),
+        eq(providerAssignmentSchema.addressId, addressSchema.id),
       )
       .where(and(...conditions));
 
     const mapper = (row: {
       announcement: typeof announcementSchema.$inferSelect;
       condominium: typeof condominiumSchema.$inferSelect | null;
-      providerLocation: typeof providerLocationSchema.$inferSelect | null;
+      providerAssignment: typeof providerAssignmentSchema.$inferSelect | null;
       providerAddress: typeof addressSchema.$inferSelect | null;
       condoAddress: typeof addressSchema.$inferSelect | null;
       provider: typeof userSchema.$inferSelect;
+      providerProfile: typeof providerProfileSchema.$inferSelect | null;
       category: typeof categorySchema.$inferSelect;
     }): PublicAnnouncementDTO => {
       const condoCity =
@@ -680,15 +702,15 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
         row.providerAddress?.neighborhood ||
         null;
       const latitude =
-        row.condominium?.latitude || row.providerLocation?.latitude || null;
+        row.condominium?.latitude || row.providerAssignment?.latitude || null;
       const longitude =
-        row.condominium?.longitude || row.providerLocation?.longitude || null;
+        row.condominium?.longitude || row.providerAssignment?.longitude || null;
 
       return {
         id: row.announcement.id,
         providerId: row.announcement.providerId,
         condominiumId: row.announcement.condominiumId ?? null,
-        providerLocationId: row.announcement.providerLocationId ?? null,
+        providerAssignmentId: row.announcement.providerAssignmentId ?? null,
         title: row.announcement.title,
         subtitle: row.announcement.subtitle,
         description: row.announcement.description,
@@ -710,8 +732,9 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
         condoNeighborhood,
         latitude,
         longitude,
-        providerName: row.provider.name,
-        providerAvatarUrl: row.provider.image || null,
+        providerName: row.providerProfile?.displayName ?? row.provider.name,
+        providerAvatarUrl:
+          row.providerProfile?.avatarUrl ?? row.provider.image ?? null,
       };
     };
 
@@ -725,7 +748,7 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
       }
 
       orderByExpressions.push(
-        sql`ST_Distance(COALESCE(${condominiumSchema.geog}, ${providerLocationSchema.geog}), ${visitorPoint})`,
+        sql`ST_Distance(COALESCE(${condominiumSchema.geog}, ${providerAssignmentSchema.geog}), ${visitorPoint})`,
       );
 
       orderByExpressions.push(desc(announcementSchema.showVerifiedBadge));

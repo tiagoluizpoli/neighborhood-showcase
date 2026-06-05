@@ -1,4 +1,4 @@
-import type { providerLocation as assignSchema } from '@neighborhood-showcase/db/schema/showcase';
+import type { providerAssignment as assignSchema } from '@neighborhood-showcase/db/schema/showcase';
 import { Assignment } from '../../../domain/entities/assignment.entity';
 import type { EntityMapper } from '../../../domain/mapper';
 

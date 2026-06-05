@@ -4,7 +4,7 @@ import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement,
   condominium,
-  providerLocation,
+  providerAssignment,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 import { DrizzleAnnouncementRepository } from '../../../infrastructure/db/announcement-repository';
@@ -31,7 +31,7 @@ describe('UpdateAnnouncement use case', () => {
 
   beforeEach(async () => {
     await db.delete(announcement);
-    await db.delete(providerLocation);
+    await db.delete(providerAssignment);
     await db.delete(condominium);
     await db.delete(user);
 
@@ -41,7 +41,7 @@ describe('UpdateAnnouncement use case', () => {
         name: 'Owner User',
         email: 'update-owner@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       {
@@ -49,7 +49,7 @@ describe('UpdateAnnouncement use case', () => {
         name: 'Outsider User',
         email: 'update-outsider@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
     ]);
@@ -64,7 +64,7 @@ describe('UpdateAnnouncement use case', () => {
       status: 'APPROVED',
     });
 
-    await db.insert(providerLocation).values({
+    await db.insert(providerAssignment).values({
       id: assignmentId,
       providerId: ownerId,
       condominiumId: condoId,
@@ -77,7 +77,7 @@ describe('UpdateAnnouncement use case', () => {
       id: announcementId,
       providerId: ownerId,
       condominiumId: condoId,
-      providerLocationId: assignmentId,
+      providerAssignmentId: assignmentId,
       title: 'Old Title',
       subtitle: 'Old Subtitle',
       description: 'Old description with enough length.',
@@ -145,9 +145,9 @@ describe('UpdateAnnouncement use case', () => {
 
   test('throws VerifiedBadgeEligibilityError when verified badge assignment is no longer approved', async () => {
     await db
-      .update(providerLocation)
+      .update(providerAssignment)
       .set({ status: 'REJECTED' })
-      .where(eq(providerLocation.id, assignmentId));
+      .where(eq(providerAssignment.id, assignmentId));
 
     await expect(
       updateAnnouncement.execute({

@@ -28,7 +28,7 @@ export interface DashboardAnnouncementItem {
   createdAt: Date;
   suspensionReason: string | null;
   condoName: string;
-  providerLocationId: string | null;
+  providerAssignmentId: string | null;
 }
 
 export interface ProviderDashboardData {
@@ -107,7 +107,7 @@ export class GetProviderDashboardData {
         createdAt: raw.createdAt,
         suspensionReason: raw.suspensionReason,
         condoName: raw.condoName || '',
-        providerLocationId: raw.providerLocationId,
+        providerAssignmentId: raw.providerAssignmentId,
       };
 
       if (item.status === 'ACTIVE') {

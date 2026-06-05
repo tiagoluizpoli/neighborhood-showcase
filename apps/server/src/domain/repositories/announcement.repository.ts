@@ -30,7 +30,7 @@ export interface PublicAnnouncementDTO {
   id: string;
   providerId: string;
   condominiumId: string | null;
-  providerLocationId: string | null;
+  providerAssignmentId: string | null;
   title: string;
   subtitle: string | null;
   description: string;
@@ -91,7 +91,7 @@ export interface DashboardAnnouncementDTO {
   createdAt: Date;
   suspensionReason: string | null;
   condoName: string;
-  providerLocationId: string | null;
+  providerAssignmentId: string | null;
 }
 
 export interface ReportedAnnouncementDTO {
@@ -130,7 +130,7 @@ export interface CreateAnnouncementRepositoryInput {
   id: string;
   providerId: string;
   condominiumId?: string | null;
-  providerLocationId?: string | null;
+  providerAssignmentId?: string | null;
   title: string;
   subtitle?: string | null;
   description: string;

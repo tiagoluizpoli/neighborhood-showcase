@@ -3,7 +3,7 @@ import type { UserRepository } from '../../../domain/repositories/user.repositor
 
 export interface ListUsersInput {
   search?: string;
-  role?: 'PROVIDER' | 'SYSTEM_MANAGER';
+  role?: 'USER' | 'SYSTEM_MANAGER' | 'ADMINISTRATOR';
   status?: 'ACTIVE' | 'BANNED';
 }
 

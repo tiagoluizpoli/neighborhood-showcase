@@ -26,7 +26,7 @@ describe('Condominium Queries Integration Tests', () => {
       name: 'Condo Creator',
       email: 'creator@condo.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
 

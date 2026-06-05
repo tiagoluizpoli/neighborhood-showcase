@@ -41,7 +41,7 @@ describe('ReportAnnouncement use case', () => {
         name: 'Reporter User',
         email: 'report-uc-reporter@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       {
@@ -49,7 +49,7 @@ describe('ReportAnnouncement use case', () => {
         name: 'Provider User',
         email: 'report-uc-provider@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
     ]);

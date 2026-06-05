@@ -10,7 +10,7 @@ import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement,
-  providerLocation as assignment,
+  providerAssignment as assignment,
   condominium,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
@@ -40,7 +40,7 @@ describe('Create Announcement Integration Test', () => {
       name: 'John Provider',
       email: 'john-provider@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
 
@@ -77,7 +77,7 @@ describe('Create Announcement Integration Test', () => {
 
     const res = await useCase.execute({
       providerId: testUserId,
-      providerLocationId: assignId,
+      providerAssignmentId: assignId,
       title: 'Delicious Homemade Cakes',
       subtitle: 'Fresh every day',
       description: 'Order delicious cakes baked fresh daily in block B.',
@@ -119,7 +119,7 @@ describe('Create Announcement Integration Test', () => {
     expect(
       useCase.execute({
         providerId: testUserId,
-        providerLocationId: 'non-existing-assign-id-6',
+        providerAssignmentId: 'non-existing-assign-id-6',
         title: 'Delicious Homemade Cakes',
         description: 'Order delicious cakes baked fresh daily in block B.',
         imageUrl: 'http://localhost:9000/showcase/cake.jpg',
@@ -148,7 +148,7 @@ describe('Create Announcement Integration Test', () => {
     expect(
       useCase.execute({
         providerId: testUserId,
-        providerLocationId: assignId,
+        providerAssignmentId: assignId,
         title: 'Delicious Homemade Cakes',
         description: 'Order delicious cakes baked fresh daily in block B.',
         imageUrl: 'http://localhost:9000/showcase/cake.jpg',
@@ -178,7 +178,7 @@ describe('Create Announcement Integration Test', () => {
     expect(
       useCase.execute({
         providerId: testUserId,
-        providerLocationId: 'approved-assign-id-6-val',
+        providerAssignmentId: 'approved-assign-id-6-val',
         title: 'De', // < 3 chars
         description: 'Order delicious cakes baked fresh daily in block B.',
         imageUrl: 'http://localhost:9000/showcase/cake.jpg',
@@ -217,7 +217,7 @@ describe('Create Announcement Integration Test', () => {
       await db.insert(announcement).values({
         id: testAnnId,
         providerId: testUserId,
-        providerLocationId: assignId,
+        providerAssignmentId: assignId,
         condominiumId: testCondoId,
         title: 'Tasty Pizza',
         description: 'Fresh pizza baked in our block.',
@@ -249,7 +249,7 @@ describe('Create Announcement Integration Test', () => {
             name: 'John Provider',
             email: 'john-provider@example.com',
             emailVerified: true,
-            role: 'PROVIDER',
+            role: 'USER',
             status: 'ACTIVE',
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -305,7 +305,7 @@ describe('Create Announcement Integration Test', () => {
             name: 'John Provider',
             email: 'john-provider@example.com',
             emailVerified: true,
-            role: 'PROVIDER',
+            role: 'USER',
             status: 'ACTIVE',
             createdAt: new Date(),
             updatedAt: new Date(),

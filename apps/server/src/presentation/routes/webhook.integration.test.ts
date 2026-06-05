@@ -4,7 +4,7 @@ import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement,
-  providerLocation as assignment,
+  providerAssignment as assignment,
   condominium,
   payment,
 } from '@neighborhood-showcase/db/schema/showcase';
@@ -63,7 +63,7 @@ describe('AbacatePay Webhook Integration Test', () => {
       name: 'John Webhook Provider',
       email: 'john-webhook@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
 

@@ -29,7 +29,7 @@ describe('List Nearby Condominiums Integration Test', () => {
       name: 'Nearby Creator',
       email: 'nearby@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
 

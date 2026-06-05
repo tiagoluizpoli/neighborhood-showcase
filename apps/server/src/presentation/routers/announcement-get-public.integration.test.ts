@@ -3,8 +3,9 @@ import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement,
-  providerLocation as assignment,
+  providerAssignment as assignment,
   condominium,
+  providerProfile,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { appRouter } from './index';
 
@@ -16,6 +17,7 @@ describe('getPublic Announcement Router Procedure', () => {
   beforeAll(async () => {
     // Clear tables
     await db.delete(announcement);
+    await db.delete(providerProfile);
     await db.delete(assignment);
     await db.delete(condominium);
     await db.delete(user);
@@ -23,12 +25,20 @@ describe('getPublic Announcement Router Procedure', () => {
     // Insert user
     await db.insert(user).values({
       id: providerId,
-      name: 'John Public Provider',
+      name: 'Auth Router Provider',
       email: 'john-public@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
       image: 'http://localhost/avatar.jpg',
+    });
+
+    await db.insert(providerProfile).values({
+      providerId,
+      displayName: 'Router Profile Provider',
+      avatarUrl: 'http://localhost/profile-avatar.jpg',
+      socialLinks: {},
+      isProviderVisible: true,
     });
 
     // Insert condo
@@ -65,7 +75,7 @@ describe('getPublic Announcement Router Procedure', () => {
 
     expect(res.id).toBe(testAnnId);
     expect(res.title).toBe('Delicious Pizza');
-    expect(res.providerName).toBe('John Public Provider');
-    expect(res.providerAvatarUrl).toBe('http://localhost/avatar.jpg');
+    expect(res.providerName).toBe('Router Profile Provider');
+    expect(res.providerAvatarUrl).toBe('http://localhost/profile-avatar.jpg');
   });
 });

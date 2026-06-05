@@ -4,7 +4,7 @@ import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   analyticsEvent,
   announcement,
-  providerLocation as assignment,
+  providerAssignment as assignment,
   condominium,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { appRouter } from './index';
@@ -31,7 +31,7 @@ describe('getAnalytics Announcement Router Procedure', () => {
         name: 'John Analytics Provider',
         email: 'john-analytics@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       {
@@ -39,7 +39,7 @@ describe('getAnalytics Announcement Router Procedure', () => {
         name: 'Other Provider',
         email: 'other-provider@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
     ]);
@@ -222,7 +222,7 @@ describe('getAnalytics Announcement Router Procedure', () => {
           name: 'Test Provider',
           email: 'test@example.com',
           emailVerified: true,
-          role: 'PROVIDER',
+          role: 'USER',
           status: 'ACTIVE',
           image: null,
           createdAt: new Date(),

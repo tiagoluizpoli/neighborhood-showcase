@@ -4,7 +4,7 @@ import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   analyticsEvent,
   announcement,
-  providerLocation as assignment,
+  providerAssignment as assignment,
   condominium,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { DrizzleAnalyticsRepository } from '../../../infrastructure/db/analytics-repository';
@@ -34,7 +34,7 @@ describe('Get Provider Dashboard Data Integration Test', () => {
       name: 'Dash Provider',
       email: 'dash@example.com',
       emailVerified: true,
-      role: 'PROVIDER',
+      role: 'USER',
       status: 'ACTIVE',
     });
 

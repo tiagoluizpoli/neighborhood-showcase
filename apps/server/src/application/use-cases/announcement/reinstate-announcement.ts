@@ -56,7 +56,7 @@ export class ReinstateAnnouncement {
       throw new ReinstateAnnouncementActorNotFoundError();
     }
 
-    if (actor.role !== 'SYSTEM_MANAGER') {
+    if (actor.role !== 'SYSTEM_MANAGER' && actor.role !== 'ADMINISTRATOR') {
       const assignment = await this.assignmentRepo.findByProviderCondoAndType(
         moderatorId,
         ann.condominiumId,

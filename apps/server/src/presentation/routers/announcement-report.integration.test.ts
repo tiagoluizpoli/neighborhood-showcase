@@ -30,7 +30,7 @@ describe('report Announcement Router Procedure', () => {
         name: 'John Reporter',
         email: 'john-reporter@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
       {
@@ -38,7 +38,7 @@ describe('report Announcement Router Procedure', () => {
         name: 'Mary Provider',
         email: 'mary-provider@example.com',
         emailVerified: true,
-        role: 'PROVIDER',
+        role: 'USER',
         status: 'ACTIVE',
       },
     ]);
@@ -99,7 +99,7 @@ describe('report Announcement Router Procedure', () => {
           name: 'Test User',
           email: 'test-user@example.com',
           emailVerified: true,
-          role: 'PROVIDER',
+          role: 'USER',
           status: 'ACTIVE',
           image: null,
           createdAt: new Date(),

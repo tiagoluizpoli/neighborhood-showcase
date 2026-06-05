@@ -55,12 +55,12 @@ export class UpdateAnnouncement {
     }
 
     if (input.showVerifiedBadge) {
-      if (!announcement.providerLocationId) {
+      if (!announcement.providerAssignmentId) {
         throw new VerifiedBadgeEligibilityError();
       }
 
       const assignment = await this.assignmentRepo.findById(
-        announcement.providerLocationId,
+        announcement.providerAssignmentId,
       );
 
       if (

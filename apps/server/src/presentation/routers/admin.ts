@@ -7,8 +7,12 @@ import { UserNotFoundError } from '../../application/use-cases/user/promote-to-s
 import { createAdminRouterDependencies } from '../../main/di';
 import { protectedProcedure, router } from '../trpc';
 
-const userRoleSchema = z.enum(['PROVIDER', 'SYSTEM_MANAGER']);
+const userRoleSchema = z.enum(['USER', 'SYSTEM_MANAGER', 'ADMINISTRATOR']);
 const userStatusSchema = z.enum(['ACTIVE', 'BANNED']);
+
+function checkGlobalAdmin(role: string | null | undefined) {
+  return role === 'SYSTEM_MANAGER' || role === 'ADMINISTRATOR';
+}
 
 export function createAdminRouter(
   dependencies = createAdminRouterDependencies(),
@@ -36,7 +40,7 @@ export function createAdminRouter(
         }),
       )
       .query(async ({ input, ctx }) => {
-        if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+        if (!checkGlobalAdmin(ctx.session.user.role)) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
         }
 
@@ -59,7 +63,7 @@ export function createAdminRouter(
         }),
       )
       .query(async ({ input, ctx }) => {
-        if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+        if (!checkGlobalAdmin(ctx.session.user.role)) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
         }
 
@@ -80,7 +84,7 @@ export function createAdminRouter(
         }),
       )
       .mutation(async ({ input, ctx }) => {
-        if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+        if (!checkGlobalAdmin(ctx.session.user.role)) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
         }
 
@@ -104,7 +108,7 @@ export function createAdminRouter(
       }),
 
     listBlacklist: protectedProcedure.query(async ({ ctx }) => {
-      if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+      if (!checkGlobalAdmin(ctx.session.user.role)) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
       }
       const entries = await listBlacklistUseCase.execute();
@@ -119,7 +123,7 @@ export function createAdminRouter(
         }),
       )
       .mutation(async ({ input, ctx }) => {
-        if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+        if (!checkGlobalAdmin(ctx.session.user.role)) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
         }
 
@@ -144,7 +148,7 @@ export function createAdminRouter(
     removeBlacklist: protectedProcedure
       .input(z.object({ id: z.string().min(1) }))
       .mutation(async ({ input, ctx }) => {
-        if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+        if (!checkGlobalAdmin(ctx.session.user.role)) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
         }
 
@@ -155,7 +159,7 @@ export function createAdminRouter(
     promoteToSystemManager: protectedProcedure
       .input(z.object({ targetUserId: z.string().min(1) }))
       .mutation(async ({ input, ctx }) => {
-        if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+        if (!checkGlobalAdmin(ctx.session.user.role)) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
         }
 
@@ -185,7 +189,7 @@ export function createAdminRouter(
         }),
       )
       .mutation(async ({ input, ctx }) => {
-        if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+        if (!checkGlobalAdmin(ctx.session.user.role)) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
         }
 
@@ -214,7 +218,7 @@ export function createAdminRouter(
     toggleProviderVisibility: protectedProcedure
       .input(z.object({ targetUserId: z.string().min(1) }))
       .mutation(async ({ input, ctx }) => {
-        if (ctx.session.user.role !== 'SYSTEM_MANAGER') {
+        if (!checkGlobalAdmin(ctx.session.user.role)) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
         }
 
