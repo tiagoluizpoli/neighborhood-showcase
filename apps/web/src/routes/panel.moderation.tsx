@@ -1,4 +1,3 @@
-import { Badge } from '@neighborhood-showcase/ui/components/badge';
 import { Button } from '@neighborhood-showcase/ui/components/button';
 import {
   Card,
@@ -7,13 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@neighborhood-showcase/ui/components/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@neighborhood-showcase/ui/components/dialog';
 import { Input } from '@neighborhood-showcase/ui/components/input';
 import { Label } from '@neighborhood-showcase/ui/components/label';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -23,7 +15,6 @@ import {
   Check,
   ExternalLink,
   FileText,
-  History,
   Loader2,
   Megaphone,
   RefreshCw,
@@ -34,6 +25,7 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { ModerationReportsQueue } from './panel/-moderation-reports-queue';
 import { authClient } from '@/lib/auth-client';
 import { trpc, trpcClient } from '@/utils/trpc';
 
@@ -704,357 +696,58 @@ function ModerationDashboard() {
         )}
 
         {/* Reports Queue View */}
-        {activeSubTab === 'reports' && (
-          <>
-            <div className="mb-6">
-              <h2 className="font-bold text-2xl text-foreground">
-                {t('moderation.reports_title')}
-              </h2>
-              <p className="mt-1 text-muted-foreground text-xs">
-                {t('moderation.reports_subtitle')}
-              </p>
+        {activeSubTab === 'reports' &&
+          (reportedQuery.isPending ? (
+            <div className="flex min-h-[40vh] items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-
-            {reportedQuery.isPending ? (
-              <div className="flex min-h-[40vh] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : reportedAnnouncements.length === 0 ? (
-              <Card className="py-12 text-center">
-                <CardContent>
-                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                    <ShieldAlert className="h-6 w-6" />
-                  </div>
-                  <h3 className="font-semibold text-foreground text-lg">
-                    {t('moderation.reports_empty_title')}
-                  </h3>
-                  <p className="mt-1 text-muted-foreground text-sm">
-                    {t('moderation.reports_empty_desc')}
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {reportedAnnouncements.map((ad) => (
-                  <Card
-                    key={ad.id}
-                    className="flex flex-col justify-between overflow-hidden border-destructive/20 bg-destructive/5 dark:bg-destructive/10"
-                  >
-                    <div className="relative aspect-[4/3] w-full bg-muted">
-                      <img
-                        src={ad.imageUrl}
-                        alt={ad.title}
-                        className="h-full w-full object-cover"
-                      />
-                      <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
-                        <span className="rounded-full border border-destructive/30 bg-destructive px-2.5 py-1 font-bold text-destructive-foreground text-xs">
-                          {ad.totalReports}{' '}
-                          {ad.totalReports === 1 ? 'Denúncia' : 'Denúncias'}
-                        </span>
-                      </div>
-                      <div className="absolute right-0 bottom-0 left-0 p-4">
-                        <p className="font-medium text-destructive text-xs uppercase tracking-wider">
-                          {ad.status === 'SUSPENDED'
-                            ? t('common.suspended')
-                            : t('common.active')}
-                        </p>
-                        <h4 className="line-clamp-1 font-bold text-foreground text-lg">
-                          {ad.title}
-                        </h4>
-                      </div>
-                    </div>
-
-                    <CardContent className="flex flex-1 flex-col justify-between space-y-4 p-5">
-                      <div className="space-y-3">
-                        <div className="border-border border-b pb-2">
-                          <span className="text-muted-foreground text-xs">
-                            Prestador:
-                          </span>
-                          <p className="font-semibold text-foreground text-sm">
-                            {ad.providerName}
-                          </p>
-                          <p className="text-muted-foreground text-xs">
-                            {ad.providerEmail}
-                          </p>
-                        </div>
-
-                        {/* Reason Breakdown Pills */}
-                        <div className="flex flex-wrap gap-2">
-                          {Object.entries(ad.reasonBreakdown).map(
-                            ([reasonKey, count]) => {
-                              if (count === 0) return null;
-                              return (
-                                <Badge
-                                  key={reasonKey}
-                                  variant="outline"
-                                  className="border-destructive/30 bg-background text-[10px] text-destructive"
-                                >
-                                  {getReasonLabel(reasonKey)}: {count}
-                                </Badge>
-                              );
-                            },
-                          )}
-                        </div>
-
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setViewingReportsAdId(ad.id)}
-                          className="h-8 w-full border border-border bg-background text-foreground text-xs hover:bg-muted"
-                        >
-                          <History className="mr-1.5 h-3.5 w-3.5" />
-                          {t('moderation.details_title')}
-                        </Button>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="space-y-2 pt-4">
-                        {isSuspendingId === ad.id ? (
-                          <div className="space-y-3 rounded-lg border border-destructive/20 bg-card p-3">
-                            <div className="space-y-1">
-                              <Label
-                                htmlFor={`report-suspend-${ad.id}`}
-                                className="font-semibold text-foreground text-xs"
-                              >
-                                {t('moderation.select_reason')} *
-                              </Label>
-                              <select
-                                id={`report-suspend-${ad.id}`}
-                                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-foreground text-xs focus:border-ring focus:outline-none"
-                                value={suspensionReason}
-                                onChange={(e) =>
-                                  setSuspensionReason(e.target.value)
-                                }
-                              >
-                                <option value="">
-                                  -- {t('moderation.select_reason')} --
-                                </option>
-                                <option
-                                  value={t(
-                                    'moderation.suspend_reason_inadequado',
-                                  )}
-                                >
-                                  {t('moderation.suspend_reason_inadequado')}
-                                </option>
-                                <option
-                                  value={t('moderation.suspend_reason_fraude')}
-                                >
-                                  {t('moderation.suspend_reason_fraude')}
-                                </option>
-                                <option
-                                  value={t('moderation.suspend_reason_contato')}
-                                >
-                                  {t('moderation.suspend_reason_contato')}
-                                </option>
-                                <option
-                                  value={t('moderation.suspend_reason_spam')}
-                                >
-                                  {t('moderation.suspend_reason_spam')}
-                                </option>
-                              </select>
-                            </div>
-                            <div className="flex justify-end space-x-2">
-                              <Button
-                                variant="ghost"
-                                onClick={() => setIsSuspendingId(null)}
-                                className="h-7 px-2 text-xs"
-                              >
-                                {t('moderation.cancel')}
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                disabled={
-                                  suspendMutation.isPending || !suspensionReason
-                                }
-                                onClick={() =>
-                                  suspendMutation.mutate({
-                                    id: ad.id,
-                                    reason: suspensionReason,
-                                  })
-                                }
-                                className="h-7 px-2 text-xs"
-                              >
-                                {t('moderation.confirm')}
-                              </Button>
-                            </div>
-                          </div>
-                        ) : isBanningUserId === ad.id ? (
-                          <div className="space-y-3 rounded-lg border border-destructive/30 bg-card p-3">
-                            <div className="space-y-1">
-                              <p className="font-bold text-destructive text-xs">
-                                {t('moderation.ban_desc')}
-                              </p>
-                              <Label
-                                htmlFor={`report-ban-${ad.id}`}
-                                className="font-semibold text-foreground text-xs"
-                              >
-                                {t('moderation.select_reason')} *
-                              </Label>
-                              <select
-                                id={`report-ban-${ad.id}`}
-                                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-foreground text-xs focus:border-ring focus:outline-none"
-                                value={banReason}
-                                onChange={(e) => setBanReason(e.target.value)}
-                              >
-                                <option value="">
-                                  -- {t('moderation.select_reason')} --
-                                </option>
-                                <option
-                                  value={t('moderation.ban_reason_repetidas')}
-                                >
-                                  {t('moderation.ban_reason_repetidas')}
-                                </option>
-                                <option
-                                  value={t('moderation.ban_reason_fraude')}
-                                >
-                                  {t('moderation.ban_reason_fraude')}
-                                </option>
-                                <option
-                                  value={t('moderation.ban_reason_termos')}
-                                >
-                                  {t('moderation.ban_reason_termos')}
-                                </option>
-                              </select>
-                            </div>
-                            <div className="flex justify-end space-x-2">
-                              <Button
-                                variant="ghost"
-                                onClick={() => setIsBanningUserId(null)}
-                                className="h-7 px-2 text-xs"
-                              >
-                                {t('moderation.cancel')}
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                disabled={
-                                  banProviderMutation.isPending || !banReason
-                                }
-                                onClick={() =>
-                                  banProviderMutation.mutate({
-                                    id: ad.providerId,
-                                    reason: banReason,
-                                  })
-                                }
-                                className="h-7 px-2 text-xs"
-                              >
-                                {t('moderation.confirm')}
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col gap-2">
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                onClick={() =>
-                                  dismissReportsMutation.mutate({
-                                    announcementId: ad.id,
-                                  })
-                                }
-                                disabled={dismissReportsMutation.isPending}
-                                className="flex-1 border-border bg-background text-foreground text-xs"
-                              >
-                                {dismissReportsMutation.isPending ? (
-                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                ) : (
-                                  <>
-                                    <Check className="mr-1.5 h-3.5 w-3.5" />
-                                    {t('moderation.dismiss')}
-                                  </>
-                                )}
-                              </Button>
-
-                              {ad.status !== 'SUSPENDED' && (
-                                <Button
-                                  variant="destructive"
-                                  onClick={() => {
-                                    setIsSuspendingId(ad.id);
-                                    setSuspensionReason('');
-                                  }}
-                                  className="flex-1 text-xs"
-                                >
-                                  <AlertTriangle className="mr-1.5 h-3.5 w-3.5" />
-                                  {t('moderation.suspend')}
-                                </Button>
-                              )}
-                            </div>
-
-                            {isSystemManager && (
-                              <Button
-                                variant="destructive"
-                                onClick={() => {
-                                  setIsBanningUserId(ad.id);
-                                  setBanReason('');
-                                }}
-                                className="w-full font-semibold text-xs"
-                              >
-                                <ShieldAlert className="mr-1.5 h-3.5 w-3.5" />
-                                {t('moderation.ban')}
-                              </Button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </>
-        )}
+          ) : (
+            <ModerationReportsQueue
+              banPending={banProviderMutation.isPending}
+              banReason={banReason}
+              dismissReportsPending={dismissReportsMutation.isPending}
+              getReasonLabel={getReasonLabel}
+              isBanningUserId={isBanningUserId}
+              isSuspendingId={isSuspendingId}
+              isSystemManager={isSystemManager}
+              reportedAnnouncements={reportedAnnouncements}
+              selectedAdForReports={selectedAdForReports}
+              suspensionReason={suspensionReason}
+              suspendPending={suspendMutation.isPending}
+              t={t}
+              viewingReportsAdId={viewingReportsAdId}
+              onBanReasonChange={setBanReason}
+              onCancelBan={() => setIsBanningUserId(null)}
+              onCancelSuspend={() => setIsSuspendingId(null)}
+              onCloseDetails={() => setViewingReportsAdId(null)}
+              onConfirmBan={(providerId) =>
+                banProviderMutation.mutate({
+                  id: providerId,
+                  reason: banReason,
+                })
+              }
+              onConfirmDismiss={(announcementId) =>
+                dismissReportsMutation.mutate({ announcementId })
+              }
+              onConfirmSuspend={(announcementId) =>
+                suspendMutation.mutate({
+                  id: announcementId,
+                  reason: suspensionReason,
+                })
+              }
+              onOpenBan={(announcementId) => {
+                setIsBanningUserId(announcementId);
+                setBanReason('');
+              }}
+              onOpenDetails={setViewingReportsAdId}
+              onOpenSuspend={(announcementId) => {
+                setIsSuspendingId(announcementId);
+                setSuspensionReason('');
+              }}
+              onSuspensionReasonChange={setSuspensionReason}
+            />
+          ))}
       </main>
-
-      {/* Reports Detailed List Modal */}
-      {viewingReportsAdId && selectedAdForReports && (
-        <Dialog
-          open={!!viewingReportsAdId}
-          onOpenChange={(open) => !open && setViewingReportsAdId(null)}
-        >
-          <DialogContent className="w-full max-w-lg border bg-card p-6">
-            <DialogHeader className="space-y-2">
-              <DialogTitle className="font-bold text-foreground text-xl">
-                {t('moderation.details_title')}
-              </DialogTitle>
-              <DialogDescription className="text-muted-foreground text-xs">
-                {selectedAdForReports.title}
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="max-h-[50vh] space-y-3 overflow-y-auto py-4 pr-1">
-              {selectedAdForReports.reports.map((r) => (
-                <div
-                  key={r.id}
-                  className="space-y-1.5 rounded-lg border border-border bg-muted/40 p-3 text-xs"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-foreground">
-                      {r.reporterName}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">
-                      {new Date(r.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <p className="text-muted-foreground">{r.reporterEmail}</p>
-                  <div className="pt-1">
-                    <span className="rounded bg-destructive/10 px-2 py-0.5 font-semibold text-[10px] text-destructive">
-                      {getReasonLabel(r.reason)}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <Button
-                onClick={() => setViewingReportsAdId(null)}
-                className="h-9 px-4 font-medium text-xs"
-              >
-                Fechar
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
 
       {/* Document Preview Modal */}
       {previewUrl && (

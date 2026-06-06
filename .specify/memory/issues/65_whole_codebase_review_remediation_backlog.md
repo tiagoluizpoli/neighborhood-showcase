@@ -24,7 +24,7 @@ The review found four major categories of work:
 - [x] `68_provider_profile_explicit_provisioning_and_pure_reads.md`
 - [x] `69_announcement_server_interface_decomposition.md`
 - [x] `70_public_vitrine_route_family_decomposition.md`
-- [ ] `71_provider_dashboard_route_family_decomposition.md`
+- [x] `71_provider_dashboard_route_family_decomposition.md`
 - [ ] `72_moderation_admin_route_family_decomposition.md`
 - [ ] `73_frontend_export_surface_and_bundle_cleanup.md`
 
@@ -83,3 +83,5 @@ The review found four major categories of work:
 - 2026-06-05: Issue 71 continued again by extracting the remaining edit modal shell/state/mutation block into an internal route-family module, leaving `panel.dashboard.index.tsx` primarily responsible for dashboard composition and tab/query state. Validation target stays focused dashboard route coverage plus full `bun run test`, `bun run check-types`, and `bun run check`.
 - 2026-06-05: Issue 71 continued again by extracting the resident condominium-setup subflow into an internal route-family module, moving condo search/selection, proof upload, and assignment-request orchestration out of `panel.dashboard.condo-setup.tsx` while keeping the route focused on onboarding flow switching and status screens. Validation stayed green under focused resident-flow coverage plus full `bun run test`, `bun run check-types`, and `bun run check`; external and síndico setup seams still remain.
 - 2026-06-05: Issue 71 continued again by extracting the external condominium-setup subflow into an internal route-family module, moving external CEP lookup, address form state, and registration orchestration out of `panel.dashboard.condo-setup.tsx` while keeping the route focused on onboarding flow switching and status screens. Validation stayed green under focused external-flow coverage plus full `bun run test`, `bun run check-types`, and `bun run check`; the full-suite pass also required a deterministic fix in moderation integration assertions that had been depending on result order.
+- 2026-06-05: Issue 71 is now complete after extracting the remaining provider-dashboard route-family seams into deeper `panel/` modules, leaving the file-route bridge pure and checking off the provider-dashboard decomposition in the remediation order.
+- 2026-06-05: Issue 72 is now in progress. The first moderation/admin slice extracted the moderation reports queue and details dialog into internal `panel/` route-family modules, keeping `panel.moderation.tsx` on role/query/mutation wiring while moving reports rendering behind deeper seams. Validation stayed green under focused reports/moderation coverage plus full `bun run test`, `bun run check-types`, and `bun run check`; the existing web chunk-size warning remains non-blocking and later admin/moderation seams still remain.

@@ -117,6 +117,17 @@ ModerationRoute.useRouteContext = () => ({
 const findElementByText = (node: any, text: string): any => {
   if (!node) return null;
   if (typeof node === 'string' && node.includes(text)) return node;
+  if (
+    typeof node === 'object' &&
+    node !== null &&
+    typeof node.type === 'function'
+  ) {
+    try {
+      const evaluated = node.type(node.props);
+      const found = findElementByText(evaluated, text);
+      if (found) return found;
+    } catch (_error) {}
+  }
   if (node.props?.children) {
     const children = Array.isArray(node.props.children)
       ? node.props.children
