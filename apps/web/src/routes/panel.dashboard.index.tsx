@@ -7,6 +7,7 @@ import { ProviderDashboardAnalyticsModal } from './panel/-provider-dashboard-ana
 import { ProviderDashboardAnnouncementList } from './panel/-provider-dashboard-announcement-list';
 import { ProviderDashboardEditModal } from './panel/-provider-dashboard-edit-modal';
 import { ProviderDashboardHeader } from './panel/-provider-dashboard-header';
+import { handleProviderDashboardMessage } from './panel/-provider-dashboard-message-handler';
 import { ProviderDashboardPerformanceOverview } from './panel/-provider-dashboard-performance-overview';
 import { ProviderDashboardShellBoundary } from './panel/-provider-dashboard-shell-boundary';
 import type { ProviderDashboardAnnouncementItem } from './panel/-provider-dashboard-types';
@@ -28,13 +29,7 @@ function DashboardIndexComponent() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (message) {
-      toast.error(message);
-      navigate({
-        to: '/panel/dashboard',
-        replace: true,
-      });
-    }
+    handleProviderDashboardMessage({ message, navigate });
   }, [message, navigate]);
 
   const [activeTab, setActiveTab] = useState<
