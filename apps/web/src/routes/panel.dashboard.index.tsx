@@ -18,10 +18,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { ProviderDashboardAnalyticsModal } from './panel/-provider-dashboard-analytics-modal';
-import {
-  ProviderDashboardAnnouncementCard,
-  ProviderDashboardAnnouncementEmptyState,
-} from './panel/-provider-dashboard-announcement-card';
+import { ProviderDashboardAnnouncementList } from './panel/-provider-dashboard-announcement-list';
 import { ProviderDashboardEditModal } from './panel/-provider-dashboard-edit-modal';
 import type { ProviderDashboardAnnouncementItem } from './panel/-provider-dashboard-types';
 import { trpc } from '@/utils/trpc';
@@ -372,160 +369,22 @@ function DashboardIndexComponent() {
         )}
       </div>
 
-      {/* Tabs list Navigation */}
-      <div className="mb-6 border-border border-b">
-        <div className="flex space-x-8">
-          <button
-            type="button"
-            onClick={() => setActiveTab('active')}
-            className={`relative pb-4 font-semibold text-sm transition-all ${
-              activeTab === 'active'
-                ? 'border-primary border-b-2 text-primary'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Ativos ({announcements.active.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('draft')}
-            className={`relative pb-4 font-semibold text-sm transition-all ${
-              activeTab === 'draft'
-                ? 'border-primary border-b-2 text-primary'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Rascunhos & Pendentes ({announcements.draft.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('expired')}
-            className={`relative pb-4 font-semibold text-sm transition-all ${
-              activeTab === 'expired'
-                ? 'border-primary border-b-2 text-primary'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Expirados ({announcements.expired.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('suspended')}
-            className={`relative pb-4 font-semibold text-sm transition-all ${
-              activeTab === 'suspended'
-                ? 'border-primary border-b-2 text-primary'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Suspensos ({announcements.suspended.length})
-          </button>
-        </div>
-      </div>
-
-      {/* Announcements List Container */}
-      <div>
-        {activeTab === 'active' && (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {announcements.active.length === 0 ? (
-              <ProviderDashboardAnnouncementEmptyState
-                text="Nenhum anúncio ativo no momento."
-                link="/panel/dashboard/anuncios/novo"
-                buttonText="Criar Anúncio"
-              />
-            ) : (
-              announcements.active.map((ad) => (
-                <ProviderDashboardAnnouncementCard
-                  key={ad.id}
-                  ad={ad}
-                  onEdit={() => setEditingAd(ad)}
-                  formatDate={formatDate}
-                  formatPrice={formatPrice}
-                  onViewAnalytics={setViewingAnalyticsAd}
-                />
-              ))
-            )}
-          </div>
-        )}
-
-        {activeTab === 'draft' && (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {announcements.draft.length === 0 ? (
-              <ProviderDashboardAnnouncementEmptyState
-                text="Nenhum rascunho ou pagamento pendente."
-                link="/panel/dashboard/anuncios/novo"
-                buttonText="Criar Anúncio"
-              />
-            ) : (
-              announcements.draft.map((ad) => (
-                <ProviderDashboardAnnouncementCard
-                  key={ad.id}
-                  ad={ad}
-                  onEdit={() => setEditingAd(ad)}
-                  formatDate={formatDate}
-                  formatPrice={formatPrice}
-                  onPay={() =>
-                    navigate({
-                      to: `/panel/dashboard/anuncios/${ad.id}/pagamento`,
-                    })
-                  }
-                  onViewAnalytics={setViewingAnalyticsAd}
-                />
-              ))
-            )}
-          </div>
-        )}
-
-        {activeTab === 'expired' && (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {announcements.expired.length === 0 ? (
-              <ProviderDashboardAnnouncementEmptyState
-                text="Nenhum anúncio expirado."
-                hideButton
-              />
-            ) : (
-              announcements.expired.map((ad) => (
-                <ProviderDashboardAnnouncementCard
-                  key={ad.id}
-                  ad={ad}
-                  onEdit={() => setEditingAd(ad)}
-                  formatDate={formatDate}
-                  formatPrice={formatPrice}
-                  onRenew={() =>
-                    renewMutation.mutate({ announcementId: ad.id })
-                  }
-                  isRenewing={
-                    renewMutation.isPending &&
-                    renewMutation.variables?.announcementId === ad.id
-                  }
-                  onViewAnalytics={setViewingAnalyticsAd}
-                />
-              ))
-            )}
-          </div>
-        )}
-
-        {activeTab === 'suspended' && (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {announcements.suspended.length === 0 ? (
-              <ProviderDashboardAnnouncementEmptyState
-                text="Nenhum anúncio suspenso."
-                hideButton
-              />
-            ) : (
-              announcements.suspended.map((ad) => (
-                <ProviderDashboardAnnouncementCard
-                  key={ad.id}
-                  ad={ad}
-                  onEdit={() => setEditingAd(ad)}
-                  formatDate={formatDate}
-                  formatPrice={formatPrice}
-                  onViewAnalytics={setViewingAnalyticsAd}
-                />
-              ))
-            )}
-          </div>
-        )}
-      </div>
+      <ProviderDashboardAnnouncementList
+        activeTab={activeTab}
+        announcements={announcements}
+        formatDate={formatDate}
+        formatPrice={formatPrice}
+        isRenewingAnnouncementId={renewMutation.variables?.announcementId}
+        onActiveTabChange={setActiveTab}
+        onEdit={setEditingAd}
+        onPay={(ad) =>
+          navigate({
+            to: `/panel/dashboard/anuncios/${ad.id}/pagamento`,
+          })
+        }
+        onRenew={(ad) => renewMutation.mutate({ announcementId: ad.id })}
+        onViewAnalytics={setViewingAnalyticsAd}
+      />
 
       {/* Edit Announcement Modal */}
       {editingAd && (
