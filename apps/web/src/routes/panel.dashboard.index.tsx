@@ -1,6 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { z } from 'zod';
 import { ProviderDashboardAnalyticsModal } from './panel/-provider-dashboard-analytics-modal';
 import { ProviderDashboardAnnouncementList } from './panel/-provider-dashboard-announcement-list';
@@ -13,10 +12,8 @@ import { ProviderDashboardHeader } from './panel/-provider-dashboard-header';
 import { handleProviderDashboardMessage } from './panel/-provider-dashboard-message-handler';
 import { ProviderDashboardPerformanceOverview } from './panel/-provider-dashboard-performance-overview';
 import { formatProviderDashboardPeriodLabel } from './panel/-provider-dashboard-period-label';
-import { createProviderDashboardRenewActions } from './panel/-provider-dashboard-renew-actions';
 import { ProviderDashboardShellBoundary } from './panel/-provider-dashboard-shell-boundary';
-import type { ProviderDashboardAnnouncementItem } from './panel/-provider-dashboard-types';
-import { trpc } from '@/utils/trpc';
+import { useProviderDashboardState } from './panel/-provider-dashboard-state';
 
 const dashboardSearchSchema = z.object({
   message: z.string().optional(),
@@ -30,43 +27,14 @@ export const Route = createFileRoute('/panel/dashboard/')({
 function DashboardIndexComponent() {
   const { session } = Route.useRouteContext();
   const { message } = Route.useSearch();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const dashboardState = useProviderDashboardState();
 
   useEffect(() => {
     handleProviderDashboardMessage({ message, navigate });
   }, [message, navigate]);
 
-  const [activeTab, setActiveTab] = useState<
-    'active' | 'draft' | 'expired' | 'suspended'
-  >('active');
-  const [editingAd, setEditingAd] =
-    useState<ProviderDashboardAnnouncementItem | null>(null);
-  const [period, setPeriod] = useState<'7d' | '30d' | '12m'>('7d');
-  const [viewingAnalyticsAd, setViewingAnalyticsAd] =
-    useState<ProviderDashboardAnnouncementItem | null>(null);
-
-  // Fetch dashboard data
-  const dashboardQuery = useQuery(
-    trpc.announcement.getDashboardData.queryOptions(),
-  );
-
-  // Fetch aggregate analytics data (omits announcementId)
-  const analyticsQuery = useQuery(
-    trpc.announcement.getAnalytics.queryOptions({
-      period,
-    }),
-  );
-  const dashboardData = dashboardQuery.data;
-
-  // Renew payment intent mutation
-  const renewActions = createProviderDashboardRenewActions({ navigate });
-  const renewMutation = useMutation(
-    trpc.announcement.getPaymentDetails.mutationOptions({
-      onSuccess: (data) => renewActions.onSuccess(data.announcementId),
-      onError: (err) => renewActions.onError(err.message),
-    }),
-  );
+  const dashboardData = dashboardState.dashboardQuery.data;
 
   if (!dashboardData) {
     return null;
@@ -74,7 +42,7 @@ function DashboardIndexComponent() {
 
   return (
     <ProviderDashboardShellBoundary
-      dashboardQuery={dashboardQuery}
+      dashboardQuery={dashboardState.dashboardQuery}
       renderContent={() => {
         const { stats, announcements } = dashboardData;
 
@@ -84,52 +52,45 @@ function DashboardIndexComponent() {
 
             <ProviderDashboardPerformanceOverview
               analytics={{
-                chartData: analyticsQuery.data?.chartData,
-                isError: analyticsQuery.isError,
-                isLoading: analyticsQuery.isLoading,
+                chartData: dashboardState.analyticsQuery.data?.chartData,
+                isError: dashboardState.analyticsQuery.isError,
+                isLoading: dashboardState.analyticsQuery.isLoading,
               }}
               formatPeriodLabel={formatProviderDashboardPeriodLabel}
-              onPeriodChange={setPeriod}
-              period={period}
+              onPeriodChange={dashboardState.setPeriod}
+              period={dashboardState.period}
               stats={stats}
             />
 
             <ProviderDashboardAnnouncementList
-              activeTab={activeTab}
+              activeTab={dashboardState.activeTab}
               announcements={announcements}
               formatDate={formatProviderDashboardDate}
               formatPrice={formatProviderDashboardPrice}
-              isRenewingAnnouncementId={renewMutation.variables?.announcementId}
-              onActiveTabChange={setActiveTab}
-              onEdit={setEditingAd}
-              onPay={(ad) =>
-                navigate({
-                  to: `/panel/dashboard/anuncios/${ad.id}/pagamento`,
-                })
+              isRenewingAnnouncementId={
+                dashboardState.renewMutation.variables?.announcementId
               }
-              onRenew={(ad) => renewMutation.mutate({ announcementId: ad.id })}
-              onViewAnalytics={setViewingAnalyticsAd}
+              onActiveTabChange={dashboardState.setActiveTab}
+              onEdit={dashboardState.setEditingAd}
+              onPay={dashboardState.handlePay}
+              onRenew={dashboardState.handleRenew}
+              onViewAnalytics={dashboardState.setViewingAnalyticsAd}
             />
 
             {/* Edit Announcement Modal */}
-            {editingAd && (
+            {dashboardState.editingAd && (
               <ProviderDashboardEditModal
-                ad={editingAd}
-                onClose={() => setEditingAd(null)}
-                onSuccess={() => {
-                  setEditingAd(null);
-                  queryClient.invalidateQueries({
-                    queryKey: trpc.announcement.getDashboardData.queryKey(),
-                  });
-                }}
+                ad={dashboardState.editingAd}
+                onClose={() => dashboardState.setEditingAd(null)}
+                onSuccess={dashboardState.handleEditSuccess}
               />
             )}
 
             {/* Analytics Modal */}
-            {viewingAnalyticsAd && (
+            {dashboardState.viewingAnalyticsAd && (
               <ProviderDashboardAnalyticsModal
-                ad={viewingAnalyticsAd}
-                onClose={() => setViewingAnalyticsAd(null)}
+                ad={dashboardState.viewingAnalyticsAd}
+                onClose={() => dashboardState.setViewingAnalyticsAd(null)}
               />
             )}
           </div>
