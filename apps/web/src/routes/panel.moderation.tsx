@@ -1,30 +1,12 @@
-import { Button } from '@neighborhood-showcase/ui/components/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@neighborhood-showcase/ui/components/card';
-import { Input } from '@neighborhood-showcase/ui/components/input';
-import { Label } from '@neighborhood-showcase/ui/components/label';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import {
-  Check,
-  ExternalLink,
-  FileText,
-  Loader2,
-  Megaphone,
-  ShieldAlert,
-  Users,
-  X,
-} from 'lucide-react';
+import { Loader2, Megaphone, ShieldAlert, Users, X } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { ModerationAnnouncementsQueue } from './panel/-moderation-announcements-queue';
 import { ModerationReportsQueue } from './panel/-moderation-reports-queue';
+import { ModerationResidentsQueue } from './panel/-moderation-residents-queue';
 import { authClient } from '@/lib/auth-client';
 import { trpc, trpcClient } from '@/utils/trpc';
 
@@ -322,165 +304,37 @@ function ModerationDashboard() {
         </div>
 
         {/* Residents View */}
-        {activeSubTab === 'residents' && (
-          <>
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <h2 className="font-bold text-2xl text-foreground">
-                  Solicitações de Moradores
-                </h2>
-                <p className="mt-1 text-muted-foreground text-xs">
-                  Aprove ou rejeite novas solicitações de moradores para a sua
-                  comunidade
-                </p>
-              </div>
+        {activeSubTab === 'residents' &&
+          (pendingResidentsQuery.isPending ? (
+            <div className="flex min-h-[40vh] items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-
-            {pendingResidentsQuery.isPending ? (
-              <div className="flex min-h-[40vh] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : pendingResidents.length === 0 ? (
-              <Card className="py-12 text-center">
-                <CardContent>
-                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                    <Check className="h-6 w-6" />
-                  </div>
-                  <h3 className="font-semibold text-foreground text-lg">
-                    Tudo sob controle!
-                  </h3>
-                  <p className="mt-1 text-muted-foreground text-sm">
-                    Nenhuma solicitação de morador pendente para este
-                    condomínio.
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {pendingResidents.map((resident) => (
-                  <Card
-                    key={resident.id}
-                    className="flex flex-col justify-between"
-                  >
-                    <CardHeader>
-                      <CardTitle>
-                        {resident.provider?.name || 'Morador Sem Nome'}
-                      </CardTitle>
-                      <CardDescription>
-                        Unidade: {resident.unitInfo || 'Não informada'}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {resident.proofOfResidency && (
-                        <div className="rounded-lg border bg-muted/45 p-3">
-                          <div className="flex items-center justify-between">
-                            <span className="flex items-center text-muted-foreground text-xs">
-                              <FileText className="mr-1.5 h-4 w-4 text-primary" />
-                              Comprovante
-                            </span>
-                            <div className="flex space-x-2">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setPreviewUrl(
-                                    resident.proofOfResidency || null,
-                                  )
-                                }
-                                className="cursor-pointer text-primary text-xs hover:underline"
-                              >
-                                Visualizar
-                              </button>
-                              <a
-                                href={resident.proofOfResidency}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center text-primary text-xs hover:underline"
-                              >
-                                <ExternalLink className="ml-1 h-3 w-3" />
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {isRejectingId === resident.id ? (
-                        <div className="space-y-3 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
-                          <div className="space-y-1">
-                            <Label
-                              htmlFor={`reason-${resident.id}`}
-                              className="text-destructive text-xs"
-                            >
-                              Motivo da Rejeição *
-                            </Label>
-                            <Input
-                              id={`reason-${resident.id}`}
-                              placeholder="Ex: Nome inválido ou comprovante ilegível"
-                              className="text-xs"
-                              value={reason}
-                              onChange={(e) => setReason(e.target.value)}
-                            />
-                          </div>
-                          <div className="flex justify-end space-x-2">
-                            <Button
-                              variant="ghost"
-                              onClick={() => setIsRejectingId(null)}
-                              className="h-7 px-2 text-muted-foreground text-xs"
-                            >
-                              {t('moderation.cancel')}
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              disabled={
-                                rejectMutation.isPending || !reason.trim()
-                              }
-                              onClick={() =>
-                                rejectMutation.mutate({
-                                  id: resident.id,
-                                  reason: reason.trim(),
-                                })
-                              }
-                              className="h-7 px-2 text-xs"
-                            >
-                              {t('moderation.confirm')}
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex space-x-2 pt-2">
-                          <Button
-                            disabled={approveMutation.isPending}
-                            onClick={() =>
-                              approveMutation.mutate({ id: resident.id })
-                            }
-                            className="flex-1"
-                          >
-                            {approveMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <>
-                                <Check className="mr-1.5 h-4 w-4" /> Aprovar
-                              </>
-                            )}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => {
-                              setIsRejectingId(resident.id);
-                              setReason('');
-                            }}
-                            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                          >
-                            <X className="mr-1.5 h-4 w-4" /> Rejeitar
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </>
-        )}
+          ) : (
+            <ModerationResidentsQueue
+              approvePending={approveMutation.isPending}
+              isRejectingId={isRejectingId}
+              pendingResidents={pendingResidents}
+              reason={reason}
+              rejectPending={rejectMutation.isPending}
+              t={t}
+              onApprove={(residentId) =>
+                approveMutation.mutate({ id: residentId })
+              }
+              onCancelReject={() => setIsRejectingId(null)}
+              onOpenProof={(proofUrl) => setPreviewUrl(proofUrl)}
+              onReasonChange={setReason}
+              onReject={(residentId) =>
+                rejectMutation.mutate({
+                  id: residentId,
+                  reason: reason.trim(),
+                })
+              }
+              onStartReject={(residentId) => {
+                setIsRejectingId(residentId);
+                setReason('');
+              }}
+            />
+          ))}
 
         {/* Announcements View */}
         {activeSubTab === 'announcements' &&
