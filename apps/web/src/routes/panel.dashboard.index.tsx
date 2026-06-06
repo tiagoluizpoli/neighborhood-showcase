@@ -9,6 +9,7 @@ import { ProviderDashboardEditModal } from './panel/-provider-dashboard-edit-mod
 import { ProviderDashboardHeader } from './panel/-provider-dashboard-header';
 import { handleProviderDashboardMessage } from './panel/-provider-dashboard-message-handler';
 import { ProviderDashboardPerformanceOverview } from './panel/-provider-dashboard-performance-overview';
+import { formatProviderDashboardPeriodLabel } from './panel/-provider-dashboard-period-label';
 import { ProviderDashboardShellBoundary } from './panel/-provider-dashboard-shell-boundary';
 import type { ProviderDashboardAnnouncementItem } from './panel/-provider-dashboard-types';
 import { trpc } from '@/utils/trpc';
@@ -102,13 +103,7 @@ function DashboardIndexComponent() {
                 isError: analyticsQuery.isError,
                 isLoading: analyticsQuery.isLoading,
               }}
-              formatPeriodLabel={(value) =>
-                value === '7d'
-                  ? '7 Dias'
-                  : value === '30d'
-                    ? '30 Dias'
-                    : '12 Meses'
-              }
+              formatPeriodLabel={formatProviderDashboardPeriodLabel}
               onPeriodChange={setPeriod}
               period={period}
               stats={stats}
