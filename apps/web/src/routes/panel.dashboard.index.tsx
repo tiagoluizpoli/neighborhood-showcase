@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 import { z } from 'zod';
 import { ProviderDashboardAnalyticsModal } from './panel/-provider-dashboard-analytics-modal';
 import { ProviderDashboardAnnouncementList } from './panel/-provider-dashboard-announcement-list';
@@ -14,6 +13,7 @@ import { ProviderDashboardHeader } from './panel/-provider-dashboard-header';
 import { handleProviderDashboardMessage } from './panel/-provider-dashboard-message-handler';
 import { ProviderDashboardPerformanceOverview } from './panel/-provider-dashboard-performance-overview';
 import { formatProviderDashboardPeriodLabel } from './panel/-provider-dashboard-period-label';
+import { createProviderDashboardRenewActions } from './panel/-provider-dashboard-renew-actions';
 import { ProviderDashboardShellBoundary } from './panel/-provider-dashboard-shell-boundary';
 import type { ProviderDashboardAnnouncementItem } from './panel/-provider-dashboard-types';
 import { trpc } from '@/utils/trpc';
@@ -60,17 +60,11 @@ function DashboardIndexComponent() {
   const dashboardData = dashboardQuery.data;
 
   // Renew payment intent mutation
+  const renewActions = createProviderDashboardRenewActions({ navigate });
   const renewMutation = useMutation(
     trpc.announcement.getPaymentDetails.mutationOptions({
-      onSuccess: (data) => {
-        toast.success('Intenção de pagamento gerada. Redirecionando...');
-        navigate({
-          to: `/panel/dashboard/anuncios/${data.announcementId}/pagamento`,
-        });
-      },
-      onError: (err) => {
-        toast.error(err.message || 'Erro ao gerar intenção de pagamento.');
-      },
+      onSuccess: (data) => renewActions.onSuccess(data.announcementId),
+      onError: (err) => renewActions.onError(err.message),
     }),
   );
 
