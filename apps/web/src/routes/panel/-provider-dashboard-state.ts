@@ -8,6 +8,57 @@ import { trpc } from '@/utils/trpc';
 type ProviderDashboardTab = 'active' | 'draft' | 'expired' | 'suspended';
 type ProviderDashboardPeriod = '7d' | '30d' | '12m';
 
+export interface ProviderDashboardAnnouncementsBuckets {
+  active: ProviderDashboardAnnouncementItem[];
+  draft: ProviderDashboardAnnouncementItem[];
+  expired: ProviderDashboardAnnouncementItem[];
+  suspended: ProviderDashboardAnnouncementItem[];
+}
+
+export interface ProviderDashboardDashboardData {
+  announcements: ProviderDashboardAnnouncementsBuckets;
+  stats: {
+    conversionRate: number;
+    totalImpressions: number;
+    totalInteractions: number;
+  };
+}
+
+export interface ProviderDashboardState {
+  activeTab: ProviderDashboardTab;
+  analyticsQuery: {
+    data?: {
+      chartData?: Array<{
+        clicks: number;
+        impressions: number;
+        label: string;
+      }>;
+    };
+    isError: boolean;
+    isLoading: boolean;
+  };
+  dashboardQuery: {
+    data?: ProviderDashboardDashboardData;
+    isError: boolean;
+    isLoading: boolean;
+  };
+  editingAd: ProviderDashboardAnnouncementItem | null;
+  handleEditSuccess: () => void;
+  handlePay: (ad: ProviderDashboardAnnouncementItem) => void;
+  handleRenew: (ad: ProviderDashboardAnnouncementItem) => void;
+  period: ProviderDashboardPeriod;
+  renewMutation: {
+    variables?: {
+      announcementId: string;
+    };
+  };
+  setActiveTab: (tab: ProviderDashboardTab) => void;
+  setEditingAd: (ad: ProviderDashboardAnnouncementItem | null) => void;
+  setPeriod: (period: ProviderDashboardPeriod) => void;
+  setViewingAnalyticsAd: (ad: ProviderDashboardAnnouncementItem | null) => void;
+  viewingAnalyticsAd: ProviderDashboardAnnouncementItem | null;
+}
+
 export function useProviderDashboardState() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -66,5 +117,5 @@ export function useProviderDashboardState() {
     setPeriod,
     setViewingAnalyticsAd,
     viewingAnalyticsAd,
-  };
+  } satisfies ProviderDashboardState;
 }
