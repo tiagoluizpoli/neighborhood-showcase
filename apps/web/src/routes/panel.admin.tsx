@@ -11,11 +11,8 @@ import { Label } from '@neighborhood-showcase/ui/components/label';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import {
-  Check,
-  ExternalLink,
   Eye,
   EyeOff,
-  FileText,
   Loader2,
   Plus,
   Search,
@@ -28,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { AdminPendingCondosQueue } from './panel/-admin-pending-condos-queue';
 import { authClient } from '@/lib/auth-client';
 import { trpc } from '@/utils/trpc';
 
@@ -305,153 +303,30 @@ function AdminDashboard() {
 
         {/* Tab 1: Condos Approval */}
         {activeTab === 'condos' && (
-          <>
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="font-bold text-2xl text-foreground">
-                Aprovações Pendentes
-              </h2>
-            </div>
-
-            {pendingCondosQuery.isPending ? (
-              <div className="flex min-h-[40vh] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : pendingCondos.length === 0 ? (
-              <Card className="py-12 text-center">
-                <CardContent>
-                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                    <Check className="h-6 w-6" />
-                  </div>
-                  <h3 className="font-semibold text-foreground text-lg">
-                    Tudo limpo!
-                  </h3>
-                  <p className="mt-1 text-muted-foreground text-sm">
-                    Não há nenhuma solicitação de condomínio pendente de
-                    aprovação.
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {pendingCondos.map((condo) => (
-                  <Card
-                    key={condo.id}
-                    className="flex flex-col justify-between"
-                  >
-                    <CardHeader>
-                      <CardTitle>{condo.name}</CardTitle>
-                      <CardDescription>
-                        {condo.city} - {condo.state} | CEP: {condo.cep}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {condo.proofUrl && (
-                        <div className="rounded-lg border bg-muted/45 p-3">
-                          <div className="flex items-center justify-between">
-                            <span className="flex items-center text-muted-foreground text-xs">
-                              <FileText className="mr-1.5 h-4 w-4 text-primary" />
-                              Convenção / Ata
-                            </span>
-                            <div className="flex space-x-2">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setPreviewUrl(condo.proofUrl || null)
-                                }
-                                className="cursor-pointer text-primary text-xs hover:underline"
-                              >
-                                Visualizar
-                              </button>
-                              <a
-                                href={condo.proofUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center text-primary text-xs hover:underline"
-                              >
-                                <ExternalLink className="ml-1 h-3 w-3" />
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {isRejectingId === condo.id ? (
-                        <div className="space-y-3 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
-                          <div className="space-y-1">
-                            <Label
-                              htmlFor={`reason-${condo.id}`}
-                              className="text-destructive text-xs"
-                            >
-                              Motivo da Rejeição *
-                            </Label>
-                            <Input
-                              id={`reason-${condo.id}`}
-                              placeholder="Ex: Documento inválido ou ilegível"
-                              className="text-xs"
-                              value={reason}
-                              onChange={(e) => setReason(e.target.value)}
-                            />
-                          </div>
-                          <div className="flex justify-end space-x-2">
-                            <Button
-                              variant="ghost"
-                              onClick={() => setIsRejectingId(null)}
-                              className="h-7 px-2 text-muted-foreground text-xs"
-                            >
-                              Cancelar
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              disabled={
-                                rejectCondoMutation.isPending || !reason.trim()
-                              }
-                              onClick={() =>
-                                rejectCondoMutation.mutate({
-                                  id: condo.id,
-                                  reason: reason.trim(),
-                                })
-                              }
-                              className="h-7 px-2 text-xs"
-                            >
-                              Confirmar Rejeição
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex space-x-2 pt-2">
-                          <Button
-                            disabled={approveCondoMutation.isPending}
-                            onClick={() =>
-                              approveCondoMutation.mutate({ id: condo.id })
-                            }
-                            className="flex-1"
-                          >
-                            {approveCondoMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <>
-                                <Check className="mr-1.5 h-4 w-4" /> Aprovar
-                              </>
-                            )}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => {
-                              setIsRejectingId(condo.id);
-                              setReason('');
-                            }}
-                            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                          >
-                            <X className="mr-1.5 h-4 w-4" /> Rejeitar
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </>
+          <AdminPendingCondosQueue
+            approvePending={approveCondoMutation.isPending}
+            isPending={pendingCondosQuery.isPending}
+            isRejectingId={isRejectingId}
+            pendingCondos={pendingCondos}
+            reason={reason}
+            rejectPending={rejectCondoMutation.isPending}
+            onApprove={(condominiumId) =>
+              approveCondoMutation.mutate({ id: condominiumId })
+            }
+            onOpenPreview={(url) => setPreviewUrl(url)}
+            onOpenReject={(condominiumId) => {
+              setIsRejectingId(condominiumId);
+              setReason('');
+            }}
+            onReasonChange={setReason}
+            onReject={(condominiumId, rejectReason) =>
+              rejectCondoMutation.mutate({
+                id: condominiumId,
+                reason: rejectReason.trim(),
+              })
+            }
+            onRejectCancel={() => setIsRejectingId(null)}
+          />
         )}
 
         {/* Tab 2: Providers Directory */}
