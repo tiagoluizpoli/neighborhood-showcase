@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { AlertTriangle, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -9,6 +8,7 @@ import { ProviderDashboardAnnouncementList } from './panel/-provider-dashboard-a
 import { ProviderDashboardEditModal } from './panel/-provider-dashboard-edit-modal';
 import { ProviderDashboardHeader } from './panel/-provider-dashboard-header';
 import { ProviderDashboardPerformanceOverview } from './panel/-provider-dashboard-performance-overview';
+import { ProviderDashboardShellBoundary } from './panel/-provider-dashboard-shell-boundary';
 import type { ProviderDashboardAnnouncementItem } from './panel/-provider-dashboard-types';
 import { trpc } from '@/utils/trpc';
 
@@ -57,6 +57,7 @@ function DashboardIndexComponent() {
       period,
     }),
   );
+  const dashboardData = dashboardQuery.data;
 
   // Renew payment intent mutation
   const renewMutation = useMutation(
@@ -73,38 +74,6 @@ function DashboardIndexComponent() {
     }),
   );
 
-  if (dashboardQuery.isLoading) {
-    return (
-      <div className="flex min-h-[80vh] flex-col items-center justify-center space-y-4">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-muted-foreground">
-          Carregando painel do provedor...
-        </p>
-      </div>
-    );
-  }
-
-  if (dashboardQuery.isError) {
-    return (
-      <div className="flex min-h-[80vh] flex-col items-center justify-center space-y-4 text-center">
-        <AlertTriangle className="h-12 w-12 text-destructive" />
-        <h2 className="font-semibold text-foreground text-xl">
-          Erro ao carregar dados
-        </h2>
-        <p className="max-w-md text-muted-foreground">
-          Não foi possível carregar as informações do seu painel. Por favor,
-          tente novamente mais tarde.
-        </p>
-      </div>
-    );
-  }
-
-  if (!dashboardQuery.data) {
-    return null;
-  }
-
-  const { stats, announcements } = dashboardQuery.data;
-
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return '-';
     return new Date(dateStr).toLocaleDateString('pt-BR');
@@ -118,62 +87,79 @@ function DashboardIndexComponent() {
     }).format(cents / 100);
   };
 
+  if (!dashboardData) {
+    return null;
+  }
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <ProviderDashboardHeader displayName={session.data?.user.name} />
+    <ProviderDashboardShellBoundary
+      dashboardQuery={dashboardQuery}
+      renderContent={() => {
+        const { stats, announcements } = dashboardData;
 
-      <ProviderDashboardPerformanceOverview
-        analytics={{
-          chartData: analyticsQuery.data?.chartData,
-          isError: analyticsQuery.isError,
-          isLoading: analyticsQuery.isLoading,
-        }}
-        formatPeriodLabel={(value) =>
-          value === '7d' ? '7 Dias' : value === '30d' ? '30 Dias' : '12 Meses'
-        }
-        onPeriodChange={setPeriod}
-        period={period}
-        stats={stats}
-      />
+        return (
+          <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            <ProviderDashboardHeader displayName={session.data?.user.name} />
 
-      <ProviderDashboardAnnouncementList
-        activeTab={activeTab}
-        announcements={announcements}
-        formatDate={formatDate}
-        formatPrice={formatPrice}
-        isRenewingAnnouncementId={renewMutation.variables?.announcementId}
-        onActiveTabChange={setActiveTab}
-        onEdit={setEditingAd}
-        onPay={(ad) =>
-          navigate({
-            to: `/panel/dashboard/anuncios/${ad.id}/pagamento`,
-          })
-        }
-        onRenew={(ad) => renewMutation.mutate({ announcementId: ad.id })}
-        onViewAnalytics={setViewingAnalyticsAd}
-      />
+            <ProviderDashboardPerformanceOverview
+              analytics={{
+                chartData: analyticsQuery.data?.chartData,
+                isError: analyticsQuery.isError,
+                isLoading: analyticsQuery.isLoading,
+              }}
+              formatPeriodLabel={(value) =>
+                value === '7d'
+                  ? '7 Dias'
+                  : value === '30d'
+                    ? '30 Dias'
+                    : '12 Meses'
+              }
+              onPeriodChange={setPeriod}
+              period={period}
+              stats={stats}
+            />
 
-      {/* Edit Announcement Modal */}
-      {editingAd && (
-        <ProviderDashboardEditModal
-          ad={editingAd}
-          onClose={() => setEditingAd(null)}
-          onSuccess={() => {
-            setEditingAd(null);
-            queryClient.invalidateQueries({
-              queryKey: trpc.announcement.getDashboardData.queryKey(),
-            });
-          }}
-        />
-      )}
+            <ProviderDashboardAnnouncementList
+              activeTab={activeTab}
+              announcements={announcements}
+              formatDate={formatDate}
+              formatPrice={formatPrice}
+              isRenewingAnnouncementId={renewMutation.variables?.announcementId}
+              onActiveTabChange={setActiveTab}
+              onEdit={setEditingAd}
+              onPay={(ad) =>
+                navigate({
+                  to: `/panel/dashboard/anuncios/${ad.id}/pagamento`,
+                })
+              }
+              onRenew={(ad) => renewMutation.mutate({ announcementId: ad.id })}
+              onViewAnalytics={setViewingAnalyticsAd}
+            />
 
-      {/* Analytics Modal */}
-      {viewingAnalyticsAd && (
-        <ProviderDashboardAnalyticsModal
-          ad={viewingAnalyticsAd}
-          onClose={() => setViewingAnalyticsAd(null)}
-        />
-      )}
-    </div>
+            {/* Edit Announcement Modal */}
+            {editingAd && (
+              <ProviderDashboardEditModal
+                ad={editingAd}
+                onClose={() => setEditingAd(null)}
+                onSuccess={() => {
+                  setEditingAd(null);
+                  queryClient.invalidateQueries({
+                    queryKey: trpc.announcement.getDashboardData.queryKey(),
+                  });
+                }}
+              />
+            )}
+
+            {/* Analytics Modal */}
+            {viewingAnalyticsAd && (
+              <ProviderDashboardAnalyticsModal
+                ad={viewingAnalyticsAd}
+                onClose={() => setViewingAnalyticsAd(null)}
+              />
+            )}
+          </div>
+        );
+      }}
+    />
   );
 }
