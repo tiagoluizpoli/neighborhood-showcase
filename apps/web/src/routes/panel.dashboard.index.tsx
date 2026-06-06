@@ -6,6 +6,10 @@ import { z } from 'zod';
 import { ProviderDashboardAnalyticsModal } from './panel/-provider-dashboard-analytics-modal';
 import { ProviderDashboardAnnouncementList } from './panel/-provider-dashboard-announcement-list';
 import { ProviderDashboardEditModal } from './panel/-provider-dashboard-edit-modal';
+import {
+  formatProviderDashboardDate,
+  formatProviderDashboardPrice,
+} from './panel/-provider-dashboard-formatters';
 import { ProviderDashboardHeader } from './panel/-provider-dashboard-header';
 import { handleProviderDashboardMessage } from './panel/-provider-dashboard-message-handler';
 import { ProviderDashboardPerformanceOverview } from './panel/-provider-dashboard-performance-overview';
@@ -70,19 +74,6 @@ function DashboardIndexComponent() {
     }),
   );
 
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return '-';
-    return new Date(dateStr).toLocaleDateString('pt-BR');
-  };
-
-  const formatPrice = (cents: number | null) => {
-    if (cents === null || cents === undefined) return 'A combinar';
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(cents / 100);
-  };
-
   if (!dashboardData) {
     return null;
   }
@@ -112,8 +103,8 @@ function DashboardIndexComponent() {
             <ProviderDashboardAnnouncementList
               activeTab={activeTab}
               announcements={announcements}
-              formatDate={formatDate}
-              formatPrice={formatPrice}
+              formatDate={formatProviderDashboardDate}
+              formatPrice={formatProviderDashboardPrice}
               isRenewingAnnouncementId={renewMutation.variables?.announcementId}
               onActiveTabChange={setActiveTab}
               onEdit={setEditingAd}
