@@ -1,22 +1,12 @@
-import { Button } from '@neighborhood-showcase/ui/components/button';
-import { Card, CardContent } from '@neighborhood-showcase/ui/components/card';
-import { Input } from '@neighborhood-showcase/ui/components/input';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import {
-  Eye,
-  EyeOff,
-  Loader2,
-  Search,
-  ShieldCheck,
-  UserCog,
-  X,
-} from 'lucide-react';
+import { X } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { AdminBlacklistPanel } from './panel/-admin-blacklist-panel';
 import { AdminPendingCondosQueue } from './panel/-admin-pending-condos-queue';
 import { AdminProvidersPanel } from './panel/-admin-providers-panel';
+import { AdminUsersPanel } from './panel/-admin-users-panel';
 import { authClient } from '@/lib/auth-client';
 import { trpc } from '@/utils/trpc';
 
@@ -367,264 +357,48 @@ function AdminDashboard() {
 
         {/* Tab 4: User Management */}
         {activeTab === 'users' && (
-          <>
-            <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-              <div>
-                <h2 className="font-bold text-2xl text-foreground">
-                  Gerenciamento de Usuários
-                </h2>
-                <p className="mt-1 text-muted-foreground text-sm">
-                  Gerencie funções, visibilidade e status de todos os usuários.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <div className="relative w-56">
-                  <Search className="absolute top-3 left-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Buscar por nome ou e-mail..."
-                    value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <select
-                  value={userRoleFilter}
-                  onChange={(e) =>
-                    setUserRoleFilter(
-                      e.target.value as
-                        | 'USER'
-                        | 'SYSTEM_MANAGER'
-                        | 'ADMINISTRATOR'
-                        | '',
-                    )
-                  }
-                  className="rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm"
-                >
-                  <option value="">Todos os papéis</option>
-                  <option value="USER">User</option>
-                  <option value="SYSTEM_MANAGER">System Manager</option>
-                  <option value="ADMINISTRATOR">Administrator</option>
-                </select>
-                <select
-                  value={userStatusFilter}
-                  onChange={(e) =>
-                    setUserStatusFilter(
-                      e.target.value as 'ACTIVE' | 'BANNED' | '',
-                    )
-                  }
-                  className="rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm"
-                >
-                  <option value="">Todos os status</option>
-                  <option value="ACTIVE">Ativo</option>
-                  <option value="BANNED">Banido</option>
-                </select>
-              </div>
-            </div>
-
-            {usersQuery.isPending ? (
-              <div className="flex min-h-[40vh] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : allUsers.length === 0 ? (
-              <Card className="py-12 text-center">
-                <CardContent>
-                  <UserCog className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-                  <p className="text-muted-foreground text-sm">
-                    Nenhum usuário encontrado.
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="overflow-x-auto rounded-xl border bg-card">
-                <table className="w-full border-collapse text-left text-sm">
-                  <thead>
-                    <tr className="border-b bg-muted/50 font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-                      <th className="px-6 py-4">Nome</th>
-                      <th className="px-6 py-4">E-mail</th>
-                      <th className="px-6 py-4">Papel</th>
-                      <th className="px-6 py-4">Status</th>
-                      <th className="px-6 py-4">Visível</th>
-                      <th className="px-6 py-4 text-right">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y text-foreground">
-                    {allUsers.map((u) => (
-                      <tr
-                        key={u.id}
-                        className="transition-colors hover:bg-muted/50"
-                      >
-                        <td className="px-6 py-4 font-medium">{u.name}</td>
-                        <td className="px-6 py-4 text-muted-foreground">
-                          {u.email}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`rounded-full border px-2.5 py-0.5 font-semibold text-xs ${
-                              u.role === 'SYSTEM_MANAGER' ||
-                              u.role === 'ADMINISTRATOR'
-                                ? 'border-primary/20 bg-primary/10 text-primary'
-                                : 'border-border bg-muted text-muted-foreground'
-                            }`}
-                          >
-                            {u.role === 'ADMINISTRATOR'
-                              ? 'Administrator'
-                              : u.role === 'SYSTEM_MANAGER'
-                                ? 'System Manager'
-                                : 'User'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`rounded-full border px-2.5 py-0.5 font-semibold text-xs ${
-                              u.status === 'ACTIVE'
-                                ? 'border-success/20 bg-success/10 text-success'
-                                : 'border-destructive/20 bg-destructive/10 text-destructive'
-                            }`}
-                          >
-                            {u.status === 'ACTIVE' ? 'Ativo' : 'Banido'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <button
-                            type="button"
-                            disabled={toggleVisibilityMutation.isPending}
-                            onClick={() =>
-                              toggleVisibilityMutation.mutate({
-                                targetUserId: u.id,
-                              })
-                            }
-                            className="flex items-center gap-1 text-muted-foreground text-xs hover:text-foreground"
-                            title={
-                              u.isProviderVisible
-                                ? 'Ocultar do diretório'
-                                : 'Mostrar no diretório'
-                            }
-                          >
-                            {u.isProviderVisible ? (
-                              <Eye className="h-4 w-4 text-success" />
-                            ) : (
-                              <EyeOff className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </button>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-col items-end gap-2">
-                            {/* Promote to System Manager */}
-                            {u.role !== 'SYSTEM_MANAGER' &&
-                              u.role !== 'ADMINISTRATOR' &&
-                              u.status === 'ACTIVE' &&
-                              (promotingUserId === u.id ? (
-                                <div className="inline-flex w-52 flex-col gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3 text-left">
-                                  <p className="font-medium text-primary text-xs">
-                                    Promover a System Manager?
-                                  </p>
-                                  <div className="flex justify-end gap-1.5">
-                                    <Button
-                                      variant="ghost"
-                                      onClick={() => setPromotingUserId(null)}
-                                      className="h-6 px-2 text-[10px] text-muted-foreground"
-                                    >
-                                      Cancelar
-                                    </Button>
-                                    <Button
-                                      disabled={
-                                        promoteToSystemManagerMutation.isPending
-                                      }
-                                      onClick={() =>
-                                        promoteToSystemManagerMutation.mutate({
-                                          targetUserId: u.id,
-                                        })
-                                      }
-                                      className="h-6 px-2 text-[10px]"
-                                    >
-                                      Confirmar
-                                    </Button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <Button
-                                  variant="outline"
-                                  onClick={() => setPromotingUserId(u.id)}
-                                  className="h-7 gap-1 text-xs"
-                                >
-                                  <ShieldCheck className="h-3.5 w-3.5" />
-                                  Promover
-                                </Button>
-                              ))}
-
-                            {/* Assign Moderator */}
-                            {u.status === 'ACTIVE' &&
-                              (assigningUserId === u.id ? (
-                                <div className="inline-flex w-52 flex-col gap-2 rounded-xl border border-border bg-muted p-3 text-left">
-                                  <p className="font-medium text-foreground text-xs">
-                                    Atribuir Moderador
-                                  </p>
-                                  <select
-                                    value={assignCondoId}
-                                    onChange={(e) =>
-                                      setAssignCondoId(e.target.value)
-                                    }
-                                    className="rounded border border-border bg-background px-2 py-1 text-foreground text-xs"
-                                  >
-                                    <option value="">
-                                      Selecionar condomínio...
-                                    </option>
-                                    {condosForAssign.map((c) => (
-                                      <option key={c.id} value={c.id}>
-                                        {c.name}
-                                      </option>
-                                    ))}
-                                  </select>
-                                  <div className="flex justify-end gap-1.5">
-                                    <Button
-                                      variant="ghost"
-                                      onClick={() => {
-                                        setAssigningUserId(null);
-                                        setAssignCondoId('');
-                                      }}
-                                      className="h-6 px-2 text-[10px] text-muted-foreground"
-                                    >
-                                      Cancelar
-                                    </Button>
-                                    <Button
-                                      disabled={
-                                        assignModeratorMutation.isPending ||
-                                        !assignCondoId
-                                      }
-                                      onClick={() =>
-                                        assignModeratorMutation.mutate({
-                                          targetUserId: u.id,
-                                          condominiumId: assignCondoId,
-                                        })
-                                      }
-                                      className="h-6 px-2 text-[10px]"
-                                    >
-                                      Confirmar
-                                    </Button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <Button
-                                  variant="outline"
-                                  onClick={() => {
-                                    setAssigningUserId(u.id);
-                                    setAssignCondoId('');
-                                  }}
-                                  className="h-7 gap-1 text-xs"
-                                >
-                                  <UserCog className="h-3.5 w-3.5" />
-                                  Moderador
-                                </Button>
-                              ))}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </>
+          <AdminUsersPanel
+            assigningUserId={assigningUserId}
+            assignCondoId={assignCondoId}
+            assignPending={assignModeratorMutation.isPending}
+            condosForAssign={condosForAssign}
+            isPending={usersQuery.isPending}
+            promotingUserId={promotingUserId}
+            promotePending={promoteToSystemManagerMutation.isPending}
+            togglePending={toggleVisibilityMutation.isPending}
+            users={allUsers}
+            userSearch={userSearch}
+            userRoleFilter={userRoleFilter}
+            userStatusFilter={userStatusFilter}
+            onAssignCancel={() => {
+              setAssigningUserId(null);
+              setAssignCondoId('');
+            }}
+            onAssignCondoIdChange={setAssignCondoId}
+            onAssignConfirm={(userId, condominiumId) =>
+              assignModeratorMutation.mutate({
+                targetUserId: userId,
+                condominiumId,
+              })
+            }
+            onAssignOpen={(userId) => {
+              setAssigningUserId(userId);
+              setAssignCondoId('');
+            }}
+            onPromoteCancel={() => setPromotingUserId(null)}
+            onPromoteConfirm={(userId) =>
+              promoteToSystemManagerMutation.mutate({
+                targetUserId: userId,
+              })
+            }
+            onPromoteOpen={(userId) => setPromotingUserId(userId)}
+            onRoleFilterChange={setUserRoleFilter}
+            onSearchChange={setUserSearch}
+            onStatusFilterChange={setUserStatusFilter}
+            onToggleVisibility={(targetUserId) =>
+              toggleVisibilityMutation.mutate({ targetUserId })
+            }
+          />
         )}
       </main>
 
