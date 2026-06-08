@@ -15,29 +15,25 @@ blocked-by: null
 
 ## Acceptance Criteria
 
-- [ ] [ ] [ ] [ ] [ ]
-- [ ] [ ] [ ] [ ] [ ]
-- [ ] [ ] [ ] [ ] [ ]
+<!-- Replace this entire section with real acceptance criteria for this task.
+ Each line is one checkable statement of what "done" means.
+     Do NOT leave empty brackets — write what the check means. -->
+
+- [ ] Example: "The login form submits and redirects to /dashboard on success"
+- [ ] Example: "Validation errors display inline under each field"
+- [ ] Example: "Session cookie is set with httpOnly and secure flags"
 
 ## Sub-Tasks
 
-[Atomic execution units — each `[ ]` is one step Ralph Loop executes in sequence.]
+[Atomic execution units — each sub-task is one step Ralph Loop executes in sequence.]
 
 ### Sub-task 1: [Name]
 
 **What to do:** [Specific instruction.]
 
-**Files to touch:** [ ]
+**Files to touch:** `path/to/file.tsx`, `path/to/service.ts`
 
-**Verification:** [How to confirm this sub-task is done.]
-
-### Sub-task 2: [Name]
-
-**What to do:** [ ]
-
-**Files to touch:** [ ]
-
-**Verification:** [ ]
+**Verification:** [How to confirm this sub-task is done — a command, a URL, a test name.]
 
 ---
 

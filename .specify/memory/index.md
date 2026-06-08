@@ -10,7 +10,7 @@
 - ✅ **Announcements and Payments** — `03-announcements-and-payments/epic.md`
 - ✅ **Provider and Moderation** — `04-provider-and-moderation/epic.md`
 - ✅ **Public Browsing UI** — `05-public-browsing-ui/epic.md`
-- 🚫 **Panel Layout** — `06-panel-layout/epic.md` *(blocked by: PRD-v5 panel layout not yet converted to issues)*
+- 🔄 **Panel Layout** — `06-panel-layout/epic.md`
 - ✅ **Data and Infrastructure** — `07-data-and-infrastructure/epic.md`
 - ✅ **Architecture and Quality** — `08-architecture-and-quality/epic.md`
 - ✅ **Remediation** — `09-remediation/epic.md`
@@ -42,19 +42,14 @@
 | 05-public-browsing-ui | [60_announcement_detail_navigation_source_of_truth](epics/05-public-browsing-ui/tasks/60_announcement_detail_navigation_source_of_truth.md) | ✅ completed | — |
 | 05-public-browsing-ui | [61_home_feed_loading_empty_error_states](epics/05-public-browsing-ui/tasks/61_home_feed_loading_empty_error_states.md) | ✅ completed | — |
 | 05-public-browsing-ui | [62_backend_managed_announcement_categories](epics/05-public-browsing-ui/tasks/62_backend_managed_announcement_categories.md) | ✅ completed | — |
-| 06-panel-layout | [40_panel_sidebar_navigation](epics/06-panel-layout/tasks/40_panel_sidebar_navigation.md) | 🚫 blocked | — |
-| 06-panel-layout | [41_account_page_avatar_menu](epics/06-panel-layout/tasks/41_account_page_avatar_menu.md) | 🚫 blocked | — |
-| 06-panel-layout | [42_expanded_contact_channels](epics/06-panel-layout/tasks/42_expanded_contact_channels.md) | 🚫 blocked | — |
-| 06-panel-layout | [43_geolocation_permission_modal](epics/06-panel-layout/tasks/43_geolocation_permission_modal.md) | 🚫 blocked | — |
-| 06-panel-layout | [44_condominium_proximity_matching](epics/06-panel-layout/tasks/44_condominium_proximity_matching.md) | 🚫 blocked | — |
-| 06-panel-layout | [45_proximity_ranking_api_feed](epics/06-panel-layout/tasks/45_proximity_ranking_api_feed.md) | 🚫 blocked | — |
-| 06-panel-layout | [46_image_cropper_upgrade](epics/06-panel-layout/tasks/46_image_cropper_upgrade.md) | 🚫 blocked | — |
-| 06-panel-layout | [47_verified_badge_enforcement](epics/06-panel-layout/tasks/47_verified_badge_enforcement.md) | 🚫 blocked | — |
-| 06-panel-layout | [48_announcement_card_redesign](epics/06-panel-layout/tasks/48_announcement_card_redesign.md) | 🚫 blocked | — |
-| 06-panel-layout | [49_announcement_detail_page](epics/06-panel-layout/tasks/49_announcement_detail_page.md) | 🚫 blocked | — |
-| 06-panel-layout | [50_provider_public_profile_page](epics/06-panel-layout/tasks/50_provider_public_profile_page.md) | 🚫 blocked | — |
-| 06-panel-layout | [51_analytics_charts_per_announcement](epics/06-panel-layout/tasks/51_analytics_charts_per_announcement.md) | 🚫 blocked | — |
-| 06-panel-layout | [52_reporting_system_submit_store](epics/06-panel-layout/tasks/52_reporting_system_submit_store.md) | 🚫 blocked | — |
+| 06-panel-layout | [06_01_sidebar_foundation](epics/06-panel-layout/tasks/06_01_sidebar_foundation.md) | 🔄 pending | — |
+| 06-panel-layout | [06_02_nested_navigation](epics/06-panel-layout/tasks/06_02_nested_navigation.md) | 🔄 pending | — |
+| 06-panel-layout | [06_03_sidebar_footer](epics/06-panel-layout/tasks/06_03_sidebar_footer.md) | 🔄 pending | — |
+| 06-panel-layout | [06_04_top_bar_controls](epics/06-panel-layout/tasks/06_04_top_bar_controls.md) | 🔄 pending | — |
+| 06-panel-layout | [06_05_sidebar_persistence](epics/06-panel-layout/tasks/06_05_sidebar_persistence.md) | 🔄 pending | — |
+| 06-panel-layout | [06_06_localization](epics/06-panel-layout/tasks/06_06_localization.md) | 🔄 pending | — |
+| 06-panel-layout | [06_07_badge_count_stubs](epics/06-panel-layout/tasks/06_07_badge_count_stubs.md) | 🔄 pending | — |
+| 06-panel-layout | [06_08_visibility_tests](epics/06-panel-layout/tasks/06_08_visibility_tests.md) | 🔄 pending | — |
 | 07-data-and-infrastructure | [12_db_migration_address_location](epics/07-data-and-infrastructure/tasks/12_db_migration_address_location.md) | ✅ completed | — |
 | 07-data-and-infrastructure | [13_onboarding_setup_flow_external](epics/07-data-and-infrastructure/tasks/13_onboarding_setup_flow_external.md) | ✅ completed | — |
 | 07-data-and-infrastructure | [15_public_showcase_proximity_refactor](epics/07-data-and-infrastructure/tasks/15_public_showcase_proximity_refactor.md) | ✅ completed | — |
