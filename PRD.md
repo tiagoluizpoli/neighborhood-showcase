@@ -511,7 +511,7 @@ A comprehensive overhaul across 14 backlog items, organized into 11 major module
 - **Dependency Additions**: `react-easy-crop` (frontend), `recharts` via shadcn charts (frontend), PostGIS extension (database). No new backend framework dependencies.
 - **Backward Compatibility**: The `/panel/*` route migration from the current `/dashboard/*`, `/admin`, `/moderation` routes should include redirects from old paths to prevent broken bookmarks.
 - **Grilling Session Reference**: All decisions in this PRD trace directly to the 34 questions resolved in [`backlog_grilling.md`](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/backlog_grilling.md) (Questions 15–34, covering Items 1–14).
-- **Issue Workflow**: Ralph should read this PRD first, then inspect `.specify/memory/issues/` for the active slices that need implementation next. The issue folder is the source of executable work.
+- **Issue Workflow**: Ralph should read this PRD first, then read `.specify/memory/index.md` to find the next epic and task to work on. The index points to task files under `.specify/memory/epics/<epic>/tasks/`.
 - **Deferred Backlog**: Deliberately postponed items remain tracked in `.specify/memory/deferred_backlog.md`.
-- **Whole-Codebase Remediation Queue**: Ralph Loop should also treat `.specify/memory/issues/65` through `.specify/memory/issues/73` as the active remediation program created from the full-codebase audit.
+- **Whole-Codebase Remediation Queue**: All items 65–73 are completed and tracked under `.specify/memory/epics/09-remediation/tasks/`.
 - **Architecture Source Of Truth**: The backend seam is documented in `docs/adr/0004-layered-clean-architecture-supersedes-feature-sliced-backend.md`, which supersedes the older feature-sliced ADR.

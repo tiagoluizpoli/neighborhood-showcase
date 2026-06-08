@@ -48,6 +48,17 @@ _Avoid_: Super administrator, root
 Global account roles are ordered `USER` < `SYSTEM_MANAGER` < `ADMINISTRATOR`. Higher roles include the permissions of lower roles.
 _Avoid_: Multiple role stacking, duplicated roles
 
+**Provider Assignment `enabled` flag**:
+A boolean flag on a Provider Assignment that controls public visibility. When `enabled = true`, the Provider appears in the public directory. When `disabled`, the Provider is hidden from public search but remains visible to Administrators. This flag is NOT an approval mechanism — it is a public availability toggle. Opt-out during onboarding means the Assignment record is never created.
+_Avoid_: Provider active flag, provider visibility flag
+
+**Sidebar block visibility rules**:
+- **Provedor**: visible iff the User has a Provider Assignment with `enabled = true`
+- **Moderação**: visible iff the User has at least one APPROVED MODERATOR assignment
+- **Administração**: visible iff `user.role ∈ {SYSTEM_MANAGER, ADMINISTRATOR}`
+- **Reports**: visible iff `user.role === ADMINISTRATOR`
+_Avoid_: Role-based sidebar (Provedor is capability-based, not role-based)
+
 **Condominium**:
 A physical or logical community context that groups Providers and their Assignments, defining the primary boundary for announcements.
 _Avoid_: Building, community

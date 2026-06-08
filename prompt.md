@@ -10,7 +10,9 @@ Review the last 10 recent commits if they are provided in the run context.
 # PRD
 
 Use `PRD.md` as the source of truth.
-Inspect `.specify/memory/issues/` for the active issue that matches the next task.
+Read `.specify/memory/index.md` to find the next epic and task to work on.
+The index points to epic files (e.g. `epics/01-auth-and-registration/epic.md`)
+which in turn point to task files (e.g. `epics/01-auth-and-registration/tasks/01_auth_cpf_validation.md`).
 
 # TASK BREAKDOWN
 

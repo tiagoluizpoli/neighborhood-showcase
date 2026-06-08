@@ -199,6 +199,21 @@ Use cases receive their repository dependencies through constructor injection (p
 
 Integration test files (`*.integration.test.ts`, `*.test.ts`) are allowed to import from any layer for test setup purposes (e.g., seeding the database directly). This exception applies ONLY to test files, NEVER to production code.
 
+## PRD Directory — Required Reading Before Any Implementation
+
+When starting implementation or planning work, always read ALL files in `.specify/memory/prds/` before writing any code or plan. This directory contains all active and historical Product Requirement Documents — each file captures product scope, user stories, implementation decisions, and testing decisions for a specific phase or feature area.
+
+Do NOT reference individual PRD files by name. Reference the directory — `.specify/memory/prds/` — so that any new PRDs added to this directory are automatically considered on every run, regardless of how many files exist.
+
+The PRD files in this directory are:
+- `prd.md` — Original single-page PRD (v0.5)
+- `PRD-v1-original.md` — Core MVP scope
+- `PRD-v2-backlog-overhaul.md` — 14-item backlog overhaul (Items 1–14)
+- `PRD-v3-backend-domain-alignment.md` — Backend domain model and Clean Architecture alignment
+- `PRD-v4-whole-codebase-remediation.md` — Architecture alignment and remediation backlog
+- `PRD-v5-panel-layout.md` — Sidebar and top bar redesign (current work)
+- `prd-technical-debt-round-2.md` — Second wave of technical debt and architectural improvements
+
 ## Current Plan Reference
-- [Root PRD](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/PRD.md)
-- Issue specs live in `.specify/memory/issues/`; start with the active backend/public follow-ups in `55`, `56`, `63`, and `64`.
+- [Root PRD](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/prds/prd.md)
+- Issue specs live in `.specify/memory/epics/<epic>/tasks/`; Ralph Loop navigates from `.specify/memory/index.md` → epic → task. All epics except Panel Layout (blocked) are completed. Resume from Panel Layout when ready to continue.
