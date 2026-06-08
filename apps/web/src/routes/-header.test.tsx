@@ -124,7 +124,7 @@ describe('Public Shell Header & Footer Tests', () => {
   });
 
   test('Logged-out header renders login button and no private links or dashboard', async () => {
-    const { default: Header } = await import('@/components/header');
+    const { Header } = await import('@/components/header');
     const tree = renderComponent(Header);
 
     // Unauthenticated user sees "menu.login" link pointing to /auth
@@ -152,7 +152,7 @@ describe('Public Shell Header & Footer Tests', () => {
       },
     };
 
-    const { default: Header } = await import('@/components/header');
+    const { Header } = await import('@/components/header');
     const tree = renderComponent(Header);
 
     // Authenticated user sees "nav.dashboard" link pointing to /panel/dashboard
@@ -171,7 +171,7 @@ describe('Public Shell Header & Footer Tests', () => {
   });
 
   test('Public header renders navigation anchors to Explorar, Como Funciona, and Anunciar', async () => {
-    const { default: Header } = await import('@/components/header');
+    const { Header } = await import('@/components/header');
     const tree = renderComponent(Header);
 
     // Explorar anchor exists
@@ -191,7 +191,7 @@ describe('Public Shell Header & Footer Tests', () => {
   });
 
   test('Public footer contains public links and no private links', async () => {
-    const { default: Footer } = await import('@/components/footer');
+    const { Footer } = await import('@/components/footer');
     const tree = renderComponent(Footer);
 
     // Explorar hash in footer

@@ -25,8 +25,8 @@ The review found four major categories of work:
 - [x] `69_announcement_server_interface_decomposition.md`
 - [x] `70_public_vitrine_route_family_decomposition.md`
 - [x] `71_provider_dashboard_route_family_decomposition.md`
-- [ ] `72_moderation_admin_route_family_decomposition.md`
-- [ ] `73_frontend_export_surface_and_bundle_cleanup.md`
+- [x] `72_moderation_admin_route_family_decomposition.md`
+- [x] `73_frontend_export_surface_and_bundle_cleanup.md`
 
 ## Audit summary to preserve
 

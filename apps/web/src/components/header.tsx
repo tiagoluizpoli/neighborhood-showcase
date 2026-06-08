@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 
-export default function Header() {
+export function Header() {
   const { t } = useTranslation();
   const { data: session } = authClient.useSession();
 

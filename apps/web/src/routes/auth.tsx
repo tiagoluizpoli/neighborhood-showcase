@@ -9,8 +9,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { ModeToggle } from '@/components/mode-toggle';
-import SignInForm from '@/components/sign-in-form';
-import SignUpForm from '@/components/sign-up-form';
+import { SignInForm } from '@/components/sign-in-form';
+import { SignUpForm } from '@/components/sign-up-form';
 
 const authSearchSchema = z.object({
   tab: z.enum(['signin', 'signup']).optional(),

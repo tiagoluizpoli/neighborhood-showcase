@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
-export default function Footer() {
+export function Footer() {
   const { t } = useTranslation();
 
   return (

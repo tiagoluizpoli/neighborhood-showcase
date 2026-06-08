@@ -13,7 +13,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 
-export default function UserMenu() {
+export function UserMenu() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { data: session, isPending } = authClient.useSession();
