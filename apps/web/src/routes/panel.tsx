@@ -148,20 +148,22 @@ function PanelLayout() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuSub>
-                      <SidebarMenuSubButton
-                        render={<Link to="/panel/dashboard/announcements" />}
-                      >
-                        <Megaphone className="h-4 w-4" />
-                        <span>{t('sidebar.item.meus_anuncios')}</span>
-                      </SidebarMenuSubButton>
-                      <SidebarMenuSubButton
-                        render={<Link to="/panel/dashboard/configuration" />}
-                      >
-                        <Settings className="h-4 w-4" />
-                        <span>{t('sidebar.item.configuracoes')}</span>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSub>
+                    <SidebarMenuButton
+                      render={<Link to="/panel/dashboard/announcements" />}
+                      tooltip={t('sidebar.item.meus_anuncios')}
+                    >
+                      <Megaphone className="h-4 w-4" />
+                      <span>{t('sidebar.item.meus_anuncios')}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      render={<Link to="/panel/dashboard/configuration" />}
+                      tooltip={t('sidebar.item.configuracoes')}
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span>{t('sidebar.item.configuracoes')}</span>
+                    </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarGroupContent>

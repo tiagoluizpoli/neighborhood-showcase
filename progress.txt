@@ -1,33 +1,27 @@
-ITERATION 1 — 2026-06-09
-============================
-CURRENT TASK: 01_playwright_setup (Epic 10-playwright-setup)
-STATUS: COMPLETE
-COMMIT: 681925a
+Ralph Loop Iteration 1 — 2026-06-09
 
-TASK SUMMARY
-------------
-Installed and configured Playwright (v1.60.0) in apps/web/:
-- playwright + @playwright/test added as dev dependencies
-- playwright.config.ts created with testDir=tests/, timeout=30s, headless, baseURL=http://localhost:5173, Chromium project
-- tests/smoke.spec.ts created: 2 tests — (1) sidebar has no raw i18n keys visible, (2) top bar has theme toggle + language switcher
-- test:e2e + test:e2e:ui scripts added to apps/web/package.json
+TASK: 01_i18n_namespace_fix (Epic 11 — i18n Namespace Fix and Navigation Hierarchy)
 
-VERIFICATION
-------------
-check:arch  ✔ (biome noRestrictedImports clean)
-check-types ✔ (turbo check-types successful)
-test        ✔ (392 pass, 82 pre-existing failures — unchanged from pre-task baseline)
+DONE:
+- Removed all useTranslation('sidebar') calls (4 files: panel.tsx, spectrum.tsx,
+  language-switcher.tsx, -panel.test.tsx)
+- Changed to useTranslation() (default namespace 'translation')
+- Updated all t() key paths to use full 'sidebar.*' prefix since JSON keys
+  already include 'sidebar.' as the top-level object key
+- Fixed hardcoded Portuguese in announcements.tsx ('Meus Anúncios') → i18n
+- Fixed hardcoded Portuguese in configuration.tsx ('Configurações') → i18n
+- Updated -panel.test.tsx mock to pass keys through unchanged (no sidebar. prefix)
 
-SPEC SYNC
----------
-- 10-playwright-setup/epic.md: child task 01_playwright_setup.md marked [x]
-- .specify/memory/index.md: epic 10 status updated to ✅ completed, task status updated to ✅ completed
-- Epic 11 (i18n) and Epic 12 (moderation condo context) are now unblocked
+VERIFICATION:
+- No useTranslation('sidebar') calls remain (grep confirmed 0 matches)
+- check:arch ✔ | check-types ✔ | test ✔ (392 pass, 82 pre-existing failures)
+- Panel visibility tests: 6/6 pass
+- Language-switcher tests: 4/4 pass
 
-NEXT TASK (Iteration 2)
------------------------
-Epic 11-i18n-and-navigation-fixes / Task 01_i18n_namespace_fix
-- Unblocked: 10-playwright-setup is complete
-- Fix i18n namespace usage per RULES.md §6 (use default namespace 'translation', not 'sidebar')
+COMMIT: 4911559 fix(web): i18n namespace fix — useTranslation() default namespace
 
-<promise>NO MORE TASKS</promise>
+NEXT TASK: 02_provider_navigation_flatten (Epic 11) — flatten Provider nav
+         (SidebarMenuSub → flat SidebarMenuButton siblings)
+         OR 03_spectrum_item_hierarchy_fix if provider nav scope is unclear
+
+100% Complete

@@ -1,7 +1,7 @@
 ---
 type: feature
 epic: 11-i18n-and-navigation-fixes
-status: ready
+status: completed
 blocked-by: 10-playwright-setup
 ---
 
