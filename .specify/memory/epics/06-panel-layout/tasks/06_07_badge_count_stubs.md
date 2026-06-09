@@ -1,13 +1,28 @@
 ---
 type: feature
 epic: 06-panel-layout
-status: pending
+status: ready
 blocked-by: null
 ---
 
 ## What to Build
 
 Stub all three badge counts to 0 on the Moderação section. Add the three tRPC read-only endpoints (`announcement.pendingCount`, `assignment.pendingCount`, `report.openCount`) so the frontend has the query hooks ready — currently they return 0, but the wiring is in place for when the backend is implemented.
+
+## User Review Findings (reopened) — CRITICAL
+
+The previous implementation introduced a new tRPC router `apps/server/src/presentation/routers/report.ts` that **directly imports `drizzle-orm` and the `@neighborhood-showcase/db` client** and calls `db.select(...).from(reportSchema)` inside a tRPC query. This is a **blatant Clean Architecture violation** (RULES.md §1.5, FORBIDDEN imports) and was caught by `bun run check:arch` (the new dependency-cruise guardrail added on 2026-06-09).
+
+Even worse, the *concept* was wrong: the user did NOT want a "report" badge count router for the Spectrum sidebar block. The original PRD term "Reports" in Module 23 was ambiguous between the **moderation `report` table** (user-flagged announcements) and the **admin operator analytics block** (later renamed "Spectrum"). The previous implementation conflated the two and built the wrong thing for the right place.
+
+The proper replacement is a new task `06_09_spectrum_top_level_block.md` that builds the Spectrum block using the correct Clean Architecture pattern. For THIS task (badge count stubs), the requirements are:
+
+1. **Remove `apps/server/src/presentation/routers/report.ts` entirely.** It is gone.
+2. **Revert the `report.openCount` query added to `panel.tsx` for the Spectrum group badge** — there should be no Spectrum badge count until 06_09 lands a real count.
+3. Keep `announcement.pendingCount` and `assignment.pendingCount` (these are real and useful for the Moderação group). BUT they too may be implemented as direct DB calls in the router — refactor them to use the proper layer pattern (Domain → Application → Presentation) if they currently violate it. Grep for `drizzle-orm` and `@neighborhood-showcase/db` imports under `apps/server/src/presentation/` and fix any matches.
+4. The new `bun run check:arch` command must pass after this task. The 6 pre-existing tRPC violations in application/use-cases (generate-payment-intent, approve-condominium, request-assignment, reject-assignment, approve-assignment, create-announcement) are tracked separately and are NOT this task's responsibility, but they will block `bun run check` — Ralph must decide: either fix them as part of this pass, OR add a temporary exemption in `.dependency-cruiser.cjs` for the application/use-cases/payment and application/use-cases/condominium subpaths, with a clear note that they are tech debt.
+
+Re-read RULES.md §1 (clean architecture) and §12 (Ralph conduct) before implementing.
 
 ## Context
 

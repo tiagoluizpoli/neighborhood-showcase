@@ -1,13 +1,34 @@
 ---
 type: feature
 epic: 06-panel-layout
-status: pending
+status: ready
 blocked-by: null
 ---
 
 ## What to Build
 
 Top bar layout: `SidebarTrigger` (hamburger, left) + `ModeToggle` (existing component, right) + new `LanguageSwitcher` component (right). No user menu in top bar — moved to SidebarFooter.
+
+## User Review Findings (reopened)
+
+Two concrete defects in the current implementation:
+
+### 1. Theme toggle is a popover — wrong shape
+
+The user wants a single button that **cycles through three states on click**, NOT a popover. Cycle order:
+- `system` (monitor/desktop icon) → on click → `light` (sun icon) → on click → `dark` (moon icon) → on click → `system` …
+- Each state has a distinct lucide-react icon: `Monitor` (or `Laptop`), `Sun`, `Moon`.
+- The button itself is the only UI — no popover, no dropdown, no "System / Light / Dark" menu.
+- This is a behavior change from the existing `ModeToggle` shape. Reuse the same `next-themes` `useTheme` hook but build a cycle action instead of a popover.
+
+### 2. Language switcher trigger is wrong, and popover got removed
+
+- The current `LanguageSwitcher` uses a Globe icon as the trigger — wrong. The trigger must show the **flag of the currently selected language** (`🇧🇷` for `pt`, `🇺🇸` for `en`). Use the `CircleFlag` (or similar) component for round flags, or emoji flags for the MVP.
+- The popover was removed at some point but it is needed. Restore the popover that lists both languages with their flags.
+- Inside the popover: both options `🇧🇷 Português` and `🇺🇸 English` with their respective flag emoji or component.
+- On select: calls `i18n.changeLanguage(lang)` and persists via `i18next-browser-languagedetector` in `localStorage` (no backend write for MVP).
+
+Re-read RULES.md §10 before implementing.
 
 ## Context
 

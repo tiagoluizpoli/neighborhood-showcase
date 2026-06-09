@@ -1,13 +1,28 @@
 ---
 type: feature
 epic: 06-panel-layout
-status: pending
+status: ready
 blocked-by: null
 ---
 
 ## What to Build
 
 Add all sidebar labels to the `sidebar` i18n namespace in both `locales/pt/translation.json` and `locales/en/translation.json`. Labels include: group names, item labels, badge count labels, user menu items, and the language switcher options.
+
+## User Review Findings (reopened)
+
+The previous iteration claimed localization was complete and all checks passed, but the user is seeing **the raw translation keys / paths in the sidebar** — for example `sidebar.provedor` or `sidebar.reports` is being rendered literally instead of the translated string. This means `useTranslation('sidebar')` is not actually wired up to a translation resource under the `sidebar` namespace.
+
+Investigate and fix:
+
+1. Confirm the `sidebar` namespace is registered in `i18n.ts` (resources config) with both `pt` and `en` JSON catalogs.
+2. Confirm the translation JSON files are imported and added to the resources under the `sidebar` key.
+3. Confirm `panel.tsx` calls `useTranslation('sidebar')` (not `useTranslation()`) and uses the returned `t` function.
+4. Confirm the keys referenced in `panel.tsx` exist in both JSON files. Run a quick grep for `sidebar.provedor`, `sidebar.moderacao`, `sidebar.administracao`, `sidebar.spectrum`, etc.
+5. Add a smoke test that mounts the sidebar with each role and asserts the visible text comes from i18n (not the raw key).
+6. While in here, also rename any `sidebar.reports` keys to `sidebar.spectrum` per PRD rename. (i18n keys too — they should mirror the new PRD naming.)
+
+Re-read RULES.md §6 before implementing.
 
 ## Context
 

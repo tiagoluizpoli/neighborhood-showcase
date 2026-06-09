@@ -534,15 +534,16 @@ Administração (SYSTEM_MANAGER or ADMINISTRATOR role)
   └─ Providers (nested)
   └─ Condomínios (nested)
 
-Reports (ADMINISTRATOR role only — top-level block)
-  └─ (placeholder)
-```
+Spectrum
+  └─ (placeholder, content deferred)
+
+> **Disambiguation:** "Spectrum" in this Module is the **ADMINISTRATOR-only application-level reporting tools** block (charts, KPIs, audit-trail exploration, CSV/PDF exports). Originally named "Reports" in the first draft of this PRD; renamed to "Spectrum" for clarity. This is **NOT** the same thing as **Moderation Reports** in Module 6 (the user-flagged announcement system with the `report` table, predefined reason enum, and the spotlight threshold). The two concepts are intentionally separate: Module 23 Spectrum = operator analytics; Module 6 Reports = user moderation.
 
 **Visibility rules** (checked at render time from session data):
 - **Provedor**: visible iff User has a Provider Assignment with `enabled = true`
 - **Moderação**: visible iff User has at least one APPROVED MODERATOR assignment
 - **Administração**: visible iff `user.role ∈ {SYSTEM_MANAGER, ADMINISTRATOR}`
-- **Reports**: visible iff `user.role === ADMINISTRATOR`
+- **Spectrum**: visible iff `user.role === ADMINISTRATOR`
 
 ### User Stories
 
@@ -556,7 +557,7 @@ Reports (ADMINISTRATOR role only — top-level block)
 80. As a Moderator, I want the sidebar to show only the "Moderação" group (Anúncios, Moradores) when I have no provider assignment, so that I see a focused, relevant navigation.
 81. As a Moderator, I want badge counts on each moderation queue item (stubbed to 0), so that the structure is ready for live data.
 82. As a System Manager, I want the sidebar to show "Administração" (Visão Geral, Usuários, Providers, Condomínios) when I have that role, so that I can access all admin tools.
-83. As an Administrator, I want a "Reports" top-level block in the sidebar, so that I can access reporting tools separate from administration.
+83. As an Administrator, I want a "Spectrum" top-level block in the sidebar (formerly named "Reports"; renamed for clarity — see disambiguation note above), so that I can access application-level reporting and analytics tools separate from administration.
 84. As a System Manager or Administrator, I do NOT want to see the "Provedor" block unless I have a provider assignment, so that my navigation stays scoped to my role.
 85. As an authenticated user, I want the sidebar to be 280px wide when expanded, so that labels are fully readable without truncation.
 86. As a Visitor (public portal), I want zero changes to my experience, so that the public side remains unaffected by panel improvements.
@@ -599,7 +600,7 @@ Existing `ModeToggle` component (moon/sun icon button) reused in header. State m
 - `panel/dashboard/configuration` → placeholder for Provider configuration (future dedicated page)
 
 #### Localization
-All sidebar group labels (`Provedor`, `Moderação`, `Administração`, `Reports`), item labels, badge count labels, and user menu items added to `locales/pt/translation.json` and `locales/en/translation.json` under a `sidebar` namespace key.
+All sidebar group labels (`Provedor`, `Moderação`, `Administração`, `Spectrum`), item labels, badge count labels, and user menu items added to `locales/pt/translation.json` and `locales/en/translation.json` under a `sidebar` namespace key.
 
 #### Routing language
 Mixed PT/EN route naming deferred to separate backlog item. Current routes remain as-is for this PRD scope.
@@ -623,7 +624,7 @@ Mixed PT/EN route naming deferred to separate backlog item. Current routes remai
 - Full provider configuration page — stub route only
 - Mixed-language route naming fix (PT → EN) — deferred to backlog
 - Branding (name, logo, color palette) — deferred
-- Reports section content — placeholder block only
+- Spectrum section content — placeholder block only
 - Admin provider management, admin condominium management — deferred to backlog
 - Provider `enabled` flag toggle UI — deferred to provider configuration page
 - Live badge counts — stubbed to 0, backend endpoints deferred to backlog

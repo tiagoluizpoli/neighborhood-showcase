@@ -11,18 +11,23 @@ Panel sidebar/topbar redesign with 280px Radix Sidebar, nested navigation per ro
 
 ## Context
 
-Layout B from design session: user menu in SidebarFooter, top bar with SidebarTrigger + ModeToggle + LanguageSwitcher. Sidebar width 280px. Four nav groups: Provedor (Provider Assignment enabled=true), Moderação (approved MODERATOR), Administração (SYSTEM_MANAGER or ADMINISTRATOR), Reports (ADMINISTRATOR). PRD-v5 content merged into root PRD as Module 23.
+Layout B from design session: user menu in SidebarFooter, top bar with SidebarTrigger + ModeToggle + LanguageSwitcher. Sidebar width 280px. Four nav groups: Provedor (Provider Assignment enabled=true), Moderação (approved MODERATOR), Administração (SYSTEM_MANAGER or ADMINISTRATOR), Spectrum (ADMINISTRATOR — formerly "Reports", renamed for clarity per PRD Module 23 disambiguation). PRD-v5 content merged into root PRD as Module 23.
+
+## User Review (2026-06-09)
+
+After iteration 37 the user walked through the panel and identified defects. Tasks 06_02, 06_03, 06_04, 06_06, and 06_07 are reopened for fixes; their YAML status is `ready` and each file has a "User Review Findings" section with the specific defects and required fixes. Task 06_09 (Spectrum) is new and replaces the broken `report.ts` router with a properly-layered implementation.
 
 ## Child Tasks
 
-- [ ] [06_01_sidebar_foundation](tasks/06_01_sidebar_foundation.md)
-- [ ] [06_02_nested_navigation](tasks/06_02_nested_navigation.md)
-- [ ] [06_03_sidebar_footer](tasks/06_03_sidebar_footer.md)
-- [ ] [06_04_top_bar_controls](tasks/06_04_top_bar_controls.md)
-- [ ] [06_05_sidebar_persistence](tasks/06_05_sidebar_persistence.md)
-- [ ] [06_06_localization](tasks/06_06_localization.md)
-- [ ] [06_07_badge_count_stubs](tasks/06_07_badge_count_stubs.md)
-- [ ] [06_08_visibility_tests](tasks/06_08_visibility_tests.md)
+- [ ] [06_01_sidebar_foundation](tasks/06_01_sidebar_foundation.md) — sidebar 280px, 4 role groups, group icons
+- [ ] [06_02_nested_navigation](tasks/06_02_nested_navigation.md) — ⚠️ REOPENED: missing group + item icons
+- [ ] [06_03_sidebar_footer](tasks/06_03_sidebar_footer.md) — ⚠️ REOPENED: user row must be clickable popover, no inline sign-out, sign-out must confirm
+- [ ] [06_04_top_bar_controls](tasks/06_04_top_bar_controls.md) — ⚠️ REOPENED: theme toggle = 3-state cycle (monitor/sun/moon), language switcher = flag of selected language
+- [ ] [06_05_sidebar_persistence](tasks/06_05_sidebar_persistence.md) — localStorage persistence of collapsed/expanded
+- [ ] [06_06_localization](tasks/06_06_localization.md) — ⚠️ REOPENED: sidebar i18n not working, raw paths showing
+- [ ] [06_07_badge_count_stubs](tasks/06_07_badge_count_stubs.md) — ⚠️ REOPENED: must use Clean Architecture, NOT raw `db.select` from tRPC
+- [ ] [06_08_visibility_tests](tasks/06_08_visibility_tests.md) — visibility rule tests per role
+- [ ] [06_09_spectrum_top_level_block](tasks/06_09_spectrum_top_level_block.md) — NEW: replace bad `report.ts` with proper Spectrum sidebar block (Domain entity, repository interface, Drizzle repo, mapper, use case, tRPC procedure)
 
 ---
 

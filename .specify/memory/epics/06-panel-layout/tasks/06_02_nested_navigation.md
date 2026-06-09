@@ -1,13 +1,22 @@
 ---
 type: feature
 epic: 06-panel-layout
-status: pending
+status: ready
 blocked-by: null
 ---
 
 ## What to Build
 
-Implement `SidebarMenuSub` nesting for each navigation group. Provedor gets Dashboard (top-level) + Meus Anúncios + Configurações (nested). Moderação gets Anúncios + Moradores (nested). Administração gets Visão Geral + Usuários + Providers + Condomínios (nested). Reports is a placeholder top-level block. Add route stubs for `panel/dashboard/announcements` and `panel/dashboard/configuration`.
+Implement `SidebarMenuSub` nesting for each navigation group. Provedor gets Dashboard (top-level) + Meus Anúncios + Configurações (nested). Moderação gets Anúncios + Moradores (nested). Administração gets Visão Geral + Usuários + Providers + Condomínios (nested). Spectrum is a placeholder top-level block. Add route stubs for `panel/dashboard/announcements` and `panel/dashboard/configuration`.
+
+## User Review Findings (reopened from completed)
+
+During user walkthrough on 2026-06-09 the following defects were identified in the previously-merged implementation:
+
+- **Missing group icons.** Moderação, Administração, and Spectrum groups have no visible icon at the group level. Provedor has one. Every top-level group must have an icon.
+- **Missing item icons.** Every nested sub-item currently shows only a right-chevron. Each sub-item must have a contextual lucide-react icon (e.g. `Megaphone` for Anúncios, `Users` for Moradores, `LayoutDashboard` for Visão Geral, `UserCog` for Usuários, `Store` for Providers, `Building2` for Condomínios, `LineChart` for Spectrum group, etc.). The right-chevron alone is not acceptable.
+
+The fix scope is local to `panel.tsx` and the i18n namespace. Re-read RULES.md §10 before implementing.
 
 ## Context
 

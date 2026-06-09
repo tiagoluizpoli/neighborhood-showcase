@@ -1,13 +1,24 @@
 ---
 type: feature
 epic: 06-panel-layout
-status: pending
+status: ready
 blocked-by: null
 ---
 
 ## What to Build
 
 Add `SidebarFooter` with user identity: avatar (initials fallback), name, email, "Conta" link, and "Sair" (sign out) button. Based on sidebar-07 `nav-user` pattern. User data comes from the session.
+
+## User Review Findings (reopened)
+
+The previous implementation put user info in the footer but treated the user row as plain text and put a logout button NEXT to it that signs out without confirmation. The user explicitly wants:
+
+- **The whole user row is a single clickable surface** (avatar + name + email all together). It should NOT look visually like a button (no border, no background), but the entire row must be clickable.
+- **Clicking the user row opens a popover** containing: "Conta" link to `/panel/conta`, "Sair" (sign out) action.
+- **Sign-out must prompt for confirmation** before calling the sign-out API (use a confirm dialog or two-step popover action — NOT a native `confirm()`).
+- **No inline "Sair" button next to the user row** in the footer. The popover is the only place sign-out lives.
+
+Re-read RULES.md §10 before implementing.
 
 ## Context
 

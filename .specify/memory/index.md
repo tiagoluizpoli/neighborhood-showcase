@@ -10,7 +10,7 @@
 - ✅ **Announcements and Payments** — `03-announcements-and-payments/epic.md`
 - ✅ **Provider and Moderation** — `04-provider-and-moderation/epic.md`
 - ✅ **Public Browsing UI** — `05-public-browsing-ui/epic.md`
-- 🔄 **Panel Layout** — `06-panel-layout/epic.md`
+- 🔄 **Panel Layout** — `06-panel-layout/epic.md` (reopened: user review on 2026-06-09; 06_02, 06_03, 06_04, 06_06, 06_07 have user review findings; 06_09 Spectrum is new)
 - ✅ **Data and Infrastructure** — `07-data-and-infrastructure/epic.md`
 - ✅ **Architecture and Quality** — `08-architecture-and-quality/epic.md`
 - ✅ **Remediation** — `09-remediation/epic.md`
@@ -50,6 +50,7 @@
 | 06-panel-layout | [06_06_localization](epics/06-panel-layout/tasks/06_06_localization.md) | 🔄 pending | — |
 | 06-panel-layout | [06_07_badge_count_stubs](epics/06-panel-layout/tasks/06_07_badge_count_stubs.md) | 🔄 pending | — |
 | 06-panel-layout | [06_08_visibility_tests](epics/06-panel-layout/tasks/06_08_visibility_tests.md) | 🔄 pending | — |
+| 06-panel-layout | [06_09_spectrum_top_level_block](epics/06-panel-layout/tasks/06_09_spectrum_top_level_block.md) | 🔄 pending | [06_07_badge_count_stubs](epics/06-panel-layout/tasks/06_07_badge_count_stubs.md) |
 | 07-data-and-infrastructure | [12_db_migration_address_location](epics/07-data-and-infrastructure/tasks/12_db_migration_address_location.md) | ✅ completed | — |
 | 07-data-and-infrastructure | [13_onboarding_setup_flow_external](epics/07-data-and-infrastructure/tasks/13_onboarding_setup_flow_external.md) | ✅ completed | — |
 | 07-data-and-infrastructure | [15_public_showcase_proximity_refactor](epics/07-data-and-infrastructure/tasks/15_public_showcase_proximity_refactor.md) | ✅ completed | — |
