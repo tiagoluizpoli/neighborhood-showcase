@@ -203,6 +203,16 @@ can be marked complete.
 - **Language switcher behavior:** the language switcher trigger shows the
   flag of the **currently selected** language (BR for `pt`, US for `en`), NOT
   a generic globe icon.
+- **i18n namespace:** use `useTranslation()` (no argument — default
+  namespace `translation`). Do NOT use `useTranslation('sidebar')` or any
+  other custom namespace. Translation JSON files already have `sidebar` as a
+  top-level key inside the `translation` namespace.
+- **Translation keys in English only:** every i18n key path (the part before
+  the colon, e.g. `sidebar.group.provedor`, `moderation.title`) must be
+  written entirely in English. The translated values (the strings after the
+  colon) are in the respective language. This applies to ALL code: file
+  names, variable names, function names, route paths, i18n key paths, and any
+  other code artifact must be English. No exceptions.
 
 ## 7. Role-Based Navigation & Route Guards
 
@@ -277,6 +287,35 @@ schema definitions, and generate a new base schema migration from scratch.
   not proceed under a guess.
 - If all tasks are done, emit `<promise>NO MORE TASKS</promise>`.
 
+## 13. Frontend Testing (Playwright)
+
+- **Playwright is mandatory for all UI changes.** Before any task touching
+  frontend code is considered complete, a Playwright test must exist that
+  verifies the visual/behavioral change.
+- Install Playwright from scratch in `apps/web/`. Configure `playwright.config.ts`
+  and create a `tests/` directory.
+- Tests verify external behavior only — route navigation, visible text,
+  sidebar structure, form submission. Do not test implementation details.
+- If a test fails, the loop self-corrects before marking the task done.
+
+## 14. Moderation Condo Context Selector
+
+- **localStorage key:** `mod_ctx__cndo` — stores the currently selected
+  `condominiumId` for the moderation context.
+- **Read on init:** if stored ID not in current assignments, fall back to
+  first assignment and overwrite localStorage.
+- **Write on change:** every successful condo switch writes the new ID.
+- **Cleanup:** if user has zero approved MODERATOR assignments, delete
+  `mod_ctx_cndo` from localStorage entirely.
+- **UI position:** first item inside the Moderation nav group. Visually
+  distinct from nav items (not a SidebarMenuButton — a custom selector
+  component). If only one condo, display name only (non-interactive, no
+  chevron). If 2+, display name + chevron and open a dropdown list.
+- **No project branding in the key name.** The key must look like internal
+  technical state, not user-facing content.
+
 <!-- INDEX SYNC: This file is project-root canonical rules. Any change here
 should also be reflected in agents.local.md (project-context only) and the
 ralph-loop-orchestrator skill. -->
+
+
