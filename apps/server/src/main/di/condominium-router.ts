@@ -1,4 +1,5 @@
 import { ApproveCondominium } from '../../application/use-cases/condominium/approve-condominium';
+import { GetCondominiumInfo } from '../../application/use-cases/condominium/get-condominium-info';
 import { GetMyCondominium } from '../../application/use-cases/condominium/get-my-condominium';
 import { ListApprovedCondominiums } from '../../application/use-cases/condominium/list-approved-condominiums';
 import { ListNearbyCondominiums } from '../../application/use-cases/condominium/list-nearby-condominiums';
@@ -17,6 +18,7 @@ export interface CondominiumRouterDependencies {
   listApprovedCondoUseCase: ListApprovedCondominiums;
   listNearbyCondoUseCase: ListNearbyCondominiums;
   listPendingCondoUseCase: ListPendingCondominiums;
+  getCondominiumInfoUseCase: GetCondominiumInfo;
 }
 
 export function createCondominiumRouterDependencies(): CondominiumRouterDependencies {
@@ -32,5 +34,9 @@ export function createCondominiumRouterDependencies(): CondominiumRouterDependen
     listApprovedCondoUseCase: new ListApprovedCondominiums(condoRepo),
     listNearbyCondoUseCase: new ListNearbyCondominiums(condoRepo),
     listPendingCondoUseCase: new ListPendingCondominiums(condoRepo),
+    getCondominiumInfoUseCase: new GetCondominiumInfo(
+      condoRepo,
+      assignmentRepo,
+    ),
   };
 }

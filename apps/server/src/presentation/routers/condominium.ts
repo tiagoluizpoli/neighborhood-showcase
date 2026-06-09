@@ -1,5 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
+import { UnauthorizedCondominiumAccessError } from '../../application/use-cases/condominium/get-condominium-info';
 import {
   CondominiumNotFoundError,
   CondominiumNotPendingError,
@@ -24,6 +25,7 @@ export function createCondominiumRouter(
     listApprovedCondoUseCase,
     listNearbyCondoUseCase,
     listPendingCondoUseCase,
+    getCondominiumInfoUseCase,
   } = dependencies;
 
   return router({
@@ -130,6 +132,34 @@ export function createCondominiumRouter(
           if (error instanceof CondominiumNotPendingError) {
             throw new TRPCError({
               code: 'CONFLICT',
+              message: error.message,
+              cause: error,
+            });
+          }
+          throw error;
+        }
+      }),
+
+    getCondominiumInfo: protectedProcedure
+      .input(z.object({ condominiumId: z.string() }))
+      .query(async ({ input, ctx }) => {
+        try {
+          const result = await getCondominiumInfoUseCase.execute({
+            userId: ctx.session.user.id,
+            condominiumId: input.condominiumId,
+          });
+          return result;
+        } catch (error) {
+          if (error instanceof UnauthorizedCondominiumAccessError) {
+            throw new TRPCError({
+              code: 'FORBIDDEN',
+              message: error.message,
+              cause: error,
+            });
+          }
+          if (error instanceof CondominiumNotFoundError) {
+            throw new TRPCError({
+              code: 'NOT_FOUND',
               message: error.message,
               cause: error,
             });
