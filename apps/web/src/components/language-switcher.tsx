@@ -13,7 +13,7 @@ const FLAGS: Record<string, string> = {
 const LANGUAGES = [{ code: 'pt' }, { code: 'en' }] as const;
 
 export function LanguageSwitcher() {
-  const { i18n, t } = useTranslation('sidebar');
+  const { i18n, t } = useTranslation();
 
   return (
     <Popover>
@@ -22,7 +22,7 @@ export function LanguageSwitcher() {
           <button
             type="button"
             className="flex h-9 items-center justify-center rounded-md px-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-            aria-label={t('language_switcher.language')}
+            aria-label={t('sidebar.language_switcher.language')}
           >
             <span className="text-lg">{FLAGS[i18n.language] ?? '🌐'}</span>
           </button>
@@ -40,7 +40,7 @@ export function LanguageSwitcher() {
               <span>{FLAGS[lang.code]}</span>
               <span>
                 {t(
-                  `language_switcher.${lang.code === 'pt' ? 'portuguese' : 'english'}`,
+                  `sidebar.language_switcher.${lang.code === 'pt' ? 'portuguese' : 'english'}`,
                 )}
               </span>
             </button>

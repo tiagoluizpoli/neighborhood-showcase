@@ -83,7 +83,7 @@ export const Route = createFileRoute('/panel')({
 
 function PanelLayout() {
   const { session } = Route.useRouteContext();
-  const { t } = useTranslation('sidebar');
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const { data: assignments } = useQuery(
@@ -134,17 +134,17 @@ function PanelLayout() {
             <SidebarGroup>
               <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
                 <LayoutDashboard className="mr-2 inline-block h-4 w-4" />
-                {t('group.provedor')}
+                {t('sidebar.group.provedor')}
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       render={<Link to="/panel/dashboard" />}
-                      tooltip={t('item.dashboard')}
+                      tooltip={t('sidebar.item.dashboard')}
                     >
                       <LayoutDashboard className="h-4 w-4" />
-                      <span>{t('item.dashboard')}</span>
+                      <span>{t('sidebar.item.dashboard')}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
@@ -153,13 +153,13 @@ function PanelLayout() {
                         render={<Link to="/panel/dashboard/announcements" />}
                       >
                         <Megaphone className="h-4 w-4" />
-                        <span>{t('item.meus_anuncios')}</span>
+                        <span>{t('sidebar.item.meus_anuncios')}</span>
                       </SidebarMenuSubButton>
                       <SidebarMenuSubButton
                         render={<Link to="/panel/dashboard/configuration" />}
                       >
                         <Settings className="h-4 w-4" />
-                        <span>{t('item.configuracoes')}</span>
+                        <span>{t('sidebar.item.configuracoes')}</span>
                       </SidebarMenuSubButton>
                     </SidebarMenuSub>
                   </SidebarMenuItem>
@@ -172,7 +172,7 @@ function PanelLayout() {
               <SidebarGroup>
                 <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
                   <ShieldAlert className="mr-2 inline-block h-4 w-4" />
-                  {t('group.moderacao')}
+                  {t('sidebar.group.moderacao')}
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
@@ -182,13 +182,13 @@ function PanelLayout() {
                           render={<Link to="/panel/moderation/announcements" />}
                         >
                           <Megaphone className="h-4 w-4" />
-                          <span>{t('item.anuncios')}</span>
+                          <span>{t('sidebar.item.anuncios')}</span>
                         </SidebarMenuSubButton>
                         <SidebarMenuSubButton
                           render={<Link to="/panel/moderation/residents" />}
                         >
                           <Users className="h-4 w-4" />
-                          <span>{t('item.moradores')}</span>
+                          <span>{t('sidebar.item.moradores')}</span>
                         </SidebarMenuSubButton>
                       </SidebarMenuSub>
                     </SidebarMenuItem>
@@ -202,7 +202,7 @@ function PanelLayout() {
               <SidebarGroup>
                 <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
                   <ShieldCheck className="mr-2 inline-block h-4 w-4" />
-                  {t('group.administracao')}
+                  {t('sidebar.group.administracao')}
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
@@ -212,25 +212,25 @@ function PanelLayout() {
                           render={<Link to="/panel/admin/overview" />}
                         >
                           <LayoutDashboard className="h-4 w-4" />
-                          <span>{t('item.visao_geral')}</span>
+                          <span>{t('sidebar.item.visao_geral')}</span>
                         </SidebarMenuSubButton>
                         <SidebarMenuSubButton
                           render={<Link to="/panel/admin/users" />}
                         >
                           <UserCog className="h-4 w-4" />
-                          <span>{t('item.usuarios')}</span>
+                          <span>{t('sidebar.item.usuarios')}</span>
                         </SidebarMenuSubButton>
                         <SidebarMenuSubButton
                           render={<Link to="/panel/admin/providers" />}
                         >
                           <Store className="h-4 w-4" />
-                          <span>{t('item.providers')}</span>
+                          <span>{t('sidebar.item.providers')}</span>
                         </SidebarMenuSubButton>
                         <SidebarMenuSubButton
                           render={<Link to="/panel/admin/condominiums" />}
                         >
                           <Building2 className="h-4 w-4" />
-                          <span>{t('item.condominios')}</span>
+                          <span>{t('sidebar.item.condominios')}</span>
                         </SidebarMenuSubButton>
                       </SidebarMenuSub>
                     </SidebarMenuItem>
@@ -244,17 +244,17 @@ function PanelLayout() {
               <SidebarGroup>
                 <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
                   <LineChart className="mr-2 inline-block h-4 w-4" />
-                  {t('group.spectrum')}
+                  {t('sidebar.group.spectrum')}
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     <SidebarMenuItem>
                       <SidebarMenuButton
                         render={<Link to="/panel/spectrum" />}
-                        tooltip={t('item.spectrum')}
+                        tooltip={t('sidebar.item.spectrum')}
                       >
                         <LineChart className="h-4 w-4" />
-                        <span>{t('item.spectrum')}</span>
+                        <span>{t('sidebar.item.spectrum')}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   </SidebarMenu>
@@ -294,7 +294,7 @@ function PanelLayout() {
                     className="flex items-center gap-2 rounded-md px-3 py-2 text-foreground text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
                   >
                     <Settings className="h-4 w-4 text-muted-foreground" />
-                    {t('user_menu.conta')}
+                    {t('sidebar.user_menu.conta')}
                   </Link>
                   <AlertDialog>
                     <AlertDialogTrigger
@@ -305,17 +305,19 @@ function PanelLayout() {
                         />
                       }
                     >
-                      {t('user_menu.sair')}
+                      {t('sidebar.user_menu.sair')}
                     </AlertDialogTrigger>
                     <AlertDialogContent>
-                      <AlertDialogTitle>{t('user_menu.sair')}</AlertDialogTitle>
+                      <AlertDialogTitle>
+                        {t('sidebar.user_menu.sair')}
+                      </AlertDialogTitle>
                       <AlertDialogDescription>
                         {session.data?.user?.name} —{' '}
-                        {t('user_menu.confirm_sair')}
+                        {t('sidebar.user_menu.confirm_sair')}
                       </AlertDialogDescription>
                       <AlertDialogFooter>
                         <AlertDialogCancel>
-                          {t('user_menu.cancel')}
+                          {t('sidebar.user_menu.cancel')}
                         </AlertDialogCancel>
                         <AlertDialogAction
                           onClick={() => {
@@ -328,7 +330,7 @@ function PanelLayout() {
                             });
                           }}
                         >
-                          {t('user_menu.sair')}
+                          {t('sidebar.user_menu.sair')}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>

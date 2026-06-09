@@ -76,8 +76,8 @@ let mockAssignments: any[] = [];
 mock.module('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: any) => {
-      // Prefix with 'sidebar.' since panel.tsx calls useTranslation('sidebar')
-      return options?.defaultValue || `sidebar.${key}`;
+      // JSON keys already include 'sidebar.' prefix (e.g. 'sidebar.group.provedor')
+      return options?.defaultValue || key;
     },
     i18n: {
       language: 'pt',
