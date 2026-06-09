@@ -99,24 +99,22 @@ start_line_count=$(wc -l < progress.txt 2>/dev/null || echo 0)
 
 get_latest_model_label() {
   local latest_log model_line
-  latest_log=$(find "$HOME/.gemini/antigravity-cli/log" -maxdepth 1 -type f -name "cli-$(date +%Y%m%d)_*.log" -printf '%T@ %p\n' 2>/dev/null | sort -n | tail -n 1 | cut -d' ' -f2-)
+  latest_log="$HOME/.hermes/logs/agent.log"
 
-  if [ -z "$latest_log" ] || [ ! -f "$latest_log" ]; then
+  if [ ! -f "$latest_log" ]; then
     echo "unknown"
     return
   fi
 
-  model_line=$(grep -oE 'Propagating selected model override to backend: label="[^"]+"' "$latest_log" | tail -n 1)
-  if [ -z "$model_line" ]; then
-    model_line=$(grep -oE 'Print mode: starting \(promptLength=[0-9]+, model="[^"]*"' "$latest_log" | tail -n 1)
-  fi
+  # Hermes logs model per API call: "model=MiniMax-M2.7 provider=minimax-oauth"
+  model_line=$(grep -oE 'model=[^ ]+' "$latest_log" 2>/dev/null | tail -n 1)
 
   if [ -z "$model_line" ]; then
     echo "unknown"
     return
   fi
 
-  echo "$model_line" | sed -E 's/.*label="([^"]+)".*/\1/; s/.*model="([^"]*)".*/\1/'
+  echo "$model_line" | sed -E 's/model=//'
 }
 
 get_latest_ralph_commit() {
@@ -177,7 +175,7 @@ for ((i=1; i<=MAX_ITERATIONS; i++)); do
 
   echo -e "${GREEN}⏱️ Attempt $i completed in ${duration}s.${NC}"
 
-  if [ -n "$ITERATION_DELAY" ] && [ "$ITERATION_DELAY" -gt 0 ]; then
+  if [ -n "$ITERATION_DELAY" ] && awk "BEGIN{exit !(($ITERATION_DELAY) > 0)}"; then
     actual_rpm=$(awk "BEGIN {printf \"%.1f\", 60/$ITERATION_DELAY}")
     echo -e "${CYAN}💤 Waiting ${ITERATION_DELAY}s before next iteration (~${actual_rpm} req/min target)...${NC}"
     sleep "$ITERATION_DELAY"

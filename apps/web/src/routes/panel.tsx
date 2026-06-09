@@ -13,6 +13,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
   SidebarProvider,
   SidebarRail,
   SidebarTrigger,
@@ -25,11 +27,16 @@ import {
   redirect,
 } from '@tanstack/react-router';
 import {
+  Building2,
   LayoutDashboard,
   LineChart,
+  Megaphone,
   Settings,
   ShieldAlert,
   ShieldCheck,
+  Store,
+  UserCog,
+  Users,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
@@ -96,6 +103,7 @@ function PanelLayout() {
             {/* Provedor Group */}
             <SidebarGroup>
               <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
+                <LayoutDashboard className="mr-2 inline-block h-4 w-4" />
                 {t('group.provedor')}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -109,6 +117,22 @@ function PanelLayout() {
                       <span>{t('item.dashboard')}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuSub>
+                      <SidebarMenuSubButton
+                        render={<Link to="/panel/dashboard/announcements" />}
+                      >
+                        <Megaphone className="h-4 w-4" />
+                        <span>{t('item.meus_anuncios')}</span>
+                      </SidebarMenuSubButton>
+                      <SidebarMenuSubButton
+                        render={<Link to="/panel/dashboard/configuration" />}
+                      >
+                        <Settings className="h-4 w-4" />
+                        <span>{t('item.configuracoes')}</span>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSub>
+                  </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -117,18 +141,26 @@ function PanelLayout() {
             {hasModeratorRole && (
               <SidebarGroup>
                 <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
+                  <ShieldAlert className="mr-2 inline-block h-4 w-4" />
                   {t('group.moderacao')}
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     <SidebarMenuItem>
-                      <SidebarMenuButton
-                        render={<Link to="/panel/moderation" />}
-                        tooltip={t('group.moderacao')}
-                      >
-                        <ShieldAlert className="h-4 w-4" />
-                        <span>{t('group.moderacao')}</span>
-                      </SidebarMenuButton>
+                      <SidebarMenuSub>
+                        <SidebarMenuSubButton
+                          render={<Link to="/panel/moderation/announcements" />}
+                        >
+                          <Megaphone className="h-4 w-4" />
+                          <span>{t('item.anuncios')}</span>
+                        </SidebarMenuSubButton>
+                        <SidebarMenuSubButton
+                          render={<Link to="/panel/moderation/residents" />}
+                        >
+                          <Users className="h-4 w-4" />
+                          <span>{t('item.moradores')}</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSub>
                     </SidebarMenuItem>
                   </SidebarMenu>
                 </SidebarGroupContent>
@@ -139,18 +171,38 @@ function PanelLayout() {
             {hasSystemManagerRole && (
               <SidebarGroup>
                 <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
+                  <ShieldCheck className="mr-2 inline-block h-4 w-4" />
                   {t('group.administracao')}
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     <SidebarMenuItem>
-                      <SidebarMenuButton
-                        render={<Link to="/panel/admin" />}
-                        tooltip={t('group.administracao')}
-                      >
-                        <ShieldCheck className="h-4 w-4" />
-                        <span>{t('group.administracao')}</span>
-                      </SidebarMenuButton>
+                      <SidebarMenuSub>
+                        <SidebarMenuSubButton
+                          render={<Link to="/panel/admin/overview" />}
+                        >
+                          <LayoutDashboard className="h-4 w-4" />
+                          <span>{t('item.visao_geral')}</span>
+                        </SidebarMenuSubButton>
+                        <SidebarMenuSubButton
+                          render={<Link to="/panel/admin/users" />}
+                        >
+                          <UserCog className="h-4 w-4" />
+                          <span>{t('item.usuarios')}</span>
+                        </SidebarMenuSubButton>
+                        <SidebarMenuSubButton
+                          render={<Link to="/panel/admin/providers" />}
+                        >
+                          <Store className="h-4 w-4" />
+                          <span>{t('item.providers')}</span>
+                        </SidebarMenuSubButton>
+                        <SidebarMenuSubButton
+                          render={<Link to="/panel/admin/condominiums" />}
+                        >
+                          <Building2 className="h-4 w-4" />
+                          <span>{t('item.condominios')}</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSub>
                     </SidebarMenuItem>
                   </SidebarMenu>
                 </SidebarGroupContent>
@@ -161,6 +213,7 @@ function PanelLayout() {
             {isAdministrator && (
               <SidebarGroup>
                 <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
+                  <LineChart className="mr-2 inline-block h-4 w-4" />
                   {t('group.spectrum')}
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
