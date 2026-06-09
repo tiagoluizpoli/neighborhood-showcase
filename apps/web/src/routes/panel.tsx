@@ -3,13 +3,9 @@ import {
   AvatarFallback,
 } from '@neighborhood-showcase/ui/components/avatar';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@neighborhood-showcase/ui/components/popover';
-import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -27,9 +23,15 @@ import {
   Link,
   Outlet,
   redirect,
-  useNavigate,
 } from '@tanstack/react-router';
-import { LayoutDashboard, ShieldAlert, ShieldCheck } from 'lucide-react';
+import {
+  LayoutDashboard,
+  LineChart,
+  Settings,
+  ShieldAlert,
+  ShieldCheck,
+} from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { trpc } from '@/utils/trpc';
 
@@ -55,7 +57,7 @@ export const Route = createFileRoute('/panel')({
 
 function PanelLayout() {
   const { session } = Route.useRouteContext();
-  const navigate = useNavigate();
+  const { t } = useTranslation('sidebar');
 
   const { data: assignments } = useQuery(
     trpc.assignment.getMyAssignments.queryOptions(undefined, {
@@ -72,12 +74,13 @@ function PanelLayout() {
   const hasSystemManagerRole =
     session?.data?.user.role === 'SYSTEM_MANAGER' ||
     session?.data?.user.role === 'ADMINISTRATOR';
+  const isAdministrator = session?.data?.user.role === 'ADMINISTRATOR';
 
   return (
     <SidebarProvider>
       <div
         data-theme="panel"
-        className="flex h-svh w-full bg-background text-foreground"
+        className="flex h-svh w-full bg-background text-foreground [--sidebar-width:280px]"
       >
         <Sidebar collapsible="icon">
           <SidebarHeader className="flex h-14 items-center border-b px-4">
@@ -93,17 +96,17 @@ function PanelLayout() {
             {/* Provedor Group */}
             <SidebarGroup>
               <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
-                Provedor
+                {t('group.provedor')}
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       render={<Link to="/panel/dashboard" />}
-                      tooltip="Dashboard"
+                      tooltip={t('item.dashboard')}
                     >
                       <LayoutDashboard className="h-4 w-4" />
-                      <span>Dashboard</span>
+                      <span>{t('item.dashboard')}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
@@ -114,17 +117,17 @@ function PanelLayout() {
             {hasModeratorRole && (
               <SidebarGroup>
                 <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
-                  Moderação
+                  {t('group.moderacao')}
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     <SidebarMenuItem>
                       <SidebarMenuButton
                         render={<Link to="/panel/moderation" />}
-                        tooltip="Moderação"
+                        tooltip={t('group.moderacao')}
                       >
                         <ShieldAlert className="h-4 w-4" />
-                        <span>Moderação</span>
+                        <span>{t('group.moderacao')}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   </SidebarMenu>
@@ -136,17 +139,39 @@ function PanelLayout() {
             {hasSystemManagerRole && (
               <SidebarGroup>
                 <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
-                  Administração
+                  {t('group.administracao')}
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     <SidebarMenuItem>
                       <SidebarMenuButton
                         render={<Link to="/panel/admin" />}
-                        tooltip="Administração"
+                        tooltip={t('group.administracao')}
                       >
                         <ShieldCheck className="h-4 w-4" />
-                        <span>Administração</span>
+                        <span>{t('group.administracao')}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
+
+            {/* Spectrum Group */}
+            {isAdministrator && (
+              <SidebarGroup>
+                <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
+                  {t('group.spectrum')}
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        render={<Link to="/panel/spectrum" />}
+                        tooltip={t('item.spectrum')}
+                      >
+                        <LineChart className="h-4 w-4" />
+                        <span>{t('item.spectrum')}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   </SidebarMenu>
@@ -154,6 +179,30 @@ function PanelLayout() {
               </SidebarGroup>
             )}
           </SidebarContent>
+
+          <SidebarFooter className="border-t p-4">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-9 w-9 border">
+                <AvatarFallback className="bg-muted font-semibold text-muted-foreground text-sm">
+                  {getInitials(session.data?.user?.name)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 truncate">
+                <p className="truncate font-semibold text-foreground text-sm">
+                  {session.data?.user?.name}
+                </p>
+                <p className="truncate text-muted-foreground text-xs">
+                  {session.data?.user?.email}
+                </p>
+              </div>
+              <Link
+                to="/panel/conta"
+                className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+              >
+                <Settings className="h-4 w-4" />
+              </Link>
+            </div>
+          </SidebarFooter>
           <SidebarRail />
         </Sidebar>
 
@@ -164,54 +213,7 @@ function PanelLayout() {
             <div className="flex items-center gap-2">
               <SidebarTrigger />
             </div>
-            <div className="flex items-center gap-4">
-              <Popover>
-                <PopoverTrigger className="cursor-pointer select-none rounded-full outline-hidden transition-all hover:opacity-90">
-                  <Avatar className="h-8 w-8 border">
-                    <AvatarFallback className="bg-muted font-semibold text-muted-foreground text-sm">
-                      {getInitials(session.data?.user?.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="w-56 rounded-xl border bg-card p-4"
-                  align="end"
-                >
-                  <div className="flex flex-col gap-1 pb-2">
-                    <p className="font-semibold text-foreground text-sm">
-                      {session.data?.user?.name}
-                    </p>
-                    <p className="truncate text-muted-foreground text-xs">
-                      {session.data?.user?.email}
-                    </p>
-                  </div>
-                  <div className="my-1 h-px bg-border" />
-                  <div className="flex flex-col gap-1 pt-1">
-                    <Link
-                      to="/panel/conta"
-                      className="flex w-full items-center rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-                    >
-                      Minha Conta
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        authClient.signOut({
-                          fetchOptions: {
-                            onSuccess: () => {
-                              navigate({ to: '/' });
-                            },
-                          },
-                        });
-                      }}
-                      className="flex w-full cursor-pointer items-center rounded-lg px-2 py-1.5 text-destructive text-sm transition-colors hover:bg-destructive/10"
-                    >
-                      Sair
-                    </button>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
+            <div className="flex items-center gap-4" />
           </header>
 
           <main className="flex-1 overflow-y-auto bg-background p-6">

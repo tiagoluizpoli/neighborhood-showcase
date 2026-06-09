@@ -17,6 +17,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as PortalRouteImport } from './routes/_portal'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as PortalIndexRouteImport } from './routes/_portal.index'
+import { Route as PanelSpectrumRouteImport } from './routes/panel.spectrum'
 import { Route as PanelModerationRouteImport } from './routes/panel.moderation'
 import { Route as PanelDashboardRouteImport } from './routes/panel.dashboard'
 import { Route as PanelContaRouteImport } from './routes/panel.conta'
@@ -69,6 +70,11 @@ const PortalIndexRoute = PortalIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PortalRoute,
+} as any)
+const PanelSpectrumRoute = PanelSpectrumRouteImport.update({
+  id: '/spectrum',
+  path: '/spectrum',
+  getParentRoute: () => PanelRoute,
 } as any)
 const PanelModerationRoute = PanelModerationRouteImport.update({
   id: '/moderation',
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/panel/conta': typeof PanelContaRoute
   '/panel/dashboard': typeof PanelDashboardRouteWithChildren
   '/panel/moderation': typeof PanelModerationRoute
+  '/panel/spectrum': typeof PanelSpectrumRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/anuncios/$id': typeof PortalAnunciosIdRoute
   '/prestadores/$id': typeof PortalPrestadoresIdRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/panel/admin': typeof PanelAdminRoute
   '/panel/conta': typeof PanelContaRoute
   '/panel/moderation': typeof PanelModerationRoute
+  '/panel/spectrum': typeof PanelSpectrumRoute
   '/': typeof PortalIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/anuncios/$id': typeof PortalAnunciosIdRoute
@@ -195,6 +203,7 @@ export interface FileRoutesById {
   '/panel/conta': typeof PanelContaRoute
   '/panel/dashboard': typeof PanelDashboardRouteWithChildren
   '/panel/moderation': typeof PanelModerationRoute
+  '/panel/spectrum': typeof PanelSpectrumRoute
   '/_portal/': typeof PortalIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/_portal/anuncios/$id': typeof PortalAnunciosIdRoute
@@ -220,6 +229,7 @@ export interface FileRouteTypes {
     | '/panel/conta'
     | '/panel/dashboard'
     | '/panel/moderation'
+    | '/panel/spectrum'
     | '/dashboard/'
     | '/anuncios/$id'
     | '/prestadores/$id'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/panel/admin'
     | '/panel/conta'
     | '/panel/moderation'
+    | '/panel/spectrum'
     | '/'
     | '/dashboard'
     | '/anuncios/$id'
@@ -262,6 +273,7 @@ export interface FileRouteTypes {
     | '/panel/conta'
     | '/panel/dashboard'
     | '/panel/moderation'
+    | '/panel/spectrum'
     | '/_portal/'
     | '/dashboard/'
     | '/_portal/anuncios/$id'
@@ -340,6 +352,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof PortalIndexRouteImport
       parentRoute: typeof PortalRoute
+    }
+    '/panel/spectrum': {
+      id: '/panel/spectrum'
+      path: '/spectrum'
+      fullPath: '/panel/spectrum'
+      preLoaderRoute: typeof PanelSpectrumRouteImport
+      parentRoute: typeof PanelRoute
     }
     '/panel/moderation': {
       id: '/panel/moderation'
@@ -492,6 +511,7 @@ interface PanelRouteChildren {
   PanelContaRoute: typeof PanelContaRoute
   PanelDashboardRoute: typeof PanelDashboardRouteWithChildren
   PanelModerationRoute: typeof PanelModerationRoute
+  PanelSpectrumRoute: typeof PanelSpectrumRoute
 }
 
 const PanelRouteChildren: PanelRouteChildren = {
@@ -499,6 +519,7 @@ const PanelRouteChildren: PanelRouteChildren = {
   PanelContaRoute: PanelContaRoute,
   PanelDashboardRoute: PanelDashboardRouteWithChildren,
   PanelModerationRoute: PanelModerationRoute,
+  PanelSpectrumRoute: PanelSpectrumRoute,
 }
 
 const PanelRouteWithChildren = PanelRoute._addFileChildren(PanelRouteChildren)

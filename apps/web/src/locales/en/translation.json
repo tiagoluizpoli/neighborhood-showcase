@@ -13,6 +13,40 @@
     "logout": "Sign Out",
     "login": "Sign In"
   },
+  "sidebar": {
+    "group": {
+      "provedor": "Provider",
+      "moderacao": "Moderation",
+      "administracao": "Administration",
+      "spectrum": "Spectrum"
+    },
+    "item": {
+      "dashboard": "Dashboard",
+      "meus_anuncios": "My Ads",
+      "configuracoes": "Settings",
+      "anuncios": "Announcements",
+      "moradores": "Residents",
+      "visao_geral": "Overview",
+      "usuarios": "Users",
+      "providers": "Providers",
+      "condominios": "Condominiums",
+      "spectrum": "Spectrum"
+    },
+    "badge": {
+      "pending_announcements": "pending announcements",
+      "pending_residents": "pending residents",
+      "open_reports": "open reports"
+    },
+    "user_menu": {
+      "conta": "Account",
+      "sair": "Sign Out"
+    },
+    "language_switcher": {
+      "language": "Language",
+      "portuguese": "Português",
+      "english": "English"
+    }
+  },
   "common": {
     "page_not_found": "Page Not Found",
     "publish_announcement": "Publish Announcement",

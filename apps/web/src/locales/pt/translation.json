@@ -13,6 +13,40 @@
     "logout": "Sair",
     "login": "Entrar"
   },
+  "sidebar": {
+    "group": {
+      "provedor": "Provedor",
+      "moderacao": "Moderação",
+      "administracao": "Administração",
+      "spectrum": "Spectrum"
+    },
+    "item": {
+      "dashboard": "Dashboard",
+      "meus_anuncios": "Meus Anúncios",
+      "configuracoes": "Configurações",
+      "anuncios": "Anúncios",
+      "moradores": "Moradores",
+      "visao_geral": "Visão Geral",
+      "usuarios": "Usuários",
+      "providers": "Providers",
+      "condominios": "Condomínios",
+      "spectrum": "Spectrum"
+    },
+    "badge": {
+      "pending_announcements": "anúncios pendentes",
+      "pending_residents": "moradores pendentes",
+      "open_reports": "denúncias abertas"
+    },
+    "user_menu": {
+      "conta": "Conta",
+      "sair": "Sair"
+    },
+    "language_switcher": {
+      "language": "Idioma",
+      "portuguese": "Português",
+      "english": "English"
+    }
+  },
   "common": {
     "page_not_found": "Página não encontrada",
     "publish_announcement": "Publicar Anúncio",
