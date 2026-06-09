@@ -1,23 +1,28 @@
 Ralph Loop iteration 1 — 2026-06-09
-CURRENT TASK: 06_02_nested_navigation
+CURRENT TASK: 06_03_sidebar_footer
 STATUS: COMPLETE
 
 Completed:
-- [x] 06_02_nested_navigation — panel sidebar nested navigation with group/item icons
+- [x] 06_03_sidebar_footer — sidebar footer user row popover with sign-out confirmation
 
 What was done:
-- Added group-level icons to Moderação (ShieldAlert), Administração (ShieldCheck), Spectrum (LineChart)
-- Converted Provedor/Moderação/Administração groups to use SidebarMenuSub with contextual item icons (Megaphone, Users, LayoutDashboard, UserCog, Store, Building2)
-- Removed invalid tooltip props from SidebarMenuSubButton elements
-- Added Outlet import (was missing — caused Cannot find name 'Outlet' at typecheck)
-- Created 6 route stubs for nested routes: panel/dashboard/{announcements,configuration}, panel/moderation/{announcements,residents}, panel/admin/{overview,users,providers,condominiums}
-- Removed 2 unused imports (SidebarMenuSubItem, ListChecks) flagged by biome
+- SidebarFooter now wraps a Popover with the user row (avatar + name + email) as the trigger
+  — no button styling, just hover feedback on the whole row
+- PopoverContent shows: Settings icon + "Conta" link (i18n), and "Sair" button (i18n) with
+  destructive styling
+- "Sair" opens an AlertDialog for confirmation; only on confirm does it call
+  authClient.signOut with onSuccess redirect to /
+- All text uses sidebar.user_menu i18n keys (conta, sair, confirm_sair, cancel)
+- No inline sign-out button next to the user row (per RULES.md §10)
+- Used render={} pattern (not asChild) for PopoverTrigger and AlertDialogTrigger
+  per the codebase convention (base-ui components, not Radix)
 
 Verification:
+- check: biome OK + depcruise OK (no violations) — biome auto-fixed formatting on imports
 - check-types: 4/4 packages OK (web build + tsc passed)
-- check: biome OK + depcruise OK (no violations)
 - test: 491/491 pass
 
-Next task: 06_03_sidebar_footer (reopened — user row must be clickable popover, no inline sign-out, sign-out must confirm)
+Next task: 06_04_top_bar_controls (reopened — theme toggle = 3-state cycle
+(monitor/sun/moon), language switcher = flag of selected language)
 
-Commit: d3775f8
+Commit: ecf8396
