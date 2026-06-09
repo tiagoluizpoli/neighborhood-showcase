@@ -10,10 +10,7 @@ const FLAGS: Record<string, string> = {
   en: '🇺🇸',
 };
 
-const LANGUAGES = [
-  { code: 'pt', label: 'Português' },
-  { code: 'en', label: 'English' },
-] as const;
+const LANGUAGES = [{ code: 'pt' }, { code: 'en' }] as const;
 
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation('sidebar');
@@ -41,7 +38,11 @@ export function LanguageSwitcher() {
               className="flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
             >
               <span>{FLAGS[lang.code]}</span>
-              <span>{lang.label}</span>
+              <span>
+                {t(
+                  `language_switcher.${lang.code === 'pt' ? 'portuguese' : 'english'}`,
+                )}
+              </span>
             </button>
           ))}
         </div>

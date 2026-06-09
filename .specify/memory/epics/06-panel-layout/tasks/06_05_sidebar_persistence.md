@@ -1,7 +1,7 @@
 ---
 type: feature
 epic: 06-panel-layout
-status: pending
+status: completed
 blocked-by: null
 ---
 

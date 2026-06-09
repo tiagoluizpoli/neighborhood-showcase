@@ -1,60 +1,17 @@
-## Ralph Loop — Iteration 2
+Ralph Loop — Iteration 3
+Date: 2026-06-09
 
-**Date:** 2026-06-09
-**Model:** MiniMax-M2.7 (hermes)
+COMPLETED: 06_05_sidebar_persistence
+- SidebarProvider defaultOpen reads localStorage 'sidebar:state'
+- onOpenChange override writes localStorage on every toggle
+- DefaultOpen = true when no key or key != 'false'
+- Added `import * as React from 'react'` to fix TS2686 (module/global UMD)
+- All checks: bun run check ✔ | bun run check-types ✔ | bun run test ✔ (491 pass)
+- Commit: 9fb6335 feat(web): sidebar state persistence via localStorage
 
----
+NEXT: 06_06_localization (⚠️ REOPENED — sidebar i18n not working, raw keys showing)
 
-## Task Completed
+Blocked tasks:
+- 06_09_spectrum_top_level_block — blocked by 06_07_badge_count_stubs
 
-- **06_04_top_bar_controls** — ✅ COMPLETED
-
-### What was done
-
-Task had two user-review defects in the panel top bar:
-
-1. **Theme toggle was a dropdown popover** — replaced with `ThemeCycleToggle` (new component):
-   - Single button cycling `system → light → dark → system` on each click
-   - Icons: `Monitor` (system), `Sun` (light), `Moon` (dark)
-   - No popover, no dropdown — per RULES.md §10
-
-2. **Language switcher used Globe icon** — replaced with `LanguageSwitcher` (new component):
-   - Trigger shows flag emoji of the **currently selected** language (🇧🇷 for pt, 🇺🇸 for en)
-   - Popover lists both language options with their flags
-   - Calls `i18n.changeLanguage()` on select; `LanguageDetector` persists to localStorage
-
-Both wired into `panel.tsx` top header: `SidebarTrigger | ThemeCycleToggle + LanguageSwitcher`
-
-Also added missing i18n keys (`confirm_sair`, `cancel`) to `sidebar.user_menu` in both pt/en locale files.
-
-### Files changed
-- `apps/web/src/components/theme-cycle-toggle.tsx` (NEW)
-- `apps/web/src/components/language-switcher.tsx` (NEW)
-- `apps/web/src/routes/panel.tsx` (imports + header wiring)
-- `apps/web/src/locales/pt/translation.json` (user_menu keys)
-- `apps/web/src/locales/en/translation.json` (user_menu keys)
-
-### Verification
-- `bun run check` ✔ (biome fixed 3 files, depcruise ✔ no violations)
-- `bun run check-types` ✔ (built in 8.26s)
-- `bun run test` ✔ (491 pass, 0 fail)
-
-### Commit
-- `b688e0b` — feat(web): panel top bar — ThemeCycleToggle + LanguageSwitcher
-
----
-
-## Next Task
-
-**06_05_sidebar_persistence** — localStorage persistence of sidebar collapsed/expanded state.
-
-Remaining pending in Epic 06:
-- 06_05_sidebar_persistence (pending)
-- 06_06_localization (pending — sidebar i18n not working, raw keys showing)
-- 06_07_badge_count_stubs (pending — must use Clean Architecture, not raw db.select)
-- 06_08_visibility_tests (pending)
-- 06_09_spectrum_top_level_block (blocked by 06_07)
-
----
-
-**100% Complete**
+<!-- INDEX SYNC DONE -->

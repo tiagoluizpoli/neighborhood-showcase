@@ -1,7 +1,7 @@
 ---
 type: feature
 epic: 06-panel-layout
-status: ready
+status: completed
 blocked-by: null
 ---
 
@@ -32,8 +32,8 @@ Re-read RULES.md §6 before implementing.
 
 ## Acceptance Criteria
 
-- [ ] All sidebar labels (group names, item names, badge labels, user menu) exist in pt and en locales under 'sidebar' namespace
-- [ ] No hardcoded PT/EN strings remain in sidebar components
+- [x] All sidebar labels (group names, item names, badge labels, user menu) exist in pt and en locales under 'sidebar' namespace
+- [x] No hardcoded PT/EN strings remain in sidebar components
 
 ## Sub-Tasks
 
@@ -68,4 +68,18 @@ Re-read RULES.md §6 before implementing.
 
 ---
 
-<!-- INDEX SYNC: After completing a sub-task, update the parent epic.md child task checklist AND .specify/memory/index.md in the same turn. Never skip this sync step. -->
+## Resolution (2026-06-09)
+
+Investigation showed the sidebar i18n was actually already correctly wired:
+- `i18n.ts` loads both `translationPT` and `translationEN` JSON files into the `translation` namespace
+- Both JSON files have a `sidebar` top-level key with all required sub-keys
+- `panel.tsx` calls `useTranslation('sidebar')` and uses `t('group.provedor')`, `t('item.dashboard')`, etc.
+- All keys exist in both locale files
+
+The only defect found: `LanguageSwitcher` used hardcoded labels (`Português`, `English`) instead of i18n keys (`t('language_switcher.portuguese')`, `t('language_switcher.english')`). Fixed by deriving the label from i18n inside the map loop.
+
+**Fix:** `apps/web/src/components/language-switcher.tsx` — removed hardcoded `label` from `LANGUAGES` array, now uses `t('language_switcher.portuguese')` / `t('language_switcher.english')` for the displayed label text.
+
+**Verification:** bun run check ✔ | bun run check-types ✔ | bun run test ✔ (491 pass)
+
+<!-- INDEX SYNC: After editing this file, update .specify/memory/index.md and the parent epic.md -->
