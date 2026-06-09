@@ -10,7 +10,7 @@
 - ✅ **Announcements and Payments** — `03-announcements-and-payments/epic.md`
 - ✅ **Provider and Moderation** — `04-provider-and-moderation/epic.md`
 - ✅ **Public Browsing UI** — `05-public-browsing-ui/epic.md`
-- 🔄 **Panel Layout** — `06-panel-layout/epic.md` (reopened: user review on 2026-06-09; 06_02, 06_03, 06_04, 06_06, 06_07 have user review findings; 06_09 Spectrum is new)
+- ✅ **Panel Layout** — `06-panel-layout/epic.md` (completed: all 9 tasks done)
 - ✅ **Data and Infrastructure** — `07-data-and-infrastructure/epic.md`
 - ✅ **Architecture and Quality** — `08-architecture-and-quality/epic.md`
 - ✅ **Remediation** — `09-remediation/epic.md`
