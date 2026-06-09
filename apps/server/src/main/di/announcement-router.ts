@@ -1,4 +1,5 @@
 import { CreateAnnouncement } from '../../application/use-cases/announcement/create-announcement';
+import { CountPendingAnnouncements } from '../../application/use-cases/announcement/count-pending-announcements';
 import { DismissReports } from '../../application/use-cases/announcement/dismiss-reports';
 import { GetAnnouncementAnalytics } from '../../application/use-cases/announcement/get-announcement-analytics';
 import { GetProviderDashboardData } from '../../application/use-cases/announcement/get-provider-dashboard-data';
@@ -25,6 +26,7 @@ import { AbacatePayClient } from '../../infrastructure/payment/abacatepay.client
 
 export interface AnnouncementRouterDependencies {
   createAnnouncementUseCase: CreateAnnouncement;
+  countPendingAnnouncementsUseCase: CountPendingAnnouncements;
   generatePaymentIntentUseCase: GeneratePaymentIntent;
   getPaymentStatusUseCase: GetPaymentStatus;
   listAnnouncementsForModerationUseCase: ListAnnouncementsForModeration;
@@ -56,6 +58,9 @@ export function createAnnouncementRouterDependencies(): AnnouncementRouterDepend
     createAnnouncementUseCase: new CreateAnnouncement(
       announcementRepo,
       assignmentRepo,
+    ),
+    countPendingAnnouncementsUseCase: new CountPendingAnnouncements(
+      announcementRepo,
     ),
     generatePaymentIntentUseCase: new GeneratePaymentIntent(
       announcementRepo,

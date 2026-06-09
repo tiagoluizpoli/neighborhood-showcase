@@ -1,17 +1,28 @@
-Ralph Loop — Iteration 3
-Date: 2026-06-09
+Ralph Loop — Iteration 1 — 2026-06-09
 
-COMPLETED: 06_05_sidebar_persistence
-- SidebarProvider defaultOpen reads localStorage 'sidebar:state'
-- onOpenChange override writes localStorage on every toggle
-- DefaultOpen = true when no key or key != 'false'
-- Added `import * as React from 'react'` to fix TS2686 (module/global UMD)
-- All checks: bun run check ✔ | bun run check-types ✔ | bun run test ✔ (491 pass)
-- Commit: 9fb6335 feat(web): sidebar state persistence via localStorage
+TASK: 06_06_localization
+STATUS: COMPLETE
 
-NEXT: 06_06_localization (⚠️ REOPENED — sidebar i18n not working, raw keys showing)
+FINDING: sidebar i18n was already correctly wired.
+- i18n.ts loads translationPT/translationEN JSON files into the `translation` namespace
+- Both JSON files have a `sidebar` top-level key with all required sub-keys
+- panel.tsx calls useTranslation('sidebar') and uses t('group.provedor'), t('item.dashboard'), etc.
+- All keys exist in both locale files
 
-Blocked tasks:
-- 06_09_spectrum_top_level_block — blocked by 06_07_badge_count_stubs
+唯一 defect: LanguageSwitcher used hardcoded labels (`Português`, `English`) instead of i18n keys.
+FIX: removed hardcoded `label` from LANGUAGES array, now uses t('language_switcher.portuguese') / t('language_switcher.english').
 
-<!-- INDEX SYNC DONE -->
+FILES CHANGED:
+- apps/web/src/components/language-switcher.tsx
+
+CHECKS: bun run check ✔ | bun run check-types ✔ | bun run test ✔ (491 pass)
+COMMIT: 89d84e3
+
+UPDATED:
+- .specify/memory/epics/06-panel-layout/tasks/06_06_localization.md (status → completed)
+- .specify/memory/epics/06-panel-layout/epic.md (child checklist)
+- .specify/memory/index.md (06_06 → completed)
+
+NEXT TASK: 06_07_badge_count_stubs (unblocked after this iteration; must use Clean Architecture, NOT raw db.select from tRPC)
+
+<promise>COMPLETE</promise>

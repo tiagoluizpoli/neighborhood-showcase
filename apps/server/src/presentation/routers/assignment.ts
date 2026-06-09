@@ -36,6 +36,7 @@ export function createAssignmentRouter(
 ) {
   const {
     assignmentRepo,
+    countPendingAssignmentsUseCase,
     getCondominiumAssignmentUseCase,
     getAssignmentUseCase,
     requestAssignmentUseCase,
@@ -90,6 +91,16 @@ export function createAssignmentRouter(
           ...assign.toDTO(),
           provider: assign.provider,
         }));
+      }),
+
+    pendingCount: protectedProcedure
+      .input(z.object({ condominiumId: z.string(), type: z.enum(['MODERATOR', 'RESIDENT']).optional() }))
+      .query(async ({ input }) => {
+        const count = await countPendingAssignmentsUseCase.execute({
+          condominiumId: input.condominiumId,
+          type: input.type,
+        });
+        return { count };
       }),
 
     approve: protectedProcedure

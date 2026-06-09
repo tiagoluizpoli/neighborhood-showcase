@@ -18,6 +18,7 @@ import type {
   UpdateAnnouncementRepositoryInput,
 } from '../../domain/repositories/announcement.repository';
 import {
+  countPendingAnnouncementsByCondo,
   createAnnouncement,
   findActiveAnnouncementsByProviderId,
   findAnnouncementById,
@@ -125,5 +126,9 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
     input: ListPublicAnnouncementsInput,
   ): Promise<PublicAnnouncementDTO[]> {
     return listPublicAnnouncements(input);
+  }
+
+  async countPendingByCondo(condominiumId: string): Promise<number> {
+    return countPendingAnnouncementsByCondo(condominiumId);
   }
 }

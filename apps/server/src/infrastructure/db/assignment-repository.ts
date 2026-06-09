@@ -114,6 +114,32 @@ export class DrizzleAssignmentRepository implements AssignmentRepository {
     });
   }
 
+  async countPendingByCondo(condominiumId: string): Promise<number> {
+    const result = await db.query.providerAssignment.findMany({
+      columns: { id: true },
+      where: and(
+        eq(assignSchema.condominiumId, condominiumId),
+        eq(assignSchema.status, 'PENDING'),
+      ),
+    });
+    return result.length;
+  }
+
+  async countPendingByCondoAndType(
+    condominiumId: string,
+    type: 'MODERATOR' | 'RESIDENT',
+  ): Promise<number> {
+    const result = await db.query.providerAssignment.findMany({
+      columns: { id: true },
+      where: and(
+        eq(assignSchema.condominiumId, condominiumId),
+        eq(assignSchema.status, 'PENDING'),
+        eq(assignSchema.type, type),
+      ),
+    });
+    return result.length;
+  }
+
   async findById(id: string): Promise<Assignment | null> {
     const [found] = await db
       .select()

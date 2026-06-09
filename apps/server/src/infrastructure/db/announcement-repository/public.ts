@@ -1,4 +1,5 @@
 export {
+  countPendingAnnouncementsByCondo,
   listAnnouncementsForModeration,
   listReportedAnnouncements,
   reinstateAnnouncement,

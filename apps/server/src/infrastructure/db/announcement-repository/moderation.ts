@@ -184,3 +184,17 @@ export async function reinstateAnnouncement(id: string): Promise<void> {
     })
     .where(eq(announcementSchema.id, id));
 }
+
+export async function countPendingAnnouncementsByCondo(
+  condominiumId: string,
+): Promise<number> {
+  const result = await db.query.announcement.findMany({
+    columns: { id: true },
+    where: and(
+      eq(announcementSchema.condominiumId, condominiumId),
+      eq(announcementSchema.flaggedForReview, true),
+      isNull(announcementSchema.deletedAt),
+    ),
+  });
+  return result.length;
+}

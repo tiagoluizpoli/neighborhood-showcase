@@ -45,6 +45,7 @@ export function createModerationAnnouncementRouter(
   dependencies: AnnouncementRouterDependencies,
 ) {
   const {
+    countPendingAnnouncementsUseCase,
     listAnnouncementsForModerationUseCase,
     suspendAnnouncementUseCase,
     reinstateAnnouncementUseCase,
@@ -294,6 +295,15 @@ export function createModerationAnnouncementRouter(
 
           throw error;
         }
+      }),
+
+    pendingCount: protectedProcedure
+      .input(z.object({ condominiumId: z.string().min(1) }))
+      .query(async ({ input }) => {
+        const count = await countPendingAnnouncementsUseCase.execute({
+          condominiumId: input.condominiumId,
+        });
+        return { count };
       }),
   };
 }

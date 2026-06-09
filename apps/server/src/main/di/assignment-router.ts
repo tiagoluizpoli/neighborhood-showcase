@@ -1,4 +1,5 @@
 import { ApproveAssignment } from '../../application/use-cases/assignment/approve-assignment';
+import { CountPendingAssignments } from '../../application/use-cases/assignment/count-pending-assignments';
 import { GetAssignment } from '../../application/use-cases/assignment/get-assignment';
 import { GetCondominiumAssignment } from '../../application/use-cases/assignment/get-condominium-assignment';
 import { ListPendingAssignments } from '../../application/use-cases/assignment/list-pending-assignments';
@@ -12,6 +13,7 @@ import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-
 
 export interface AssignmentRouterDependencies {
   assignmentRepo: AssignmentRepository;
+  countPendingAssignmentsUseCase: CountPendingAssignments;
   getCondominiumAssignmentUseCase: GetCondominiumAssignment;
   getAssignmentUseCase: GetAssignment;
   requestAssignmentUseCase: RequestAssignment;
@@ -37,6 +39,9 @@ export function createAssignmentRouterDependencies(): AssignmentRouterDependenci
     listProviderAssignmentsUseCase: new ListProviderAssignments(assignmentRepo),
     approveAssignmentUseCase: new ApproveAssignment(assignmentRepo),
     rejectAssignmentUseCase: new RejectAssignment(assignmentRepo),
+    countPendingAssignmentsUseCase: new CountPendingAssignments(
+      assignmentRepo,
+    ),
     registerExternalUseCase: new RegisterExternalLocation(
       assignmentRepo,
       addressRepo,
