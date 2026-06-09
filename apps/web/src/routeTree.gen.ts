@@ -25,6 +25,7 @@ import { Route as PanelAdminRouteImport } from './routes/panel.admin'
 import { Route as DashboardCondoSetupRouteImport } from './routes/dashboard.condo-setup'
 import { Route as PanelDashboardIndexRouteImport } from './routes/panel.dashboard.index'
 import { Route as PanelModerationResidentsRouteImport } from './routes/panel/moderation/residents'
+import { Route as PanelModerationCondominiumRouteImport } from './routes/panel/moderation/condominium'
 import { Route as PanelModerationAnnouncementsRouteImport } from './routes/panel/moderation/announcements'
 import { Route as PanelDashboardConfigurationRouteImport } from './routes/panel/dashboard/configuration'
 import { Route as PanelDashboardCondoSetupRouteImport } from './routes/panel.dashboard.condo-setup'
@@ -118,6 +119,12 @@ const PanelModerationResidentsRoute =
   PanelModerationResidentsRouteImport.update({
     id: '/residents',
     path: '/residents',
+    getParentRoute: () => PanelModerationRoute,
+  } as any)
+const PanelModerationCondominiumRoute =
+  PanelModerationCondominiumRouteImport.update({
+    id: '/condominium',
+    path: '/condominium',
     getParentRoute: () => PanelModerationRoute,
   } as any)
 const PanelModerationAnnouncementsRoute =
@@ -223,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/panel/dashboard/condo-setup': typeof PanelDashboardCondoSetupRoute
   '/panel/dashboard/configuration': typeof PanelDashboardConfigurationRoute
   '/panel/moderation/announcements': typeof PanelModerationAnnouncementsRoute
+  '/panel/moderation/condominium': typeof PanelModerationCondominiumRoute
   '/panel/moderation/residents': typeof PanelModerationResidentsRoute
   '/panel/dashboard/': typeof PanelDashboardIndexRoute
   '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
@@ -252,6 +260,7 @@ export interface FileRoutesByTo {
   '/panel/dashboard/condo-setup': typeof PanelDashboardCondoSetupRoute
   '/panel/dashboard/configuration': typeof PanelDashboardConfigurationRoute
   '/panel/moderation/announcements': typeof PanelModerationAnnouncementsRoute
+  '/panel/moderation/condominium': typeof PanelModerationCondominiumRoute
   '/panel/moderation/residents': typeof PanelModerationResidentsRoute
   '/panel/dashboard': typeof PanelDashboardIndexRoute
   '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
@@ -285,6 +294,7 @@ export interface FileRoutesById {
   '/panel/dashboard/condo-setup': typeof PanelDashboardCondoSetupRoute
   '/panel/dashboard/configuration': typeof PanelDashboardConfigurationRoute
   '/panel/moderation/announcements': typeof PanelModerationAnnouncementsRoute
+  '/panel/moderation/condominium': typeof PanelModerationCondominiumRoute
   '/panel/moderation/residents': typeof PanelModerationResidentsRoute
   '/panel/dashboard/': typeof PanelDashboardIndexRoute
   '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
@@ -318,6 +328,7 @@ export interface FileRouteTypes {
     | '/panel/dashboard/condo-setup'
     | '/panel/dashboard/configuration'
     | '/panel/moderation/announcements'
+    | '/panel/moderation/condominium'
     | '/panel/moderation/residents'
     | '/panel/dashboard/'
     | '/dashboard/anuncios/$id/pagamento'
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '/panel/dashboard/condo-setup'
     | '/panel/dashboard/configuration'
     | '/panel/moderation/announcements'
+    | '/panel/moderation/condominium'
     | '/panel/moderation/residents'
     | '/panel/dashboard'
     | '/dashboard/anuncios/$id/pagamento'
@@ -379,6 +391,7 @@ export interface FileRouteTypes {
     | '/panel/dashboard/condo-setup'
     | '/panel/dashboard/configuration'
     | '/panel/moderation/announcements'
+    | '/panel/moderation/condominium'
     | '/panel/moderation/residents'
     | '/panel/dashboard/'
     | '/dashboard/anuncios/$id/pagamento'
@@ -507,6 +520,13 @@ declare module '@tanstack/react-router' {
       path: '/residents'
       fullPath: '/panel/moderation/residents'
       preLoaderRoute: typeof PanelModerationResidentsRouteImport
+      parentRoute: typeof PanelModerationRoute
+    }
+    '/panel/moderation/condominium': {
+      id: '/panel/moderation/condominium'
+      path: '/condominium'
+      fullPath: '/panel/moderation/condominium'
+      preLoaderRoute: typeof PanelModerationCondominiumRouteImport
       parentRoute: typeof PanelModerationRoute
     }
     '/panel/moderation/announcements': {
@@ -686,11 +706,13 @@ const PanelDashboardRouteWithChildren = PanelDashboardRoute._addFileChildren(
 
 interface PanelModerationRouteChildren {
   PanelModerationAnnouncementsRoute: typeof PanelModerationAnnouncementsRoute
+  PanelModerationCondominiumRoute: typeof PanelModerationCondominiumRoute
   PanelModerationResidentsRoute: typeof PanelModerationResidentsRoute
 }
 
 const PanelModerationRouteChildren: PanelModerationRouteChildren = {
   PanelModerationAnnouncementsRoute: PanelModerationAnnouncementsRoute,
+  PanelModerationCondominiumRoute: PanelModerationCondominiumRoute,
   PanelModerationResidentsRoute: PanelModerationResidentsRoute,
 }
 

@@ -179,6 +179,15 @@ function PanelLayout() {
                 <SidebarGroupContent>
                   <SidebarMenu>
                     <SidebarMenuItem>
+                      <SidebarMenuButton
+                        render={<Link to="/panel/moderation/condominium" />}
+                        tooltip={t('sidebar.item.condominium_info')}
+                      >
+                        <Building2 className="h-4 w-4" />
+                        <span>{t('sidebar.item.condominium_info')}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
                       <SidebarMenuSub>
                         <SidebarMenuSubButton
                           render={<Link to="/panel/moderation/announcements" />}

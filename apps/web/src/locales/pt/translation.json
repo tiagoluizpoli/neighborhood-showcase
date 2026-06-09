@@ -30,7 +30,8 @@
       "usuarios": "Usuários",
       "providers": "Providers",
       "condominios": "Condomínios",
-      "spectrum": "Spectrum"
+      "spectrum": "Spectrum",
+      "condominium_info": "Informações do Condomínio"
     },
     "badge": {
       "pending_announcements": "anúncios pendentes",

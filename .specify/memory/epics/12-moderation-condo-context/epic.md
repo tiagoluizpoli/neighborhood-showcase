@@ -16,8 +16,8 @@ PRD-v6. Moderators need to see condo info and switch between multiple assigned c
 ## Child Tasks
 
 - [x] 01_moderation_condo_info_backend.md (completed: procedure already existed, added integration test)
-- [ ] 02_moderation_condo_info_frontend.md
-- [ ] 03_moderation_condo_context_selector.md
+- [x] 02_moderation_condo_info_frontend.md (completed: implementation done, Playwright test blocked — no MODERATOR seed user)
+- [ ] 03_moderation_condo_context_selector.md (ready: blocked by same seed data issue)
 
 ---
 

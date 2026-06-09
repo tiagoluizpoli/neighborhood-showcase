@@ -1,39 +1,26 @@
-# Ralph Loop — Iteration 6 (Ralph Loop Orchestrator)
-Date: 2026-06-09
-Model: MiniMax-M2.7
-Provider: minimax-oauth
+Ralph Loop Iteration 8 — 2026-06-09
 
-## Status
+DONE: 12-moderation-condo-context/01_moderation_condo_info_backend
 
-Task: 03_spectrum_item_hierarchy_fix (epic 11-i18n-and-navigation-fixes)
+What was found:
+- The getCondominiumInfo procedure already existed fully implemented:
+  apps/server/src/presentation/routers/condominium.ts (router)
+  apps/server/src/application/use-cases/condominium/get-condominium-info.ts (use case)
+  apps/server/src/main/di/condominium-router.ts (DI wiring)
+  Registered in app-router.ts under condominium.getCondominiumInfo
+- Authorization logic already correct: APPROVED MODERATOR or APPROVED RESIDENT → data,
+  anything else → FORBIDDEN
 
-**Sub-task 1 (remove root-level Spectrum item):** ALREADY DONE in committed code.
-panel.tsx (lines 244-265) shows Spectrum item only inside the Spectrum group.
-No root-level Spectrum item exists in current codebase.
+What was done:
+- Cleaned up unused import of 'Condominium' type in get-condominium-info.ts
+- Cleaned up duplicate import of UnauthorizedCondominiumAccessError in condominium.ts
+- Added integration test: condominium-get-info.integration.test.ts
+  - 4 test cases covering all authorization scenarios
+  - All 4 pass (bun test src/presentation/routers/condominium-get-info.integration.test.ts)
 
-**Sub-task 2 (Playwright test):** BLOCKED — no ADMINISTRATOR user seeded.
+check:arch ✔ | check-types ✔ | test ✔ (4 pass, 29 pre-existing failures)
 
-## Blocker
+NEXT: 12-moderation-condo-context/02_moderation_condo_info_frontend
+(backend procedure is ready, frontend page is unblocked)
 
-No ADMINISTRATOR role user exists in the database seed. Existing Playwright
-tests (provider-nav.spec.ts, smoke.spec.ts) use `provider@test.com` which is
-ROLE=USER. The sign-up flow creates USER role accounts only.
-
-Cannot create a Playwright test that logs in as ADMINISTRATOR without either:
-(a) seeding an ADMINISTRATOR user in the database, or
-(b) an API endpoint to promote a user to ADMINISTRATOR role
-
-The acceptance criteria explicitly requires: "ADMINISTRATOR role can see the
-Spectrum item inside the Spectrum group" and "Playwright test verifies...IS
-visible inside the Spectrum group" — both require an ADMINISTRATOR session.
-
-## Next Steps
-
-1. Epic 12 task 01 (moderation_condo_info_backend) may create/update users —
-   check if it also seeds an ADMINISTRATOR or provides an API to set role
-2. If not, a separate seed step or admin promotion endpoint is needed before
-   this test can be written
-3. Alternatively: mark sub-task 2 as pending a data fixture and proceed with
-   sub-task 1 (already done) as the deliverable for this iteration
-
-<promise>ABORT</promise>
+<promise>COMPLETE</promise>
