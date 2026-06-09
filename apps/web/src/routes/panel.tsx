@@ -54,6 +54,7 @@ import {
   UserCog,
   Users,
 } from 'lucide-react';
+import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeCycleToggle } from '@/components/theme-cycle-toggle';
@@ -102,8 +103,18 @@ function PanelLayout() {
     session?.data?.user.role === 'ADMINISTRATOR';
   const isAdministrator = session?.data?.user.role === 'ADMINISTRATOR';
 
+  const [sidebarOpen, setSidebarOpen] = React.useState(
+    localStorage.getItem('sidebar:state') !== 'false',
+  );
+
   return (
-    <SidebarProvider>
+    <SidebarProvider
+      defaultOpen={sidebarOpen}
+      onOpenChange={(open) => {
+        setSidebarOpen(open);
+        localStorage.setItem('sidebar:state', String(open));
+      }}
+    >
       <div
         data-theme="panel"
         className="flex h-svh w-full bg-background text-foreground [--sidebar-width:280px]"

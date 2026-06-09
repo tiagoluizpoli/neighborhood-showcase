@@ -1,28 +1,60 @@
-Ralph Loop iteration 1 — 2026-06-09
-CURRENT TASK: 06_03_sidebar_footer
-STATUS: COMPLETE
+## Ralph Loop — Iteration 2
 
-Completed:
-- [x] 06_03_sidebar_footer — sidebar footer user row popover with sign-out confirmation
+**Date:** 2026-06-09
+**Model:** MiniMax-M2.7 (hermes)
 
-What was done:
-- SidebarFooter now wraps a Popover with the user row (avatar + name + email) as the trigger
-  — no button styling, just hover feedback on the whole row
-- PopoverContent shows: Settings icon + "Conta" link (i18n), and "Sair" button (i18n) with
-  destructive styling
-- "Sair" opens an AlertDialog for confirmation; only on confirm does it call
-  authClient.signOut with onSuccess redirect to /
-- All text uses sidebar.user_menu i18n keys (conta, sair, confirm_sair, cancel)
-- No inline sign-out button next to the user row (per RULES.md §10)
-- Used render={} pattern (not asChild) for PopoverTrigger and AlertDialogTrigger
-  per the codebase convention (base-ui components, not Radix)
+---
 
-Verification:
-- check: biome OK + depcruise OK (no violations) — biome auto-fixed formatting on imports
-- check-types: 4/4 packages OK (web build + tsc passed)
-- test: 491/491 pass
+## Task Completed
 
-Next task: 06_04_top_bar_controls (reopened — theme toggle = 3-state cycle
-(monitor/sun/moon), language switcher = flag of selected language)
+- **06_04_top_bar_controls** — ✅ COMPLETED
 
-Commit: ecf8396
+### What was done
+
+Task had two user-review defects in the panel top bar:
+
+1. **Theme toggle was a dropdown popover** — replaced with `ThemeCycleToggle` (new component):
+   - Single button cycling `system → light → dark → system` on each click
+   - Icons: `Monitor` (system), `Sun` (light), `Moon` (dark)
+   - No popover, no dropdown — per RULES.md §10
+
+2. **Language switcher used Globe icon** — replaced with `LanguageSwitcher` (new component):
+   - Trigger shows flag emoji of the **currently selected** language (🇧🇷 for pt, 🇺🇸 for en)
+   - Popover lists both language options with their flags
+   - Calls `i18n.changeLanguage()` on select; `LanguageDetector` persists to localStorage
+
+Both wired into `panel.tsx` top header: `SidebarTrigger | ThemeCycleToggle + LanguageSwitcher`
+
+Also added missing i18n keys (`confirm_sair`, `cancel`) to `sidebar.user_menu` in both pt/en locale files.
+
+### Files changed
+- `apps/web/src/components/theme-cycle-toggle.tsx` (NEW)
+- `apps/web/src/components/language-switcher.tsx` (NEW)
+- `apps/web/src/routes/panel.tsx` (imports + header wiring)
+- `apps/web/src/locales/pt/translation.json` (user_menu keys)
+- `apps/web/src/locales/en/translation.json` (user_menu keys)
+
+### Verification
+- `bun run check` ✔ (biome fixed 3 files, depcruise ✔ no violations)
+- `bun run check-types` ✔ (built in 8.26s)
+- `bun run test` ✔ (491 pass, 0 fail)
+
+### Commit
+- `b688e0b` — feat(web): panel top bar — ThemeCycleToggle + LanguageSwitcher
+
+---
+
+## Next Task
+
+**06_05_sidebar_persistence** — localStorage persistence of sidebar collapsed/expanded state.
+
+Remaining pending in Epic 06:
+- 06_05_sidebar_persistence (pending)
+- 06_06_localization (pending — sidebar i18n not working, raw keys showing)
+- 06_07_badge_count_stubs (pending — must use Clean Architecture, not raw db.select)
+- 06_08_visibility_tests (pending)
+- 06_09_spectrum_top_level_block (blocked by 06_07)
+
+---
+
+**100% Complete**
