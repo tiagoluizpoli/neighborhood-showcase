@@ -49,7 +49,7 @@
 | 06-panel-layout | [06_05_sidebar_persistence](epics/06-panel-layout/tasks/06_05_sidebar_persistence.md) | ✅ completed | — |
 | 06-panel-layout | [06_06_localization](epics/06-panel-layout/tasks/06_06_localization.md) | ✅ completed | — |
 | 06-panel-layout | [06_07_badge_count_stubs](epics/06-panel-layout/tasks/06_07_badge_count_stubs.md) | ✅ completed | — |
-| 06-panel-layout | [06_08_visibility_tests](epics/06-panel-layout/tasks/06_08_visibility_tests.md) | 🔄 pending | — |
+| 06-panel-layout | [06_08_visibility_tests](epics/06-panel-layout/tasks/06_08_visibility_tests.md) | ✅ completed | — |
 | 06-panel-layout | [06_09_spectrum_top_level_block](epics/06-panel-layout/tasks/06_09_spectrum_top_level_block.md) | ✅ completed | [06_07_badge_count_stubs](epics/06-panel-layout/tasks/06_07_badge_count_stubs.md) |
 | 07-data-and-infrastructure | [12_db_migration_address_location](epics/07-data-and-infrastructure/tasks/12_db_migration_address_location.md) | ✅ completed | — |
 | 07-data-and-infrastructure | [13_onboarding_setup_flow_external](epics/07-data-and-infrastructure/tasks/13_onboarding_setup_flow_external.md) | ✅ completed | — |
