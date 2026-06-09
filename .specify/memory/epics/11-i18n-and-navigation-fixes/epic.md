@@ -17,7 +17,7 @@ PRD-v6. Ralph Loop iteration 37 left defects: `useTranslation('sidebar')` reques
 
 - [x] 01_i18n_namespace_fix.md
 - [x] 02_provider_navigation_flatten.md
-- [ ] 03_spectrum_item_hierarchy_fix.md
+- [~] 03_spectrum_item_hierarchy_fix.md (in-progress: blocked — no ADMINISTRATOR user seeded in database)
 
 ---
 

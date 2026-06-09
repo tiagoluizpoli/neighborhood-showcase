@@ -94,7 +94,7 @@
 | 10-playwright-setup | [01_playwright_setup](epics/10-playwright-setup/tasks/01_playwright_setup.md) | ✅ completed | — |
 | 11-i18n-and-navigation-fixes | [01_i18n_namespace_fix](epics/11-i18n-and-navigation-fixes/tasks/01_i18n_namespace_fix.md) | ✅ completed | 10-playwright-setup |
 | 11-i18n-and-navigation-fixes | [02_provider_navigation_flatten](epics/11-i18n-and-navigation-fixes/tasks/02_provider_navigation_flatten.md) | ✅ completed | 10-playwright-setup |
-| 11-i18n-and-navigation-fixes | [03_spectrum_item_hierarchy_fix](epics/11-i18n-and-navigation-fixes/tasks/03_spectrum_item_hierarchy_fix.md) | 🔄 ready | 10-playwright-setup |
+| 11-i18n-and-navigation-fixes | [03_spectrum_item_hierarchy_fix](epics/11-i18n-and-navigation-fixes/tasks/03_spectrum_item_hierarchy_fix.md) | 🔄 in-progress (blocked: no ADMINISTRATOR user seeded) | 10-playwright-setup |
 | 12-moderation-condo-context | [01_moderation_condo_info_backend](epics/12-moderation-condo-context/tasks/01_moderation_condo_info_backend.md) | 🔄 ready | 10-playwright-setup |
 | 12-moderation-condo-context | [02_moderation_condo_info_frontend](epics/12-moderation-condo-context/tasks/02_moderation_condo_info_frontend.md) | 🔄 ready | 01_moderation_condo_info_backend |
 | 12-moderation-condo-context | [03_moderation_condo_context_selector](epics/12-moderation-condo-context/tasks/03_moderation_condo_context_selector.md) | 🔄 ready | 01_moderation_condo_info_backend |
