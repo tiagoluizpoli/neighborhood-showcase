@@ -94,7 +94,12 @@ export function createAssignmentRouter(
       }),
 
     pendingCount: protectedProcedure
-      .input(z.object({ condominiumId: z.string(), type: z.enum(['MODERATOR', 'RESIDENT']).optional() }))
+      .input(
+        z.object({
+          condominiumId: z.string(),
+          type: z.enum(['MODERATOR', 'RESIDENT']).optional(),
+        }),
+      )
       .query(async ({ input }) => {
         const count = await countPendingAssignmentsUseCase.execute({
           condominiumId: input.condominiumId,

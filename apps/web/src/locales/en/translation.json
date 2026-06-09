@@ -47,6 +47,11 @@
       "language": "Language",
       "portuguese": "Português",
       "english": "English"
+    },
+    "spectrum": {
+      "title": "Spectrum",
+      "description": "Platform analytics and metrics",
+      "under_construction": "Under construction"
     }
   },
   "common": {

@@ -39,9 +39,7 @@ export function createAssignmentRouterDependencies(): AssignmentRouterDependenci
     listProviderAssignmentsUseCase: new ListProviderAssignments(assignmentRepo),
     approveAssignmentUseCase: new ApproveAssignment(assignmentRepo),
     rejectAssignmentUseCase: new RejectAssignment(assignmentRepo),
-    countPendingAssignmentsUseCase: new CountPendingAssignments(
-      assignmentRepo,
-    ),
+    countPendingAssignmentsUseCase: new CountPendingAssignments(assignmentRepo),
     registerExternalUseCase: new RegisterExternalLocation(
       assignmentRepo,
       addressRepo,

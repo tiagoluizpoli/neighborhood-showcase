@@ -2,6 +2,7 @@ import { adminRouter } from '../presentation/routers/admin';
 import { announcementRouter } from '../presentation/routers/announcement';
 import { assignmentRouter } from '../presentation/routers/assignment';
 import { condominiumRouter } from '../presentation/routers/condominium';
+import { spectrumRouter } from '../presentation/routers/spectrum';
 import { userRouter } from '../presentation/routers/user';
 import {
   protectedProcedure,
@@ -24,6 +25,7 @@ export const appRouter = router({
   announcement: announcementRouter,
   user: userRouter,
   admin: adminRouter,
+  spectrum: spectrumRouter,
 });
 
 export type AppRouter = typeof appRouter;
