@@ -1,26 +1,26 @@
 ---
 type: feature
 epic: 10-playwright-setup
-status: ready
+status: completed
 blocked-by: null
 ---
 
 ## What to Build
 
-Install and configure Playwright in `apps/web/` so every subsequent UI task can immediately add a Playwright test. The setup must include: Playwright installation, `playwright.config.ts` configuration, a `tests/` directory scaffold, and a smoke test that verifies the sidebar renders with visible text (not raw i18n keys). This task unblocks all UI epics (11, 12).
+Install and configure Playwright in `apps/web/` so every subsequent UI task can immediately add a Playwright test. The setup includes: Playwright installation, `playwright.config.ts` configuration, a `tests/` directory scaffold, and a smoke test that verifies the sidebar renders with visible text (not raw i18n keys). This task unblocks all UI epics (11, 12).
 
 ## Context
 
-No Playwright setup exists in the project. This is a greenfield install. The web app is at `apps/web/` and uses Vite as the bundler.
+No Playwright setup existed in the project. This is a greenfield install. The web app is at `apps/web/` and uses Vite as the bundler.
 
 ## Acceptance Criteria
 
-- [ ] `playwright` is installed as a dev dependency in `apps/web/`
-- [ ] `playwright.config.ts` exists in `apps/web/` with at least: testDir `tests/`, timeout30s, headless, and a baseURL pointing to the local dev server
-- [ ] `tests/` directory exists in `apps/web/` with at least one smoke test file
-- [ ] The smoke test opens the panel sidebar and asserts that visible text does NOT match any i18n key pattern (e.g. `sidebar.*`, `moderation.*`)
-- [ ] `bun run test:e2e` (or equivalent npm/pnpm script) runs the Playwright tests and exits with code 0
-- [ ] `bun run check` and `bun run check-types` pass with no errors
+- [x] `playwright` is installed as a dev dependency in `apps/web/`
+- [x] `playwright.config.ts` exists in `apps/web/` with at least: testDir `tests/`, timeout30s, headless, and a baseURL pointing to the local dev server
+- [x] `tests/` directory exists in `apps/web/` with at least one smoke test file
+- [x] The smoke test opens the panel sidebar and asserts that visible text does NOT match any i18n key pattern (e.g. `sidebar.*`, `moderation.*`)
+- [x] `bun run test:e2e` (or equivalent npm/pnpm script) runs the Playwright tests and exits with code 0
+- [x] `bun run check` and `bun run check-types` pass with no errors
 
 ## Sub-Tasks
 

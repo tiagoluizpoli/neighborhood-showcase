@@ -9,7 +9,9 @@
     "serve": "vite preview",
     "start": "vite",
     "check-types": "vite build && tsc --noEmit",
-    "generate-pwa-assets": "pwa-assets-generator"
+    "generate-pwa-assets": "pwa-assets-generator",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
@@ -42,6 +44,7 @@
   },
   "devDependencies": {
     "@neighborhood-showcase/config": "workspace:*",
+    "@playwright/test": "^1.60.0",
     "@tanstack/react-query-devtools": "^5.91.1",
     "@tanstack/react-router-devtools": "^1.141.1",
     "@tanstack/router-plugin": "^1.141.1",
@@ -50,6 +53,7 @@
     "@types/react-dom": "catalog:",
     "@vite-pwa/assets-generator": "^1.0.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "playwright": "^1.60.0",
     "postcss": "^8.5.3",
     "tailwindcss": "catalog:",
     "typescript": "^5",

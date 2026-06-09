@@ -15,8 +15,8 @@ No Playwright setup exists in the project. This epic makes the web app test-read
 
 ## Child Tasks
 
-- [ ] 01_playwright_setup.md
+- [x] 01_playwright_setup.md
 
 ---
 
-<!-- INDEX SYNC: After completing or modifying any child task file, update .specify/memory/index.md in the same turn. Keep the child task checklist above in sync with actual file statuses.</!-->
+<!-- INDEX SYNC: After completing or modifying any child task file, update .specify/memory/index.md in the same turn. Keep the child task checklist above in sync with actual file statuses.<!-->
