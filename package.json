@@ -44,7 +44,8 @@
     "db:stop": "turbo -F @neighborhood-showcase/db db:stop",
     "db:down": "turbo -F @neighborhood-showcase/db db:down",
     "db:promote-user": "bun run packages/db/src/promote-user.ts",
-    "check": "biome check --write .",
+    "check": "biome check --write . && depcruise apps/server/src --config .dependency-cruiser.cjs",
+    "check:arch": "depcruise apps/server/src --config .dependency-cruiser.cjs",
     "commit": "cz",
     "test": "NODE_ENV=test bun run packages/db/src/setup-test-db.ts && bun test"
   },
@@ -54,14 +55,15 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@neighborhood-showcase/config": "workspace:*",
     "@biomejs/biome": "^2.2.0",
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
+    "@neighborhood-showcase/config": "workspace:*",
     "@types/bun": "catalog:",
     "@types/three": "^0.184.1",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
+    "dependency-cruiser": "^17.4.3",
     "desktop": "workspace:*",
     "lefthook": "^2.1.4",
     "turbo": "^2.8.12",

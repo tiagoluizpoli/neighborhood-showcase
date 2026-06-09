@@ -4,7 +4,12 @@ issueId: auto
 
 # MANDATORY CONTEXT
 
-Read `AGENTS.md`, then `agents.local.md`, then `PRD.md`.
+Read `RULES.md` FIRST. It is the canonical rules doc (clean-architecture
+boundaries, i18n, sidebar UX, PRD disambiguation, Ralph conduct). It is
+loaded on every iteration before anything else.
+
+Then read `AGENTS.md`, then `agents.local.md` (project-context only — not
+rules), then `PRD.md`.
 Review the last 10 recent commits if they are provided in the run context.
 
 # PRD
