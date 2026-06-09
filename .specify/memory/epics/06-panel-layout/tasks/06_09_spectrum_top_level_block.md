@@ -1,7 +1,7 @@
 ---
 type: feature
 epic: 06-panel-layout
-status: ready
+status: completed
 blocked-by: 06_07_badge_count_stubs
 ---
 

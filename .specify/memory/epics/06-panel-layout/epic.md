@@ -27,7 +27,7 @@ After iteration 37 the user walked through the panel and identified defects. Tas
 - [x] [06_06_localization](tasks/06_06_localization.md) — ✅ DONE: sidebar i18n already wired; fixed hardcoded labels in LanguageSwitcher
 - [x] [06_07_badge_count_stubs](tasks/06_07_badge_count_stubs.md) — ✅ DONE: Clean Architecture count queries (announcement.pendingCount by flaggedForReview, assignment.pendingCount by status=PENDING with type filter); no raw db.select in tRPC
 - [ ] [06_08_visibility_tests](tasks/06_08_visibility_tests.md) — visibility rule tests per role
-- [ ] [06_09_spectrum_top_level_block](tasks/06_09_spectrum_top_level_block.md) — NEW: replace bad `report.ts` with proper Spectrum sidebar block (Domain entity, repository interface, Drizzle repo, mapper, use case, tRPC procedure)
+- [x] [06_09_spectrum_top_level_block](tasks/06_09_spectrum_top_level_block.md) — ✅ DONE: Domain entity + repo interface + Drizzle repo + mapper + use case + tRPC procedure + frontend placeholder route + i18n keys; all checks pass
 
 ---
 
