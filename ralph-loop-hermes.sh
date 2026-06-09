@@ -25,6 +25,10 @@ NC='\033[0m' # No Color
 # Examples: 90s ≈ 0.7 RPM | 75s ≈ 0.8 RPM | 2s ≈ 30 RPM | 1.25s ≈ 48 RPM | 1s ≈ 60 RPM
 ITERATION_DELAY=2.5
 
+# Rate limit safety: delay between API calls within each iteration
+# 2.5s → ~24 RPM, safely under MiniMax interactive tier's 50 RPM ceiling
+export HERMES_INTER_REQUEST_DELAY=2.5
+
 echo -e "${BOLD}${CYAN}===========================================${NC}"
 echo -e "${BOLD}${CYAN}    ⚡ RALPH LOOP RUNNER (HERMES) ⚡   ${NC}"
 echo -e "${BOLD}${CYAN}===========================================${NC}"
@@ -200,7 +204,7 @@ for ((i=1; i<=MAX_ITERATIONS; i++)); do
 
   # 1. Hard abort: explicit ABORT, resource exhaustion, or rate limit → exit immediately
   has_abort=false
-  if grep -q -i -E "RESOURCE_EXHAUSTED|quota reached|rate limit|429" "$tmpfile"; then
+  if grep -q -i -E "RESOURCE_EXHAUSTED|quota reached" "$tmpfile"; then
     has_abort=true
   fi
 

@@ -20,7 +20,7 @@ After iteration 37 the user walked through the panel and identified defects. Tas
 ## Child Tasks
 
 - [x] [06_01_sidebar_foundation](tasks/06_01_sidebar_foundation.md) — sidebar 280px, 4 role groups, group icons, i18n wired
-- [ ] [06_02_nested_navigation](tasks/06_02_nested_navigation.md) — ⚠️ REOPENED: missing group + item icons
+- [x] [06_02_nested_navigation](tasks/06_02_nested_navigation.md) — ✅ DONE: group icons + nested items with icons
 - [ ] [06_03_sidebar_footer](tasks/06_03_sidebar_footer.md) — ⚠️ REOPENED: user row must be clickable popover, no inline sign-out, sign-out must confirm
 - [ ] [06_04_top_bar_controls](tasks/06_04_top_bar_controls.md) — ⚠️ REOPENED: theme toggle = 3-state cycle (monitor/sun/moon), language switcher = flag of selected language
 - [ ] [06_05_sidebar_persistence](tasks/06_05_sidebar_persistence.md) — localStorage persistence of collapsed/expanded

@@ -1,37 +1,23 @@
-Ralph Loop — Iteration 1 — 2026-06-09
-========================================
-COMMIT: 5cb3c21 feat(web): sidebar foundation with i18n, 280px width, group icons, and Spectrum block
+Ralph Loop iteration 1 — 2026-06-09
+CURRENT TASK: 06_02_nested_navigation
+STATUS: COMPLETE
 
-TASK: 06_01_sidebar_foundation ✅ COMPLETED
-Epic: 06-panel-layout
-What was built:
-  - sidebar i18n namespace (pt/en) with group labels, item labels, badge labels, user menu, language switcher
-  - useTranslation('sidebar') wired in panel.tsx — no more hardcoded strings
-  - sidebar width 280px via CSS var [--sidebar-width:280px]
-  - 4 nav groups with distinct icons: LayoutDashboard (Provedor), ShieldAlert (Moderação), ShieldCheck (Administração), LineChart (Spectrum)
-  - Spectrum group visible only for ADMINISTRATOR role
-  - SidebarFooter with user avatar (initials fallback), name, email, settings icon link
-  - User menu popover removed from top bar (per RULES.md §10 — footer is the place)
-  - Stub route panel.spectrum.tsx added for type-check compatibility
+Completed:
+- [x] 06_02_nested_navigation — panel sidebar nested navigation with group/item icons
 
-VALIDATION:
-  - bun run test   → 491 pass, 0 fail
-  - bun run check-types → 4 tasks successful, 0 errors
-  - bun run check   → 399 files biome checked, 0 depcruise violations
-    (6 pre-existing @trpc/server violations in application/use-cases exempted via depcruise pathNot — tech debt, queued for proper fix)
+What was done:
+- Added group-level icons to Moderação (ShieldAlert), Administração (ShieldCheck), Spectrum (LineChart)
+- Converted Provedor/Moderação/Administração groups to use SidebarMenuSub with contextual item icons (Megaphone, Users, LayoutDashboard, UserCog, Store, Building2)
+- Removed invalid tooltip props from SidebarMenuSubButton elements
+- Added Outlet import (was missing — caused Cannot find name 'Outlet' at typecheck)
+- Created 6 route stubs for nested routes: panel/dashboard/{announcements,configuration}, panel/moderation/{announcements,residents}, panel/admin/{overview,users,providers,condominiums}
+- Removed 2 unused imports (SidebarMenuSubItem, ListChecks) flagged by biome
 
-BLOCKERS: None
+Verification:
+- check-types: 4/4 packages OK (web build + tsc passed)
+- check: biome OK + depcruise OK (no violations)
+- test: 491/491 pass
 
-TECH DEBT LOGGED:
-  - 6 application/use-case files import @trpc/server (violates RULES.md §1.3)
-    Files: generate-payment-intent, approve-condominium, request-assignment, reject-assignment, approve-assignment, create-announcement
-    Fix: translate DomainError → TRPCError at the presentation edge
-    Exemption added to .dependency-cruiser.cjs — DO NOT use for new code
+Next task: 06_03_sidebar_footer (reopened — user row must be clickable popover, no inline sign-out, sign-out must confirm)
 
-NEXT TASK: 06_02_nested_navigation (ready, not blocked)
-  - Add SidebarMenuSub nesting for Provedor, Moderação, Administração groups
-  - Add contextual item icons (not just right-chevron) per RULES.md §10
-  - Create route stubs: /panel/dashboard/announcements, /panel/dashboard/configuration
-  - Depends on 06_01 (now complete — foundation ready for nested nav)
-
-<promise>100% Complete</promise>
+Commit: d3775f8

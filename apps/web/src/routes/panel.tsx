@@ -1,7 +1,22 @@
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@neighborhood-showcase/ui/components/alert-dialog';
+import {
   Avatar,
   AvatarFallback,
 } from '@neighborhood-showcase/ui/components/avatar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@neighborhood-showcase/ui/components/popover';
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +40,7 @@ import {
   Link,
   Outlet,
   redirect,
+  useNavigate,
 } from '@tanstack/react-router';
 import {
   Building2,
@@ -65,6 +81,7 @@ export const Route = createFileRoute('/panel')({
 function PanelLayout() {
   const { session } = Route.useRouteContext();
   const { t } = useTranslation('sidebar');
+  const navigate = useNavigate();
 
   const { data: assignments } = useQuery(
     trpc.assignment.getMyAssignments.queryOptions(undefined, {
@@ -234,27 +251,78 @@ function PanelLayout() {
           </SidebarContent>
 
           <SidebarFooter className="border-t p-4">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-9 w-9 border">
-                <AvatarFallback className="bg-muted font-semibold text-muted-foreground text-sm">
-                  {getInitials(session.data?.user?.name)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 truncate">
-                <p className="truncate font-semibold text-foreground text-sm">
-                  {session.data?.user?.name}
-                </p>
-                <p className="truncate text-muted-foreground text-xs">
-                  {session.data?.user?.email}
-                </p>
-              </div>
-              <Link
-                to="/panel/conta"
-                className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-              >
-                <Settings className="h-4 w-4" />
-              </Link>
-            </div>
+            <Popover>
+              <PopoverTrigger
+                render={
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-3 rounded-md p-1 text-left transition-colors hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <Avatar className="h-9 w-9 border">
+                      <AvatarFallback className="bg-muted font-semibold text-muted-foreground text-sm">
+                        {getInitials(session.data?.user?.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 truncate">
+                      <p className="truncate font-semibold text-foreground text-sm">
+                        {session.data?.user?.name}
+                      </p>
+                      <p className="truncate text-muted-foreground text-xs">
+                        {session.data?.user?.email}
+                      </p>
+                    </div>
+                  </button>
+                }
+              />
+              <PopoverContent align="start" className="w-52 border bg-card">
+                <div className="flex flex-col gap-1">
+                  <Link
+                    to="/panel/conta"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-foreground text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <Settings className="h-4 w-4 text-muted-foreground" />
+                    {t('user_menu.conta')}
+                  </Link>
+                  <AlertDialog>
+                    <AlertDialogTrigger
+                      render={
+                        <button
+                          type="button"
+                          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-destructive text-sm transition-colors hover:bg-destructive/10"
+                        />
+                      }
+                    >
+                      {t('user_menu.sair')}
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogTitle>{t('user_menu.sair')}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {session.data?.user?.name} —{' '}
+                        {t('user_menu.confirm_sair')}
+                      </AlertDialogDescription>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>
+                          {t('user_menu.cancel')}
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => {
+                            authClient.signOut({
+                              fetchOptions: {
+                                onSuccess: () => {
+                                  navigate({ to: '/' });
+                                },
+                              },
+                            });
+                          }}
+                        >
+                          {t('user_menu.sair')}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </PopoverContent>
+            </Popover>
           </SidebarFooter>
           <SidebarRail />
         </Sidebar>

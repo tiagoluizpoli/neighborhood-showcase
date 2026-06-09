@@ -43,7 +43,7 @@
 | 05-public-browsing-ui | [61_home_feed_loading_empty_error_states](epics/05-public-browsing-ui/tasks/61_home_feed_loading_empty_error_states.md) | ✅ completed | — |
 | 05-public-browsing-ui | [62_backend_managed_announcement_categories](epics/05-public-browsing-ui/tasks/62_backend_managed_announcement_categories.md) | ✅ completed | — |
 | 06-panel-layout | [06_01_sidebar_foundation](epics/06-panel-layout/tasks/06_01_sidebar_foundation.md) | ✅ completed | — |
-| 06-panel-layout | [06_02_nested_navigation](epics/06-panel-layout/tasks/06_02_nested_navigation.md) | 🔄 pending | — |
+| 06-panel-layout | [06_02_nested_navigation](epics/06-panel-layout/tasks/06_02_nested_navigation.md) | ✅ completed | — |
 | 06-panel-layout | [06_03_sidebar_footer](epics/06-panel-layout/tasks/06_03_sidebar_footer.md) | 🔄 pending | — |
 | 06-panel-layout | [06_04_top_bar_controls](epics/06-panel-layout/tasks/06_04_top_bar_controls.md) | 🔄 pending | — |
 | 06-panel-layout | [06_05_sidebar_persistence](epics/06-panel-layout/tasks/06_05_sidebar_persistence.md) | 🔄 pending | — |
