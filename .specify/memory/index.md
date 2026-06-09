@@ -45,7 +45,7 @@
 | 06-panel-layout | [06_01_sidebar_foundation](epics/06-panel-layout/tasks/06_01_sidebar_foundation.md) | ✅ completed | — |
 | 06-panel-layout | [06_02_nested_navigation](epics/06-panel-layout/tasks/06_02_nested_navigation.md) | ✅ completed | — |
 | 06-panel-layout | [06_03_sidebar_footer](epics/06-panel-layout/tasks/06_03_sidebar_footer.md) | ✅ completed | — |
-| 06-panel-layout | [06_04_top_bar_controls](epics/06-panel-layout/tasks/06_04_top_bar_controls.md) | 🔄 pending | — |
+| 06-panel-layout | [06_04_top_bar_controls](epics/06-panel-layout/tasks/06_04_top_bar_controls.md) | ✅ completed | — |
 | 06-panel-layout | [06_05_sidebar_persistence](epics/06-panel-layout/tasks/06_05_sidebar_persistence.md) | 🔄 pending | — |
 | 06-panel-layout | [06_06_localization](epics/06-panel-layout/tasks/06_06_localization.md) | 🔄 pending | — |
 | 06-panel-layout | [06_07_badge_count_stubs](epics/06-panel-layout/tasks/06_07_badge_count_stubs.md) | 🔄 pending | — |

@@ -39,7 +39,9 @@
     },
     "user_menu": {
       "conta": "Account",
-      "sair": "Sign Out"
+      "sair": "Sign Out",
+      "confirm_sair": "Are you sure you want to sign out?",
+      "cancel": "Cancel"
     },
     "language_switcher": {
       "language": "Language",

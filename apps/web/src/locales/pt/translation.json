@@ -39,7 +39,9 @@
     },
     "user_menu": {
       "conta": "Conta",
-      "sair": "Sair"
+      "sair": "Sair",
+      "confirm_sair": "Tem certeza que deseja sair?",
+      "cancel": "Cancelar"
     },
     "language_switcher": {
       "language": "Idioma",

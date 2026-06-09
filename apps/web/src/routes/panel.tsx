@@ -55,6 +55,8 @@ import {
   Users,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '@/components/language-switcher';
+import { ThemeCycleToggle } from '@/components/theme-cycle-toggle';
 import { authClient } from '@/lib/auth-client';
 import { trpc } from '@/utils/trpc';
 
@@ -334,7 +336,10 @@ function PanelLayout() {
             <div className="flex items-center gap-2">
               <SidebarTrigger />
             </div>
-            <div className="flex items-center gap-4" />
+            <div className="flex items-center gap-2">
+              <ThemeCycleToggle />
+              <LanguageSwitcher />
+            </div>
           </header>
 
           <main className="flex-1 overflow-y-auto bg-background p-6">
