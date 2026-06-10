@@ -40,6 +40,8 @@ export const user = pgTable('user', {
     .notNull()
     .default({}),
   isProviderVisible: boolean('is_provider_visible').default(true).notNull(),
+  language: text('language').default('pt-BR').notNull(),
+  theme: text('theme').default('system').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
     .defaultNow()

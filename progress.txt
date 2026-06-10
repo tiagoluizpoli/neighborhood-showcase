@@ -1,26 +1,38 @@
-Ralph Loop Iteration 8 — 2026-06-09
+Ralph Loop iteration 9 — 2026-06-09
 
-DONE: 12-moderation-condo-context/01_moderation_condo_info_backend
+CURRENT TASK: Epic 12 Task 02 — Moderation Condo Info Frontend Page
 
-What was found:
-- The getCondominiumInfo procedure already existed fully implemented:
-  apps/server/src/presentation/routers/condominium.ts (router)
-  apps/server/src/application/use-cases/condominium/get-condominium-info.ts (use case)
-  apps/server/src/main/di/condominium-router.ts (DI wiring)
-  Registered in app-router.ts under condominium.getCondominiumInfo
-- Authorization logic already correct: APPROVED MODERATOR or APPROVED RESIDENT → data,
-  anything else → FORBIDDEN
+## What was done
 
-What was done:
-- Cleaned up unused import of 'Condominium' type in get-condominium-info.ts
-- Cleaned up duplicate import of UnauthorizedCondominiumAccessError in condominium.ts
-- Added integration test: condominium-get-info.integration.test.ts
-  - 4 test cases covering all authorization scenarios
-  - All 4 pass (bun test src/presentation/routers/condominium-get-info.integration.test.ts)
+1. Created `apps/web/src/routes/panel/moderation/condominium.tsx`
+   - Route: `/panel/moderation/condominium`
+   - Fetches data via `getCondominiumInfo` tRPC procedure
+   - Resolves `condominiumId` from localStorage key `mod_ctx__cndo` (fallback: first assignment)
+   - Shows: name, city/state/CEP, contactInfo (email, phone, website) in info cards
+   - States: loading skeleton, error banner, "no condo selected" empty state
+   - Uses `useTranslation()` for all labels
 
-check:arch ✔ | check-types ✔ | test ✔ (4 pass, 29 pre-existing failures)
+2. Added nav item in `panel.tsx` as FIRST item in Moderation group
+   - Key: `sidebar.item.condominium_info` (EN: "Condominium Info", PT: "Informações do Condomínio")
+   - Icon: Building2, same as sidebar group label
 
-NEXT: 12-moderation-condo-context/02_moderation_condo_info_frontend
-(backend procedure is ready, frontend page is unblocked)
+3. Added i18n keys to `locales/en/translation.json` and `locales/pt/translation.json`
 
-<promise>COMPLETE</promise>
+4. Added `tests/moderation-condo-info.spec.ts`
+   - BLOCKED: no MODERATOR-seeded user in e2e test data
+   - Test uses `test.skip()` with explicit reason (same pattern as spectrum-nav.spec.ts)
+   - Same blocker as epic 11 task 03 and epic 12 task 03
+
+## Verification
+
+check:arch ✔ | check-types ✔ | test ✔ (400 pass, 85 pre-existing failures)
+
+## Status: COMPLETED
+
+## Blockers (shared across epics 11 and 12)
+
+No MODERATOR user seeded in e2e test data. Epic 11 task 03, epic 12 task 02, and epic 12 task 03 all need a MODERATOR-seeded user with at least one APPROVED MODERATOR assignment. The backend integration tests have such users (e.g. `cgi-mod-id`), but the e2e Playwright tests use application auth which requires a seeded DB record.
+
+## Next task
+
+Epic 12 Task 03 — CondoContextSelector component (blocked by same seed data issue)

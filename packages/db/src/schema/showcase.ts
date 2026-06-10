@@ -146,6 +146,11 @@ export const providerProfile = pgTable('provider_profile', {
     .references(() => user.id, { onDelete: 'cascade' }),
   displayName: text('display_name').notNull(),
   avatarUrl: text('avatar_url'),
+  companyName: text('company_name'),
+  tradeName: text('trade_name'),
+  logoUrl: text('logo_url'),
+  bannerUrl: text('banner_url'),
+  publicDescription: text('public_description'),
   socialLinks: jsonb('social_links')
     .$type<{
       whatsapp?: string;

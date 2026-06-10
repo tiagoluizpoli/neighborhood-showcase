@@ -32,7 +32,7 @@ Tasks MUST be executed in this order. Each task builds on the previous and is no
 
 ## Child Tasks
 
-- [ ] 01_schema_migrations.md
+- [x] 01_schema_migrations.md
 - [ ] 02_provider_profile_backend.md
 - [ ] 03_provider_profile_router.md
 - [ ] 04_shrink_user_update_and_dtos.md

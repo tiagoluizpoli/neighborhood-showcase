@@ -103,7 +103,7 @@
 | 12-moderation-condo-context | [01_moderation_condo_info_backend](epics/12-moderation-condo-context/tasks/01_moderation_condo_info_backend.md) | ✅ completed | 10-playwright-setup |
 | 12-moderation-condo-context | [02_moderation_condo_info_frontend](epics/12-moderation-condo-context/tasks/02_moderation_condo_info_frontend.md) | ✅ completed | 01_moderation_condo_info_backend |
 | 12-moderation-condo-context | [03_moderation_condo_context_selector](epics/12-moderation-condo-context/tasks/03_moderation_condo_context_selector.md) | 🔄 ready | 01_moderation_condo_info_backend |
-| 13-provider-section-reorg | [01_schema_migrations](epics/13-provider-section-reorg/tasks/01_schema_migrations.md) | 🔄 ready | — |
+| 13-provider-section-reorg | [01_schema_migrations](epics/13-provider-section-reorg/tasks/01_schema_migrations.md) | ✅ completed | — |
 | 13-provider-section-reorg | [02_provider_profile_backend](epics/13-provider-section-reorg/tasks/02_provider_profile_backend.md) | 🔄 ready | 01_schema_migrations |
 | 13-provider-section-reorg | [03_provider_profile_router](epics/13-provider-section-reorg/tasks/03_provider_profile_router.md) | 🔄 ready | 02_provider_profile_backend |
 | 13-provider-section-reorg | [04_shrink_user_update_and_dtos](epics/13-provider-section-reorg/tasks/04_shrink_user_update_and_dtos.md) | 🔄 ready | 03_provider_profile_router |

@@ -1,7 +1,7 @@
 ---
 type: feature
 epic: 13-provider-section-reorg
-status: ready
+status: completed
 blocked-by: null
 ---
 
