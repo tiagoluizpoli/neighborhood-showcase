@@ -36,7 +36,7 @@ Tasks MUST be executed in this order. Each task builds on the previous and is no
 - [x] 02_provider_profile_backend.md
 - [x] 03_provider_profile_router.md
 - [x] 04_shrink_user_update_and_dtos.md
-- [ ] 05_configuracoes_page.md
+- [x] 05_configuracoes_page.md
 - [ ] 06_conta_e_seguranca.md
 - [ ] 07_meus_anuncios_list.md
 - [ ] 08_meus_anuncios_detail.md
