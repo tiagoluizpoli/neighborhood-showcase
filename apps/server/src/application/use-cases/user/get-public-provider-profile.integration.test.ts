@@ -99,7 +99,7 @@ describe('GetPublicProviderProfile use case', () => {
   test('reads public provider data from provider_profile instead of auth identity fields', async () => {
     const result = await useCase.execute({ providerId });
 
-    expect(result.provider.name).toBe('Provider Branding Name');
+    expect(result.provider.displayName).toBe('Provider Branding Name');
     expect(result.provider.avatarUrl).toBe(
       'https://cdn.example.com/provider-avatar.jpg',
     );
@@ -123,7 +123,7 @@ describe('GetPublicProviderProfile use case', () => {
 
     const result = await useCase.execute({ providerId });
 
-    expect(result.provider.name).toBe('Auth Identity Name');
+    expect(result.provider.displayName).toBe('Auth Identity Name');
     expect(result.provider.avatarUrl).toBe(
       'https://cdn.example.com/auth-avatar.jpg',
     );

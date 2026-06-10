@@ -25,10 +25,12 @@ describe('GetUserProfile use case', () => {
       image: 'https://cdn.example.com/auth-avatar.jpg',
       role: 'USER',
       status: 'ACTIVE',
+      language: 'pt-BR',
+      theme: 'system',
     });
   });
 
-  test('returns fallback profile defaults without creating provider_profile rows', async () => {
+  test('returns user profile with all identity fields', async () => {
     const result = await useCase.execute({ userId });
 
     expect(result).toEqual({
@@ -36,8 +38,10 @@ describe('GetUserProfile use case', () => {
       name: 'Auth Identity Name',
       email: 'get-user-profile@example.com',
       phone: '5511999999999',
-      socialLinks: {},
-      isProviderVisible: true,
+      image: 'https://cdn.example.com/auth-avatar.jpg',
+      language: 'pt-BR',
+      theme: 'system',
+      emailVerified: true,
     });
 
     const [profileRow] = await db

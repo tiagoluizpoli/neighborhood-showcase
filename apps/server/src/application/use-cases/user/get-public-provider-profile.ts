@@ -19,8 +19,13 @@ export interface GetPublicProviderProfileInput {
 export interface PublicProviderProfileResult {
   provider: {
     id: string;
-    name: string;
+    displayName: string;
     avatarUrl: string | null;
+    companyName: string | null;
+    tradeName: string | null;
+    logoUrl: string | null;
+    bannerUrl: string | null;
+    publicDescription: string | null;
     socialLinks: Record<string, string | undefined>;
     isVerified: boolean;
   };
@@ -55,15 +60,20 @@ export class GetPublicProviderProfile {
 
     const announcements = await this.announcementRepo.findActiveByProviderId(
       input.providerId,
-      provider.name,
+      provider.displayName,
       provider.avatarUrl,
     );
 
     return {
       provider: {
         id: provider.id,
-        name: provider.name,
+        displayName: provider.displayName,
         avatarUrl: provider.avatarUrl,
+        companyName: provider.companyName,
+        tradeName: provider.tradeName,
+        logoUrl: provider.logoUrl,
+        bannerUrl: provider.bannerUrl,
+        publicDescription: provider.publicDescription,
         socialLinks: provider.socialLinks,
         isVerified,
       },

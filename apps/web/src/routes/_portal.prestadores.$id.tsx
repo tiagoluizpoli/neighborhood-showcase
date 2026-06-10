@@ -64,12 +64,12 @@ function ProviderPublicProfileComponent() {
   // SEO metadata setup
   useEffect(() => {
     if (typeof document !== 'undefined' && data?.provider) {
-      document.title = `${data.provider.name} | Neighborhood Showcase`;
+      document.title = `${data.provider.displayName} | Neighborhood Showcase`;
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
         metaDesc.setAttribute(
           'content',
-          `Veja os anúncios e contatos de ${data.provider.name} no Neighborhood Showcase.`,
+          `Veja os anúncios e contatos de ${data.provider.displayName} no Neighborhood Showcase.`,
         );
       }
     }
@@ -130,15 +130,14 @@ function ProviderPublicProfileComponent() {
               <Avatar className="h-24 w-24 border-2 border-border shadow-sm">
                 <AvatarImage src={provider.avatarUrl || undefined} />
                 <AvatarFallback className="text-xl">
-                  {getInitials(provider.name)}
+                  {getInitials(provider.displayName)}
                 </AvatarFallback>
               </Avatar>
 
               <div className="mt-4 space-y-1.5">
                 <div className="flex items-center justify-center gap-1.5">
                   <h1 className="font-bold text-foreground text-xl tracking-tight">
-                    {provider.name}
-                  </h1>
+                    {provider.displayName}</h1>
                   {provider.isVerified && (
                     <span
                       title="Morador Verificado"

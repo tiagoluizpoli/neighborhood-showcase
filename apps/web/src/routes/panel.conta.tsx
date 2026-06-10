@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@neighborhood-showcase/ui/components/card';
-import { Checkbox } from '@neighborhood-showcase/ui/components/checkbox';
 import { Input } from '@neighborhood-showcase/ui/components/input';
 import { Label } from '@neighborhood-showcase/ui/components/label';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -33,28 +32,14 @@ function AccountPageComponent() {
   );
 
   const [name, setName] = useState('');
-  const [isProviderVisible, setIsProviderVisible] = useState(true);
-  const [whatsapp, setWhatsapp] = useState('');
   const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [instagram, setInstagram] = useState('');
-  const [tiktok, setTiktok] = useState('');
-  const [facebook, setFacebook] = useState('');
-  const [website, setWebsite] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Sync state with profile data
   useEffect(() => {
     if (profile) {
       setName(profile.name || '');
-      setIsProviderVisible(profile.isProviderVisible ?? true);
-      setWhatsapp(profile.socialLinks?.whatsapp || '');
-      setPhone(profile.socialLinks?.phone || '');
-      setEmail(profile.socialLinks?.email || '');
-      setInstagram(profile.socialLinks?.instagram || '');
-      setTiktok(profile.socialLinks?.tiktok || '');
-      setFacebook(profile.socialLinks?.facebook || '');
-      setWebsite(profile.socialLinks?.website || '');
+      setPhone(profile.phone || '');
     }
   }, [profile]);
 
@@ -62,7 +47,6 @@ function AccountPageComponent() {
     trpc.user.update.mutationOptions({
       onSuccess: () => {
         toast.success('Perfil atualizado com sucesso!');
-        // Refresh session on client side and invalidate profile query
         authClient.getSession();
         queryClient.invalidateQueries({
           queryKey: trpc.user.getProfile.queryKey(),
@@ -95,16 +79,7 @@ function AccountPageComponent() {
     }
     updateProfileMutation.mutate({
       name,
-      isProviderVisible,
-      socialLinks: {
-        whatsapp: whatsapp.trim() || undefined,
-        phone: phone.trim() || undefined,
-        email: email.trim() || undefined,
-        instagram: instagram.trim() || undefined,
-        tiktok: tiktok.trim() || undefined,
-        facebook: facebook.trim() || undefined,
-        website: website.trim() || undefined,
-      },
+      phone: phone.trim() || undefined,
     });
   };
 
@@ -138,7 +113,7 @@ function AccountPageComponent() {
           Minha Conta
         </h1>
         <p className="mt-1 text-muted-foreground text-sm">
-          Gerencie seus dados cadastrais, redes sociais e opções de privacidade.
+          Gerencie seus dados cadastrais e preferências.
         </p>
       </div>
 
@@ -148,10 +123,9 @@ function AccountPageComponent() {
           <form onSubmit={handleSave} className="space-y-6">
             <Card>
               <CardHeader className="border-b pb-4">
-                <CardTitle>Perfil Público</CardTitle>
+                <CardTitle>Dados Cadastrais</CardTitle>
                 <CardDescription>
-                  Essas informações serão visíveis para outros moradores e
-                  visitantes.
+                  Essas informações são usadas para identificar sua conta.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
@@ -172,6 +146,17 @@ function AccountPageComponent() {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="phone">Telefone / Celular</Label>
+                  <Input
+                    id="phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Ex: 11999999999"
+                    className="h-10"
+                  />
+                </div>
+
+                <div className="space-y-2">
                   <Label>Endereço de E-mail da Conta</Label>
                   <Input
                     type="email"
@@ -182,125 +167,6 @@ function AccountPageComponent() {
                   <p className="text-muted-foreground text-xs">
                     O e-mail da conta não pode ser alterado diretamente.
                   </p>
-                </div>
-
-                <div className="pt-2">
-                  <div className="flex items-start space-x-3 rounded-lg border bg-muted p-4">
-                    <Checkbox
-                      id="isProviderVisible"
-                      checked={isProviderVisible}
-                      onCheckedChange={(checked) =>
-                        setIsProviderVisible(checked === true)
-                      }
-                    />
-                    <div className="space-y-1 leading-none">
-                      <Label
-                        htmlFor="isProviderVisible"
-                        className="cursor-pointer font-medium"
-                      >
-                        Exibir meu perfil no diretório de prestadores
-                      </Label>
-                      <p className="text-muted-foreground text-xs">
-                        Ao desativar, seu perfil não aparecerá nas buscas gerais
-                        do diretório de prestadores, mas seus anúncios ativos
-                        continuarão visíveis individualmente.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="border-b pb-4">
-                <CardTitle>Canais de Contato & Redes Sociais</CardTitle>
-                <CardDescription>
-                  Forneça pelo menos um meio de contato para que os visitantes
-                  consigam falar com você.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-6">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="whatsapp">WhatsApp (DDD + Número)</Label>
-                    <Input
-                      id="whatsapp"
-                      value={whatsapp}
-                      onChange={(e) => setWhatsapp(e.target.value)}
-                      placeholder="Ex: 11999999999"
-                      className="h-10"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Telefone / Celular</Label>
-                    <Input
-                      id="phone"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="Ex: 11999999999"
-                      className="h-10"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email">E-mail de Contato</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Ex: contato@exemplo.com"
-                      className="h-10"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="instagram">
-                      Instagram (Nome de Usuário)
-                    </Label>
-                    <Input
-                      id="instagram"
-                      value={instagram}
-                      onChange={(e) => setInstagram(e.target.value)}
-                      placeholder="Ex: seunome.oficial"
-                      className="h-10"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="tiktok">TikTok (Nome de Usuário)</Label>
-                    <Input
-                      id="tiktok"
-                      value={tiktok}
-                      onChange={(e) => setTiktok(e.target.value)}
-                      placeholder="Ex: seunome.oficial"
-                      className="h-10"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="facebook">Facebook (Link ou Usuário)</Label>
-                    <Input
-                      id="facebook"
-                      value={facebook}
-                      onChange={(e) => setFacebook(e.target.value)}
-                      placeholder="Ex: seunome.oficial"
-                      className="h-10"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2 pt-2">
-                  <Label htmlFor="website">Website / Link Externo</Label>
-                  <Input
-                    id="website"
-                    type="url"
-                    value={website}
-                    onChange={(e) => setWebsite(e.target.value)}
-                    placeholder="Ex: https://meuservico.com.br"
-                    className="h-10"
-                  />
                 </div>
               </CardContent>
               <CardFooter className="flex justify-end border-t p-4">

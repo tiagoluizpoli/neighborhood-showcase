@@ -35,14 +35,11 @@ export class DrizzleUserRepository implements UserRepository {
         email: userSchema.email,
         phone: userSchema.phone,
         image: userSchema.image,
-        socialLinks: providerProfileSchema.socialLinks,
-        isProviderVisible: providerProfileSchema.isProviderVisible,
+        language: userSchema.language,
+        theme: userSchema.theme,
+        emailVerified: userSchema.emailVerified,
       })
       .from(userSchema)
-      .leftJoin(
-        providerProfileSchema,
-        eq(providerProfileSchema.providerId, userSchema.id),
-      )
       .where(eq(userSchema.id, id))
       .limit(1);
 
@@ -53,11 +50,10 @@ export class DrizzleUserRepository implements UserRepository {
       name: row.name,
       email: row.email,
       phone: row.phone ?? null,
-      socialLinks: (row.socialLinks ?? {}) as Record<
-        string,
-        string | undefined
-      >,
-      isProviderVisible: row.isProviderVisible ?? true,
+      image: row.image ?? null,
+      language: row.language,
+      theme: row.theme,
+      emailVerified: row.emailVerified ?? false,
     };
   }
 
@@ -73,6 +69,11 @@ export class DrizzleUserRepository implements UserRepository {
         fallbackAvatarUrl: userSchema.image,
         profileName: providerProfileSchema.displayName,
         profileAvatarUrl: providerProfileSchema.avatarUrl,
+        companyName: providerProfileSchema.companyName,
+        tradeName: providerProfileSchema.tradeName,
+        logoUrl: providerProfileSchema.logoUrl,
+        bannerUrl: providerProfileSchema.bannerUrl,
+        publicDescription: providerProfileSchema.publicDescription,
         socialLinks: providerProfileSchema.socialLinks,
         isProviderVisible: providerProfileSchema.isProviderVisible,
       })
@@ -94,8 +95,13 @@ export class DrizzleUserRepository implements UserRepository {
 
     return {
       id: row.id,
-      name: row.profileName ?? row.fallbackName,
+      displayName: row.profileName ?? row.fallbackName,
       avatarUrl: row.profileAvatarUrl ?? row.fallbackAvatarUrl ?? null,
+      companyName: row.companyName ?? null,
+      tradeName: row.tradeName ?? null,
+      logoUrl: row.logoUrl ?? null,
+      bannerUrl: row.bannerUrl ?? null,
+      publicDescription: row.publicDescription ?? null,
       socialLinks: (row.socialLinks ?? {}) as Record<
         string,
         string | undefined
@@ -271,62 +277,33 @@ export class DrizzleUserRepository implements UserRepository {
   async updateProfile(input: {
     userId: string;
     name?: string;
-    socialLinks?: {
-      whatsapp?: string;
-      phone?: string;
-      email?: string;
-      instagram?: string;
-      tiktok?: string;
-      facebook?: string;
-      website?: string;
-    };
-    isProviderVisible?: boolean;
+    image?: string;
+    language?: string;
+    theme?: string;
+    phone?: string;
   }): Promise<void> {
+    const updates: Record<string, unknown> = { updatedAt: new Date() };
+
     if (input.name !== undefined) {
-      await db
-        .update(userSchema)
-        .set({
-          name: input.name.trim(),
-          updatedAt: new Date(),
-        })
-        .where(eq(userSchema.id, input.userId));
+      updates.name = input.name.trim();
     }
-
-    const [userRow] = await db
-      .select({
-        name: userSchema.name,
-        image: userSchema.image,
-      })
-      .from(userSchema)
-      .where(eq(userSchema.id, input.userId))
-      .limit(1);
-
-    if (!userRow) {
-      return;
+    if (input.image !== undefined) {
+      updates.image = input.image;
+    }
+    if (input.language !== undefined) {
+      updates.language = input.language;
+    }
+    if (input.theme !== undefined) {
+      updates.theme = input.theme;
+    }
+    if (input.phone !== undefined) {
+      updates.phone = input.phone;
     }
 
     await db
-      .insert(providerProfileSchema)
-      .values({
-        providerId: input.userId,
-        displayName: input.name?.trim() ?? userRow.name,
-        avatarUrl: userRow.image ?? null,
-        socialLinks: input.socialLinks ?? {},
-        isProviderVisible: input.isProviderVisible ?? true,
-      })
-      .onConflictDoUpdate({
-        target: providerProfileSchema.providerId,
-        set: {
-          displayName:
-            input.name?.trim() ?? sql`${providerProfileSchema.displayName}`,
-          socialLinks:
-            input.socialLinks ?? sql`${providerProfileSchema.socialLinks}`,
-          isProviderVisible:
-            input.isProviderVisible ??
-            sql`${providerProfileSchema.isProviderVisible}`,
-          updatedAt: new Date(),
-        },
-      });
+      .update(userSchema)
+      .set(updates)
+      .where(eq(userSchema.id, input.userId));
   }
 
   async updateRole(

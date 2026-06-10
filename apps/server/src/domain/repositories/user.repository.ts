@@ -5,14 +5,21 @@ export interface UserProfileDTO {
   name: string;
   email: string;
   phone: string | null;
-  socialLinks: Record<string, string | undefined>;
-  isProviderVisible: boolean;
+  image: string | null;
+  language: string;
+  theme: string;
+  emailVerified: boolean;
 }
 
 export interface PublicProviderProfileDTO {
   id: string;
-  name: string;
+  displayName: string;
   avatarUrl: string | null;
+  companyName: string | null;
+  tradeName: string | null;
+  logoUrl: string | null;
+  bannerUrl: string | null;
+  publicDescription: string | null;
   socialLinks: Record<string, string | undefined>;
   status: 'ACTIVE' | 'BANNED';
   deletedAt?: Date | null;
@@ -40,16 +47,10 @@ export interface UserRepository {
   updateProfile(input: {
     userId: string;
     name?: string;
-    socialLinks?: {
-      whatsapp?: string;
-      phone?: string;
-      email?: string;
-      instagram?: string;
-      tiktok?: string;
-      facebook?: string;
-      website?: string;
-    };
-    isProviderVisible?: boolean;
+    image?: string;
+    language?: string;
+    theme?: string;
+    phone?: string;
   }): Promise<void>;
   updateRole(
     id: string,

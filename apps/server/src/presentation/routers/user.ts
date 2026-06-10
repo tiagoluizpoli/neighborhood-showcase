@@ -60,26 +60,24 @@ export function createUserRouter(
             .min(3, 'O nome deve ter pelo menos 3 caracteres')
             .max(100, 'O nome deve ter no máximo 100 caracteres')
             .optional(),
-          socialLinks: z
-            .object({
-              whatsapp: z.string().optional(),
-              phone: z.string().optional(),
-              email: z.string().optional(),
-              instagram: z.string().optional(),
-              tiktok: z.string().optional(),
-              facebook: z.string().optional(),
-              website: z.string().optional(),
-            })
+          image: z.string().url().optional(),
+          language: z.enum(['pt-BR', 'en']).optional(),
+          theme: z.enum(['system', 'light', 'dark']).optional(),
+          phone: z
+            .string()
+            .min(8, 'O telefone deve ter pelo menos 8 caracteres')
+            .max(20, 'O telefone deve ter no máximo 20 caracteres')
             .optional(),
-          isProviderVisible: z.boolean().optional(),
         }),
       )
       .mutation(async ({ ctx, input }) => {
         return await updateUserUseCase.execute({
           userId: ctx.session.user.id,
           name: input.name,
-          socialLinks: input.socialLinks,
-          isProviderVisible: input.isProviderVisible,
+          image: input.image,
+          language: input.language,
+          theme: input.theme,
+          phone: input.phone,
         });
       }),
   });

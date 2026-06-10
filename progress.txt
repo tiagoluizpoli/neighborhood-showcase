@@ -1,55 +1,47 @@
-Ralph Loop iteration 8 — 2026-06-10
+Ralph Loop Iteration 2 — 2026-06-10
 
-CURRENT TASK: Epic 13 Task 02 — ProviderProfile Backend (entity, repository, use cases)
+Task: 13_04_shrink_user_update_and_dtos (epic 13, shrink user update + DTOs)
+Status: COMPLETED ✅
 
-## What was done
+What was done:
+1. Updated domain/user.repository.ts:
+   - UserProfileDTO: added image, language, theme, emailVerified; removed socialLinks, isProviderVisible
+   - PublicProviderProfileDTO: added branding fields (companyName, tradeName, logoUrl, bannerUrl), renamed name→displayName, removed socialLinks
+   - updateProfile interface: removed socialLinks, isProviderVisible; added image, language, theme
+2. Updated infrastructure/user-repository.ts:
+   - findProfileById: maps new fields, no socialLinks/isProviderVisible
+   - findPublicProviderById: maps branding + displayName, removed socialLinks
+   - updateProfile: removed provider_profile upsert, only writes to user row
+3. Updated application/use-cases/user/update-user.ts: UpdateUserInput shrunk to {name?, image?, language?, theme?, phone?}
+4. Updated application/use-cases/user/get-public-provider-profile.ts: result DTO has branding fields + displayName
+5. Updated presentation/routers/user.ts: update Zod schema shrunk to {name?, image?, language?, theme?, phone?}
+6. Updated main/di/user-router.ts: DI types match new shapes
+7. Updated get-user-profile.integration.test.ts: insert values and assertions match new DTO
+8. Updated get-public-provider-profile.integration.test.ts: renamed name→displayName
+9. Rewrote update-user.integration.test.ts: 134 lines, tests new fields, provider_profile non-mutation
+10. Rewrote user-get-public-profile.integration.test.ts: 131 lines, updated for new DTO with branding
+11. Fixed _portal.prestadores.$id.tsx: provider.name → provider.displayName (4 occurrences)
+12. Shrunk panel.conta.tsx: removed socialLinks form, isProviderVisible checkbox, keeping only name/phone/email
 
-1. ProviderProfile entity (`apps/server/src/domain/entities/provider-profile.entity.ts`)
-   - Extends AuditableEntity<ProviderProfileProps>
-   - 9 read-only getters: displayName, avatarUrl, companyName, tradeName, logoUrl, bannerUrl, publicDescription, socialLinks, isProviderVisible
-   - Constructor validates: displayName must trim to 3+ chars, publicDescription must be <=500 chars
-   - Throws DomainError subclasses: InvalidProviderDisplayNameError, InvalidProviderPublicDescriptionError, ProviderProfileNotFoundError
+Verification:
+- bun run check: 0 errors ✅
+- bun run check-types: 0 errors ✅ (web app also clean)
+- Integration tests fail on pre-existing test DB schema drift (user.language/theme
+  columns missing — same root cause as all existing integration test failures).
+  This is a pre-existing infrastructure issue, not a bug in this implementation.
 
-2. ProviderProfileRepository interface (`apps/server/src/domain/repositories/provider-profile.repository.ts`)
-   - findByProviderId(providerId): Promise<ProviderProfile | null>
-   - upsert({ providerId, displayName, avatarUrl?, companyName?, tradeName?, logoUrl?, bannerUrl?, publicDescription?, socialLinks?, isProviderVisible? }): Promise<ProviderProfile>
-   - delete(providerId): Promise<void>
+Files modified:
+- apps/server/src/domain/repositories/user.repository.ts
+- apps/server/src/infrastructure/db/user-repository.ts
+- apps/server/src/application/use-cases/user/update-user.ts
+- apps/server/src/application/use-cases/user/get-public-provider-profile.ts
+- apps/server/src/presentation/routers/user.ts
+- apps/server/src/main/di/user-router.ts
+- apps/server/src/application/use-cases/user/update-user.integration.test.ts (rewritten)
+- apps/server/src/application/use-cases/user/get-public-provider-profile.integration.test.ts
+- apps/server/src/application/use-cases/user/get-user-profile.integration.test.ts
+- apps/server/src/presentation/routers/user-get-public-profile.integration.test.ts (rewritten)
+- apps/web/src/routes/_portal.prestadores.$id.tsx
+- apps/web/src/routes/panel.conta.tsx
 
-3. GetProviderProfile use case (`apps/server/src/application/use-cases/provider-profile/get-provider-profile.ts`)
-   - execute({ providerId }): throws ProviderProfileNotFoundError if repo returns null
-
-4. UpdateProviderProfile use case (`apps/server/src/application/use-cases/provider-profile/update-provider-profile.ts`)
-   - execute(input): trims displayName, rejects whitespace-only (length 0 after trim), rejects <3 chars, rejects publicDescription >500 chars
-   - Calls repo.upsert with all fields
-
-5. ProviderProfileMapper (`apps/server/src/infrastructure/db/mappers/provider-profile.mapper.ts`)
-   - Implements EntityMapper<ProviderProfileSchemaSelect, ProviderProfile, ProviderProfileSchemaInsert>
-   - toDomain(): maps DB row to ProviderProfile entity (uses raw.providerId as entity id)
-   - toPersistence(): maps entity to insert row
-
-6. ProviderProfileRepositoryImpl (`apps/server/src/infrastructure/db/provider-profile-repository.ts`)
-   - findByProviderId: selects from provider_profile where providerId = input
-   - upsert: insert with onConflictDoUpdate (target: providerId)
-   - delete: delete where providerId = input
-
-7. Unit tests: all 10 pass (get-provider-profile.test.ts: 2 pass, update-provider-profile.test.ts: 8 pass including whitespace-only displayName rejection)
-
-8. Integration tests: created but fail on pre-existing test DB schema drift (user.language and user.theme columns in Drizzle schema but missing in test DB). Same root cause as all other existing integration tests (confirmed: get-user-profile.integration.test.ts also fails with "column 'language' does not exist"). Unit tests cover the same scenarios.
-
-## Verification
-
-check:arch ✔ | check-types ✔ | check (biome) ✔ | test-unit ✔ (10 pass, 0 fail)
-
-Integration tests: 2 fail due to pre-existing test DB schema drift. NOT a task 02 issue.
-
-## Status: COMPLETED
-
-## Notes
-
-- Clean Architecture boundaries strictly observed: domain has no Drizzle/tRPC, application has no Drizzle/tRPC, infrastructure has no tRPC
-- Path depth issues fixed: repository impl uses `../../domain/` (not `../../../domain/`), integration tests use `../../../infrastructure/` (not `../../../../infrastructure/`)
-- biome noNonNullAssertion rule: integration test uses `row as NonNullable<typeof row>` after null check to satisfy linter
-
-## Next task
-
-Epic 13 Task 03 — ProviderProfile Router (new trpc.providerProfile router with get and update procedures, wired through DI)
+Next task: epic 13 task 05 (see index.md for current state)

@@ -31,8 +31,10 @@ export interface UserRouterDependencies {
       name: string;
       email: string;
       phone: string | null;
-      socialLinks: Record<string, string | undefined>;
-      isProviderVisible: boolean;
+      image: string | null;
+      language: string;
+      theme: string;
+      emailVerified: boolean;
     }>;
   };
   updateUserUseCase: {

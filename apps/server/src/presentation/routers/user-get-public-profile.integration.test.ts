@@ -19,8 +19,13 @@ describe('user.getPublicProfile Router Procedure', () => {
       return {
         provider: {
           id: providerId,
-          name: 'Jane Profile Provider',
+          displayName: 'Jane Profile Provider',
           avatarUrl: 'http://localhost/jane-avatar.jpg',
+          companyName: null,
+          tradeName: null,
+          logoUrl: null,
+          bannerUrl: null,
+          publicDescription: null,
           socialLinks: {
             whatsapp: '5511999999999',
             instagram: 'jane.provider',
@@ -82,7 +87,7 @@ describe('user.getPublicProfile Router Procedure', () => {
     const res = await caller.getPublicProfile({ id: providerId });
 
     expect(res.provider.id).toBe(providerId);
-    expect(res.provider.name).toBe('Jane Profile Provider');
+    expect(res.provider.displayName).toBe('Jane Profile Provider');
     expect(res.provider.avatarUrl).toBe('http://localhost/jane-avatar.jpg');
     expect(res.provider.socialLinks).toEqual({
       whatsapp: '5511999999999',

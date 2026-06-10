@@ -3,24 +3,18 @@ import type { UserRepository } from '../../../domain/repositories/user.repositor
 export interface UpdateUserInput {
   userId: string;
   name?: string;
-  socialLinks?: {
-    whatsapp?: string;
-    phone?: string;
-    email?: string;
-    instagram?: string;
-    tiktok?: string;
-    facebook?: string;
-    website?: string;
-  };
-  isProviderVisible?: boolean;
+  image?: string;
+  language?: string;
+  theme?: string;
+  phone?: string;
 }
 
 export class UpdateUser {
   constructor(private readonly userRepo: UserRepository) {}
 
   async execute(input: UpdateUserInput): Promise<{ success: boolean }> {
-    const { userId, socialLinks, isProviderVisible } = input;
     let { name } = input;
+    const { userId, image, language, theme, phone } = input;
 
     if (name !== undefined) {
       const trimmedName = name.trim();
@@ -33,8 +27,10 @@ export class UpdateUser {
     await this.userRepo.updateProfile({
       userId,
       name,
-      socialLinks,
-      isProviderVisible,
+      image,
+      language,
+      theme,
+      phone,
     });
 
     return { success: true };
