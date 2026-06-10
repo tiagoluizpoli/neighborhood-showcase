@@ -1,11 +1,28 @@
 ---
 type: feature
 epic: 13-provider-section-reorg
-status: ready
+status: in-progress
 blocked-by: 04_shrink_user_update_and_dtos.md
 ---
 
 ## What to Build
+
+Replace the placeholder at `/panel/dashboard/configuration` with the real Configurações page. Three sections: Public Profile (7 fields with explicit "Salvar" button), Contact Channels (7 social links with explicit "Salvar" button), Public Visibility (1 toggle, auto-saves on toggle change with 300ms debounce). Use the new `trpc.providerProfile.get` and `trpc.providerProfile.update` procedures. Use the generalized `ImageUploadField` component (see `agents.local.md` §5 and Module 25 §"Image upload widget" — built in this task as a sub-component). Add the `configuracoes` i18n namespace to both `en` and `pt` translation files (English keys, Portuguese + English values). Apply the full-width layout rule (no `mx-auto max-w-*`). Add a Playwright E2E test that asserts the persistence round-trip end-to-end (edit `displayName`, save, reload, see the new value).
+
+## Progress (Iteration 10)
+
+### Sub-task 1 (ImageUploadField): NOT STARTED
+### Sub-task 2 (i18n namespace): DONE
+- All `configuracoes` keys added to both EN and PT locale files
+- EN: page_title, page_subtitle, section descriptions, all field labels + placeholders + help texts, visibility labels, toast keys
+- PT: same keys with Portuguese translations
+### Sub-task 3 (Build the page): DONE
+- configuration.tsx: fully i18n-wired (all hardcoded English strings replaced with t() calls)
+- All 3 sections use `useTranslation('configuracoes')` namespace
+- `bun run check` passes with zero errors
+### Sub-task 4 (Playwright E2E): NOT STARTED
+
+## Context
 
 Replace the placeholder at `/panel/dashboard/configuration` with the real Configurações page. Three sections: Public Profile (7 fields with explicit "Salvar" button), Contact Channels (7 social links with explicit "Salvar" button), Public Visibility (1 toggle, auto-saves on toggle change with 300ms debounce). Use the new `trpc.providerProfile.get` and `trpc.providerProfile.update` procedures. Use the generalized `ImageUploadField` component (see `agents.local.md` §5 and Module 25 §"Image upload widget" — built in this task as a sub-component). Add the `configuracoes` i18n namespace to both `en` and `pt` translation files (English keys, Portuguese + English values). Apply the full-width layout rule (no `mx-auto max-w-*`). Add a Playwright E2E test that asserts the persistence round-trip end-to-end (edit `displayName`, save, reload, see the new value).
 

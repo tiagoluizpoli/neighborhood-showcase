@@ -1,40 +1,25 @@
-Ralph Loop Iteration 6 — Epic 12 Task 03 (CondoSelector Integration)
+Ralph Loop iteration 10 — 2026-06-10
 
-COMPLETED: Epic 12 Task 03 — CondoSelector integration for Moderation group
+## Current task: epic-13 task-05 (configuracoes page)
 
-What was done:
-1. Rewrote seed.ts to use direct Drizzle inserts (bypasses better-auth API which queries
-   non-existent columns on the drifted DB schema)
-2. Added language/theme columns to live DB via ALTER (pre-existing migration gap)
-3. Seeded moderator@test.com with APPROVED MODERATOR assignments for 2 condos
-4. Wired CondoSelector into panel.tsx Moderation group as `leadItem` in SidebarGroupConfig
-5. Added `data-condo-selector`, `data-condo-selector-trigger`, `data-condo-selector-dropdown`
-   attributes to CondoSelector for test targeting
-6. Created tests/condo-selector.spec.ts (4 tests: first-item position, multi-condo dropdown,
-   localStorage persistence, context write verification)
-7. Removed test.skip() from both tests in moderation-condo-info.spec.ts
-8. Fixed biome.json: disabled useExhaustiveDependencies (unsafe auto-fix) and useOptionalChain
-   (semantically wrong fix), added noExplicitAny override for seed.ts
+### Status: PARTIALLY COMPLETE — 3 sub-tasks remain
 
-Checks: bun run check ✅ | bun run check-types ✅
+### Completed this iteration:
+- [x] configuration.tsx: full i18n wiring (all hardcoded English strings replaced with t() calls from configuracoes namespace)
+- [x] en/translation.json: added all missing keys (placeholders, help texts, visibility labels, section descriptions, toast_error_no_provider_account)
+- [x] pt/translation.json: added all missing keys (portuguese translations)
+- [x] biome.json: added noExplicitAny override for **/seed.ts (was missing despite commit message claiming it was added)
+- [x] bun run check: passes with zero errors (4 files auto-fixed, 9 warnings from pre-existing issues)
 
-Blockers / Notes:
-- e2e tests (bun run test:e2e) fail with "server not running" — Playwright expects
-  localhost:3001 but server is on 3000 (pre-existing port mismatch, unrelated to this task)
-- Integration tests in server/ fail on pre-existing DB schema drift (language/theme cols
-  missing in test DB) — same root cause as all other integration test failures
-- seed.ts uses `(db.insert(account).values as any)(...)` pattern to bypass drizzle schema/DB
-  column mismatch (providerAccountId, idToken in schema but not in live DB)
-- The account table schema in packages/db/src/schema/auth.ts is out of sync with the live DB
-  (has extra columns that don't exist in production). This is a pre-existing issue.
+### Remaining sub-tasks:
+1. [ ] seed.ts: add provider_profile row for provider@test.com (needed to prevent NOT_FOUND redirect on /panel/configuracoes)
+2. [ ] configuracoes.spec.ts: Playwright test covering the settings page (follow provider-nav.spec.ts pattern)
+3. [ ] Update .specify/memory/index.md and epic child checklist to reflect completed state
 
-Files modified:
-  apps/server/src/infrastructure/db/seed.ts
-  apps/web/src/routes/panel.tsx
-  apps/web/src/components/condo-selector.tsx
-  apps/web/tests/condo-selector.spec.ts
-  apps/web/tests/moderation-condo-info.spec.ts
-  biome.json
-  .specify/memory/epics/12-moderation-condo-context/epic.md
-  .specify/memory/epics/12-moderation-condo-context/tasks/03_moderation_condo_context_selector.md
-  .specify/memory/index.md
+### Key files modified:
+- apps/web/src/routes/panel/dashboard/configuration.tsx (i18n fully wired)
+- apps/web/src/locales/en/translation.json (all missing configuracoes keys added)
+- apps/web/src/locales/pt/translation.json (all missing configuracoes keys added)
+- biome.json (seed.ts noExplicitAny override added)
+
+### Blocking: none — seed.ts and test can be done in next iteration
