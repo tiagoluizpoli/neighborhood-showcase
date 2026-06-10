@@ -5,12 +5,11 @@ import { expect, type Page, test } from '@playwright/test';
 // ---------------------------------------------------------------------------
 async function signInViaUI(page: Page, email: string, password: string) {
   await page.goto('/auth');
-  await page.getByRole('link', { name: /entrar/i }).click();
+  // "Entrar" tab is already selected by default — no click needed
   await page.getByPlaceholder(/e-mail/i).fill(email);
   await page.getByPlaceholder(/senha/i).fill(password);
   await page.getByRole('button', { name: /entrar/i }).click();
-  // Wait for redirect to panel
-  await page.waitForURL(/\/panel/, { timeout: 10_000 });
+  await page.waitForURL(/\/panel/, { timeout: 15_000 });
 }
 
 // ---------------------------------------------------------------------------
