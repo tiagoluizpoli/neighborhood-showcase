@@ -40,7 +40,7 @@ function ConfigurationPageComponent() {
   );
 
   const hasEnabledProviderAssignment = assignments?.some(
-    (a) => a.role === 'PROVIDER' && a.status === 'APPROVED',
+    (a) => a.type === 'RESIDENT' && a.status === 'APPROVED',
   );
 
   // Redirect if no enabled provider assignment

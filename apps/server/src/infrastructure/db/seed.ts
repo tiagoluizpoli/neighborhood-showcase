@@ -10,6 +10,7 @@ import { account, user } from '@neighborhood-showcase/db/schema/auth';
 import {
   condominium,
   providerAssignment,
+  providerProfile,
 } from '@neighborhood-showcase/db/schema/showcase';
 
 async function seed() {
@@ -150,6 +151,34 @@ async function seed() {
       unitInfo: 'Unit 202',
     },
   ]);
+
+  // Assign provider@test.com as APPROVED PROVIDER (type = RESIDENT in the schema enum)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db.insert(providerAssignment) as any).values([
+    {
+      id: 'provider-assignment-1',
+      providerId: providerUser.id,
+      condominiumId: condo1.id,
+      type: 'RESIDENT',
+      status: 'APPROVED',
+      unitInfo: 'Provider HQ',
+    },
+  ]);
+
+  // Create provider_profile row for provider@test.com
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db.insert(providerProfile) as any).values({
+    providerId: providerUser.id,
+    displayName: 'Provider Test',
+    avatarUrl: null,
+    companyName: null,
+    tradeName: null,
+    logoUrl: null,
+    bannerUrl: null,
+    publicDescription: null,
+    socialLinks: {},
+    isProviderVisible: true,
+  });
 
   console.log(
     '✅ Seed complete: provider@test.com, admin@test.com, moderator@test.com (password: Test@1234)',
