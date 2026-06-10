@@ -106,7 +106,7 @@
 | 13-provider-section-reorg | [01_schema_migrations](epics/13-provider-section-reorg/tasks/01_schema_migrations.md) | ✅ completed | — |
 | 13-provider-section-reorg | [02_provider_profile_backend](epics/13-provider-section-reorg/tasks/02_provider_profile_backend.md) | ✅ completed | 01_schema_migrations |
 | 13-provider-section-reorg | [03_provider_profile_router](epics/13-provider-section-reorg/tasks/03_provider_profile_router.md) | ✅ completed | 02_provider_profile_backend |
-| 13-provider-section-reorg | [04_shrink_user_update_and_dtos](epics/13-provider-section-reorg/tasks/04_shrink_user_update_and_dtos.md) | 🔄 ready | 03_provider_profile_router |
+| 13-provider-section-reorg | [04_shrink_user_update_and_dtos](epics/13-provider-section-reorg/tasks/04_shrink_user_update_and_dtos.md) | ✅ completed | 03_provider_profile_router |
 | 13-provider-section-reorg | [05_configuracoes_page](epics/13-provider-section-reorg/tasks/05_configuracoes_page.md) | 🔄 ready | 04_shrink_user_update_and_dtos |
 | 13-provider-section-reorg | [06_conta_e_seguranca](epics/13-provider-section-reorg/tasks/06_conta_e_seguranca.md) | 🔄 ready | 05_configuracoes_page |
 | 13-provider-section-reorg | [07_meus_anuncios_list](epics/13-provider-section-reorg/tasks/07_meus_anuncios_list.md) | 🔄 ready | 06_conta_e_seguranca |

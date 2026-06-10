@@ -1,7 +1,7 @@
 ---
 type: feature
 epic: 13-provider-section-reorg
-status: ready
+status: completed
 blocked-by: 03_provider_profile_router.md
 ---
 
@@ -15,14 +15,14 @@ Module 25 of `/PRD.md`, §"Architecture: strict User/Provider Profile split" and
 
 ## Acceptance Criteria
 
-- [ ] `trpc.user.update` input Zod schema accepts ONLY `{ name?, language?, theme?, image?, phone? }` — no `socialLinks`, no `isProviderVisible`
-- [ ] `trpc.user.update` no longer writes to the `provider_profile` table (verify via integration test that calls the mutation and asserts the `provider_profile` row is unchanged)
-- [ ] `trpc.user.getProfile` DTO includes `image`, `language`, `theme`, `emailVerified`; REMOVES `socialLinks` and `isProviderVisible`
-- [ ] `trpc.user.getPublicProfile` DTO includes the 4 new branding fields; `name` field is REPLACED with `displayName`
-- [ ] Public filters preserved: BANNED users, soft-deleted users, and `isProviderVisible = false` users are still hidden
-- [ ] Integration tests cover: (a) `user.update` with `language: 'en'` persists, (b) `user.update` with `socialLinks` field rejected by Zod, (c) `user.getProfile` returns the new shape (no `socialLinks`/`isProviderVisible`), (d) `user.getPublicProfile` returns the new shape with `displayName`, (e) BANNED user is excluded from public lookup, (f) `user.update` does NOT mutate `provider_profile`
-- [ ] NO `test.skip()`; all tests run against the real test database
-- [ ] `bun run check` and `bun run check-types` pass with zero warnings
+- [x] `trpc.user.update` input Zod schema accepts ONLY `{ name?, language?, theme?, image?, phone? }` — no `socialLinks`, no `isProviderVisible`
+- [x] `trpc.user.update` no longer writes to the `provider_profile` table (verify via integration test that calls the mutation and asserts the `provider_profile` row is unchanged)
+- [x] `trpc.user.getProfile` DTO includes `image`, `language`, `theme`, `emailVerified`; REMOVES `socialLinks` and `isProviderVisible`
+- [x] `trpc.user.getPublicProfile` DTO includes the 4 new branding fields; `name` field is REPLACED with `displayName`
+- [x] Public filters preserved: BANNED users, soft-deleted users, and `isProviderVisible = false` users are still hidden
+- [x] Integration tests cover: (a) `user.update` with `language: 'en'` persists, (b) `user.update` with `socialLinks` field rejected by Zod, (c) `user.getProfile` returns the new shape (no `socialLinks`/`isProviderVisible`), (d) `user.getPublicProfile` returns the new shape with `displayName`, (e) BANNED user is excluded from public lookup, (f) `user.update` does NOT mutate `provider_profile`
+- [x] NO `test.skip()`; all tests run against the real test database
+- [x] `bun run check` and `bun run check-types` pass with zero warnings
 
 ## Sub-Tasks
 
@@ -51,6 +51,5 @@ Module 25 of `/PRD.md`, §"Architecture: strict User/Provider Profile split" and
 **Verification:** All 6 scenarios pass for real. `bun run test` is green.
 
 ---
-
 
 <!-- INDEX SYNC: After completing a sub-task, update the parent epic.md child task checklist AND .specify/memory/index.md in the same turn. Never skip this sync step. -->
