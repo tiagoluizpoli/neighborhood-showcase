@@ -1,3 +1,4 @@
+import { useFlag } from '@neighborhood-showcase/feature-flags/client';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,6 +13,7 @@ import {
   Avatar,
   AvatarFallback,
 } from '@neighborhood-showcase/ui/components/avatar';
+import { Collapsible } from '@neighborhood-showcase/ui/components/collapsible';
 import {
   Popover,
   PopoverContent,
@@ -26,7 +28,6 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
@@ -44,6 +45,7 @@ import {
 } from '@tanstack/react-router';
 import {
   Building2,
+  ChevronDown,
   LayoutDashboard,
   LineChart,
   Megaphone,
@@ -61,11 +63,238 @@ import { ThemeCycleToggle } from '@/components/theme-cycle-toggle';
 import { authClient } from '@/lib/auth-client';
 import { trpc } from '@/utils/trpc';
 
+// ---------------------------------------------------------------------------
+// Sidebar group collapse state — persisted per group to localStorage
+// ---------------------------------------------------------------------------
+
+const STORAGE_KEY_PREFIX = 'sb_grp:';
+
+function readGroupOpen(groupKey: string, defaultOpen: boolean): boolean {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY_PREFIX + groupKey);
+    if (stored === null) return defaultOpen;
+    return stored === '1';
+  } catch {
+    return defaultOpen;
+  }
+}
+
+function writeGroupOpen(groupKey: string, open: boolean): void {
+  try {
+    localStorage.setItem(STORAGE_KEY_PREFIX + groupKey, open ? '1' : '0');
+  } catch {
+    // localStorage unavailable — fail silently
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Sidebar data structure — single source of truth
+// ---------------------------------------------------------------------------
+
+type IconComponent = React.ComponentType<{ className?: string }>;
+
+interface SidebarItem {
+  i18nKey: string;
+  icon: IconComponent;
+  href: string;
+}
+
+interface SidebarGroupConfig {
+  i18nGroupKey: string;
+  Icon: IconComponent;
+  condition: boolean;
+  items: SidebarItem[];
+}
+
+// ---------------------------------------------------------------------------
+// Named group constants — access by name, never by array index
+// ---------------------------------------------------------------------------
+
+const GROUP_PROVEDOR: SidebarGroupConfig = {
+  i18nGroupKey: 'sidebar.group.provedor',
+  Icon: LayoutDashboard,
+  condition: true,
+  items: [
+    {
+      i18nKey: 'sidebar.item.dashboard',
+      icon: LayoutDashboard,
+      href: '/panel/dashboard',
+    },
+    {
+      i18nKey: 'sidebar.item.meus_anuncios',
+      icon: Megaphone,
+      href: '/panel/dashboard/announcements',
+    },
+    {
+      i18nKey: 'sidebar.item.configuracoes',
+      icon: Settings,
+      href: '/panel/dashboard/configuration',
+    },
+  ],
+};
+
+const GROUP_MODERACAO: SidebarGroupConfig = {
+  i18nGroupKey: 'sidebar.group.moderacao',
+  Icon: ShieldAlert,
+  condition: false,
+  items: [
+    {
+      i18nKey: 'sidebar.item.condominium_info',
+      icon: Building2,
+      href: '/panel/moderation/condominium',
+    },
+    {
+      i18nKey: 'sidebar.item.anuncios',
+      icon: Megaphone,
+      href: '/panel/moderation/announcements',
+    },
+    {
+      i18nKey: 'sidebar.item.moradores',
+      icon: Users,
+      href: '/panel/moderation/residents',
+    },
+  ],
+};
+
+const GROUP_ADMINISTRACAO: SidebarGroupConfig = {
+  i18nGroupKey: 'sidebar.group.administracao',
+  Icon: ShieldCheck,
+  condition: false,
+  items: [
+    {
+      i18nKey: 'sidebar.item.visao_geral',
+      icon: LayoutDashboard,
+      href: '/panel/admin/overview',
+    },
+    {
+      i18nKey: 'sidebar.item.usuarios',
+      icon: UserCog,
+      href: '/panel/admin/users',
+    },
+    {
+      i18nKey: 'sidebar.item.providers',
+      icon: Store,
+      href: '/panel/admin/providers',
+    },
+    {
+      i18nKey: 'sidebar.item.condominios',
+      icon: Building2,
+      href: '/panel/admin/condominiums',
+    },
+  ],
+};
+
+const GROUP_SPECTRUM: SidebarGroupConfig = {
+  i18nGroupKey: 'sidebar.group.spectrum',
+  Icon: LineChart,
+  condition: false,
+  items: [
+    {
+      i18nKey: 'sidebar.item.spectrum',
+      icon: LineChart,
+      href: '/panel/spectrum',
+    },
+  ],
+};
+
 function getInitials(name?: string) {
   if (!name) return '??';
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+// ---------------------------------------------------------------------------
+// SidebarGroupSection — renders a single group, optionally collapsible
+// ---------------------------------------------------------------------------
+
+function SidebarGroupSection({ group }: { group: SidebarGroupConfig }) {
+  const { t } = useTranslation();
+  const collapsible = useFlag('sidebar_collapsible_groups');
+
+  // State for collapsible mode — persisted per group to localStorage
+  const [open, setOpen] = React.useState<boolean>(() =>
+    readGroupOpen(group.i18nGroupKey, true),
+  );
+
+  // Always-expanded mode (current behavior when flag is off)
+  if (!collapsible) {
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
+          <group.Icon className="mr-2 inline-block h-4 w-4" />
+          {t(group.i18nGroupKey)}
+        </SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuSub>
+                {group.items.map((item) => (
+                  <SidebarMenuSubButton
+                    key={item.i18nKey}
+                    render={<Link to={item.href} />}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span>{t(item.i18nKey)}</span>
+                  </SidebarMenuSubButton>
+                ))}
+              </SidebarMenuSub>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    );
+  }
+
+  // Collapsible mode — clicking the label toggles the panel
+  return (
+    <Collapsible.Root
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        writeGroupOpen(group.i18nGroupKey, next);
+      }}
+    >
+      <SidebarGroup>
+        <Collapsible.Trigger
+          render={
+            <SidebarGroupLabel className="cursor-pointer group-data-[collapsible=icon]:hidden">
+              <group.Icon className="mr-2 inline-block h-4 w-4" />
+              {t(group.i18nGroupKey)}
+              <ChevronDown
+                className={
+                  'ml-auto h-4 w-4 transition-transform' +
+                  (open ? '' : '-rotate-90')
+                }
+              />
+            </SidebarGroupLabel>
+          }
+        />
+        <Collapsible.Panel
+          keepMounted
+          render={
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuSub>
+                    {group.items.map((item) => (
+                      <SidebarMenuSubButton
+                        key={item.i18nKey}
+                        render={<Link to={item.href} />}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{t(item.i18nKey)}</span>
+                      </SidebarMenuSubButton>
+                    ))}
+                  </SidebarMenuSub>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          }
+        />
+      </SidebarGroup>
+    </Collapsible.Root>
+  );
 }
 
 export const Route = createFileRoute('/panel')({
@@ -107,6 +336,16 @@ function PanelLayout() {
     localStorage.getItem('sidebar:state') !== 'false',
   );
 
+  // ---------------------------------------------------------------------------
+  // Sidebar groups — conditions resolved from session/assignments at render time
+  // ---------------------------------------------------------------------------
+  const sidebarGroups: SidebarGroupConfig[] = [
+    GROUP_PROVEDOR,
+    { ...GROUP_MODERACAO, condition: hasModeratorRole },
+    { ...GROUP_ADMINISTRACAO, condition: hasSystemManagerRole },
+    { ...GROUP_SPECTRUM, condition: isAdministrator },
+  ];
+
   return (
     <SidebarProvider
       defaultOpen={sidebarOpen}
@@ -130,148 +369,11 @@ function PanelLayout() {
           </SidebarHeader>
 
           <SidebarContent>
-            {/* Provedor Group */}
-            <SidebarGroup>
-              <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
-                <LayoutDashboard className="mr-2 inline-block h-4 w-4" />
-                {t('sidebar.group.provedor')}
-              </SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      render={<Link to="/panel/dashboard" />}
-                      tooltip={t('sidebar.item.dashboard')}
-                    >
-                      <LayoutDashboard className="h-4 w-4" />
-                      <span>{t('sidebar.item.dashboard')}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      render={<Link to="/panel/dashboard/announcements" />}
-                      tooltip={t('sidebar.item.meus_anuncios')}
-                    >
-                      <Megaphone className="h-4 w-4" />
-                      <span>{t('sidebar.item.meus_anuncios')}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      render={<Link to="/panel/dashboard/configuration" />}
-                      tooltip={t('sidebar.item.configuracoes')}
-                    >
-                      <Settings className="h-4 w-4" />
-                      <span>{t('sidebar.item.configuracoes')}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            {/* Moderation Group */}
-            {hasModeratorRole && (
-              <SidebarGroup>
-                <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
-                  <ShieldAlert className="mr-2 inline-block h-4 w-4" />
-                  {t('sidebar.group.moderacao')}
-                </SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton
-                        render={<Link to="/panel/moderation/condominium" />}
-                        tooltip={t('sidebar.item.condominium_info')}
-                      >
-                        <Building2 className="h-4 w-4" />
-                        <span>{t('sidebar.item.condominium_info')}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                      <SidebarMenuSub>
-                        <SidebarMenuSubButton
-                          render={<Link to="/panel/moderation/announcements" />}
-                        >
-                          <Megaphone className="h-4 w-4" />
-                          <span>{t('sidebar.item.anuncios')}</span>
-                        </SidebarMenuSubButton>
-                        <SidebarMenuSubButton
-                          render={<Link to="/panel/moderation/residents" />}
-                        >
-                          <Users className="h-4 w-4" />
-                          <span>{t('sidebar.item.moradores')}</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSub>
-                    </SidebarMenuItem>
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
-            )}
-
-            {/* Admin Group */}
-            {hasSystemManagerRole && (
-              <SidebarGroup>
-                <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
-                  <ShieldCheck className="mr-2 inline-block h-4 w-4" />
-                  {t('sidebar.group.administracao')}
-                </SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    <SidebarMenuItem>
-                      <SidebarMenuSub>
-                        <SidebarMenuSubButton
-                          render={<Link to="/panel/admin/overview" />}
-                        >
-                          <LayoutDashboard className="h-4 w-4" />
-                          <span>{t('sidebar.item.visao_geral')}</span>
-                        </SidebarMenuSubButton>
-                        <SidebarMenuSubButton
-                          render={<Link to="/panel/admin/users" />}
-                        >
-                          <UserCog className="h-4 w-4" />
-                          <span>{t('sidebar.item.usuarios')}</span>
-                        </SidebarMenuSubButton>
-                        <SidebarMenuSubButton
-                          render={<Link to="/panel/admin/providers" />}
-                        >
-                          <Store className="h-4 w-4" />
-                          <span>{t('sidebar.item.providers')}</span>
-                        </SidebarMenuSubButton>
-                        <SidebarMenuSubButton
-                          render={<Link to="/panel/admin/condominiums" />}
-                        >
-                          <Building2 className="h-4 w-4" />
-                          <span>{t('sidebar.item.condominios')}</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSub>
-                    </SidebarMenuItem>
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
-            )}
-
-            {/* Spectrum Group */}
-            {isAdministrator && (
-              <SidebarGroup>
-                <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
-                  <LineChart className="mr-2 inline-block h-4 w-4" />
-                  {t('sidebar.group.spectrum')}
-                </SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton
-                        render={<Link to="/panel/spectrum" />}
-                        tooltip={t('sidebar.item.spectrum')}
-                      >
-                        <LineChart className="h-4 w-4" />
-                        <span>{t('sidebar.item.spectrum')}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
-            )}
+            {sidebarGroups
+              .filter((g) => g.condition)
+              .map((group) => (
+                <SidebarGroupSection key={group.i18nGroupKey} group={group} />
+              ))}
           </SidebarContent>
 
           <SidebarFooter className="border-t p-4">
