@@ -1,7 +1,7 @@
 ---
 type: feature
 epic: 13-provider-section-reorg
-status: ready
+status: completed
 blocked-by: 01_schema_migrations.md
 ---
 
@@ -15,16 +15,17 @@ Module 25 of `/PRD.md`, §"Domain layer". Depends on task 01 (schema must exist 
 
 ## Acceptance Criteria
 
-- [ ] `ProviderProfile` entity exists at `apps/server/src/domain/entities/provider-profile.entity.ts`, extends `AuditableEntity<ProviderProfileProps>`, has read-only getters for all 9 fields
-- [ ] Entity constructor validates required fields and throws `DomainError` subclasses on failure (NOT `TRPCError`)
-- [ ] `ProviderProfileRepository` interface exists at `apps/server/src/domain/repositories/provider-profile.repository.ts` with `findByProviderId`, `upsert`, `delete` methods
-- [ ] `UpdateProviderProfile` use case exists at `apps/server/src/application/use-cases/provider-profile/update-provider-profile.ts`, trims strings, validates `displayName` (3+ chars), calls `repo.upsert`
-- [ ] `GetProviderProfile` use case exists at `apps/server/src/application/use-cases/provider-profile/get-provider-profile.ts`, throws `ProviderProfileNotFoundError` if missing
-- [ ] `ProviderProfileMapper` exists at `apps/server/src/infrastructure/db/mappers/provider-profile.mapper.ts` and implements the `EntityMapper` interface
-- [ ] `ProviderProfileRepositoryImpl` exists at `apps/server/src/infrastructure/db/provider-profile-repository.ts`, uses `onConflictDoUpdate` for upsert
-- [ ] Integration tests at `apps/server/src/application/use-cases/provider-profile/*-integration.test.ts` cover: get-then-update round-trip, upsert on a fresh user with no existing row, `displayName` < 3 chars rejected, `publicDescription` > 500 chars rejected
-- [ ] NO forbidden imports per `agents.local.md` §9.6: domain has no Drizzle/tRPC, application has no Drizzle/tRPC, infrastructure has no tRPC
-- [ ] `bun run check` and `bun run check-types` pass with zero warnings
+- [x] `ProviderProfile` entity exists at `apps/server/src/domain/entities/provider-profile.entity.ts`, extends `AuditableEntity<ProviderProfileProps>`, has read-only getters for all 9 fields
+- [x] Entity constructor validates required fields and throws `DomainError` subclasses on failure (NOT `TRPCError`)
+- [x] `ProviderProfileRepository` interface exists at `apps/server/src/domain/repositories/provider-profile.repository.ts` with `findByProviderId`, `upsert`, `delete` methods
+- [x] `UpdateProviderProfile` use case exists at `apps/server/src/application/use-cases/provider-profile/update-provider-profile.ts`, trims strings, validates `displayName` (3+ chars), calls `repo.upsert`
+- [x] `GetProviderProfile` use case exists at `apps/server/src/application/use-cases/provider-profile/get-provider-profile.ts`, throws `ProviderProfileNotFoundError` if missing
+- [x] `ProviderProfileMapper` exists at `apps/server/src/infrastructure/db/mappers/provider-profile.mapper.ts` and implements the `EntityMapper` interface
+- [x] `ProviderProfileRepositoryImpl` exists at `apps/server/src/infrastructure/db/provider-profile-repository.ts`, uses `onConflictDoUpdate` for upsert
+- [x] Integration tests at `apps/server/src/application/use-cases/provider-profile/*-integration.test.ts` cover: get-then-update round-trip, upsert on a fresh user with no existing row, `displayName` < 3 chars rejected, `publicDescription` > 500 chars rejected
+- [x] NO forbidden imports per `agents.local.md` §9.6: domain has no Drizzle/tRPC, application has no Drizzle/tRPC, infrastructure has no tRPC
+- [x] `bun run check` and `bun run check-types` pass with zero warnings
+- ⚠️ Integration tests fail on pre-existing test DB schema drift (user.language/theme columns missing in DB); unit tests all pass. Same root cause as existing integration test failures.
 
 ## Sub-Tasks
 

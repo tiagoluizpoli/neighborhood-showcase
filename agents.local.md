@@ -59,7 +59,7 @@ Monorepo using Turborepo and Bun.
 ### 4. Code Quality & Theme-Adaptive Styling
 - **Named exports** only.
 - **File Length**: Limit files to ≤ 300 lines.
-- **No loose parameters**: Always use Parameter Objects/interfaces for use cases and repositories.
+- **No loose parameters**: Always use Parameter Objects/interfaces for use cases and repositories. Complex nested properties inside these interfaces must use separate, named, and exported types/interfaces instead of inline object definitions (e.g. `socialLinks?: ProviderSocialLinks` rather than inline brackets).
 - **Simple Styling**: Do not add custom backgrounds, radial gradients, animations, or styling overrides. Stick strictly to standard shadcn variables and layout rules.
 - **Theme Adaptation**: Keep the `ThemeProvider`. Avoid hardcoding dark or light classes. Support system-wide themes dynamically by relying entirely on Tailwind semantic utilities (`bg-background`, `text-foreground`, `border`, etc.).
 - **No centered content — full-width layout by default**: Page content fills the entire available width of its parent container. Do NOT use `mx-auto max-w-*` (e.g. `max-w-4xl`, `max-w-5xl`, `max-w-7xl`) on the top-level page wrapper. Do NOT center page content horizontally. Use `w-full` plus reasonable internal padding (`px-4`, `px-6`) so cards/grids/tables spread to the full width of the panel main area. The only acceptable exceptions are: (a) auth flows (sign-in / sign-up), (b) legal/printable document layouts, (c) modals/dialogs that have a fixed max-width by design, (d) public landing-page marketing sections that are intentionally constrained. This rule applies project-wide (panel, public portal, future pages).

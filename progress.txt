@@ -1,38 +1,55 @@
-Ralph Loop iteration 9 — 2026-06-09
+Ralph Loop iteration 8 — 2026-06-10
 
-CURRENT TASK: Epic 12 Task 02 — Moderation Condo Info Frontend Page
+CURRENT TASK: Epic 13 Task 02 — ProviderProfile Backend (entity, repository, use cases)
 
 ## What was done
 
-1. Created `apps/web/src/routes/panel/moderation/condominium.tsx`
-   - Route: `/panel/moderation/condominium`
-   - Fetches data via `getCondominiumInfo` tRPC procedure
-   - Resolves `condominiumId` from localStorage key `mod_ctx__cndo` (fallback: first assignment)
-   - Shows: name, city/state/CEP, contactInfo (email, phone, website) in info cards
-   - States: loading skeleton, error banner, "no condo selected" empty state
-   - Uses `useTranslation()` for all labels
+1. ProviderProfile entity (`apps/server/src/domain/entities/provider-profile.entity.ts`)
+   - Extends AuditableEntity<ProviderProfileProps>
+   - 9 read-only getters: displayName, avatarUrl, companyName, tradeName, logoUrl, bannerUrl, publicDescription, socialLinks, isProviderVisible
+   - Constructor validates: displayName must trim to 3+ chars, publicDescription must be <=500 chars
+   - Throws DomainError subclasses: InvalidProviderDisplayNameError, InvalidProviderPublicDescriptionError, ProviderProfileNotFoundError
 
-2. Added nav item in `panel.tsx` as FIRST item in Moderation group
-   - Key: `sidebar.item.condominium_info` (EN: "Condominium Info", PT: "Informações do Condomínio")
-   - Icon: Building2, same as sidebar group label
+2. ProviderProfileRepository interface (`apps/server/src/domain/repositories/provider-profile.repository.ts`)
+   - findByProviderId(providerId): Promise<ProviderProfile | null>
+   - upsert({ providerId, displayName, avatarUrl?, companyName?, tradeName?, logoUrl?, bannerUrl?, publicDescription?, socialLinks?, isProviderVisible? }): Promise<ProviderProfile>
+   - delete(providerId): Promise<void>
 
-3. Added i18n keys to `locales/en/translation.json` and `locales/pt/translation.json`
+3. GetProviderProfile use case (`apps/server/src/application/use-cases/provider-profile/get-provider-profile.ts`)
+   - execute({ providerId }): throws ProviderProfileNotFoundError if repo returns null
 
-4. Added `tests/moderation-condo-info.spec.ts`
-   - BLOCKED: no MODERATOR-seeded user in e2e test data
-   - Test uses `test.skip()` with explicit reason (same pattern as spectrum-nav.spec.ts)
-   - Same blocker as epic 11 task 03 and epic 12 task 03
+4. UpdateProviderProfile use case (`apps/server/src/application/use-cases/provider-profile/update-provider-profile.ts`)
+   - execute(input): trims displayName, rejects whitespace-only (length 0 after trim), rejects <3 chars, rejects publicDescription >500 chars
+   - Calls repo.upsert with all fields
+
+5. ProviderProfileMapper (`apps/server/src/infrastructure/db/mappers/provider-profile.mapper.ts`)
+   - Implements EntityMapper<ProviderProfileSchemaSelect, ProviderProfile, ProviderProfileSchemaInsert>
+   - toDomain(): maps DB row to ProviderProfile entity (uses raw.providerId as entity id)
+   - toPersistence(): maps entity to insert row
+
+6. ProviderProfileRepositoryImpl (`apps/server/src/infrastructure/db/provider-profile-repository.ts`)
+   - findByProviderId: selects from provider_profile where providerId = input
+   - upsert: insert with onConflictDoUpdate (target: providerId)
+   - delete: delete where providerId = input
+
+7. Unit tests: all 10 pass (get-provider-profile.test.ts: 2 pass, update-provider-profile.test.ts: 8 pass including whitespace-only displayName rejection)
+
+8. Integration tests: created but fail on pre-existing test DB schema drift (user.language and user.theme columns in Drizzle schema but missing in test DB). Same root cause as all other existing integration tests (confirmed: get-user-profile.integration.test.ts also fails with "column 'language' does not exist"). Unit tests cover the same scenarios.
 
 ## Verification
 
-check:arch ✔ | check-types ✔ | test ✔ (400 pass, 85 pre-existing failures)
+check:arch ✔ | check-types ✔ | check (biome) ✔ | test-unit ✔ (10 pass, 0 fail)
+
+Integration tests: 2 fail due to pre-existing test DB schema drift. NOT a task 02 issue.
 
 ## Status: COMPLETED
 
-## Blockers (shared across epics 11 and 12)
+## Notes
 
-No MODERATOR user seeded in e2e test data. Epic 11 task 03, epic 12 task 02, and epic 12 task 03 all need a MODERATOR-seeded user with at least one APPROVED MODERATOR assignment. The backend integration tests have such users (e.g. `cgi-mod-id`), but the e2e Playwright tests use application auth which requires a seeded DB record.
+- Clean Architecture boundaries strictly observed: domain has no Drizzle/tRPC, application has no Drizzle/tRPC, infrastructure has no tRPC
+- Path depth issues fixed: repository impl uses `../../domain/` (not `../../../domain/`), integration tests use `../../../infrastructure/` (not `../../../../infrastructure/`)
+- biome noNonNullAssertion rule: integration test uses `row as NonNullable<typeof row>` after null check to satisfy linter
 
 ## Next task
 
-Epic 12 Task 03 — CondoContextSelector component (blocked by same seed data issue)
+Epic 13 Task 03 — ProviderProfile Router (new trpc.providerProfile router with get and update procedures, wired through DI)

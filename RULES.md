@@ -180,7 +180,10 @@ can be marked complete.
 - **Named exports** only. No `export default` in production code.
 - **File length:** limit files to ≤ 300 lines.
 - **No loose parameters:** always use Parameter Objects/interfaces for use
-  cases and repositories.
+  cases and repositories. Complex nested properties inside these interfaces must
+  use separate, named, and exported types/interfaces instead of inline object
+  definitions (e.g. `socialLinks?: ProviderSocialLinks` rather than inline
+  brackets).
 - **Simple Styling:** do not add custom backgrounds, radial gradients,
   animations, or styling overrides. Stick strictly to standard shadcn
   variables and layout rules.
