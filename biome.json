@@ -91,7 +91,9 @@
           "options": {
             "strictCase": false,
             "requireAscii": true,
-            "filenameCases": ["kebab-case"]
+            "filenameCases": [
+              "kebab-case"
+            ]
           }
         }
       },
@@ -104,7 +106,11 @@
           "level": "warn",
           "fix": "safe",
           "options": {
-            "functions": ["clsx", "cva", "cn"]
+            "functions": [
+              "clsx",
+              "cva",
+              "cn"
+            ]
           }
         }
       }
@@ -126,7 +132,10 @@
   },
   "overrides": [
     {
-      "includes": ["**/src/routes/**/*", "**/routeTree.gen.ts"],
+      "includes": [
+        "**/src/routes/**/*",
+        "**/routeTree.gen.ts"
+      ],
       "linter": {
         "rules": {
           "style": {
@@ -145,7 +154,10 @@
       }
     },
     {
-      "includes": ["**/routeTree.gen.ts", "**/app.config.timestamp_*.js"],
+      "includes": [
+        "**/routeTree.gen.ts",
+        "**/app.config.timestamp_*.js"
+      ],
       "linter": {
         "enabled": false
       },
@@ -175,7 +187,9 @@
       }
     },
     {
-      "includes": ["**/analytics.test.tsx"],
+      "includes": [
+        "**/analytics.test.tsx"
+      ],
       "linter": {
         "enabled": false
       }

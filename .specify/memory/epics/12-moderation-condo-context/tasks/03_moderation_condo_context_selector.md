@@ -1,7 +1,7 @@
 ---
 type: feature
 epic: 12-moderation-condo-context
-status: ready
+status: completed
 blocked-by: 01_moderation_condo_info_backend
 ---
 

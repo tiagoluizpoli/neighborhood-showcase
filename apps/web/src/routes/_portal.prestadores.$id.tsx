@@ -137,7 +137,8 @@ function ProviderPublicProfileComponent() {
               <div className="mt-4 space-y-1.5">
                 <div className="flex items-center justify-center gap-1.5">
                   <h1 className="font-bold text-foreground text-xl tracking-tight">
-                    {provider.displayName}</h1>
+                    {provider.displayName}
+                  </h1>
                   {provider.isVerified && (
                     <span
                       title="Morador Verificado"

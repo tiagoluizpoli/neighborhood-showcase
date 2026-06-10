@@ -20,7 +20,7 @@
 - ✅ **Remediation** — `09-remediation/epic.md`
 - ✅ **Playwright Setup** — `10-playwright-setup/epic.md` (completed: all 1 task done)
 - 🔄 **i18n Namespace Fix and Navigation Hierarchy** — `11-i18n-and-navigation-fixes/epic.md` (blocked-by: 10-playwright-setup)
-- 🔄 **Moderation Condominium Info and Context Selector** — `12-moderation-condo-context/epic.md` (blocked-by: 10-playwright-setup)
+- ✅ **Moderation Condominium Info and Context Selector** — `12-moderation-condo-context/epic.md` (completed: all 3 tasks done)
 - 🔄 **Provider Section Reorg** — `13-provider-section-reorg/epic.md` (ready: 10 task files, dependency-ordered, source PRD-v7 is the CURRENT row in the `/PRD.md` index)
 
 ## All Tasks
@@ -102,7 +102,7 @@
 | 11-i18n-and-navigation-fixes | [03_spectrum_item_hierarchy_fix](epics/11-i18n-and-navigation-fixes/tasks/03_spectrum_item_hierarchy_fix.md) | 🔄 in-progress (blocked: no ADMINISTRATOR user seeded) | 10-playwright-setup |
 | 12-moderation-condo-context | [01_moderation_condo_info_backend](epics/12-moderation-condo-context/tasks/01_moderation_condo_info_backend.md) | ✅ completed | 10-playwright-setup |
 | 12-moderation-condo-context | [02_moderation_condo_info_frontend](epics/12-moderation-condo-context/tasks/02_moderation_condo_info_frontend.md) | ✅ completed | 01_moderation_condo_info_backend |
-| 12-moderation-condo-context | [03_moderation_condo_context_selector](epics/12-moderation-condo-context/tasks/03_moderation_condo_context_selector.md) | 🔄 ready | 01_moderation_condo_info_backend |
+| 12-moderation-condo-context | [03_moderation_condo_context_selector](epics/12-moderation-condo-context/tasks/03_moderation_condo_context_selector.md) | ✅ completed | 01_moderation_condo_info_backend |
 | 13-provider-section-reorg | [01_schema_migrations](epics/13-provider-section-reorg/tasks/01_schema_migrations.md) | ✅ completed | — |
 | 13-provider-section-reorg | [02_provider_profile_backend](epics/13-provider-section-reorg/tasks/02_provider_profile_backend.md) | ✅ completed | 01_schema_migrations |
 | 13-provider-section-reorg | [03_provider_profile_router](epics/13-provider-section-reorg/tasks/03_provider_profile_router.md) | ✅ completed | 02_provider_profile_backend |

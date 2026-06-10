@@ -180,10 +180,8 @@ can be marked complete.
 - **Named exports** only. No `export default` in production code.
 - **File length:** limit files to ≤ 300 lines.
 - **No loose parameters:** always use Parameter Objects/interfaces for use
-  cases and repositories. Complex nested properties inside these interfaces must
-  use separate, named, and exported types/interfaces instead of inline object
-  definitions (e.g. `socialLinks?: ProviderSocialLinks` rather than inline
-  brackets).
+  cases and repositories.
+- **No inline object types:** inline object type definitions (e.g., `x: { foo: string }` or `property: { bar: number }`) are strictly forbidden anywhere in the codebase. All object types must be defined as named, exported interfaces or types (e.g., `interface Foo { foo: string }`, then `x: Foo`). This ensures global type reusability, consistency, and readability.
 - **Simple Styling:** do not add custom backgrounds, radial gradients,
   animations, or styling overrides. Stick strictly to standard shadcn
   variables and layout rules.
@@ -193,6 +191,7 @@ can be marked complete.
   `border`, etc.).
 - **Zero Type / Lint Issues:** run `bun run check` and `bun run check-types`
   after every implementation. All warnings and errors are blocking.
+- **No Biome configuration changes:** agents (including Ralph Loop) are strictly forbidden from modifying the `biome.json` file. Any changes to Biome lint rules, formatting configurations, or overrides must be requested explicitly and manually configured, never edited autonomously.
 
 ## 6. Internationalization (i18n) Strategy
 

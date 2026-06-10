@@ -19,14 +19,6 @@ test.describe('Moderation Condo Info Page', () => {
   test('Condominium Info nav item appears FIRST in Moderation group', async ({
     page,
   }) => {
-    // NOTE: This test requires a MODERATOR-seeded user with at least one
-    // APPROVED MODERATOR assignment. Current seed data does not have one.
-    // Expected credentials when seeded:
-    //   moderator@test.com / Test@1234 (role: MODERATOR, APPROVED assignment)
-    //
-    // Until a moderator user is seeded, this test is BLOCKED.
-    test.skip(true, 'BLOCKED: no MODERATOR user seeded in e2e test data');
-
     await signInViaUI(page, 'moderator@test.com', 'Test@1234');
     await page.waitForSelector('[data-sidebar]', { timeout: 10_000 });
 
@@ -53,8 +45,6 @@ test.describe('Moderation Condo Info Page', () => {
   test('Page loads and displays condo info with no raw i18n keys', async ({
     page,
   }) => {
-    test.skip(true, 'BLOCKED: no MODERATOR user seeded in e2e test data');
-
     await signInViaUI(page, 'moderator@test.com', 'Test@1234');
     await page.waitForSelector('[data-sidebar]', { timeout: 10_000 });
 

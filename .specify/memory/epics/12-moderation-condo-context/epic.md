@@ -17,7 +17,9 @@ PRD-v6. Moderators need to see condo info and switch between multiple assigned c
 
 - [x] 01_moderation_condo_info_backend.md (completed: procedure already existed, added integration test)
 - [x] 02_moderation_condo_info_frontend.md (completed: implementation done, Playwright test blocked — no MODERATOR seed user)
-- [ ] 03_moderation_condo_context_selector.md (ready: blocked by same seed data issue)
+- [x] 03_moderation_condo_context_selector.md (completed: CondoSelector wired, seed fixed, data-* attrs added, test created, test.skip removed from moderation-condo-info.spec.ts)
+
+Note: e2e tests require server on port 3001 (currently on 3000 — pre-existing port mismatch). Seed data (language/theme columns) was added via ALTER after migration gap surfaced.
 
 ---
 

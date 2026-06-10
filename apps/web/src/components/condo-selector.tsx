@@ -63,7 +63,11 @@ export function CondoSelector() {
   // Single condo: display-only, no chevron
   if (moderatorAssignments.length === 1) {
     return (
-      <div className="flex items-center gap-2 rounded-md px-3 py-2 font-medium text-foreground text-sm">
+      <div
+        data-condo-selector
+        data-condo-selector-trigger
+        className="flex items-center gap-2 rounded-md px-3 py-2 font-medium text-foreground text-sm"
+      >
         <Building2 className="h-4 w-4 text-muted-foreground" />
         <span className="truncate">{selectedName}</span>
       </div>
@@ -72,42 +76,51 @@ export function CondoSelector() {
 
   // Multi condos: dropdown selector
   return (
-    <Popover>
-      <PopoverTrigger
-        render={
-          <button
-            type="button"
-            className="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 font-medium text-foreground text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-          >
-            <div className="flex min-w-0 items-center gap-2">
-              <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <span className="truncate">{selectedName}</span>
-            </div>
-            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
-          </button>
-        }
-      />
-      <PopoverContent align="start" className="w-52 border bg-card p-1">
-        <div className="flex flex-col">
-          {moderatorAssignments.map((assignment) => {
-            const name =
-              assignment.condominium?.name ?? assignment.condominiumId;
-            const isSelected = assignment.condominiumId === selectedId;
-            return (
-              <button
-                key={assignment.condominiumId}
-                type="button"
-                onClick={() => handleSelect(assignment.condominiumId)}
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-              >
-                <Building2 className="h-4 w-4 text-muted-foreground" />
-                <span className="truncate">{name}</span>
-                {isSelected && <span className="ml-auto text-primary">✓</span>}
-              </button>
-            );
-          })}
-        </div>
-      </PopoverContent>
-    </Popover>
+    <div data-condo-selector>
+      <Popover>
+        <PopoverTrigger
+          render={
+            <button
+              type="button"
+              data-condo-selector-trigger
+              className="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 font-medium text-foreground text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="truncate">{selectedName}</span>
+              </div>
+              <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+            </button>
+          }
+        />
+        <PopoverContent
+          data-condo-selector-dropdown
+          align="start"
+          className="w-52 border bg-card p-1"
+        >
+          <div className="flex flex-col">
+            {moderatorAssignments.map((assignment) => {
+              const name =
+                assignment.condominium?.name ?? assignment.condominiumId;
+              const isSelected = assignment.condominiumId === selectedId;
+              return (
+                <button
+                  key={assignment.condominiumId}
+                  type="button"
+                  onClick={() => handleSelect(assignment.condominiumId)}
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+                >
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                  <span className="truncate">{name}</span>
+                  {isSelected && (
+                    <span className="ml-auto text-primary">✓</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }

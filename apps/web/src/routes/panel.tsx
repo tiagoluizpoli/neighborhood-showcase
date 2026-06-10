@@ -58,6 +58,7 @@ import {
 } from 'lucide-react';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
+import { CondoSelector } from '@/components/condo-selector';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeCycleToggle } from '@/components/theme-cycle-toggle';
 import { authClient } from '@/lib/auth-client';
@@ -104,6 +105,7 @@ interface SidebarGroupConfig {
   Icon: IconComponent;
   condition: boolean;
   items: SidebarItem[];
+  leadItem?: React.ReactNode;
 }
 
 // ---------------------------------------------------------------------------
@@ -137,6 +139,7 @@ const GROUP_MODERACAO: SidebarGroupConfig = {
   i18nGroupKey: 'sidebar.group.moderacao',
   Icon: ShieldAlert,
   condition: false,
+  leadItem: <CondoSelector />,
   items: [
     {
       i18nKey: 'sidebar.item.condominium_info',
@@ -226,6 +229,7 @@ function SidebarGroupSection({ group }: { group: SidebarGroupConfig }) {
           {t(group.i18nGroupKey)}
         </SidebarGroupLabel>
         <SidebarGroupContent>
+          {group.leadItem}
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuSub>
@@ -274,6 +278,7 @@ function SidebarGroupSection({ group }: { group: SidebarGroupConfig }) {
           keepMounted
           render={
             <SidebarGroupContent>
+              {group.leadItem}
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuSub>
