@@ -1,3 +1,10 @@
+<!-- DO NOT USE — DEPRECATED 2026-06-10.
+
+The active root PRD is the file `/PRD.md` at the repository root (NOT this directory).
+This file is preserved as a historical source only. Its content has been merged into the root PRD over successive versions (PRD-v3 → v6). Do NOT read this file as the source of truth.
+For the versioned historical sources, see `PRD-v1-original.md` through `PRD-v7-provider-section-reorg.md` in this same directory.
+-->
+
 # Product Requirement Document (PRD) — Neighborhood Showcase
 
 This PRD defines the core scope, user stories, implementation decisions, and test criteria for the Neighborhood Showcase platform.

@@ -62,11 +62,14 @@ Monorepo using Turborepo and Bun.
 - **No loose parameters**: Always use Parameter Objects/interfaces for use cases and repositories.
 - **Simple Styling**: Do not add custom backgrounds, radial gradients, animations, or styling overrides. Stick strictly to standard shadcn variables and layout rules.
 - **Theme Adaptation**: Keep the `ThemeProvider`. Avoid hardcoding dark or light classes. Support system-wide themes dynamically by relying entirely on Tailwind semantic utilities (`bg-background`, `text-foreground`, `border`, etc.).
+- **No centered content — full-width layout by default**: Page content fills the entire available width of its parent container. Do NOT use `mx-auto max-w-*` (e.g. `max-w-4xl`, `max-w-5xl`, `max-w-7xl`) on the top-level page wrapper. Do NOT center page content horizontally. Use `w-full` plus reasonable internal padding (`px-4`, `px-6`) so cards/grids/tables spread to the full width of the panel main area. The only acceptable exceptions are: (a) auth flows (sign-in / sign-up), (b) legal/printable document layouts, (c) modals/dialogs that have a fixed max-width by design, (d) public landing-page marketing sections that are intentionally constrained. This rule applies project-wide (panel, public portal, future pages).
 - **Zero Type / Lint Issues**: Run `bun run check` and `bun run check-types` after every implementation. All warnings and errors are blocking.
 
 ### 5. Internationalization (i18n) Strategy
 - **Translation Files**: Support both English (`en`) and Portuguese (`pt`).
 - **No Hardcoded Strings**: All user-facing text, notifications, error messages, and descriptions must go into locale translation JSON files. Hardcoding UI strings directly in component files is strictly prohibited.
+- **English in all code**: Per `RULES.md` §6, all code artifacts (file names, variable names, function names, route paths, i18n key paths) must be written in English. Only the translated *values* (the strings after the colon in translation JSON) are in the respective language. The legacy PT route paths (`/panel/dashboard/anuncios/...`) are a known deferred item — see `backlog.md` "Mixed-language route naming fix" — and are being migrated to EN as routes are touched. New routes MUST be EN.
+- **Act on PT-named items in touched scope; stack leftovers**: When an implementation task touches a file / route / variable that is named in Portuguese, the task MUST translate that item to English as part of the same change (a route rename is a search-and-replace; a variable rename is a TypeScript refactor; a file rename updates the import graph). If the task encounters OTHER PT-named items in the same touched area that are NOT in its scope, the task MUST log them as a new `deferred` row in `.specify/memory/backlog.md` (table format: `| deferred | Routing | Stacked <date> — <item> rename (PT → EN) | <description> | Future sweep epic | — |`) under the "Mixed-language route naming fix" policy row. Logged leftovers are picked up in a future sweep epic. This rule prevents PT names from spreading while keeping individual tasks focused.
 
 ### 6. Role-Based Navigation & Route Guards
 - **Link Visibility**: Show the "Moderação" link in the navigation menu only to authenticated users who have an approved assignment of type `MODERATOR`.
@@ -199,21 +202,34 @@ Use cases receive their repository dependencies through constructor injection (p
 
 Integration test files (`*.integration.test.ts`, `*.test.ts`) are allowed to import from any layer for test setup purposes (e.g., seeding the database directly). This exception applies ONLY to test files, NEVER to production code.
 
-## PRD Directory — Required Reading Before Any Implementation
+## PRD Directory — Lazy Load, Do Not Eager-Read
 
-When starting implementation or planning work, always read ALL files in `.specify/memory/prds/` before writing any code or plan. This directory contains all active and historical Product Requirement Documents — each file captures product scope, user stories, implementation decisions, and testing decisions for a specific phase or feature area.
+When starting implementation or planning work, the agent does **NOT** read all files in `.specify/memory/prds/`. The PRD directory uses a **lazy-load** model to keep the agent's context window lean.
 
-Do NOT reference individual PRD files by name. Reference the directory — `.specify/memory/prds/` — so that any new PRDs added to this directory are automatically considered on every run, regardless of how many files exist.
+### The rules
 
-The PRD files in this directory are:
-- `prd.md` — Original single-page PRD (v0.5)
-- `PRD-v1-original.md` — Core MVP scope
-- `PRD-v2-backlog-overhaul.md` — 14-item backlog overhaul (Items 1–14)
-- `PRD-v3-backend-domain-alignment.md` — Backend domain model and Clean Architecture alignment
-- `PRD-v4-whole-codebase-remediation.md` — Architecture alignment and remediation backlog
-- `PRD-v5-panel-layout.md` — Sidebar and top bar redesign (current work)
-- `prd-technical-debt-round-2.md` — Second wave of technical debt and architectural improvements
+- **The user generates new PRDs in `.specify/memory/prds/`.** The file naming convention is `PRD-vN-<slug>.md` where `N` is the next sequential version number. The agent does NOT generate PRDs.
+- **The agent maintains the index in `/PRD.md`**, not the directory. The directory is the user's authoring space; `/PRD.md` is the agent's navigation surface.
+- **For the work at hand**, the agent reads the row marked **CURRENT** in `/PRD.md`'s index, then opens the file at the path in that row. That is the only PRD the agent must read on a cold start.
+- **For history, research, or cross-PRD reference**, the agent opens a specific file on demand (e.g. "what did PRD-v3 say about X?"). It does not preload the whole directory.
+- **The agent does NOT inline PRD content into `/PRD.md` or any other file.** The versioned file is the single source of truth.
+- **When the user says "merge / add / join / include" anything PRD-related**, the agent updates the index in `/PRD.md` (adds a new row, marks it CURRENT, demotes the previous CURRENT to SUPERSEDED). It does NOT generate or edit files in `prds/`.
+
+### How an agent finds the current PRD
+
+1. Open `/PRD.md` at the repository root.
+2. Read the index table at the bottom of that file.
+3. Find the row marked **CURRENT**. The "File" column has the path to open.
+
+### Disambiguation
+
+- The active root PRD is `/PRD.md` at the repository root. It is an INDEX, not a PRD body.
+- The versioned source files live in `.specify/memory/prds/PRD-vN-<slug>.md`. They are written by the user, not the agent.
+- Two non-versioned files in `prds/` were renamed to `_DEPRECATED_*.md` on 2026-06-10 (with deprecation headers pointing to `/PRD.md`). They are historical orphans and are not a source of truth.
+- The historical inlined Modules 1–24 of `/PRD.md` predate the index rule. They are kept for backward compatibility. They are NOT the source of truth for the current work — the CURRENT row of the index is.
 
 ## Current Plan Reference
-- [Root PRD](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/prds/prd.md)
-- Issue specs live in `.specify/memory/epics/<epic>/tasks/`; Ralph Loop navigates from `.specify/memory/index.md` → epic → task. All epics except Panel Layout (blocked) are completed. Resume from Panel Layout when ready to continue.
+- The active root PRD is `/PRD.md` at the repository root. It is a **thin INDEX** of the versioned PRDs in `.specify/memory/prds/PRD-vN-<slug>.md` — it does NOT inline PRD content. The CURRENT row in the index is PRD-v7 (Provider Section Reorg, 2026-06-10). Open `.specify/memory/prds/PRD-v7-provider-section-reorg.md` for the full source of truth.
+- Historical Modules 1–24 (from PRD-v1 through PRD-v6) are inlined in `/PRD.md` for backward compatibility (they predate the index rule). They are historical context only, NOT the source of truth for the current work.
+- Issue specs live in `.specify/memory/epics/<epic>/tasks/`; Ralph Loop navigates from `.specify/memory/index.md` → epic → task.
+- The next active epic is `13-provider-section-reorg` (decomposes PRD-v7 into 10 dependency-ordered task files: schema → backend entity/repo/use cases → trpc.providerProfile router → shrunk trpc.user.update + DTOs → Configurações page → Conta e Segurança slim → Meus Anúncios list → Meus Anúncios detail page → dashboard slim view + sidebar fix → public page rendering + ADRs 0005/0006).

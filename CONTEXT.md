@@ -24,6 +24,20 @@ _Avoid_: User avatar, account profile
 `companyName`, `logoUrl`, `bannerUrl`, `publicDescription`, and public contact links belong to Provider Profile rather than User.
 _Avoid_: User avatar, auth profile fields
 
+**User vs Provider Profile ownership**:
+- **User** owns: account identity (`name`, `email`, `phone`), authentication credentials, account-level preferences (language, theme), and the LGPD `deleteAccount` flow.
+- **Provider Profile** owns: `displayName` (public-facing, may differ from `User.name`), `logoUrl`, `bannerUrl`, `publicDescription`, `socialLinks` (contact channels), and `isProviderVisible` (public availability toggle).
+- A User's `name` is the account identity used in moderation/admin contexts; a Provider Profile's `displayName` is what Visitors see in the directory and on announcements. They are intentionally separate fields and may diverge.
+- The `Conta` page (account) MUST NOT expose Provider Profile fields. The Provedor `Configurações` page MUST NOT expose User identity fields.
+_Avoid_: Mixing User and Provider Profile fields on a single page, reading Provider data from the `user` table.
+
+**Provider Profile (current scope — Option A)**:
+A Provider Profile in the current scope is always backed by an individual (one User, one CPF). Optional `companyName` and `tradeName` (nome fantasia) are free-text branding fields with no legal weight — they do not introduce a separate legal-entity identity, no CNPJ, no document storage, no admin verification.
+_Avoid_: Storing CNPJ on the profile today, treating `companyName` as legal data, adding a `providerType` enum in this scope.
+
+**Provider Profile (future — Option B, deferred)**:
+The future "Company Provider" scope will introduce a `COMPANY` profile type with CNPJ + razão social + nome fantasia + document upload, separate onboarding step, CNPJ validation, and admin verification. This is a separate epic and is NOT in the current Provider Profile scope.
+
 **Assignment**:
 A verified link, status, or location record connecting a Provider to a specific Condominium (requiring approval from that Condominium's Moderator) or to a physical Address (for independent/external listings).
 _Avoid_: Role, profile, status
@@ -58,6 +72,10 @@ _Avoid_: Provider active flag, provider visibility flag
 - **Administração**: visible iff `user.role ∈ {SYSTEM_MANAGER, ADMINISTRATOR}`
 - **Reports**: visible iff `user.role === ADMINISTRATOR`
 _Avoid_: Role-based sidebar (Provedor is capability-based, not role-based)
+
+**Provedor group visibility for new users (Option A — strict)**:
+A User with zero Provider Assignments sees no Provedor sidebar group at all. The onboarding entry point is the public "Anunciar" CTA in the portal footer, NOT the panel sidebar. If a User's only assignment has `enabled = false` (they opted out), they also see no Provedor group. The rule is exactly: at least one Provider Assignment with `enabled = true`.
+_Avoid_: Showing the Provedor group to a User with no provider capability, falling back to a "set up your provider profile" empty state inside the panel for new users.
 
 **Condominium**:
 A physical or logical community context that groups Providers and their Assignments, defining the primary boundary for announcements.

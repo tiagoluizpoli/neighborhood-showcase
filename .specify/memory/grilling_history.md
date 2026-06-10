@@ -808,3 +808,103 @@ This log tracks all questions, answers, and decisions resolved during the planni
   1. **Profile URL Slug**: Option A — raw ID (`/prestadores/:id`). Simple, no collision handling needed.
   2. **Social/Contact Channels**: Support the following optional fields on the provider profile: WhatsApp, Phone, Email, Instagram, TikTok, Facebook, Website.
   3. **Empty Profile Handling**: Option A — show the profile with an empty state message (e.g., "Este prestador não possui anúncios ativos no momento"). The profile still has value for contact info and social links.
+
+#### Session 2026-06-10 — Provider section split (Account page → Configurações) + Dashboard slimming
+* **Decided**:
+  1. **User vs Provider Profile ownership**: **Option A — strict split.** `Conta` page owns User identity only (`name`, `email`, `phone`, language, theme, password, delete). Provedor `Configurações` page owns the Provider Profile (`displayName`, `avatarUrl`/`logoUrl`/`bannerUrl`, `companyName`/`tradeName`, `publicDescription`, `socialLinks`, `isProviderVisible`). The current `user.update` mutation mixing these is incorrect and will be replaced.
+  2. **Provider Profile scope (this pass — Option A)**: All Providers are individuals (one User, one CPF). `companyName` and `tradeName` are free-text branding only. No CNPJ, no document upload, no `providerType` enum, no legal-entity semantics.
+  3. **Future "Company Provider" (Option B, deferred)**: Will introduce a `providerType: COMPANY` path with CNPJ + razão social + nome fantasia + document upload, separate onboarding, CNPJ validation, admin verification. Logged in `backlog.md` and `CONTEXT.md` ("Provider Profile (future — Option B, deferred)").
+  4. **Configurações page field set (current)**: `displayName`, `companyName`, `tradeName`, `avatarUrl`, `logoUrl`, `bannerUrl`, `publicDescription`, 7 social-link fields, `isProviderVisible` toggle. Image fields are URL inputs only in this pass (no upload widget yet — needs separate UX slice).
+
+#### Session 2026-06-10 — Q9: Provedor sidebar group visibility
+* **Decided**: **Option A — strict.** Hide the Provedor sidebar group unless the User has at least one Provider Assignment with `enabled = true`. The onboarding entry point is the public "Anunciar" CTA, not the panel sidebar. A new user with zero assignments sees no Provedor items. Captured in `CONTEXT.md` ("Provedor group visibility for new users (Option A — strict)"). The current `panel.tsx` code (`GROUP_PROVEDOR.condition: true`) is a code-vs-glossary mismatch that this session surfaced as a follow-up bug.
+
+#### Session 2026-06-10 — Q10: Fix Provedor sidebar code-vs-glossary mismatch
+* **Decided**: **Option A — fix in this epic.** Change `GROUP_PROVEDOR.condition` in `panel.tsx` from `true` to `hasProviderAssignmentWithEnabledTrue(session, assignments)`. This is a code-vs-glossary bug (CONTEXT.md always said the rule; the code never enforced it). Also: implicit follow-up — add route guards on the new `/panel/dashboard/configuration` and `/panel/dashboard/announcements` routes so direct-URL access by a non-Provider redirects to `/panel/conta` (mirrors the existing pattern for `/panel/admin` and `/panel/moderation`). The other groups' conditions (Moderação, Administração, Reports) already match the glossary — no change needed there.
+
+#### Session 2026-06-10 — Q12: Image upload widget scope (User avatar + Provider fields)
+* **Decided**: **Option C — build the upload widget in this epic for both User and Provider.** The User avatar uses ONLY the upload widget. Each Provider Profile image field (`avatarUrl`, `logoUrl`, `bannerUrl`) accepts BOTH a URL input AND the same upload widget — a Provider can paste a hosted URL or upload from disk. Reuses the existing `/api/upload` endpoint. Larger scope than the previous "URL-only for Provider" assumption, but consistent UX across the app.
+
+#### Session 2026-06-10 — Q13: Image upload widget design
+* **Decided**:
+  1. **13a**: Generalize the existing `ProviderDashboardEditImageField` into a shared `ImageUploadField` component, parameterized by `aspectRatio`, `label`, `helpText`. Reused by the announcement edit modal AND the new Conta/Configurações fields. No duplication.
+  2. **13b**: Aspect ratios: User avatar **1:1**, Provider avatarUrl **1:1**, Provider logoUrl **1:1**, Provider bannerUrl **16:9**.
+  3. **13c**: Provider image fields use a single field that accepts EITHER a URL paste OR a "ou faça upload" button that opens the file picker + cropper. After upload, the resulting URL replaces the field value. URL paste = no crop (we don't have the file to crop). Upload = crop and store. No "URL → crop" flow.
+  4. **User avatar is widget-only** (no URL alternative). User identity is "your picture on this platform", stored on our CDN. Provider image fields are branded content where hosted URLs are legitimate.
+
+#### Session 2026-06-10 — Q14: Public Description field
+* **Decided**:
+  1. **14a**: Plain text only (no markdown, no formatting). Rendered with `whitespace-pre-wrap` on the public profile.
+  2. **14b**: **500 char cap** at the application layer. Database column is `text` (unbounded in Postgres), but the Zod schema for the mutation enforces `max 500`.
+  3. **14c** (revised): **Full branding set rendered on public profile page in this epic.** The public page gets: `bannerUrl` as hero image (16:9, full width), then a card with `logoUrl` (left) + `displayName` (large) + `companyName`/`tradeName` (subhead) + verified badge, then social links, then a "Sobre" section with `publicDescription`, then the active announcements list. The backend DTO `PublicProviderProfileResult` is extended with all 4 new fields. The `name` field on the public DTO is replaced with `displayName` (the profile's display name, not the User's name), per `CONTEXT.md` glossary.
+
+#### Session 2026-06-10 — Q15: Public page banner fallback + visual rule
+* **Decided**:
+  1. **15a**: When `bannerUrl` is null, **no banner block is rendered at all** on the public provider page. The page goes straight to the identity card. No placeholder, no gradient, no broken image.
+  2. **15b**: The public provider page applies the full-width rule (`w-full space-y-8 px-6 py-8` instead of `mx-auto max-w-6xl`). The public homepage (`_portal.index.tsx`) is a documented exception and stays centered.
+
+#### Session 2026-06-10 — Q16: Configurações page save behavior
+* **Decided**: **B — per-section save.** The 3 sections (Public Profile, Contact Channels, Public Visibility) are independent forms, each with its own save button, its own pending state, its own toast, its own mutation. The 4th section (Public Visibility) is a single toggle, so its "save" pattern is auto-save-on-toggle (a future detail to confirm).
+
+#### Session 2026-06-10 — Q17: Provider Profile authorization model
+* **Decided**:
+  1. **17a**: `trpc.providerProfile.get` takes no input. The procedure infers `userId` from `ctx.session.user.id`. A User can only read their own profile via this endpoint.
+  2. **17b**: `trpc.providerProfile.update` is an upsert (matches the existing `onConflictDoUpdate` pattern). The Configurações page is the "create or edit" entry point. No separate creation flow.
+  3. **17c**: The public DTO `PublicProviderProfileResult` is extended with `companyName?`, `tradeName?`, `logoUrl?`, `bannerUrl?`, `publicDescription?`. The `name` field is replaced with `displayName` (the profile's display name, not the User's name) per `CONTEXT.md` glossary. The public endpoint keeps its existing `isProviderVisible` / `BANNED` / soft-delete filters.
+
+#### Session 2026-06-10 — Q18: Meus Anúncios edit/analytics surface
+* **Decided**: **C — Provider-facing detail page** at `/panel/dashboard/announcements/:id` (or `/panel/dashboard/anuncios/:id` to match the existing PT route naming pattern used by `/pagamento`). The detail page contains: full announcement view (image, title, subtitle, description, price, category, tags, contact links, status, dates, payment/expiry info) + inline edit mode (toggle "Editar" → fields become editable → "Salvar"/"Cancelar") + inline analytics section (impressions/clicks/conversion KPIs + small chart + period selector). List cards become real links. Pay/renew still navigate to the existing payment route. New route needs the same Provedor-group guard as Meus Anúncios (Q10). 404 / "not your announcement" cases redirect to Meus Anúncios with a toast.
+
+#### Session 2026-06-10 — Q19: Anúncios combined card sub-stat ordering
+* **Decided**: **A — Ativos → Rascunhos → Expirados → Suspensos** (lifecycle order, most-actionable first). Ativos is the primary metric, Suspensos is rare + high-friction so it sits at the bottom. Unblocks Q5 and Q6 for PRD scope.
+
+#### Session 2026-06-10 — Mid-session correction: PRD scope rule
+* **Decided**: The PRD must contain ONLY decisions that are *fully locked AND have zero dependency on any open question*. The 8 open UX questions have defaults, but those defaults are recommendations, not locks. Decisions that depend on them stay in the grilling queue. **Grilling continues on the remaining 4 dependent decisions (Q11-cosmetic x3, Q14-Sobre, Q18-route) before the PRD is written.** The session summary file (`sessions/2026-06-10-provider-section-reorg-grilling.md`) is updated inline as each lock lands, so the what and the why survive any session boundary.
+
+#### Session 2026-06-10 — Q20: Email verification badge on Conta e Segurança
+* **Decided**: **A — plain text indicator.** Next to the email field, show "Verificado" (small green checkmark icon) or "Pendente" (small amber dot icon). No button, no action — purely informational. When the future email verification epic lands, the indicator becomes interactive. Unblocks Q11 for PRD scope.
+
+#### Session 2026-06-10 — Q21: Theme/language persistence error handling
+* **Decided**: **A — silent best-effort, never block the toggle, AND on next page load the local preference wins if it disagrees with the backend.** The local UI is the source of truth for "what the user sees right now"; the backend is "what we'll restore on the next device". They can disagree; that's OK. The user is not punished for a flaky network. Unblocks Q11 for PRD scope.
+
+#### Session 2026-06-10 — Q22: Sidebar footer avatar
+* **Decided**: **A — show `user.image` if set, fall back to initials.** One-line change to `panel.tsx` footer. Standard shadcn `<AvatarImage>` automatically falls back to `<AvatarFallback>` when `src` is null or the image fails to load — no extra `onError` handler needed. The User's `image` (account identity) and the Provider Profile's `avatarUrl` (public Provider avatar) are intentionally separate fields per the strict User/Provider Profile split (Q1) and do NOT auto-mirror. Unblocks Q11 for PRD scope.
+
+#### Session 2026-06-10 — Persistence contract for the session summary
+* **Decided**: The session summary file at `.specify/memory/sessions/2026-06-10-provider-section-reorg-grilling.md` is the source of truth for the entire Provider Section Reorg grilling session. It must be a full snapshot of the agent's reasoning — every decision, every default considered, every alternative rejected, every dependency chain, every "what" + "why". The agent updates it inline (after every answer) AND in the project rules files (`CONTEXT.md`, `agents.local.md`, `backlog.md`, `grilling_history.md`) for cross-referencing. If a future session starts and the agent's in-context memory has degraded, the file must still have everything. The agent should NOT trust its in-context memory over the file.
+
+#### Session 2026-06-10 — Q23: Public page "Sobre" section placement
+* **Decided**: **A — below the social links, above the active announcements.** Identity → social links → pitch (Sobre) → inventory (announcements) is a natural narrative for a marketing-style profile page. Unblocks Q14 for PRD scope.
+
+#### Session 2026-06-10 — Q24: Route file naming for the new detail page
+* **Decided**: **A — English `/panel/dashboard/announcements/:id`.** The user re-asserted the "English in all code" rule (already in `RULES.md` §6: "all code artifacts (file names, variable names, function names, route paths, i18n key paths) must be English. No exceptions."). New routes MUST be EN. The existing PT `anuncios/$id/pagamento` is a known deferred item (logged in `backlog.md` "Mixed-language route naming fix"); it gets migrated when touched. The cross-reference to RULES.md §6 was added to `agents.local.md` §5 in this turn. Unblocks Q18 for PRD scope.
+
+#### Session 2026-06-10 — Q25: Public Visibility toggle save behavior
+* **Decided**: **B — auto-save on toggle change (with 300ms debounce).** The Public Visibility section is a single field (`isProviderVisible` checkbox); explicit save is heavy. Toggles are universally auto-save in settings UIs. The other two Configurações sections (Public Profile, Contact Channels) keep their explicit per-section save buttons. Debounce handles accidental toggle-and-back. Refines Q16 (the Q16 default was per-section save for all 3 sections; Q25 special-cases the Public Visibility section to auto-save).
+
+#### Session 2026-06-10 — Operational rule: act on PT names, stack leftovers
+* **Decided**: When an implementation task touches a file / route / variable named in Portuguese, the task MUST translate that item to English as part of the same change. If the task encounters OTHER PT-named items in the same touched area that are NOT in its scope, the task MUST log them in a "Stacked leftovers" sub-section in `agents.local.md` §5. Logged leftovers are picked up in a future sweep epic (the existing "Mixed-language route naming fix" backlog item, which was updated to be the "stacking point" for this rule). This prevents PT names from spreading while keeping individual tasks focused. The "Stacked leftovers" section was seeded with 3 items found during this session: `panel.conta` (file + URL), `panel.dashboard.anuncios.*` (file family + URLs), and i18n key prefix `dashboard.anuncios.*`.
+
+#### Session 2026-06-10 — End of grilling pass
+* **Status**: All 25 decisions locked (Q1–Q18 from the initial pass; Q19–Q25 from the "finish grilling" pass that resolved the 8 open UX questions). The PRD-scope rule (locked + zero open-question dependencies) is satisfied for every decision. The session is closed; the PRD can be written.
+* **Grilling summary by decision**:
+  - Q19 (A): Anúncios sub-stat order = Ativos → Rascunhos → Expirados → Suspensos. Unblocked Q5, Q6.
+  - Q20 (A): Email verification = plain text indicator (Verificado / Pendente) next to email field. Unblocked Q11.
+  - Q21 (A): Theme/language persistence error = silent best-effort, local UI wins. Unblocked Q11.
+  - Q22 (A): Sidebar footer avatar = show `user.image` if set, fallback to initials. Unblocked Q11.
+  - Q23 (A): Public page "Sobre" section = below social links, above announcements. Unblocked Q14.
+  - Q24 (A): Route file naming = English `/panel/dashboard/announcements/:id`. Re-asserted the "English in all code" rule from RULES.md §6. Unblocked Q18.
+  - Q25 (B): Public Visibility toggle = auto-save on change with 300ms debounce. Refined Q16 (per-section save still applies to Public Profile + Contact Channels; Public Visibility is the special case).
+
+#### Session 2026-06-10 — Correction: stack-leftovers location is the backlog, not agents.local.md
+* **Decided**: The "stacking point" for PT-named items is `.specify/memory/backlog.md`, NOT `agents.local.md`. `agents.local.md` §5 holds the **operational policy** (the rule the agent follows). The actual list of stacked items lives in `backlog.md` as separate `deferred` rows. The 3 initial items (panel.conta, panel.dashboard.anuncios.*, dashboard.anuncios.* i18n keys) were moved from `agents.local.md` §5 to `backlog.md` as 3 new `Stacked 2026-06-10` rows under the "Mixed-language route naming fix" policy row.
+
+#### Session 2026-06-10 — Post-grilling: PRD-v7 merged into root PRD index, epic 13 created
+* **Trigger**: User invoked the `to-epic-issues` skill with the intent to merge PRD-v7 (`.specify/memory/prds/PRD-v7-provider-section-reorg.md`) into the root PRD and create the epic + task files. All 25 grilling decisions were already locked; the merge was the next deliverable.
+* **Merged**: PRD-v7 was added to the **INDEX** at `/PRD.md` (the active root PRD at the repository root). A new row was added to the index table and PRD-v7 was marked **CURRENT**; PRD-v6 was demoted to **SUPERSEDED**. The versioned source `PRD-v7-provider-section-reorg.md` is the single source of truth — `/PRD.md` does NOT inline PRD-v7's content.
+* **First attempt was wrong**: the initial merge inlined PRD-v7 as **Module 25** of `/PRD.md` (per the old `prd-merging.md` pattern). The user course-corrected: in this project, "merge" means **thin INDEX**, not inline. Module 25 was reverted, and the index structure was appended at the end of `/PRD.md` (which now ends at the historical inlined Module 24, followed by the index and a "Root PRD Contract" section that codifies the rule for future agents). A second rule was also added to `/PRD.md` itself so any future agent reading the file understands the contract immediately.
+* **Deprecated**: Two non-versioned files in `.specify/memory/prds/` (`prd.md`, `prd-technical-debt-round-2.md`) were renamed to `_DEPRECATED_*.md` with deprecation headers pointing to the active root PRD at `/PRD.md`. Root cause of the deprecation: on the first merge attempt the agent conflated the lowercase `prds/prd.md` with the repo-root `PRD.md` (the active root). The user caught the mistake and asked for the confusable files to be deprecated so the misread never recurs.
+* **Created**: Epic `13-provider-section-reorg` at `.specify/memory/epics/13-provider-section-reorg/`. 10 dependency-ordered task files in the grilling-recommended order: schema → backend entity/repo/use cases → trpc.providerProfile router → shrink trpc.user.update + DTOs → Configurações page → Conta e Segurança slim → Meus Anúncios list → Meus Anúncios detail page → dashboard slim view + sidebar fix → public page rendering + ADRs 0005/0006.
+* **Testing policy baked in**: every task file's Acceptance Criteria explicitly forbids `test.skip()`, mandates real test database for backend tests, real tRPC client for frontend tests, and Playwright for every UI change. Tests must catch visual regressions, not just runtime correctness.
+* **Cross-references**: epic + 10 task rows added to `.specify/memory/index.md`. `agents.local.md` "Current Plan Reference" section rewritten to describe the index structure (thin INDEX in `/PRD.md` pointing to the versioned PRDs, with PRD-v7 as CURRENT); PRD directory list corrected. `backlog.md`: 2 active items had their linked PRD reference updated to PRD-v7 (the current PRD); 1 item moved from `deferred` → `active` (Backend language preference persistence — now in scope for epic 13 task `06_conta_e_seguranca`).
+* **The merge contract (now permanent, codified in `/PRD.md` itself and in memory)**: when the user says "merge" / "add" / "join" on this project, the agent maintains the **INDEX** in `/PRD.md` (adds a new row, marks it CURRENT, demotes the previous CURRENT to SUPERSEDED). The agent NEVER inlines PRD content. The versioned file at `.specify/memory/prds/PRD-vN-*.md` is the single source of truth. The user generates new PRDs in `prds/`; the agent maintains the index and the epic decomposition.

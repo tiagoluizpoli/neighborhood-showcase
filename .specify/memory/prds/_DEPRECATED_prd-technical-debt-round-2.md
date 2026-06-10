@@ -1,3 +1,10 @@
+<!-- DO NOT USE — DEPRECATED 2026-06-10.
+
+The active root PRD is the file `/PRD.md` at the repository root (NOT this directory).
+This file is preserved as a historical source only. Its content has been merged into the root PRD over successive versions (v3 → v6). Do NOT read this file as the source of truth.
+For the versioned historical sources, see `PRD-v1-original.md` through `PRD-v7-provider-section-reorg.md` in this same directory.
+-->
+
 # PRD: Technical Debt & Architectural Improvements — Round 2
 
 This PRD covers the second wave of architectural refinements, bug fixes, and infrastructure hardening for the Neighborhood Showcase platform. All decisions were resolved through a 26-question grilling session documented in [Grilling History (Session 4: Improvements & Fixes)](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/grilling_history.md#session-4-improvements--fixes).

@@ -1,3 +1,39 @@
+# ROOT PRD — INDEX ONLY (READ THIS FIRST)
+
+> **STOP. This file is a thin INDEX, not a PRD.** Before doing ANYTHING (reading, planning, writing code, generating tasks, generating epics), an agent MUST read and internalize the rules below. The historical inlined Modules 1–24 are the LAST thing to read, NOT the first.
+
+## Merge Contract — Invariant Rules
+
+This file (`/PRD.md` at the repository root) is a **thin INDEX** of the versioned Product Requirement Documents in `.specify/memory/prds/PRD-vN-<slug>.md`. It does NOT inline PRD content.
+
+When the user says any of: **"merge"**, **"add"**, **"join"**, **"include"**, **"bring the latest into the root"**, or anything equivalent about a new PRD into the root PRD, the agent MUST interpret that as:
+
+1. **The user always generates new PRDs in `.specify/memory/prds/`.** The file naming convention is `PRD-vN-<slug>.md` where `N` is the next sequential version number. The agent does NOT generate PRDs. If a new PRD does not exist in that directory, the user has not generated it yet — the agent must STOP and ask, not create one.
+2. **Update the index table at the bottom of this file.** Add a new row for the new PRD, mark it as **CURRENT**, and demote the previously-current PRD to **SUPERSEDED**. Never replace an existing row.
+3. **Do NOT inline the PRD content here.** The versioned file in `prds/` is the single source of truth. The agent maintains this index and the epic/task decomposition. The agent does NOT inline PRD bodies into `/PRD.md`.
+4. **Never replace existing rows.** Each versioned PRD stays in the table permanently, with a status that progresses from `CURRENT` → `SUPERSEDED` → `HISTORICAL` as newer PRDs are added.
+
+## Context Loading — Lazy, NOT Eager
+
+The PRD index is a **lazy-load** mechanism. The agent's context window is limited. To prevent bloat:
+
+- **Only the row marked CURRENT in the index table at the bottom of this file is auto-loaded into the agent's working context.** That single row + the file path it points to is the source of truth for the work at hand.
+- **SUPERSEDED and HISTORICAL rows are NOT auto-loaded.** They are metadata only.
+- **If the agent needs a SUPERSEDED or HISTORICAL PRD for research, cross-referencing, or history** (e.g. "what did PRD-v3 say about the backend domain model?"), the agent reads THAT file on demand. It does NOT preload all versioned PRDs.
+- **The epic decomposition (`/specify/memory/index.md` → epic → task) and the current PRD's file are the only things the agent needs to start work.**
+
+## How To Start Work (TL;DR for the agent)
+
+1. Open the index table at the bottom of this file.
+2. Find the row marked **CURRENT**. Read the file path in that row.
+3. Open that file. That is the PRD at hand. It contains the full requirements, decisions, DTOs, user stories, and testing policy.
+4. For navigation into the work: read `/specify/memory/index.md`. It points to the active epic and the current task.
+5. For history or research, follow a SUPERSEDED / HISTORICAL path on demand — never preload.
+
+Do NOT read the inlined Modules 1–24 below the index as the source of truth. They are historical context only, inlined before this index rule was adopted.
+
+---
+
 # Product Requirement Document (PRD) — Neighborhood Showcase v4: Backlog Overhaul + Whole-Codebase Remediation
 
 This PRD defines the scope, user stories, implementation decisions, and test criteria for the 14-item backlog overhaul of the Neighborhood Showcase platform. All decisions were resolved during a grilling session (Questions 15–34) documented in [`backlog_grilling.md`](file:///home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.specify/memory/backlog_grilling.md).
@@ -784,3 +820,70 @@ All code — file names, variable names, function names, route paths, and i18n k
 - **Deferred Backlog**: Deliberately postponed items remain tracked in `.specify/memory/deferred_backlog.md`.
 - **Whole-Codebase Remediation Queue**: All items 65–73 are completed and tracked under `.specify/memory/epics/09-remediation/tasks/`.
 - **Architecture Source Of Truth**: The backend seam is documented in `docs/adr/0004-layered-clean-architecture-supersedes-feature-sliced-backend.md`, which supersedes the older feature-sliced ADR.
+
+
+---
+
+## Root PRD Contract — This File Is An Index, Not An Inline Compilation
+
+> **The agent MUST read this rule before doing anything with this file.**
+
+This file (`/PRD.md` at the repository root) is a **thin INDEX** of the versioned Product Requirement Documents in `.specify/memory/prds/PRD-vN-<slug>.md`. It does NOT inline PRD content. The full contract is restated at the top of this file (see the "ROOT PRD — INDEX ONLY" banner); this section is a quick-reference repeat for the agent that has scrolled past the top.
+
+### The Merge Contract
+
+When the user says "merge", "add", "join", "include", or anything equivalent about a new PRD into the root PRD, the agent MUST interpret that as:
+
+1. **The user generates new PRDs in `.specify/memory/prds/`.** The file naming convention is `PRD-vN-<slug>.md` where `N` is the next sequential version number. The agent does NOT generate PRDs.
+2. **Read the latest versioned PRD** in `.specify/memory/prds/` (the user's file).
+3. **Update this index** — add a new row in the table below for that PRD, mark it as **CURRENT**, and demote the previously-current PRD to **SUPERSEDED**.
+4. **Do NOT inline the PRD content here.** The versioned file is the single source of truth. Execution (Ralph Loop, an agent reading for context) follows the path in the index to read the full PRD.
+5. **Never replace existing rows.** Each versioned PRD stays in the table permanently, with a status that progresses from `CURRENT` to `SUPERSEDED` to `HISTORICAL` as newer PRDs are added.
+
+### Context Loading — Lazy, NOT Eager
+
+- **Only the row marked CURRENT is auto-loaded into the agent's working context.** The CURRENT row + the file path it points to is the source of truth for the work at hand.
+- **SUPERSEDED and HISTORICAL rows are NOT auto-loaded.** They are metadata only. The agent reads them on demand (for research, history, cross-PRD reference) — never preloads all versioned PRDs.
+- The goal: keep the agent's context window lean. The CURRENT PRD is enough to start work; everything else is a follow-up read.
+
+### Index of Versioned PRDs
+
+| Version | File | Scope | Status | Canonical Record |
+| --- | --- | --- | --- | --- |
+| PRD-v1 | `.specify/memory/prds/PRD-v1-original.md` | Core MVP scope. | HISTORICAL | **Inlined as Module 1** in `/PRD.md` (see §Historical Note — Inlined Modules 1–24 below). The versioned file is a summary; the inlined module is the full canonical record. |
+| PRD-v2 | `.specify/memory/prds/PRD-v2-backlog-overhaul.md` | 14-item backlog overhaul (Items 1–14). | HISTORICAL | **Inlined as Module 2** in `/PRD.md` (see §Historical Note — Inlined Modules 1–24 below). The versioned file is a summary; the inlined module is the full canonical record. |
+| PRD-v3 | `.specify/memory/prds/PRD-v3-backend-domain-alignment.md` | Backend domain model and Clean Architecture alignment. | HISTORICAL | **Inlined as Module 3** in `/PRD.md` (see §Historical Note — Inlined Modules 1–24 below). The versioned file is a summary; the inlined module is the full canonical record. |
+| PRD-v4 | `.specify/memory/prds/PRD-v4-whole-codebase-remediation.md` | Architecture alignment and remediation backlog. | HISTORICAL | **Inlined as Module 4** in `/PRD.md` (see §Historical Note — Inlined Modules 1–24 below). The versioned file is a summary; the inlined module is the full canonical record. |
+| PRD-v5 | `.specify/memory/prds/PRD-v5-panel-layout.md` | Sidebar and top bar redesign. | SUPERSEDED (by PRD-v6) | **Inlined as Module 23** in `/PRD.md` (see §Historical Note — Inlined Modules 1–24 below). The versioned file is a summary; the inlined module is the full canonical record. |
+| PRD-v6 | `.specify/memory/prds/PRD-v6-panel-i18n-and-navigation-remediation.md` | Panel i18n, navigation hierarchy, moderation condo context. | SUPERSEDED (by PRD-v7) | **Inlined as Module 24** in `/PRD.md` (see §Historical Note — Inlined Modules 1–24 below). The versioned file is a summary; the inlined module is the full canonical record. |
+| **PRD-v7** | **`.specify/memory/prds/PRD-v7-provider-section-reorg.md`** | **Provider section reorg: User/Provider Profile strict split, slim dashboard, Meus Anúncios list + detail page, Configurações page, Conta e Segurança, public page full branding, Provedor sidebar fix, ADR 0005 + 0006. 25 locked decisions from the 2026-06-10 grilling session.** | **CURRENT** | `.specify/memory/prds/PRD-v7-provider-section-reorg.md` (the versioned file IS the full canonical record; no inlining) |
+
+**Current PRD at hand: PRD-v7.** For the full requirements, decisions, DTOs, user stories, and testing policy of the current work, read `.specify/memory/prds/PRD-v7-provider-section-reorg.md`.
+
+The epic decomposition of the current PRD lives at `.specify/memory/epics/13-provider-section-reorg/` (10 dependency-ordered task files).
+
+### Historical Note — Inlined Modules 1–24 (Preserved Canonical Records)
+
+Modules 1–24 are **preserved canonical records** — they are NOT stale or deprecated content. They are the full, locked decision record for PRD-v1 through PRD-v6. The inlined content is the authoritative source for those versions; the versioned files in `prds/PRD-v1-*.md` through `PRD-v6-*.md` are summaries only.
+
+**Why are they inlined here?** Because they were merged into this file before the "index only" rule was adopted. They remain here permanently and will not be moved or deleted.
+
+**Can I rely on them?** Yes. Decisions in Modules 1–24 are locked and preserved. They are the canonical record for everything from the MVP through the panel i18n/navigation remediation (PRD-v6). If you need to look up a decision from that era, it is in the inlined content below this section.
+
+**What if I need to cross-reference?** Follow the "Canonical Record" column in the index table above. For v1–v6, the inlined module in `/PRD.md` is the canonical record. For v7+, the versioned file in `prds/` is the canonical record.
+
+Two non-versioned files in `prds/` (`prd.md` and `prd-technical-debt-round-2.md`) were renamed to `_DEPRECATED_prd.md` and `_DEPRECATED_prd-technical-debt-round-2.md` on 2026-06-10 with deprecation headers. They are historical orphans and are NOT a source of truth for any current work.
+
+### What An Agent Reading This File Should Do
+
+1. **Read the table above.** Find the row marked **CURRENT**. That is the PRD at hand. (The table is the ONLY thing the agent needs to read on a cold start. The versioned file is loaded next, on demand.)
+2. **Open the file at the path in that row.** That is the full source of truth for the current work.
+3. **For context on past decisions**, open a SUPERSEDED or HISTORICAL PRD on demand — never preload all of them. Keep the context window lean.
+4. **For implementation guidance**, read `.specify/memory/index.md` (Ralph Loop navigation entry point) and the epic decomposition at `.specify/memory/epics/<current-epic>/`.
+5. **If the user says "merge / add / join / include" anything PRD-related**: do NOT inline. Read the user's new PRD in `prds/`, add a row to the index above, mark it CURRENT, demote the previous CURRENT to SUPERSEDED. Never replace existing rows.
+
+Do NOT read the inlined Modules 1–24 as the source of truth for the **current** work (PRD-v7). The current work's source is the file in the **CURRENT** row of the index table above. However, Modules 1–24 ARE the canonical record for PRD-v1 through PRD-v6 — see the "Canonical Record" column in the index table and the "Historical Note" section above for how to access them.
+
+---
+
+<!-- END OF ROOT PRD INDEX. The next PRD added by the user becomes the new CURRENT row in the table above. Do not inline new PRDs into this file. -->

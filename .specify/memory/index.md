@@ -3,6 +3,10 @@
 > **READ THIS FIRST.** Ralph Loop must read this file before any work.
 > After completing or modifying any task or epic, update this file in the same turn.
 
+## Grilling Sessions
+
+- 📝 **Provider Section Reorg (2026-06-10)** — `sessions/2026-06-10-provider-section-reorg-grilling.md`. 25 decisions locked (User/Provider Profile strict split, full-width visual rule, slim dashboard, Meus Anúncios list + detail page, Configurações page, Conta e Segurança, public page full branding, Provedor sidebar fix, etc.). PRD-v7 added to the `/PRD.md` index as CURRENT; epic 13 created with 10 dependency-ordered task files.
+
 ## Epics
 
 - ✅ **Auth and Registration** — `01-auth-and-registration/epic.md`
@@ -17,6 +21,7 @@
 - ✅ **Playwright Setup** — `10-playwright-setup/epic.md` (completed: all 1 task done)
 - 🔄 **i18n Namespace Fix and Navigation Hierarchy** — `11-i18n-and-navigation-fixes/epic.md` (blocked-by: 10-playwright-setup)
 - 🔄 **Moderation Condominium Info and Context Selector** — `12-moderation-condo-context/epic.md` (blocked-by: 10-playwright-setup)
+- 🔄 **Provider Section Reorg** — `13-provider-section-reorg/epic.md` (ready: 10 task files, dependency-ordered, source PRD-v7 is the CURRENT row in the `/PRD.md` index)
 
 ## All Tasks
 
@@ -98,3 +103,13 @@
 | 12-moderation-condo-context | [01_moderation_condo_info_backend](epics/12-moderation-condo-context/tasks/01_moderation_condo_info_backend.md) | ✅ completed | 10-playwright-setup |
 | 12-moderation-condo-context | [02_moderation_condo_info_frontend](epics/12-moderation-condo-context/tasks/02_moderation_condo_info_frontend.md) | ✅ completed | 01_moderation_condo_info_backend |
 | 12-moderation-condo-context | [03_moderation_condo_context_selector](epics/12-moderation-condo-context/tasks/03_moderation_condo_context_selector.md) | 🔄 ready | 01_moderation_condo_info_backend |
+| 13-provider-section-reorg | [01_schema_migrations](epics/13-provider-section-reorg/tasks/01_schema_migrations.md) | 🔄 ready | — |
+| 13-provider-section-reorg | [02_provider_profile_backend](epics/13-provider-section-reorg/tasks/02_provider_profile_backend.md) | 🔄 ready | 01_schema_migrations |
+| 13-provider-section-reorg | [03_provider_profile_router](epics/13-provider-section-reorg/tasks/03_provider_profile_router.md) | 🔄 ready | 02_provider_profile_backend |
+| 13-provider-section-reorg | [04_shrink_user_update_and_dtos](epics/13-provider-section-reorg/tasks/04_shrink_user_update_and_dtos.md) | 🔄 ready | 03_provider_profile_router |
+| 13-provider-section-reorg | [05_configuracoes_page](epics/13-provider-section-reorg/tasks/05_configuracoes_page.md) | 🔄 ready | 04_shrink_user_update_and_dtos |
+| 13-provider-section-reorg | [06_conta_e_seguranca](epics/13-provider-section-reorg/tasks/06_conta_e_seguranca.md) | 🔄 ready | 05_configuracoes_page |
+| 13-provider-section-reorg | [07_meus_anuncios_list](epics/13-provider-section-reorg/tasks/07_meus_anuncios_list.md) | 🔄 ready | 06_conta_e_seguranca |
+| 13-provider-section-reorg | [08_meus_anuncios_detail](epics/13-provider-section-reorg/tasks/08_meus_anuncios_detail.md) | 🔄 ready | 07_meus_anuncios_list |
+| 13-provider-section-reorg | [09_dashboard_slim_and_sidebar](epics/13-provider-section-reorg/tasks/09_dashboard_slim_and_sidebar.md) | 🔄 ready | 08_meus_anuncios_detail |
+| 13-provider-section-reorg | [10_public_page_and_adrs](epics/13-provider-section-reorg/tasks/10_public_page_and_adrs.md) | 🔄 ready | 09_dashboard_slim_and_sidebar |
