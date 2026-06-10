@@ -2,6 +2,7 @@ import { adminRouter } from '../presentation/routers/admin';
 import { announcementRouter } from '../presentation/routers/announcement';
 import { assignmentRouter } from '../presentation/routers/assignment';
 import { condominiumRouter } from '../presentation/routers/condominium';
+import { providerProfileRouter } from '../presentation/routers/provider-profile';
 import { spectrumRouter } from '../presentation/routers/spectrum';
 import { userRouter } from '../presentation/routers/user';
 import {
@@ -24,6 +25,7 @@ export const appRouter = router({
   assignment: assignmentRouter,
   announcement: announcementRouter,
   user: userRouter,
+  providerProfile: providerProfileRouter,
   admin: adminRouter,
   spectrum: spectrumRouter,
 });

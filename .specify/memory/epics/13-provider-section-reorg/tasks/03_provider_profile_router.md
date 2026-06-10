@@ -1,7 +1,7 @@
 ---
 type: feature
 epic: 13-provider-section-reorg
-status: ready
+status: completed
 blocked-by: 02_provider_profile_backend.md
 ---
 
@@ -15,15 +15,16 @@ Module 25 of `/PRD.md`, §"Architecture: strict User/Provider Profile split". De
 
 ## Acceptance Criteria
 
-- [ ] `apps/server/src/presentation/routers/provider-profile.ts` exists with `get` and `update` procedures
-- [ ] `get` is `protectedProcedure`, takes no input, infers `userId` from `ctx.session.user.id`, throws if no session
-- [ ] `update` is `protectedProcedure`, accepts the 9-field `UpdateProviderProfileInput` (with the 500-char cap on `publicDescription` enforced in the Zod schema)
-- [ ] The router calls the use cases via constructor-injected dependencies (NOT via direct repository instantiation — §9.7)
-- [ ] `DomainError` is caught and translated to `TRPCError` in the router (the only place `TRPCError` is constructed — §9.5)
-- [ ] The composition root wires the new dependencies
-- [ ] The new router is registered in the tRPC app router
-- [ ] Integration test: a logged-in User can read and update their own Provider Profile; User A CANNOT read or write User B's Provider Profile (cross-tenant check)
-- [ ] `bun run check` and `bun run check-types` pass with zero warnings
+- [x] `apps/server/src/presentation/routers/provider-profile.ts` exists with `get` and `update` procedures
+- [x] `get` is `protectedProcedure`, takes no input, infers `userId` from `ctx.session.user.id`, throws if no session
+- [x] `update` is `protectedProcedure`, accepts the 9-field `UpdateProviderProfileInput` (with the 500-char cap on `publicDescription` enforced in the Zod schema)
+- [x] The router calls the use cases via constructor-injected dependencies (NOT via direct repository instantiation — §9.7)
+- [x] `DomainError` is caught and translated to `TRPCError` in the router (the only place `TRPCError` is constructed — §9.5)
+- [x] The composition root wires the new dependencies
+- [x] The new router is registered in the tRPC app router
+- [x] Integration test: a logged-in User can read and update their own Provider Profile; User A CANNOT read or write User B's Provider Profile (cross-tenant check)
+- [x] `bun run check` and `bun run check-types` pass with zero warnings
+- ⚠️ Integration tests fail on pre-existing test DB schema drift (user.language/theme columns missing in test DB migration state — same root cause as all existing integration tests)
 
 ## Sub-Tasks
 

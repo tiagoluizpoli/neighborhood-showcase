@@ -6,5 +6,7 @@ export type { AssignmentRouterDependencies } from './assignment-router';
 export { createAssignmentRouterDependencies } from './assignment-router';
 export type { CondominiumRouterDependencies } from './condominium-router';
 export { createCondominiumRouterDependencies } from './condominium-router';
+export type { ProviderProfileRouterDependencies } from './provider-profile-router';
+export { createProviderProfileRouterDependencies } from './provider-profile-router';
 export type { UserRouterDependencies } from './user-router';
 export { createUserRouterDependencies } from './user-router';
