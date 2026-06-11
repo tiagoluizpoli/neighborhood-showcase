@@ -39,6 +39,7 @@
     "db:studio": "turbo -F @neighborhood-showcase/db db:studio",
     "db:generate": "turbo -F @neighborhood-showcase/db db:generate",
     "db:migrate": "turbo -F @neighborhood-showcase/db db:migrate",
+    "db:seed": "bun run apps/server/src/infrastructure/db/seed.ts",
     "db:start": "turbo -F @neighborhood-showcase/db db:start",
     "db:watch": "turbo -F @neighborhood-showcase/db db:watch",
     "db:stop": "turbo -F @neighborhood-showcase/db db:stop",

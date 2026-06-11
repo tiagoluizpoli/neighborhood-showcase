@@ -43,9 +43,16 @@ If anything blocks completion, emit `<promise>ABORT</promise>`.
 
 Before committing, run:
 
-- `bun run test`
-- `bun run check-types`
-- `bun run check`
+- `bun run test` — unit and integration tests
+- `bun run check-types` — TypeScript type check
+- `bun run check` — Biome lint
+- `bun run test:e2e` — Playwright e2e tests (MANDATORY for any UI change; tests must pass before committing)
+
+Additionally, verify:
+- If schema migrations were generated, ensure `<index>_snapshot.json` exists in `packages/db/src/migrations/meta/` for the new migration.
+- If user passwords are created/hashed in seeds, tests, or code, ensure they are generated via the canonical `hashPassword` from `"better-auth/crypto"`.
+
+If any step fails, fix before committing. Do not skip tests or mute failures.
 
 # COMMIT
 

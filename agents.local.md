@@ -84,6 +84,8 @@ Monorepo using Turborepo and Bun.
 
 ### 8. Early-Stage Database Migration Rules
 - Because the repository is at its beginning and before v1 release, do not accumulate migrations when dropping or replacing tables (such as legacy `todo`). Wipe the `packages/db/src/migrations/` directory, drop the table schema definitions, and generate a new base schema migration from scratch.
+- **Migration Snapshots Required**: Every schema migration generated via `bun run db:generate` MUST include its matching snapshot JSON file (e.g. `<index>_snapshot.json`) under `packages/db/src/migrations/meta/`. Omission of migration snapshot files is strictly prohibited.
+- **Password Hashing Consistency**: Always use `hashPassword` imported from `"better-auth/crypto"` for hashing user passwords in seeds, scripts, tests, and production code. Custom hashing algorithms (such as plain SHA-256 or custom salts) are strictly forbidden.
 
 ### 9. Clean Architecture — Layer Boundary Enforcement (CRITICAL)
 

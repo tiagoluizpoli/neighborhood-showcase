@@ -242,6 +242,22 @@ accumulate migrations when dropping or replacing tables (such as legacy
 `todo`). Wipe the `packages/db/src/migrations/` directory, drop the table
 schema definitions, and generate a new base schema migration from scratch.
 
+- **All schema changes via Drizzle schema files only.** Edit the TypeScript
+  schema files in `packages/db/src/schema/` (e.g. `auth.ts`, `showcase.ts`).
+  Generate the migration with `bun run db:generate` and apply it with
+  `bun run db:migrate`. **Manual SQL is forbidden** — do not run raw SQL
+  against the database, do not edit migration `.sql` files by hand, do not
+  alter tables via a SQL client or query tool. The Drizzle schema is the
+  single source of truth for the database shape.
+- **Migration Snapshots Required.** Every schema migration generated via
+  `bun run db:generate` MUST include its matching snapshot JSON file (e.g.
+  `<index>_snapshot.json`) under `packages/db/src/migrations/meta/`. Omission
+  of migration snapshot files is strictly prohibited.
+- **Password Hashing Consistency.** Always use `hashPassword` imported from
+  `"better-auth/crypto"` for hashing user passwords in seeds, scripts, tests,
+  and production code. Custom hashing algorithms (such as plain SHA-256 or custom
+  salts) are strictly forbidden.
+
 ## 10. Sidebar & Top Bar — UX Contract
 
 - **Sidebar group icons:** every top-level sidebar group (Provedor,
@@ -294,6 +310,18 @@ schema definitions, and generate a new base schema migration from scratch.
 - **Playwright is mandatory for all UI changes.** Before any task touching
   frontend code is considered complete, a Playwright test must exist that
   verifies the visual/behavioral change.
+- **Run Playwright as a gate before committing.** Add `bun run test:e2e`
+  to the feedback loop alongside `bun run test` and `bun run check-types`.
+  If the e2e tests fail, do not commit.
+- **Screenshot assertions are required for visual regressions.** Tests that
+  only check DOM state (element visible, text present) are not sufficient.
+  Every UI test must include a `await expect(page).toHaveScreenshot()` or
+  equivalent visual comparison to catch visual regressions. "Code says it
+  works" is not enough — the page must look correct.
+- **No test.skip().** If a test fails due to missing seed data, create the
+  seed (in `seed.ts` or a dedicated test seed script) and run it before
+  re-running the test. Never skip a test because the database is not
+  pre-seeded. Ralph Loop has autonomy to create seeds as needed.
 - Install Playwright from scratch in `apps/web/`. Configure `playwright.config.ts`
   and create a `tests/` directory.
 - Tests verify external behavior only — route navigation, visible text,
