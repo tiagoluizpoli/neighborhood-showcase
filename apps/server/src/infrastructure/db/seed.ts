@@ -12,6 +12,7 @@ import {
   providerAssignment,
   providerProfile,
 } from '@neighborhood-showcase/db/schema/showcase';
+import { hashPassword } from 'better-auth/crypto';
 
 async function seed() {
   console.log('Seeding test users directly via Drizzle...');
@@ -76,7 +77,7 @@ async function seed() {
     id: 'seed-account-provider',
     accountId: 'provider@test.com',
     userId: providerUser.id,
-    providerId: 'email',
+    providerId: 'credential',
     providerAccountId: 'provider@test.com',
     password: providerPw,
   });
@@ -87,7 +88,7 @@ async function seed() {
     id: 'seed-account-admin',
     accountId: 'admin@test.com',
     userId: adminUser.id,
-    providerId: 'email',
+    providerId: 'credential',
     providerAccountId: 'admin@test.com',
     password: adminPw,
   });
@@ -98,7 +99,7 @@ async function seed() {
     id: 'seed-account-moderator',
     accountId: 'moderator@test.com',
     userId: moderatorUser.id,
-    providerId: 'email',
+    providerId: 'credential',
     providerAccountId: 'moderator@test.com',
     password: moderatorPw,
   });
@@ -152,6 +153,32 @@ async function seed() {
     },
   ]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const [unverifiedUser] = (await db
+    .insert(user)
+    .values({
+      id: 'seed-unverified-id',
+      name: 'Unverified Test',
+      email: 'unverified@test.com',
+      emailVerified: false,
+      role: 'USER',
+      status: 'ACTIVE',
+      cpfHash: 'cpf-hash-unverified',
+      phone: '+551****9996',
+    })
+    .returning()) as [typeof user.$inferInsert];
+
+  const unverifiedPw = await hashPassword('Test@1234');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db.insert(account).values as any)({
+    id: 'seed-account-unverified',
+    accountId: 'unverified@test.com',
+    userId: unverifiedUser.id,
+    providerId: 'credential',
+    providerAccountId: 'unverified@test.com',
+    password: unverifiedPw,
+  });
+
   // Assign provider@test.com as APPROVED PROVIDER (type = RESIDENT in the schema enum)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (db.insert(providerAssignment) as any).values([
@@ -186,15 +213,6 @@ async function seed() {
   console.log(
     '   moderator@test.com has APPROVED MODERATOR assignments for 2 condos.',
   );
-}
-
-// Minimal password hasher using Web API (available in Bun)
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password + 'neighborhood-showcase-dev-salt');
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 seed().catch(console.error);
