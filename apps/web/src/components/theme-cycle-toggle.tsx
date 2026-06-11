@@ -1,16 +1,21 @@
+import { useMutation } from '@tanstack/react-query';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
+import { trpc } from '@/utils/trpc';
 
 const CYCLE = ['system', 'light', 'dark'] as const;
 type Theme = (typeof CYCLE)[number];
 
 export function ThemeCycleToggle() {
   const { theme, setTheme } = useTheme();
+  const updateMutation = useMutation(trpc.user.update.mutationOptions());
 
   const cycle = () => {
     const idx = CYCLE.indexOf((theme ?? 'system') as Theme);
     const next = CYCLE[(idx + 1) % CYCLE.length];
     setTheme(next);
+    // Silent best-effort backend persist
+    updateMutation.mutate({ theme: next });
   };
 
   const current = (theme ?? 'system') as Theme;

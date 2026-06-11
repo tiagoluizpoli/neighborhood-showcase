@@ -3,7 +3,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@neighborhood-showcase/ui/components/popover';
+import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { trpc } from '@/utils/trpc';
 
 const FLAGS: Record<string, string> = {
   pt: '🇧🇷',
@@ -14,6 +16,13 @@ const LANGUAGES = [{ code: 'pt' }, { code: 'en' }] as const;
 
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation();
+  const updateMutation = useMutation(trpc.user.update.mutationOptions());
+
+  const handleLanguageChange = (code: string) => {
+    i18n.changeLanguage(code);
+    // Silent best-effort backend persist
+    updateMutation.mutate({ language: code === 'pt' ? 'pt-BR' : 'en' });
+  };
 
   return (
     <Popover>
@@ -34,7 +43,7 @@ export function LanguageSwitcher() {
             <button
               key={lang.code}
               type="button"
-              onClick={() => i18n.changeLanguage(lang.code)}
+              onClick={() => handleLanguageChange(lang.code)}
               className="flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
             >
               <span>{FLAGS[lang.code]}</span>

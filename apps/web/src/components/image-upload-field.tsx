@@ -246,7 +246,7 @@ export function ImageUploadField({
                   onCropComplete={(_, croppedPixels) =>
                     setCroppedAreaPixels(croppedPixels)
                   }
-                  circularCrop={circular}
+                  cropShape={circular ? 'round' : 'rect'}
                 />
               </div>
 
