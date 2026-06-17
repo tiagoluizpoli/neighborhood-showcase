@@ -1,25 +1,29 @@
-Ralph Loop iteration 10 — 2026-06-10
+Ralph Loop iteration 3 — 2026-06-10
 
-## Current task: epic-13 task-05 (configuracoes page)
+## Current task: epic-13 task-07 (meus anúncios list)
 
-### Status: PARTIALLY COMPLETE — 3 sub-tasks remain
+### Status: COMPLETE
 
 ### Completed this iteration:
-- [x] configuration.tsx: full i18n wiring (all hardcoded English strings replaced with t() calls from configuracoes namespace)
-- [x] en/translation.json: added all missing keys (placeholders, help texts, visibility labels, section descriptions, toast_error_no_provider_account)
-- [x] pt/translation.json: added all missing keys (portuguese translations)
-- [x] biome.json: added noExplicitAny override for **/seed.ts (was missing despite commit message claiming it was added)
-- [x] bun run check: passes with zero errors (4 files auto-fixed, 9 warnings from pre-existing issues)
+- [x] Replaced `/panel/dashboard/announcements` placeholder with the real Meus Anúncios page using shadcn Tabs + Badge count triggers and full-width layout
+- [x] Reused the existing provider announcement card, preserving its DOM/visual structure while making each card surface link to the provider detail route
+- [x] Translated the create route to `/panel/dashboard/announcements/new`, added EN route files, and kept PT aliases as redirects
+- [x] Added `meus_anuncios` i18n keys in EN/PT and wired the new page labels to that namespace
+- [x] Added a placeholder provider detail route at `/panel/dashboard/announcements/:id` so navigation is real ahead of task 08
+- [x] Extended `apps/server/src/infrastructure/db/seed.ts` with 4 seeded provider announcements (active, draft, expired, suspended)
+- [x] Added `apps/web/tests/meus-anuncios.spec.ts` + snapshot coverage for the list page
+- [x] Synced epic 13 task 07 status, epic checklist, index row, and backlog routing note
 
-### Remaining sub-tasks:
-1. [ ] seed.ts: add provider_profile row for provider@test.com (needed to prevent NOT_FOUND redirect on /panel/configuracoes)
-2. [ ] configuracoes.spec.ts: Playwright test covering the settings page (follow provider-nav.spec.ts pattern)
-3. [ ] Update .specify/memory/index.md and epic child checklist to reflect completed state
+### Verification:
+- [x] `/home/tiago/.bun/bin/bun run check-types` in `apps/web` → passed
+- [x] `/home/tiago/.bun/bin/bun test apps/web/src/routes/panel/-provider-dashboard-announcement-card.test.tsx apps/web/src/routes/panel/-provider-dashboard-announcement-list.test.tsx` → 4 passed
+- [x] `/home/tiago/.bun/bin/bun run db:start` → postgres/redis/minio/unleash running
+- [x] `/home/tiago/.bun/bin/bun run db:seed` → seed completed with provider/admin/moderator users and new announcement fixtures
+- [x] `/home/tiago/.bun/bin/bun run test:e2e tests/meus-anuncios.spec.ts` in `apps/web` → 3 passed
+- [x] `/home/tiago/.bun/bin/bun run check` → exits 0; repo still has 9 pre-existing unrelated Biome warnings outside this task slice
 
-### Key files modified:
-- apps/web/src/routes/panel/dashboard/configuration.tsx (i18n fully wired)
-- apps/web/src/locales/en/translation.json (all missing configuracoes keys added)
-- apps/web/src/locales/pt/translation.json (all missing configuracoes keys added)
-- biome.json (seed.ts noExplicitAny override added)
+### Visual verification:
+- [x] Reviewed the generated Playwright snapshot for `meus-anuncios-list`: title/header visible, four tabs with count badges visible, one active card visible, no obvious layout defects found
 
-### Blocking: none — seed.ts and test can be done in next iteration
+### Next ready task:
+- epic-13 task-08 (`08_meus_anuncios_detail.md`)
