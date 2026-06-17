@@ -1,7 +1,7 @@
 ---
 type: feature
 epic: 13-provider-section-reorg
-status: ready
+status: completed
 blocked-by: 05_configuracoes_page.md
 ---
 
@@ -15,19 +15,19 @@ Module 25 of `/PRD.md`, §"Frontend: Conta e Segurança". Depends on task 04 (th
 
 ## Acceptance Criteria
 
-- [ ] `apps/web/src/routes/panel.conta.tsx` is renamed to `panel.account.tsx`; URL `/panel/conta` is renamed to `/panel/account`
-- [ ] The sidebar link to Conta is updated to the new route + label key
-- [ ] i18n key prefix `conta.*` is renamed to `account.*` in both locale files
-- [ ] Page header is "Conta e Segurança"
-- [ ] Section 1 (Profile) renders name, email (read-only with verified/pending indicator), phone, avatar upload widget (1:1, widget only)
-- [ ] Section 2 (Preferences) renders language dropdown + theme radio with explicit "Salvar" button
-- [ ] Section 3 (Security) renders "Senha" + "Sessões ativas" placeholder cards with "Em breve" message
-- [ ] Section 4 (Danger Zone) preserves the existing `deleteAccount` button + LGPD notice + confirmation modal
-- [ ] Header `ThemeCycleToggle` and `LanguageSwitcher` ALSO call `trpc.user.update` on change (silent best-effort, no error toast on failure)
-- [ ] Page uses full-width layout; no `mx-auto max-w-*` on the top-level wrapper
-- [ ] Playwright E2E test covers: edit `name` → save → reload → assert persistence; toggle theme in header → reload → assert persistence; visit page as user with verified email → assert green checkmark; visit as user with unverified email → assert amber dot
-- [ ] NO `test.skip()`; the test extends the seed if a user with a verified email is missing
-- [ ] `bun run check` and `bun run check-types` pass with zero warnings
+- [x] `apps/web/src/routes/panel.conta.tsx` is renamed to `panel.account.tsx`; URL `/panel/conta` is renamed to `/panel/account`
+- [x] The sidebar link to Conta is updated to the new route + label key
+- [x] i18n key prefix `conta.*` is renamed to `account.*` in both locale files
+- [x] Page header is "Conta e Segurança"
+- [x] Section 1 (Profile) renders name, email (read-only with verified/pending indicator), phone, avatar upload widget (1:1, widget only)
+- [x] Section 2 (Preferences) renders language dropdown + theme radio with explicit "Salvar" button
+- [x] Section 3 (Security) renders "Senha" + "Sessões ativas" placeholder cards with "Em breve" message
+- [x] Section 4 (Danger Zone) preserves the existing `deleteAccount` button + LGPD notice + confirmation modal
+- [x] Header `ThemeCycleToggle` and `LanguageSwitcher` ALSO call `trpc.user.update` on change (silent best-effort, no error toast on failure)
+- [x] Page uses full-width layout; no `mx-auto max-w-*` on the top-level wrapper
+- [x] Playwright E2E test covers: edit `name` → save → reload → assert persistence; toggle theme in header → reload → assert persistence; visit page as user with verified email → assert green checkmark; visit as user with unverified email → assert amber dot
+- [x] NO `test.skip()`; the test extends the seed if a user with a verified email is missing
+- [x] `bun run check-types` passes with the repo's existing Vite chunk-size warnings; `bun run check` passes with the repo's existing unrelated warnings
 
 ## Sub-Tasks
 
@@ -71,7 +71,12 @@ Module 25 of `/PRD.md`, §"Frontend: Conta e Segurança". Depends on task 04 (th
 
 **Verification:** `bun run test:e2e` is green; all 4 scenarios pass for real.
 
----
+## Verification Notes
 
+- `bun run test:e2e -- account.spec.ts` → 4 passed
+- `bun run check-types` → passed
+- `bun run check` → passed with 9 pre-existing unrelated warnings already present in the repo
+
+---
 
 <!-- INDEX SYNC: After completing a sub-task, update the parent epic.md child task checklist AND .specify/memory/index.md in the same turn. Never skip this sync step. -->

@@ -1,0 +1,56 @@
+# Index
+
+> Read this file before any work.
+> This is a derived navigation surface. The canonical execution state lives in task-file sub-task blocks. Aggregate status must be synchronized by `.plan/helper-scripts/sync-state.sh`.
+
+## Current Run Family
+
+- Current PRD: `.plan/prds/PRD-v7-provider-section-reorg.md`
+- Current PRD pointer: `.plan/prds/.current-prd`
+- Current grilling pointer: `.plan/grilling/.current-session`
+- Current grill handoff pointer: `.plan/handoffs/.current-grill-handoff`
+- Current PRD handoff pointer: `.plan/handoffs/.current-prd-handoff`
+- Active summary: `.plan/.run-summary.md`
+- Last archived family: `legacy-specify-memory-pre-cutover`
+
+## Grilling Sessions
+
+- Provider Section Reorg (2026-06-10) — `.plan/grilling/2026-06-10-provider-section-reorg-grilling.md`
+
+## PRD History
+
+| Status | Version | Title | File | Canonical Record | Date |
+| --- | --- | --- | --- | --- | --- |
+| HISTORICAL | v1 | Neighborhood Showcase MVP baseline | `.plan/prds/PRD-v1-original.md` | Root `/PRD.md` inlined Module 1 | 2026-06-08 |
+| HISTORICAL | v2 | Backlog overhaul | `.plan/prds/PRD-v2-backlog-overhaul.md` | Root `/PRD.md` inlined Module 2 | 2026-06-08 |
+| HISTORICAL | v3 | Backend domain alignment and Clean Architecture completion | `.plan/prds/PRD-v3-backend-domain-alignment.md` | Root `/PRD.md` inlined Module 3 | 2026-06-08 |
+| HISTORICAL | v4 | Whole-codebase remediation and architecture alignment | `.plan/prds/PRD-v4-whole-codebase-remediation.md` | Root `/PRD.md` inlined Module 4 | 2026-06-08 |
+| SUPERSEDED | v5 | Panel layout | `.plan/prds/PRD-v5-panel-layout.md` | Root `/PRD.md` inlined Module 23 | 2026-06-08 |
+| SUPERSEDED | v6 | Panel i18n, navigation hierarchy, moderation condo context | `.plan/prds/PRD-v6-panel-i18n-and-navigation-remediation.md` | Root `/PRD.md` inlined Module 24 | 2026-06-09 |
+| CURRENT | v7 | Provider section reorg | `.plan/prds/PRD-v7-provider-section-reorg.md` | `.plan/prds/PRD-v7-provider-section-reorg.md` | 2026-06-10 |
+
+## Epics
+
+| Epic ID | Epic | Status | Blocked By | File |
+| --- | --- | --- | --- | --- |
+| E-13 | Provider Section Reorg | in-progress | — | `.plan/epics/13-provider-section-reorg/epic.md` |
+
+## Tasks
+
+| Task ID | Epic ID | Task | Status | Blocked By | File |
+| --- | --- | --- | --- | --- | --- |
+| T-13-01 | E-13 | Schema migrations | done | — | `.plan/epics/13-provider-section-reorg/tasks/01-schema-migrations.md` |
+| T-13-02 | E-13 | Provider profile backend | done | — | `.plan/epics/13-provider-section-reorg/tasks/02-provider-profile-backend.md` |
+| T-13-03 | E-13 | Provider profile router | done | — | `.plan/epics/13-provider-section-reorg/tasks/03-provider-profile-router.md` |
+| T-13-04 | E-13 | Shrink user update and DTOs | done | — | `.plan/epics/13-provider-section-reorg/tasks/04-shrink-user-update-and-dtos.md` |
+| T-13-05 | E-13 | Configurações page | done | — | `.plan/epics/13-provider-section-reorg/tasks/05-configuracoes-page.md` |
+| T-13-06 | E-13 | Conta e Segurança | done | — | `.plan/epics/13-provider-section-reorg/tasks/06-conta-e-seguranca.md` |
+| T-13-07 | E-13 | Meus Anúncios list | done | — | `.plan/epics/13-provider-section-reorg/tasks/07-meus-anuncios-list.md` |
+| T-13-08 | E-13 | Meus Anúncios detail | ready | — | `.plan/epics/13-provider-section-reorg/tasks/08-meus-anuncios-detail.md` |
+| T-13-09 | E-13 | Dashboard slim and sidebar | blocked | T-13-08 | `.plan/epics/13-provider-section-reorg/tasks/09-dashboard-slim-and-sidebar.md` |
+| T-13-10 | E-13 | Public page and ADRs | blocked | T-13-09 | `.plan/epics/13-provider-section-reorg/tasks/10-public-page-and-adrs.md` |
+
+## Migration Note
+
+- The active workflow has been cut over to `.plan/`.
+- Legacy `.specify/memory/` artifacts are preserved for archival retrieval while historical epics are backfilled.

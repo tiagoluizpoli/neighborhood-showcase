@@ -108,8 +108,8 @@
 | 13-provider-section-reorg | [03_provider_profile_router](epics/13-provider-section-reorg/tasks/03_provider_profile_router.md) | ✅ completed | 02_provider_profile_backend |
 | 13-provider-section-reorg | [04_shrink_user_update_and_dtos](epics/13-provider-section-reorg/tasks/04_shrink_user_update_and_dtos.md) | ✅ completed | 03_provider_profile_router |
 | 13-provider-section-reorg | [05_configuracoes_page](epics/13-provider-section-reorg/tasks/05_configuracoes_page.md) | ✅ completed | 04_shrink_user_update_and_dtos |
-| 13-provider-section-reorg | [06_conta_e_seguranca](epics/13-provider-section-reorg/tasks/06_conta_e_seguranca.md) | 🔄 ready | 05_configuracoes_page |
-| 13-provider-section-reorg | [07_meus_anuncios_list](epics/13-provider-section-reorg/tasks/07_meus_anuncios_list.md) | 🔄 ready | 06_conta_e_seguranca |
+| 13-provider-section-reorg | [06_conta_e_seguranca](epics/13-provider-section-reorg/tasks/06_conta_e_seguranca.md) | ✅ completed | 05_configuracoes_page |
+| 13-provider-section-reorg | [07_meus_anuncios_list](epics/13-provider-section-reorg/tasks/07_meus_anuncios_list.md) | ✅ completed | 06_conta_e_seguranca |
 | 13-provider-section-reorg | [08_meus_anuncios_detail](epics/13-provider-section-reorg/tasks/08_meus_anuncios_detail.md) | 🔄 ready | 07_meus_anuncios_list |
 | 13-provider-section-reorg | [09_dashboard_slim_and_sidebar](epics/13-provider-section-reorg/tasks/09_dashboard_slim_and_sidebar.md) | 🔄 ready | 08_meus_anuncios_detail |
 | 13-provider-section-reorg | [10_public_page_and_adrs](epics/13-provider-section-reorg/tasks/10_public_page_and_adrs.md) | 🔄 ready | 09_dashboard_slim_and_sidebar |

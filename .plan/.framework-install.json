@@ -1,0 +1,814 @@
+{
+  "framework": "ralph-loop",
+  "mode": "update",
+  "adopted": false,
+  "source": {
+    "repoUrl": "https://github.com/tiagoluizpoli/luna-ai-skills",
+    "ref": "master",
+    "sha": "c374e09972e1c1577bb2832848083b85246a3d2a"
+  },
+  "selection": {
+    "agents": [
+      "hermes",
+      "codex",
+      "agy"
+    ],
+    "availabilityMode": "global",
+    "targets": [
+      "hermes-global",
+      "codex-global",
+      "agy-global"
+    ]
+  },
+  "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+  "lastUpdatedAt": "2026-06-17T15:30:27.106Z",
+  "managedFiles": [
+    ".plan/prompt.md",
+    ".plan/RULES.md",
+    ".plan/helper-scripts/common.sh",
+    ".plan/helper-scripts/archive-run.sh",
+    ".plan/helper-scripts/get-current-grill-handoff.sh",
+    ".plan/helper-scripts/get-current-grill.sh",
+    ".plan/helper-scripts/get-current-prd-handoff.sh",
+    ".plan/helper-scripts/get-current-prd.sh",
+    ".plan/helper-scripts/retrieve-history.sh",
+    ".plan/helper-scripts/runtime-state.sh",
+    ".plan/helper-scripts/set-current-grill-handoff.sh",
+    ".plan/helper-scripts/set-current-grill.sh",
+    ".plan/helper-scripts/set-current-prd-handoff.sh",
+    ".plan/helper-scripts/set-current-prd.sh",
+    ".plan/helper-scripts/sync-state.sh",
+    ".plan/helper-scripts/validate-prereqs.sh",
+    ".plan/shared/epic-template.md",
+    ".plan/shared/task-template.md",
+    ".plan/.framework"
+  ],
+  "workflowOwnedFiles": [
+    ".plan/PRD.md",
+    ".plan/index.md",
+    ".plan/backlog.md",
+    ".plan/progress.txt",
+    ".plan/.run-state.json",
+    ".plan/.run-history.jsonl",
+    ".plan/.run-summary.md",
+    ".plan/epics/.gitkeep",
+    ".plan/grilling/.current-session",
+    ".plan/grilling/.gitkeep",
+    ".plan/handoffs/.current-grill-handoff",
+    ".plan/handoffs/.current-prd-handoff",
+    ".plan/handoffs/.gitkeep",
+    ".plan/prds/.current-prd",
+    ".plan/prds/.gitkeep",
+    ".plan/prds/PRD-v1-replace-me.md",
+    ".plan/epics/01-replace-me/epic.md",
+    ".plan/epics/01-replace-me/tasks/01-replace-me.md",
+    ".plan/sessions/.gitkeep",
+    ".plan/archive/.gitkeep",
+    ".plan/summaries/.gitkeep"
+  ],
+  "installedAssets": [
+    {
+      "id": "plan-starter",
+      "class": "shared",
+      "category": "starter-workspace",
+      "installRoot": "repo",
+      "installPath": "/home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.plan",
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z",
+      "managedFiles": [
+        ".plan/prompt.md",
+        ".plan/RULES.md",
+        ".plan/helper-scripts/common.sh",
+        ".plan/helper-scripts/archive-run.sh",
+        ".plan/helper-scripts/get-current-grill-handoff.sh",
+        ".plan/helper-scripts/get-current-grill.sh",
+        ".plan/helper-scripts/get-current-prd-handoff.sh",
+        ".plan/helper-scripts/get-current-prd.sh",
+        ".plan/helper-scripts/retrieve-history.sh",
+        ".plan/helper-scripts/runtime-state.sh",
+        ".plan/helper-scripts/set-current-grill-handoff.sh",
+        ".plan/helper-scripts/set-current-grill.sh",
+        ".plan/helper-scripts/set-current-prd-handoff.sh",
+        ".plan/helper-scripts/set-current-prd.sh",
+        ".plan/helper-scripts/sync-state.sh",
+        ".plan/helper-scripts/validate-prereqs.sh",
+        ".plan/shared/epic-template.md",
+        ".plan/shared/task-template.md",
+        ".plan/.framework"
+      ],
+      "workflowOwnedFiles": [
+        ".plan/PRD.md",
+        ".plan/index.md",
+        ".plan/backlog.md",
+        ".plan/progress.txt",
+        ".plan/.run-state.json",
+        ".plan/.run-history.jsonl",
+        ".plan/.run-summary.md",
+        ".plan/epics/.gitkeep",
+        ".plan/grilling/.current-session",
+        ".plan/grilling/.gitkeep",
+        ".plan/handoffs/.current-grill-handoff",
+        ".plan/handoffs/.current-prd-handoff",
+        ".plan/handoffs/.gitkeep",
+        ".plan/prds/.current-prd",
+        ".plan/prds/.gitkeep",
+        ".plan/prds/PRD-v1-replace-me.md",
+        ".plan/epics/01-replace-me/epic.md",
+        ".plan/epics/01-replace-me/tasks/01-replace-me.md",
+        ".plan/sessions/.gitkeep",
+        ".plan/archive/.gitkeep",
+        ".plan/summaries/.gitkeep"
+      ],
+      "availability": {
+        "behavior": "repo-local-only",
+        "resolvedMode": "local"
+      }
+    },
+    {
+      "id": "runner-hermes",
+      "class": "agent-specific",
+      "category": "runner-script",
+      "installRoot": "repo",
+      "installPath": "/home/tiago/01-dev-env/personal-repos/neighborhood-showcase/ralph-loop-hermes.sh",
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z",
+      "agent": "hermes",
+      "sourcePath": "ralph-loop-hermes.sh",
+      "availabilityBehavior": "repo-root-for-all-modes",
+      "availability": {
+        "behavior": "repo-root-for-all-modes",
+        "resolvedMode": "global"
+      }
+    },
+    {
+      "id": "runner-codex",
+      "class": "agent-specific",
+      "category": "runner-script",
+      "installRoot": "repo",
+      "installPath": "/home/tiago/01-dev-env/personal-repos/neighborhood-showcase/ralph-loop-codex.sh",
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z",
+      "agent": "codex",
+      "sourcePath": "ralph-loop-codex.sh",
+      "availabilityBehavior": "repo-root-for-all-modes",
+      "availability": {
+        "behavior": "repo-root-for-all-modes",
+        "resolvedMode": "global"
+      }
+    },
+    {
+      "id": "runner-agy",
+      "class": "agent-specific",
+      "category": "runner-script",
+      "installRoot": "repo",
+      "installPath": "/home/tiago/01-dev-env/personal-repos/neighborhood-showcase/ralph-loop-agy.sh",
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z",
+      "agent": "agy",
+      "sourcePath": "ralph-loop-agy.sh",
+      "availabilityBehavior": "repo-root-for-all-modes",
+      "availability": {
+        "behavior": "repo-root-for-all-modes",
+        "resolvedMode": "global"
+      }
+    }
+  ],
+  "installedSkills": [
+    {
+      "publicName": "luna-to-prd",
+      "sourcePath": ".agents/skills/luna-to-prd",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/luna-to-prd",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "luna-to-issues",
+      "sourcePath": ".agents/skills/luna-to-issues",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/luna-to-issues",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "commit",
+      "sourcePath": ".agents/skills/commit",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/commit",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "code-review",
+      "sourcePath": ".agents/skills/code-review",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/code-review",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "backend-specialist",
+      "sourcePath": ".agents/skills/backend-specialist",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/backend-specialist",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "frontend-specialist",
+      "sourcePath": ".agents/skills/frontend-specialist",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/frontend-specialist",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "react-architect",
+      "sourcePath": ".agents/skills/react-architect",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/react-architect",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "tailwind-architect",
+      "sourcePath": ".agents/skills/tailwind-architect",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/tailwind-architect",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "shadcn-specialist",
+      "sourcePath": ".agents/skills/shadcn-specialist",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/shadcn-specialist",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-master",
+      "sourcePath": ".agents/skills/test-master",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/test-master",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "diagnose",
+      "sourcePath": ".agents/skills/diagnose",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/diagnose",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "conventional-commits",
+      "sourcePath": ".agents/skills/conventional-commits",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/conventional-commits",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-cases",
+      "sourcePath": ".agents/skills/test-cases",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/test-cases",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-backend",
+      "sourcePath": ".agents/skills/test-backend",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/test-backend",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-frontend",
+      "sourcePath": ".agents/skills/test-frontend",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/test-frontend",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-e2e",
+      "sourcePath": ".agents/skills/test-e2e",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/test-e2e",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-coverage",
+      "sourcePath": ".agents/skills/test-coverage",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/test-coverage",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "luna-grill-with-docs",
+      "sourcePath": ".agents/skills/luna-grill-with-docs",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/luna-grill-with-docs",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "luna-to-prd",
+      "sourcePath": ".agents/skills/luna-to-prd",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/luna-to-prd",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "luna-to-issues",
+      "sourcePath": ".agents/skills/luna-to-issues",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/luna-to-issues",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "commit",
+      "sourcePath": ".agents/skills/commit",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/commit",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "code-review",
+      "sourcePath": ".agents/skills/code-review",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/code-review",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "backend-specialist",
+      "sourcePath": ".agents/skills/backend-specialist",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/backend-specialist",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "frontend-specialist",
+      "sourcePath": ".agents/skills/frontend-specialist",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/frontend-specialist",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "react-architect",
+      "sourcePath": ".agents/skills/react-architect",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/react-architect",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "tailwind-architect",
+      "sourcePath": ".agents/skills/tailwind-architect",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/tailwind-architect",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "shadcn-specialist",
+      "sourcePath": ".agents/skills/shadcn-specialist",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/shadcn-specialist",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-master",
+      "sourcePath": ".agents/skills/test-master",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/test-master",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "diagnose",
+      "sourcePath": ".agents/skills/diagnose",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/diagnose",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "conventional-commits",
+      "sourcePath": ".agents/skills/conventional-commits",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/conventional-commits",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-cases",
+      "sourcePath": ".agents/skills/test-cases",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/test-cases",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-backend",
+      "sourcePath": ".agents/skills/test-backend",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/test-backend",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-frontend",
+      "sourcePath": ".agents/skills/test-frontend",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/test-frontend",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-e2e",
+      "sourcePath": ".agents/skills/test-e2e",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/test-e2e",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-coverage",
+      "sourcePath": ".agents/skills/test-coverage",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/test-coverage",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "luna-grill-with-docs",
+      "sourcePath": ".agents/skills/luna-grill-with-docs",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/luna-grill-with-docs",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "luna-to-prd",
+      "sourcePath": ".agents/skills/luna-to-prd",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/luna-to-prd",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "luna-to-issues",
+      "sourcePath": ".agents/skills/luna-to-issues",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/luna-to-issues",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "commit",
+      "sourcePath": ".agents/skills/commit",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/commit",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "code-review",
+      "sourcePath": ".agents/skills/code-review",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/code-review",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "backend-specialist",
+      "sourcePath": ".agents/skills/backend-specialist",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/backend-specialist",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "frontend-specialist",
+      "sourcePath": ".agents/skills/frontend-specialist",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/frontend-specialist",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "react-architect",
+      "sourcePath": ".agents/skills/react-architect",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/react-architect",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "tailwind-architect",
+      "sourcePath": ".agents/skills/tailwind-architect",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/tailwind-architect",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "shadcn-specialist",
+      "sourcePath": ".agents/skills/shadcn-specialist",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/shadcn-specialist",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-master",
+      "sourcePath": ".agents/skills/test-master",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/test-master",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "diagnose",
+      "sourcePath": ".agents/skills/diagnose",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/diagnose",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "conventional-commits",
+      "sourcePath": ".agents/skills/conventional-commits",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/conventional-commits",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-cases",
+      "sourcePath": ".agents/skills/test-cases",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/test-cases",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-backend",
+      "sourcePath": ".agents/skills/test-backend",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/test-backend",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-frontend",
+      "sourcePath": ".agents/skills/test-frontend",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/test-frontend",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-e2e",
+      "sourcePath": ".agents/skills/test-e2e",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/test-e2e",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    },
+    {
+      "publicName": "test-coverage",
+      "sourcePath": ".agents/skills/test-coverage",
+      "target": "agy-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/test-coverage",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "currentRunId": "migration-cutover-2026-06-17",
+  "currentPrdId": "v7",
+  "currentEpicId": "E-13",
+  "currentTaskId": "T-13-08",
+  "currentSubTaskId": "ST-01",
+  "attemptCount": 0,
+  "retrievalRound": 0,
+  "lastModel": null,
+  "escalated": false,
+  "lastFailureReason": null,
+  "requiredModel": "medium",
+  "runnerName": "hermes",
+  "escalateIf": [],
+  "filesToTouch": [
+    "apps/web/src/routes/panel/-provider-dashboard-analytics-modal.tsx",
+    "apps/web/src/routes/panel/dashboard/announcements/$id.tsx",
+    "apps/web/src/routes/panel/-provider-dashboard-edit-modal.tsx",
+    "apps/web/tests/announcement-detail.spec.ts"
+  ],
+  "lastCommitChanged": false
+}

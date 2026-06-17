@@ -208,32 +208,37 @@ Integration test files (`*.integration.test.ts`, `*.test.ts`) are allowed to imp
 
 ## PRD Directory — Lazy Load, Do Not Eager-Read
 
-When starting implementation or planning work, the agent does **NOT** read all files in `.specify/memory/prds/`. The PRD directory uses a **lazy-load** model to keep the agent's context window lean.
+After the 2026-06-17 Ralph Loop cutover, the active workflow PRD surface is `.plan/PRD.md` plus `.plan/prds/`. The older `.specify/memory/prds/` lineage and the root `/PRD.md` index remain preserved historical/project-level references and can still be consulted on demand.
 
-### The rules
+### The active rules
 
-- **The user generates new PRDs in `.specify/memory/prds/`.** The file naming convention is `PRD-vN-<slug>.md` where `N` is the next sequential version number. The agent does NOT generate PRDs.
-- **The agent maintains the index in `/PRD.md`**, not the directory. The directory is the user's authoring space; `/PRD.md` is the agent's navigation surface.
-- **For the work at hand**, the agent reads the row marked **CURRENT** in `/PRD.md`'s index, then opens the file at the path in that row. That is the only PRD the agent must read on a cold start.
-- **For history, research, or cross-PRD reference**, the agent opens a specific file on demand (e.g. "what did PRD-v3 say about X?"). It does not preload the whole directory.
-- **The agent does NOT inline PRD content into `/PRD.md` or any other file.** The versioned file is the single source of truth.
-- **When the user says "merge / add / join / include" anything PRD-related**, the agent updates the index in `/PRD.md` (adds a new row, marks it CURRENT, demotes the previous CURRENT to SUPERSEDED). It does NOT generate or edit files in `prds/`.
+- **Ralph Loop reads `.plan/PRD.md` first.** It is the active thin PRD index for ongoing execution.
+- **Ralph Loop opens only the row marked `CURRENT` in `.plan/PRD.md` on cold start.** That file under `.plan/prds/` is the current PRD at hand.
+- **For history, research, or cross-PRD reference**, the agent opens older `.plan/prds/*.md` files on demand and, when necessary, cross-checks the preserved root `/PRD.md` lineage.
+- **The agent does NOT inline PRD content into `.plan/PRD.md` or any other index file.** The versioned PRD file is the source of truth.
+- **The root `/PRD.md` remains a preserved project-level index** for the pre-cutover `.specify/memory/prds/` lineage and inlined Modules 1–24. It is no longer the default workflow surface for Ralph Loop execution.
 
-### How an agent finds the current PRD
+### How an agent finds the current PRD now
 
-1. Open `/PRD.md` at the repository root.
-2. Read the index table at the bottom of that file.
-3. Find the row marked **CURRENT**. The "File" column has the path to open.
+1. Open `.plan/PRD.md`.
+2. Read the index table.
+3. Find the row marked **CURRENT**.
+4. Open that file under `.plan/prds/`.
 
 ### Disambiguation
 
-- The active root PRD is `/PRD.md` at the repository root. It is an INDEX, not a PRD body.
-- The versioned source files live in `.specify/memory/prds/PRD-vN-<slug>.md`. They are written by the user, not the agent.
-- Two non-versioned files in `prds/` were renamed to `_DEPRECATED_*.md` on 2026-06-10 (with deprecation headers pointing to `/PRD.md`). They are historical orphans and are not a source of truth.
-- The historical inlined Modules 1–24 of `/PRD.md` predate the index rule. They are kept for backward compatibility. They are NOT the source of truth for the current work — the CURRENT row of the index is.
+- `.plan/PRD.md` = active Ralph Loop PRD index after the cutover.
+- `.plan/prds/PRD-vN-<slug>.md` = active versioned PRD bodies for Ralph Loop.
+- `/PRD.md` = preserved historical/project-level PRD lineage index.
+- `.specify/memory/prds/PRD-vN-<slug>.md` = legacy source copies preserved for traceability; not the default hot path anymore.
+- The historical inlined Modules 1–24 in `/PRD.md` remain preserved canonical records for the older PRD lineage.
 
 ## Current Plan Reference
-- The active root PRD is `/PRD.md` at the repository root. It is a **thin INDEX** of the versioned PRDs in `.specify/memory/prds/PRD-vN-<slug>.md` — it does NOT inline PRD content. The CURRENT row in the index is PRD-v7 (Provider Section Reorg, 2026-06-10). Open `.specify/memory/prds/PRD-v7-provider-section-reorg.md` for the full source of truth.
-- Historical Modules 1–24 (from PRD-v1 through PRD-v6) are inlined in `/PRD.md` for backward compatibility (they predate the index rule). They are historical context only, NOT the source of truth for the current work.
-- Issue specs live in `.specify/memory/epics/<epic>/tasks/`; Ralph Loop navigates from `.specify/memory/index.md` → epic → task.
-- The next active epic is `13-provider-section-reorg` (decomposes PRD-v7 into 10 dependency-ordered task files: schema → backend entity/repo/use cases → trpc.providerProfile router → shrunk trpc.user.update + DTOs → Configurações page → Conta e Segurança slim → Meus Anúncios list → Meus Anúncios detail page → dashboard slim view + sidebar fix → public page rendering + ADRs 0005/0006).
+- The active Ralph Loop PRD index is `.plan/PRD.md`.
+- The current PRD is `.plan/prds/PRD-v7-provider-section-reorg.md`.
+- The current grilling session is `.plan/grilling/2026-06-10-provider-section-reorg-grilling.md`.
+- The current PRD handoff is `.plan/handoffs/2026-06-17-current-prd-handoff-provider-section-reorg.md`.
+- The current grill handoff is `.plan/handoffs/2026-06-17-current-grill-handoff-provider-section-reorg.md`.
+- The active executable epic is `.plan/epics/13-provider-section-reorg/epic.md`.
+- The next dependency-safe task is `.plan/epics/13-provider-section-reorg/tasks/08-meus-anuncios-detail.md`.
+- Legacy `.specify/memory/` planning artifacts remain preserved for archival retrieval during the backfill phase, not as the default workflow surface.
