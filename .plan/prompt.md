@@ -52,3 +52,18 @@ If yes, run `.plan/helper-scripts/retrieve-history.sh`.
 - Update `.plan/.run-summary.md` only with durable conclusions.
 
 If no other executable work remains after a blocker, emit `<promise>ABORT</promise>`.
+
+## Required Verification Loop
+
+For every implementation run, before considering the selected sub-task done:
+
+- run `bun run test`
+- run `bun run check-types`
+- run `bun run check`
+- if the change touches UI, run `bun run test:e2e`
+- if any command fails, fix the issue in the implementation and rerun the relevant verification steps
+- do not skip tests, type checks, lint, or e2e coverage when they apply
+- only commit after the required verification loop passes
+- do not weaken, delete, bypass, or narrow tests just to make the run pass
+- test changes are allowed only when they make coverage stricter, fix the test to reflect the real intended behavior more accurately, or repair a broken test harness without reducing the safeguard
+- prefer changing production code to satisfy existing tests rather than changing tests to accommodate broken behavior
