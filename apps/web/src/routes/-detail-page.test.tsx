@@ -205,7 +205,7 @@ describe('Public Announcement Detail Component Visuals', () => {
     expect(providerNameElement).not.toBeNull();
 
     // Verify it contains a link pointing to the provider's public profile page
-    const profileLink = findElementByProp(tree, 'to', '/prestadores/$id');
+    const profileLink = findElementByProp(tree, 'to', '/providers/$id');
     expect(profileLink).not.toBeNull();
     expect(profileLink.props.params).toEqual({ id: 'provider-abc' });
   });

@@ -23,3 +23,11 @@
 [2026-06-17T20:33:25-03:00] T-13-10/ST-03 done — wrote `docs/adr/0005-user-vs-provider-profile-strict-split.md` with context, accepted split, rejected alternatives, and consequences aligned to PRD-v7, `.plan/RULES.md`, `.plan/CONTEXT.md`, and existing ADR style. Verification: compared against `docs/adr/0004-layered-clean-architecture-supersedes-feature-sliced-backend.md` structure and re-read ADR 0005 after write. needs-escalation=false
 [2026-06-17T20:43:00-03:00] IN_PROGRESS T-13-10/ST-04: writing docs/adr/0006-no-centered-content-full-width-layout.md
 [2026-06-17T20:44:00-03:00] T-13-10/ST-04 done — wrote docs/adr/0006-no-centered-content-full-width-layout.md with context, accepted decision, enumerated exceptions (auth/legal/modals/marketing), rejected alternatives, and references to agents.local.md and RULES.md. Matches ADR 0005 style. needs-escalation=false. Next: T-13-10/ST-05 (Playwright coverage for public provider page).
+[2026-06-17T20:44:55-03:00] SYNC T-13-10/ST-04: runtime contract listed ST-04 as in-progress but commit 19297042 already delivered it. Synced task file status to done. Advancing to ST-05.
+[2026-06-17T20:44:55-03:00] IN_PROGRESS T-13-10/ST-05: writing apps/web/tests/public-provider.spec.ts for full-branding render, no-banner render, and banned/not-found behavior.
+[2026-06-17T23:56:00-03:00] T-13-10/ST-05 done — Playwright E2E coverage for public provider page complete and verified. All 19 tests pass.
+[2026-06-17T23:56:00-03:00] T-13-09/ST-04 done — Playwright coverage for slim dashboard and guards verified.
+[2026-06-17T23:56:00-03:00] T-13-10/ST-03 done — ADR 0005 (user vs provider profile strict split) verified.
+[2026-06-17T23:56:00-03:00] E-13 complete — All child tasks of Provider Section Reorg epic are completed.
+[2026-06-17 23:56:00] NO MORE TASKS
+

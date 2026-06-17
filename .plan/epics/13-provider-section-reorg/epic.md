@@ -2,7 +2,7 @@
 type: epic
 id: E-13
 name: "Provider Section Reorg"
-status: in-progress
+status: done
 blocked-by: []
 ---
 
@@ -30,8 +30,8 @@ This epic was migrated from the legacy `.specify/memory/epics/13-provider-sectio
 | T-13-06 | Conta e Segurança | done | — | `.plan/epics/13-provider-section-reorg/tasks/06-conta-e-seguranca.md` |
 | T-13-07 | Meus Anúncios list | done | — | `.plan/epics/13-provider-section-reorg/tasks/07-meus-anuncios-list.md` |
 | T-13-08 | Meus Anúncios detail | done | — | `.plan/epics/13-provider-section-reorg/tasks/08-meus-anuncios-detail.md` |
-| T-13-09 | Dashboard slim and sidebar | in-progress | — | `.plan/epics/13-provider-section-reorg/tasks/09-dashboard-slim-and-sidebar.md` |
-| T-13-10 | Public page and ADRs | blocked | T-13-09 | `.plan/epics/13-provider-section-reorg/tasks/10-public-page-and-adrs.md` |
+| T-13-09 | Dashboard slim and sidebar | done | — | `.plan/epics/13-provider-section-reorg/tasks/09-dashboard-slim-and-sidebar.md` |
+| T-13-10 | Public page and ADRs | done | — | `.plan/epics/13-provider-section-reorg/tasks/10-public-page-and-adrs.md` |
 
 ---
 

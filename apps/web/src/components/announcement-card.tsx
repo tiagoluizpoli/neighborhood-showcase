@@ -199,7 +199,7 @@ export function AnnouncementCard({
         <div className="flex items-center justify-between gap-2">
           {/* Provider Identity */}
           <a
-            href={`/prestadores/${ad.providerId}`}
+            href={`/providers/${ad.providerId}`}
             onClick={(e) => e.stopPropagation()}
             className="group/prov flex min-w-0 items-center gap-2 hover:underline"
           >

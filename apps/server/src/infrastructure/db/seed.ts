@@ -92,6 +92,62 @@ async function seed() {
     })
     .returning()) as [typeof user.$inferInsert];
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const [avatarUser] = (await db
+    .insert(user)
+    .values({
+      id: 'seed-avatar-id',
+      name: 'Avatar Visual Test',
+      email: 'avatar@test.com',
+      emailVerified: true,
+      image: 'http://localhost:3001/logo.png',
+      role: 'USER',
+      status: 'ACTIVE',
+      cpfHash: 'cpf-hash-avatar',
+      language: 'pt-BR',
+      phone: '+551****9994',
+      theme: 'light',
+    })
+    .returning()) as [typeof user.$inferInsert];
+
+  // Full-branding provider — used by public-provider Playwright tests
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const [brandingUser] = (await db
+    .insert(user)
+    .values({
+      id: 'seed-branding-id',
+      name: 'Branding Visual Test',
+      email: 'branding@test.com',
+      emailVerified: true,
+      image: null,
+      role: 'USER',
+      status: 'ACTIVE',
+      cpfHash: 'cpf-hash-branding',
+      language: 'pt-BR',
+      phone: '+551****9993',
+      theme: 'light',
+    })
+    .returning()) as [typeof user.$inferInsert];
+
+  // Banned provider — used to verify the not-found path in public-provider tests
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const [bannedUser] = (await db
+    .insert(user)
+    .values({
+      id: 'seed-banned-id',
+      name: 'Banned Provider',
+      email: 'banned@test.com',
+      emailVerified: true,
+      image: null,
+      role: 'USER',
+      status: 'BANNED',
+      cpfHash: 'cpf-hash-banned',
+      language: 'pt-BR',
+      phone: '+551****9992',
+      theme: 'light',
+    })
+    .returning()) as [typeof user.$inferInsert];
+
   // Insert account records — schema has extra columns (providerAccountId, idToken)
   // that don't exist in the live DB. Cast to any to bypass the type mismatch.
   const providerPw = await hashPassword('Test@1234');
@@ -136,6 +192,39 @@ async function seed() {
     providerId: 'credential',
     providerAccountId: 'moderator@test.com',
     password: moderatorPw,
+  });
+
+  const avatarPw = await hashPassword('Test@1234');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db.insert(account).values as any)({
+    id: 'seed-account-avatar',
+    accountId: 'avatar@test.com',
+    userId: avatarUser.id,
+    providerId: 'credential',
+    providerAccountId: 'avatar@test.com',
+    password: avatarPw,
+  });
+
+  const brandingPw = await hashPassword('Test@1234');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db.insert(account).values as any)({
+    id: 'seed-account-branding',
+    accountId: 'branding@test.com',
+    userId: brandingUser.id,
+    providerId: 'credential',
+    providerAccountId: 'branding@test.com',
+    password: brandingPw,
+  });
+
+  const bannedPw = await hashPassword('Test@1234');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db.insert(account).values as any)({
+    id: 'seed-account-banned',
+    accountId: 'banned@test.com',
+    userId: bannedUser.id,
+    providerId: 'credential',
+    providerAccountId: 'banned@test.com',
+    password: bannedPw,
   });
 
   // Create test condos
@@ -235,6 +324,14 @@ async function seed() {
       status: 'APPROVED',
       unitInfo: 'Provider Other HQ',
     },
+    {
+      id: 'provider-assignment-branding',
+      providerId: brandingUser.id,
+      condominiumId: condo1.id,
+      type: 'RESIDENT',
+      status: 'APPROVED',
+      unitInfo: 'Branding HQ',
+    },
   ]);
 
   // Create provider_profile rows for seeded providers
@@ -255,6 +352,33 @@ async function seed() {
     {
       providerId: secondProviderUser.id,
       displayName: 'Provider Other',
+      avatarUrl: null,
+      companyName: null,
+      tradeName: null,
+      logoUrl: null,
+      bannerUrl: null,
+      publicDescription: null,
+      socialLinks: {},
+      isProviderVisible: true,
+    },
+    {
+      // Full-branding provider: banner + logo + company + social links
+      providerId: brandingUser.id,
+      displayName: 'Branding Visual Test',
+      avatarUrl: null,
+      companyName: 'Branding Ltda.',
+      tradeName: 'Branding Co.',
+      logoUrl: 'https://placehold.co/200x200/png',
+      bannerUrl: 'https://placehold.co/1200x400/png',
+      publicDescription:
+        'Empresa especializada em serviços de branding para condominios.',
+      socialLinks: { whatsapp: '+5511888880000', instagram: '@brandingco' },
+      isProviderVisible: true,
+    },
+    {
+      // Banned provider: profile exists but user is BANNED — page must show not-found
+      providerId: bannedUser.id,
+      displayName: 'Banned Provider',
       avatarUrl: null,
       companyName: null,
       tradeName: null,
@@ -355,10 +479,16 @@ async function seed() {
   ]);
 
   console.log(
-    '✅ Seed complete: provider@test.com, admin@test.com, moderator@test.com (password: Test@1234)',
+    '✅ Seed complete: provider@test.com, admin@test.com, moderator@test.com, branding@test.com, banned@test.com (password: Test@1234)',
   );
   console.log(
     '   moderator@test.com has APPROVED MODERATOR assignments for 2 condos.',
+  );
+  console.log(
+    '   branding@test.com: full-branding provider with banner/logo/social links.',
+  );
+  console.log(
+    '   banned@test.com: BANNED user for public-provider not-found test.',
   );
 }
 

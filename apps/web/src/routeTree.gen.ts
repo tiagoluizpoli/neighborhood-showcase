@@ -36,7 +36,7 @@ import { Route as PanelAdminOverviewRouteImport } from './routes/panel/admin/ove
 import { Route as PanelAdminCondominiumsRouteImport } from './routes/panel/admin/condominiums'
 import { Route as DashboardAnunciosNovoRouteImport } from './routes/dashboard.anuncios.novo'
 import { Route as DashboardAnnouncementsNewRouteImport } from './routes/dashboard.announcements.new'
-import { Route as PortalPrestadoresIdRouteImport } from './routes/_portal.prestadores.$id'
+import { Route as PortalProvidersIdRouteImport } from './routes/_portal.providers.$id'
 import { Route as PortalAnunciosIdRouteImport } from './routes/_portal.anuncios.$id'
 import { Route as PanelDashboardAnnouncementsIndexRouteImport } from './routes/panel.dashboard.announcements.index'
 import { Route as PanelDashboardAnunciosNovoRouteImport } from './routes/panel.dashboard.anuncios.novo'
@@ -186,9 +186,9 @@ const DashboardAnnouncementsNewRoute =
     path: '/announcements/new',
     getParentRoute: () => DashboardRoute,
   } as any)
-const PortalPrestadoresIdRoute = PortalPrestadoresIdRouteImport.update({
-  id: '/prestadores/$id',
-  path: '/prestadores/$id',
+const PortalProvidersIdRoute = PortalProvidersIdRouteImport.update({
+  id: '/providers/$id',
+  path: '/providers/$id',
   getParentRoute: () => PortalRoute,
 } as any)
 const PortalAnunciosIdRoute = PortalAnunciosIdRouteImport.update({
@@ -248,7 +248,7 @@ export interface FileRoutesByFullPath {
   '/panel/spectrum': typeof PanelSpectrumRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/anuncios/$id': typeof PortalAnunciosIdRoute
-  '/prestadores/$id': typeof PortalPrestadoresIdRoute
+  '/providers/$id': typeof PortalProvidersIdRoute
   '/dashboard/announcements/new': typeof DashboardAnnouncementsNewRoute
   '/dashboard/anuncios/novo': typeof DashboardAnunciosNovoRoute
   '/panel/admin/condominiums': typeof PanelAdminCondominiumsRoute
@@ -282,7 +282,7 @@ export interface FileRoutesByTo {
   '/': typeof PortalIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/anuncios/$id': typeof PortalAnunciosIdRoute
-  '/prestadores/$id': typeof PortalPrestadoresIdRoute
+  '/providers/$id': typeof PortalProvidersIdRoute
   '/dashboard/announcements/new': typeof DashboardAnnouncementsNewRoute
   '/dashboard/anuncios/novo': typeof DashboardAnunciosNovoRoute
   '/panel/admin/condominiums': typeof PanelAdminCondominiumsRoute
@@ -319,7 +319,7 @@ export interface FileRoutesById {
   '/_portal/': typeof PortalIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/_portal/anuncios/$id': typeof PortalAnunciosIdRoute
-  '/_portal/prestadores/$id': typeof PortalPrestadoresIdRoute
+  '/_portal/providers/$id': typeof PortalProvidersIdRoute
   '/dashboard/announcements/new': typeof DashboardAnnouncementsNewRoute
   '/dashboard/anuncios/novo': typeof DashboardAnunciosNovoRoute
   '/panel/admin/condominiums': typeof PanelAdminCondominiumsRoute
@@ -357,7 +357,7 @@ export interface FileRouteTypes {
     | '/panel/spectrum'
     | '/dashboard/'
     | '/anuncios/$id'
-    | '/prestadores/$id'
+    | '/providers/$id'
     | '/dashboard/announcements/new'
     | '/dashboard/anuncios/novo'
     | '/panel/admin/condominiums'
@@ -391,7 +391,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/anuncios/$id'
-    | '/prestadores/$id'
+    | '/providers/$id'
     | '/dashboard/announcements/new'
     | '/dashboard/anuncios/novo'
     | '/panel/admin/condominiums'
@@ -427,7 +427,7 @@ export interface FileRouteTypes {
     | '/_portal/'
     | '/dashboard/'
     | '/_portal/anuncios/$id'
-    | '/_portal/prestadores/$id'
+    | '/_portal/providers/$id'
     | '/dashboard/announcements/new'
     | '/dashboard/anuncios/novo'
     | '/panel/admin/condominiums'
@@ -649,11 +649,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAnnouncementsNewRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/_portal/prestadores/$id': {
-      id: '/_portal/prestadores/$id'
-      path: '/prestadores/$id'
-      fullPath: '/prestadores/$id'
-      preLoaderRoute: typeof PortalPrestadoresIdRouteImport
+    '/_portal/providers/$id': {
+      id: '/_portal/providers/$id'
+      path: '/providers/$id'
+      fullPath: '/providers/$id'
+      preLoaderRoute: typeof PortalProvidersIdRouteImport
       parentRoute: typeof PortalRoute
     }
     '/_portal/anuncios/$id': {
@@ -711,13 +711,13 @@ declare module '@tanstack/react-router' {
 interface PortalRouteChildren {
   PortalIndexRoute: typeof PortalIndexRoute
   PortalAnunciosIdRoute: typeof PortalAnunciosIdRoute
-  PortalPrestadoresIdRoute: typeof PortalPrestadoresIdRoute
+  PortalProvidersIdRoute: typeof PortalProvidersIdRoute
 }
 
 const PortalRouteChildren: PortalRouteChildren = {
   PortalIndexRoute: PortalIndexRoute,
   PortalAnunciosIdRoute: PortalAnunciosIdRoute,
-  PortalPrestadoresIdRoute: PortalPrestadoresIdRoute,
+  PortalProvidersIdRoute: PortalProvidersIdRoute,
 }
 
 const PortalRouteWithChildren =

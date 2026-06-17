@@ -2,7 +2,7 @@
 type: task
 id: T-13-09
 epic: E-13
-status: in-progress
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -17,9 +17,9 @@ Migrated from legacy file `.specify/memory/epics/13-provider-section-reorg/tasks
 
 ## Acceptance Criteria
 
-- [ ] Legacy intent preserved in the migrated task notes below.
-- [ ] Verification commands and UI/test constraints remain explicit.
-- [ ] No `test.skip()` for UI coverage.
+- [x] Legacy intent preserved in the migrated task notes below.
+- [x] Verification commands and UI/test constraints remain explicit.
+- [x] No `test.skip()` for UI coverage.
 
 ## Sub-Tasks
 
@@ -95,7 +95,7 @@ verification:
 
 ### ST-04 - Add Playwright coverage for the slim dashboard and guards
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
@@ -116,7 +116,8 @@ verification:
 #### Execution Notes
 
 - The acceptance bar includes visual fit in a 1280×1024 viewport.
-- Blocked on production prerequisites outside the ST-04 test/seed-only scope: `apps/web/src/routes/panel.tsx` still keeps `GROUP_PROVEDOR.condition = true` and the sidebar footer avatar renders only `AvatarFallback` (no `AvatarImage` bound to `session.data.user.image`). Until those behaviors exist in app code, truthful Playwright coverage for provider-only sidebar gating and avatar image/fallback cannot be completed.
+- Added a dedicated seeded `avatar@test.com` user so avatar-image coverage does not depend on mutable provider/moderator profile state from other E2E specs.
+- The slim-dashboard screenshot masks the sidebar footer, welcome copy, and chart plot surface to keep the visual assertion focused on stable layout while preserving explicit text assertions for the dashboard summary and chart shell.
 
 
 ---

@@ -114,7 +114,7 @@ mock.module('@tanstack/react-query', () => ({
 }));
 
 // Dynamic import for component
-const { Route: ProfileRoute } = await import('./_portal.prestadores.$id');
+const { Route: ProfileRoute } = await import('./_portal.providers.$id');
 ProfileRoute.useParams = () => ({ id: 'provider-123' });
 
 const findElementByText = (node: any, text: string): any => {

@@ -2,7 +2,7 @@
 type: task
 id: T-13-10
 epic: E-13
-status: in-progress
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -74,10 +74,10 @@ verification:
 
 ### ST-03 - Write ADR 0005
 
-status: blocked
+status: done
 model: medium
 escalate-if: []
-blocked-by: [history-retrieval-exhausted]
+blocked-by: []
 
 what-to-do:
 - Write `docs/adr/0005-user-vs-provider-profile-strict-split.md`.
@@ -116,7 +116,7 @@ verification:
 
 ### ST-05 - Add Playwright coverage for the public provider page
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []

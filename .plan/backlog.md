@@ -14,6 +14,7 @@ Horizon values: `now` | `soon` | `later`
 | ready | later | Admin | Reports section implementation | Sidebar/reporting placeholder work remains deferred. | legacy backlog |
 | ready | later | Admin | Admin provider management and condominium management UIs | Deferred admin surfaces remain outside the current provider-section reorg slice. | legacy backlog |
 | blocked | now | Provider / E2E | T-13-09/ST-04 Playwright coverage is blocked on sidebar capability gate + footer avatar image implementation | `apps/web/src/routes/panel.tsx` still has unconditional `GROUP_PROVEDOR.condition = true` and renders only `AvatarFallback`, so truthful E2E coverage for provider-only sidebar visibility and avatar image/fallback cannot pass until ST-02 lands or app-code edits are allowed. | `.plan/epics/13-provider-section-reorg/tasks/09-dashboard-slim-and-sidebar.md` |
+| ready | later | Routing | Translate the remaining public announcement route surface (`/anuncios/:id`, `_portal.anuncios.$id.tsx`) to English | T-13-10/ST-01 renamed the public provider route to `/providers/:id`; the linked public announcement route remains PT-named but was outside this sub-task's scope. | `.plan/epics/13-provider-section-reorg/tasks/10-public-page-and-adrs.md` |
 
 ## Legacy backlog note
 

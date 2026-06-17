@@ -267,7 +267,7 @@ function PublicAnnouncementDetailsComponent() {
                 </div>
               </div>
               <Link
-                to="/prestadores/$id"
+                to="/providers/$id"
                 params={{ id: ad.providerId }}
                 className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-3 py-1.5 font-medium text-muted-foreground text-xs transition-colors hover:bg-muted hover:text-foreground"
               >

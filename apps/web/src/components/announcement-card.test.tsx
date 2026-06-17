@@ -200,7 +200,7 @@ describe('AnnouncementCard', () => {
 
   test('shows verified badge near provider name', () => {
     const tree = renderComponent(() => AnnouncementCard({ ad: mockAd }));
-    const providerLink = findNodeByProp(tree, 'href', '/prestadores/prov-456');
+    const providerLink = findNodeByProp(tree, 'href', '/providers/prov-456');
     expect(providerLink).toBeTruthy();
     const checkIcon = findNodeByProp(
       providerLink,
@@ -269,7 +269,7 @@ describe('AnnouncementCard', () => {
 
   test('provider link click stops propagation and does not trigger detail navigation', () => {
     const tree = renderComponent(() => AnnouncementCard({ ad: mockAd }));
-    const providerLink = findNodeByProp(tree, 'href', '/prestadores/prov-456');
+    const providerLink = findNodeByProp(tree, 'href', '/providers/prov-456');
     expect(providerLink).toBeTruthy();
 
     const stopPropagationMock = mock(() => {});

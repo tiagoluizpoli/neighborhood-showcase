@@ -1,20 +1,20 @@
 {
-  "currentRunId": "e-13-t-13-09-st-03",
+  "currentRunId": "e-13-t-13-10-st-05",
   "currentPrdId": "PRD-v7-provider-section-reorg",
   "currentEpicId": "E-13",
-  "currentTaskId": "T-13-09",
-  "currentSubTaskId": "ST-03",
-  "attemptCount": 1,
-  "retrievalRound": 1,
-  "lastModel": "sonnet",
+  "currentTaskId": "T-13-10",
+  "currentSubTaskId": "ST-05",
+  "attemptCount": 2,
+  "retrievalRound": 2,
+  "lastModel": "Claude Sonnet 4.6 (Thinking)",
   "escalated": false,
-  "lastFailureReason": null,
+  "lastFailureReason": "no-completion-signal",
   "requiredModel": "medium",
-  "runnerName": "claude",
+  "runnerName": "agy",
   "escalateIf": [],
   "filesToTouch": [
-    "apps/web/src/routes/panel/dashboard/configuration.tsx",
-    "apps/web/src/routes/panel/dashboard/announcements.tsx"
+    "apps/web/tests/public-provider.spec.ts",
+    "relevant seed/setup files"
   ],
   "lastCommitChanged": false
 }
