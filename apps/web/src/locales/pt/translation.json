@@ -55,6 +55,22 @@
       "under_construction": "Em construção"
     }
   },
+  "dashboard": {
+    "kpi": {
+      "impressions_label": "Visualizações",
+      "impressions_desc": "Exibições na vitrine pública",
+      "interactions_label": "Interações",
+      "interactions_desc": "Cliques em WhatsApp / Instagram / Site",
+      "conversion_label": "Taxa de Conversão",
+      "announcements_label": "Anúncios"
+    },
+    "chart": {
+      "title": "Desempenho Geral",
+      "subtitle": "Histórico de visualizações e interações no período selecionado.",
+      "loading": "Carregando dados de desempenho...",
+      "error": "Erro ao carregar dados de desempenho."
+    }
+  },
   "common": {
     "page_not_found": "Página não encontrada",
     "publish_announcement": "Publicar Anúncio",

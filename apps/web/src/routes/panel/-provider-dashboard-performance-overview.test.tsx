@@ -1,4 +1,10 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, mock, test } from 'bun:test';
+
+mock.module('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
 
 const { ProviderDashboardPerformanceOverview } = await import(
   './-provider-dashboard-performance-overview'
@@ -10,17 +16,31 @@ const textContent = (node: unknown): string => {
     return String(node);
   }
   if (typeof node !== 'object' || node === null) return '';
-  const children = (node as { props?: { children?: unknown } }).props?.children;
-  if (!children) return '';
-  if (Array.isArray(children)) {
-    return children.map((child) => textContent(child)).join('');
+  const obj = node as {
+    props?: { children?: unknown; label?: unknown; value?: unknown };
+  };
+  const pieces: string[] = [];
+  if (obj.props?.label) pieces.push(textContent(obj.props.label));
+  if (obj.props?.children) {
+    const ch = obj.props.children;
+    if (Array.isArray(ch)) {
+      pieces.push(...ch.map((c) => textContent(c)));
+    } else {
+      pieces.push(textContent(ch));
+    }
   }
-  return textContent(children);
+  return pieces.join('');
 };
 
 describe('ProviderDashboardPerformanceOverview', () => {
-  test('renders stats cards and period controls', () => {
+  test('renders KPI cards and period controls', () => {
     const tree = ProviderDashboardPerformanceOverview({
+      announcements: {
+        active: [],
+        draft: [],
+        expired: [],
+        suspended: [],
+      },
       analytics: {
         chartData: [
           {
@@ -33,7 +53,7 @@ describe('ProviderDashboardPerformanceOverview', () => {
         isLoading: false,
       },
       formatPeriodLabel: (value) =>
-        value === '7d' ? '7 Dias' : value === '30d' ? '30 Dias' : '12 Meses',
+        value === '7d' ? '7 Days' : value === '30d' ? '30 Days' : '12 Months',
       onPeriodChange: () => {},
       period: '7d',
       stats: {
@@ -45,11 +65,12 @@ describe('ProviderDashboardPerformanceOverview', () => {
 
     const content = textContent(tree);
 
-    expect(content.includes('Visualizações')).toBe(true);
-    expect(content.includes('Interações')).toBe(true);
-    expect(content.includes('Taxa de Conversão')).toBe(true);
-    expect(content.includes('7 Dias')).toBe(true);
-    expect(content.includes('30 Dias')).toBe(true);
-    expect(content.includes('12 Meses')).toBe(true);
+    expect(content.includes('dashboard.kpi.impressions_label')).toBe(true);
+    expect(content.includes('dashboard.kpi.interactions_label')).toBe(true);
+    expect(content.includes('dashboard.kpi.conversion_label')).toBe(true);
+    expect(content.includes('dashboard.kpi.announcements_label')).toBe(true);
+    expect(content.includes('7 Days')).toBe(true);
+    expect(content.includes('30 Days')).toBe(true);
+    expect(content.includes('12 Months')).toBe(true);
   });
 });

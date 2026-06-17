@@ -7,10 +7,16 @@ import {
   AlertTriangle,
   Eye,
   Loader2,
+  Megaphone,
   MousePointerClick,
   TrendingUp,
 } from 'lucide-react';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts';
+import type { ProviderDashboardAnnouncementsBuckets } from './-provider-dashboard-state';
+
+type DashboardPeriod = '7d' | '30d' | '12m';
 
 interface ProviderDashboardPerformanceStats {
   totalImpressions: number;
@@ -18,103 +24,177 @@ interface ProviderDashboardPerformanceStats {
   conversionRate: number;
 }
 
+interface ChartDataPoint {
+  clicks: number;
+  impressions: number;
+  label: string;
+}
+
+interface DashboardAnalyticsState {
+  chartData?: ChartDataPoint[];
+  isError: boolean;
+  isLoading: boolean;
+}
+
 interface ProviderDashboardPerformanceOverviewProps {
-  analytics: {
-    chartData?: Array<{
-      clicks: number;
-      impressions: number;
-      label: string;
-    }>;
-    isError: boolean;
-    isLoading: boolean;
-  };
+  announcements: ProviderDashboardAnnouncementsBuckets;
+  analytics: DashboardAnalyticsState;
   formatPeriodLabel: (value: string) => string;
-  onPeriodChange: (period: '7d' | '30d' | '12m') => void;
-  period: '7d' | '30d' | '12m';
+  onPeriodChange: (period: DashboardPeriod) => void;
+  period: DashboardPeriod;
   stats: ProviderDashboardPerformanceStats;
 }
 
+interface KpiCardProps {
+  icon: ReactNode;
+  iconClass: string;
+  label: string;
+  children: ReactNode;
+}
+
+function KpiCard({ icon, iconClass, label, children }: KpiCardProps) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border bg-card p-6 text-card-foreground shadow-xs">
+      <div className="flex items-center justify-between">
+        <span className="font-medium text-muted-foreground text-sm">
+          {label}
+        </span>
+        <div className={`rounded-lg p-2 ${iconClass}`}>{icon}</div>
+      </div>
+      <div className="mt-4">{children}</div>
+    </div>
+  );
+}
+
+const MONTH_ABBR = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+type BucketKey = 'active' | 'draft' | 'expired' | 'suspended';
+
+const BUCKET_CONFIG: Array<{ key: BucketKey; i18nKey: string; color: string }> =
+  [
+    { key: 'active', i18nKey: 'common.active', color: 'bg-emerald-500' },
+    { key: 'draft', i18nKey: 'common.draft', color: 'bg-muted-foreground' },
+    { key: 'expired', i18nKey: 'common.expired', color: 'bg-amber-500' },
+    { key: 'suspended', i18nKey: 'common.suspended', color: 'bg-red-500' },
+  ];
+
+function formatDashboardTick(value: string, period: DashboardPeriod): string {
+  if (period === '12m') {
+    const [year, month] = value.split('-');
+    return `${MONTH_ABBR[Number.parseInt(month, 10) - 1]}/${year.slice(2)}`;
+  }
+  const parts = value.split('-');
+  return parts.length === 3 ? `${parts[2]}/${parts[1]}` : value;
+}
+
 export function ProviderDashboardPerformanceOverview({
+  announcements,
   analytics,
   formatPeriodLabel,
   onPeriodChange,
   period,
   stats,
 }: ProviderDashboardPerformanceOverviewProps) {
+  const { t } = useTranslation();
+
+  const chartData = analytics.chartData?.map((item) => ({
+    ...item,
+    conversion:
+      item.impressions > 0
+        ? Number(((item.clicks / item.impressions) * 100).toFixed(2))
+        : 0,
+  }));
+
   return (
     <>
-      <div className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
-        <div className="relative overflow-hidden rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="font-medium text-muted-foreground text-sm">
-              Visualizações
-            </span>
-            <div className="rounded-lg bg-primary/10 p-2 text-primary">
-              <Eye className="h-5 w-5" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <h3 className="font-bold text-3xl text-foreground">
-              {stats.totalImpressions}
-            </h3>
-            <p className="mt-1 text-muted-foreground text-xs">
-              Exibições na vitrine pública
-            </p>
-          </div>
-        </div>
+      <div className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard
+          label={t('dashboard.kpi.impressions_label')}
+          icon={<Eye className="h-5 w-5" />}
+          iconClass="bg-primary/10 text-primary"
+        >
+          <h3 className="font-bold text-3xl text-foreground">
+            {stats.totalImpressions}
+          </h3>
+          <p className="mt-1 text-muted-foreground text-xs">
+            {t('dashboard.kpi.impressions_desc')}
+          </p>
+        </KpiCard>
 
-        <div className="relative overflow-hidden rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="font-medium text-muted-foreground text-sm">
-              Interações
-            </span>
-            <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-600 dark:text-emerald-400">
-              <MousePointerClick className="h-5 w-5" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <h3 className="font-bold text-3xl text-foreground">
-              {stats.totalInteractions}
-            </h3>
-            <p className="mt-1 text-muted-foreground text-xs">
-              Cliques em WhatsApp/Instagram/Site
-            </p>
-          </div>
-        </div>
+        <KpiCard
+          label={t('dashboard.kpi.interactions_label')}
+          icon={<MousePointerClick className="h-5 w-5" />}
+          iconClass="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+        >
+          <h3 className="font-bold text-3xl text-foreground">
+            {stats.totalInteractions}
+          </h3>
+          <p className="mt-1 text-muted-foreground text-xs">
+            {t('dashboard.kpi.interactions_desc')}
+          </p>
+        </KpiCard>
 
-        <div className="relative overflow-hidden rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="font-medium text-muted-foreground text-sm">
-              Taxa de Conversão
-            </span>
-            <div className="rounded-lg bg-violet-500/10 p-2 text-violet-600 dark:text-violet-400">
-              <TrendingUp className="h-5 w-5" />
-            </div>
+        <KpiCard
+          label={t('dashboard.kpi.conversion_label')}
+          icon={<TrendingUp className="h-5 w-5" />}
+          iconClass="bg-violet-500/10 text-violet-600 dark:text-violet-400"
+        >
+          <h3 className="font-bold text-3xl text-foreground">
+            {stats.conversionRate}%
+          </h3>
+          <div className="mt-3 h-1.5 w-full rounded-full bg-muted">
+            <div
+              className="h-1.5 rounded-full bg-primary transition-all duration-500"
+              style={{ width: `${Math.min(stats.conversionRate, 100)}%` }}
+            />
           </div>
-          <div className="mt-4">
-            <div className="flex items-baseline gap-2">
-              <h3 className="font-bold text-3xl text-foreground">
-                {stats.conversionRate}%
-              </h3>
-            </div>
-            <div className="mt-3 h-1.5 w-full rounded-full bg-muted">
+        </KpiCard>
+
+        <KpiCard
+          label={t('dashboard.kpi.announcements_label')}
+          icon={<Megaphone className="h-5 w-5" />}
+          iconClass="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+        >
+          <div className="space-y-2">
+            {BUCKET_CONFIG.map(({ key, i18nKey, color }) => (
               <div
-                className="h-1.5 rounded-full bg-primary transition-all duration-500"
-                style={{ width: `${Math.min(stats.conversionRate, 100)}%` }}
-              />
-            </div>
+                key={key}
+                className="flex items-center justify-between text-xs"
+              >
+                <span className="flex items-center gap-1.5 text-muted-foreground">
+                  <span className={`h-2 w-2 rounded-full ${color}`} />
+                  {t(i18nKey)}
+                </span>
+                <span className="font-semibold text-foreground">
+                  {announcements[key].length}
+                </span>
+              </div>
+            ))}
           </div>
-        </div>
+        </KpiCard>
       </div>
 
-      <div className="mb-8 rounded-2xl border bg-card p-6 shadow-sm">
+      <div className="mb-8 rounded-2xl border bg-card p-6 shadow-xs">
         <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h2 className="font-bold text-foreground text-xl tracking-tight">
-              Desempenho Geral
+              {t('dashboard.chart.title')}
             </h2>
             <p className="text-muted-foreground text-xs">
-              Histórico de visualizações e interações no período selecionado.
+              {t('dashboard.chart.subtitle')}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -125,7 +205,7 @@ export function ProviderDashboardPerformanceOverview({
                 onClick={() => onPeriodChange(value)}
                 className={`rounded-lg px-3 py-1.5 font-medium text-xs transition-all ${
                   period === value
-                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    ? 'bg-primary text-primary-foreground shadow-xs'
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
@@ -136,35 +216,39 @@ export function ProviderDashboardPerformanceOverview({
         </div>
 
         {analytics.isLoading ? (
-          <div className="flex h-[300px] flex-col items-center justify-center space-y-4">
+          <div className="flex h-[180px] flex-col items-center justify-center space-y-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <p className="text-muted-foreground text-xs">
-              Carregando dados de desempenho...
+              {t('dashboard.chart.loading')}
             </p>
           </div>
         ) : analytics.isError ? (
-          <div className="flex h-[300px] flex-col items-center justify-center space-y-4 text-center">
+          <div className="flex h-[180px] flex-col items-center justify-center space-y-4 text-center">
             <AlertTriangle className="h-10 w-10 text-destructive" />
             <p className="text-muted-foreground text-xs">
-              Erro ao carregar dados de desempenho.
+              {t('dashboard.chart.error')}
             </p>
           </div>
         ) : (
-          <div className="h-[300px] w-full">
+          <div className="h-[180px] w-full">
             <ChartContainer
               config={{
                 impressions: {
-                  label: 'Visualizações',
+                  label: t('dashboard.kpi.impressions_label'),
                   color: 'var(--chart-1)',
                 },
                 clicks: {
-                  label: 'Interações',
+                  label: t('dashboard.kpi.interactions_label'),
                   color: 'var(--chart-2)',
+                },
+                conversion: {
+                  label: t('dashboard.kpi.conversion_label'),
+                  color: 'var(--chart-3)',
                 },
               }}
               className="h-full w-full"
             >
-              <BarChart data={analytics.chartData}>
+              <LineChart data={chartData}>
                 <CartesianGrid
                   strokeDasharray="3 3"
                   vertical={false}
@@ -176,56 +260,38 @@ export function ProviderDashboardPerformanceOverview({
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(value) => {
-                    if (period === '12m') {
-                      const [year, month] = value.split('-');
-                      const monthNames = [
-                        'Jan',
-                        'Fev',
-                        'Mar',
-                        'Abr',
-                        'Mai',
-                        'Jun',
-                        'Jul',
-                        'Ago',
-                        'Set',
-                        'Out',
-                        'Nov',
-                        'Dez',
-                      ];
-                      return `${monthNames[Number.parseInt(month, 10) - 1]}/${year.slice(2)}`;
-                    }
-                    const parts = value.split('-');
-                    if (parts.length === 3) {
-                      return `${parts[2]}/${parts[1]}`;
-                    }
-                    return value;
-                  }}
+                  tickFormatter={(value) => formatDashboardTick(value, period)}
                 />
-                <YAxis
-                  stroke="var(--muted-foreground)"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                  allowDecimals={false}
-                />
+                <YAxis hide />
                 <ChartTooltip
-                  cursor={{ fill: 'var(--muted)' }}
+                  cursor={{ stroke: 'var(--border)', strokeWidth: 1 }}
                   content={<ChartTooltipContent indicator="line" />}
                 />
-                <Bar
+                <Line
+                  type="monotone"
                   dataKey="impressions"
-                  name="Visualizações"
-                  fill="var(--color-impressions)"
-                  radius={[4, 4, 0, 0]}
+                  name={t('dashboard.kpi.impressions_label')}
+                  stroke="var(--color-impressions)"
+                  strokeWidth={2}
+                  dot={false}
                 />
-                <Bar
+                <Line
+                  type="monotone"
                   dataKey="clicks"
-                  name="Interações"
-                  fill="var(--color-clicks)"
-                  radius={[4, 4, 0, 0]}
+                  name={t('dashboard.kpi.interactions_label')}
+                  stroke="var(--color-clicks)"
+                  strokeWidth={2}
+                  dot={false}
                 />
-              </BarChart>
+                <Line
+                  type="monotone"
+                  dataKey="conversion"
+                  name={t('dashboard.kpi.conversion_label')}
+                  stroke="var(--color-conversion)"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
             </ChartContainer>
           </div>
         )}

@@ -55,6 +55,22 @@
       "under_construction": "Under construction"
     }
   },
+  "dashboard": {
+    "kpi": {
+      "impressions_label": "Views",
+      "impressions_desc": "Showcase public displays",
+      "interactions_label": "Interactions",
+      "interactions_desc": "Clicks on WhatsApp / Instagram / Website",
+      "conversion_label": "Conversion Rate",
+      "announcements_label": "Announcements"
+    },
+    "chart": {
+      "title": "Overall Performance",
+      "subtitle": "History of views and interactions for the selected period.",
+      "loading": "Loading performance data...",
+      "error": "Could not load performance data."
+    }
+  },
   "common": {
     "page_not_found": "Page Not Found",
     "publish_announcement": "Publish Announcement",
