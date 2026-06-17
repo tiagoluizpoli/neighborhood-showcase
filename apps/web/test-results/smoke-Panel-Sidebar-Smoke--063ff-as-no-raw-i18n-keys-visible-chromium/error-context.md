@@ -7,7 +7,7 @@
 # Test info
 
 - Name: smoke.spec.ts >> Panel Sidebar Smoke >> sidebar has no raw i18n keys visible
-- Location: tests/smoke.spec.ts:19:2
+- Location: tests/smoke.spec.ts:19:3
 
 # Error details
 
@@ -16,7 +16,7 @@ Test timeout of 30000ms exceeded.
 ```
 
 ```
-Error: fill: Test timeout of 30000ms exceeded.
+Error: locator.fill: Test timeout of 30000ms exceeded.
 Call log:
   - waiting for getByPlaceholder(/e-mail/i)
 
@@ -84,7 +84,7 @@ Call log:
   7  |   await page.goto('/auth');
   8  |   // "Entrar" tab is already selected by default — no click needed
 > 9  |   await page.getByPlaceholder(/e-mail/i).fill(email);
-     |                                         ^ Error: fill: Test timeout of 30000ms exceeded.
+     |                                          ^ Error: locator.fill: Test timeout of 30000ms exceeded.
   10 |   await page.getByPlaceholder(/senha/i).fill(password);
   11 |   await page.getByRole('button', { name: /entrar/i }).click();
   12 |   await page.waitForURL(/\/panel/, { timeout: 15_000 });

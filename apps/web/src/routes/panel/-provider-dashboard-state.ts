@@ -64,11 +64,7 @@ export function useProviderDashboardState() {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState<ProviderDashboardTab>('active');
-  const [editingAd, setEditingAd] =
-    useState<ProviderDashboardAnnouncementItem | null>(null);
   const [period, setPeriod] = useState<ProviderDashboardPeriod>('7d');
-  const [viewingAnalyticsAd, setViewingAnalyticsAd] =
-    useState<ProviderDashboardAnnouncementItem | null>(null);
 
   const dashboardQuery = useQuery(
     trpc.announcement.getDashboardData.queryOptions(),
@@ -86,7 +82,6 @@ export function useProviderDashboardState() {
   );
 
   const handleEditSuccess = () => {
-    setEditingAd(null);
     queryClient.invalidateQueries({
       queryKey: trpc.announcement.getDashboardData.queryKey(),
     });
@@ -102,20 +97,28 @@ export function useProviderDashboardState() {
     renewMutation.mutate({ announcementId: ad.id });
   };
 
+  const openDetail = (ad: ProviderDashboardAnnouncementItem | null) => {
+    if (!ad) return;
+    navigate({
+      to: '/panel/dashboard/announcements/$id',
+      params: { id: ad.id },
+    });
+  };
+
   return {
     activeTab,
     analyticsQuery,
     dashboardQuery,
-    editingAd,
+    editingAd: null,
     handleEditSuccess,
     handlePay,
     handleRenew,
     period,
     renewMutation,
     setActiveTab,
-    setEditingAd,
+    setEditingAd: openDetail,
     setPeriod,
-    setViewingAnalyticsAd,
-    viewingAnalyticsAd,
+    setViewingAnalyticsAd: openDetail,
+    viewingAnalyticsAd: null,
   } satisfies ProviderDashboardState;
 }

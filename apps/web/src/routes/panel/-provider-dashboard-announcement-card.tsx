@@ -123,7 +123,7 @@ export function ProviderDashboardAnnouncementCard({
           </div>
         )}
 
-        <div className="mt-5 flex flex-col gap-2">
+        <div className="relative z-20 mt-5 flex flex-col gap-2">
           {ad.status === 'DRAFT' && onPay && (
             <button
               type="button"

@@ -39,9 +39,9 @@
       "open_reports": "open reports"
     },
     "user_menu": {
-      "conta": "Account",
-      "sair": "Sign Out",
-      "confirm_sair": "Are you sure you want to sign out?",
+      "account": "Account",
+      "logout": "Sign Out",
+      "confirm_logout": "Are you sure you want to sign out?",
       "cancel": "Cancel"
     },
     "language_switcher": {
@@ -227,6 +227,173 @@
       "description": "Publish your services or products and get seen by residents in your condominium and region with ease and safety.",
       "cta": "Advertise service",
       "has_account": "Already have an account? Sign In"
+    }
+  },
+  "account": {
+    "page_title": "Account & Security",
+    "page_subtitle": "Manage your personal identity, preferences, and account protection controls.",
+    "section_profile": "Profile",
+    "section_profile_help": "Update your personal details and the image shown in the panel.",
+    "section_preferences": "Preferences",
+    "section_preferences_help": "Choose language and theme so the experience restores on other devices.",
+    "section_security": "Security",
+    "section_security_help": "Password and session controls will be enabled in upcoming deliveries.",
+    "section_danger_zone": "Danger Zone",
+    "section_danger_zone_help": "Deleting your account removes your access and personal data.",
+    "field_avatar": "Avatar",
+    "field_avatar_help": "Upload a square image. It will be cropped to a 1:1 ratio.",
+    "field_displayName": "Name",
+    "field_displayName_placeholder": "How you want to appear in the panel",
+    "field_displayName_help": "Use the name that should appear in the panel and account flows.",
+    "field_phone": "Phone",
+    "field_phone_placeholder": "(11) 99999-9999",
+    "field_email": "Email",
+    "field_email_help": "Your email address is read-only and reflects the current verification status.",
+    "email_verified": "Verified",
+    "email_pending": "Pending",
+    "preference_language": "Language",
+    "preference_language_pt": "Português",
+    "preference_language_en": "English",
+    "preference_theme": "Theme",
+    "preference_theme_system": "System",
+    "preference_theme_light": "Light",
+    "preference_theme_dark": "Dark",
+    "security_password": "Password",
+    "security_password_desc": "Password changes will be available here soon.",
+    "security_sessions": "Active sessions",
+    "security_sessions_desc": "Connected-device management is coming soon.",
+    "coming_soon": "Coming soon",
+    "danger_zone_lgpd": "Deleting the account removes your personal data and linked access in line with LGPD requirements.",
+    "button_save_changes": "Save changes",
+    "button_delete_account": "Delete account",
+    "modal_delete_title": "Delete account",
+    "modal_delete_body": "This action is permanent and will immediately revoke your access.",
+    "modal_delete_note": "Use this option only if you really want to erase your account.",
+    "modal_cancel": "Cancel",
+    "modal_confirm": "Confirm deletion",
+    "toast_success": "Account details updated successfully!",
+    "toast_error": "Something went wrong. Please try again.",
+    "toast_delete_success": "Account deleted successfully.",
+    "toast_delete_error": "Could not delete the account.",
+    "validation_name_min": "Name must be at least 3 characters long.",
+    "loading": "Loading account...",
+    "unauthenticated": "Sign in to access your account."
+  },
+  "meus_anuncios": {
+    "page_title": "My Announcements",
+    "page_subtitle": "Track your announcements by status and open each detail view.",
+    "create_button": "Create Announcement",
+    "tabs": {
+      "active": "Active",
+      "draft": "Drafts & Pending",
+      "expired": "Expired",
+      "suspended": "Suspended"
+    },
+    "empty": {
+      "active": "No active announcements right now.",
+      "draft": "No drafts or pending payments.",
+      "expired": "No expired announcements.",
+      "suspended": "No suspended announcements."
+    },
+    "count_badge_label": "{{count}} announcements",
+    "open_details": "Open details for {{title}}",
+    "load_error": "Could not load your announcements.",
+    "toast_error_no_provider_account": "You need an approved provider account to access My Announcements.",
+    "detail": {
+      "back": "Back to My Announcements",
+      "edit": "Edit announcement",
+      "save": "Save changes",
+      "cancel": "Cancel",
+      "loading": "Loading announcement...",
+      "not_found_toast": "That announcement does not exist or does not belong to your account.",
+      "update_success": "Announcement updated successfully.",
+      "update_error": "Could not update the announcement.",
+      "verified_badge": "Verified resident",
+      "description_title": "Description",
+      "contact_title": "Contact channels",
+      "tags_title": "Tags",
+      "suspension_title": "Suspension reason",
+      "summary_title": "Quick summary",
+      "edit_panel_title": "Edit announcement",
+      "edit_panel_subtitle": "Adjust the fields and save when you are done.",
+      "price_on_request": "Price on request",
+      "status": {
+        "active": "Active",
+        "active_review": "Active (under review)",
+        "draft": "Draft",
+        "pending_payment": "Pending payment",
+        "expired": "Expired",
+        "suspended": "Suspended"
+      },
+      "fields": {
+        "category": "Category",
+        "price": "Price",
+        "condo": "Condominium",
+        "created_at": "Created on",
+        "paid_at": "Paid on",
+        "expires_at": "Expires on"
+      },
+      "summary": {
+        "status": "Status",
+        "contact_channels": "Contact channels",
+        "tags": "Tags"
+      },
+      "contact_labels": {
+        "whatsapp": "WhatsApp",
+        "instagram": "Instagram",
+        "website": "Website"
+      },
+      "validation": {
+        "title": "The announcement title must be at least 3 characters long.",
+        "description": "The announcement description must be at least 10 characters long.",
+        "contact": "Provide at least one contact method for the announcement."
+      },
+      "analytics": {
+        "title": "Analytics",
+        "subtitle": "Track views, interactions, and conversion for the selected announcement.",
+        "loading": "Loading analytics...",
+        "error": "Could not load analytics.",
+        "periods": {
+          "7d": "7 days",
+          "30d": "30 days",
+          "12m": "12 months"
+        },
+        "metrics": {
+          "impressions": "Views",
+          "interactions": "Interactions",
+          "conversion": "Conversion"
+        }
+      },
+      "form": {
+        "title": "Title *",
+        "title_placeholder": "Ex: Healthy lunch boxes",
+        "subtitle": "Subtitle (optional)",
+        "subtitle_placeholder": "Ex: Made with fresh ingredients",
+        "category": "Category *",
+        "price": "Price (BRL, optional)",
+        "price_placeholder": "Ex: 25.00",
+        "description": "Detailed description *",
+        "description_placeholder": "Describe what you offer, availability, and differentiators.",
+        "contact_title": "Contact methods (provide at least one)",
+        "whatsapp_placeholder": "Ex: 47999999999",
+        "instagram_placeholder": "Ex: @yourhandle",
+        "website_placeholder": "Ex: https://yourwebsite.com",
+        "verified_badge_title": "Show verified resident badge",
+        "verified_badge_hint": "Show that you are an approved resident in this condominium.",
+        "verified_badge_disabled": "This badge is only available to approved residents.",
+        "image_label": "Cover image (4:3)",
+        "image_preview_alt": "Announcement image preview",
+        "image_change": "Change image",
+        "image_hint": "4:3 images look best in the listing.",
+        "image_invalid": "Please select a valid image.",
+        "image_upload_success": "Image updated successfully.",
+        "image_upload_error": "Failed to upload the image.",
+        "crop_title": "Adjust image",
+        "crop_subtitle": "Drag to fit the 4:3 frame.",
+        "zoom": "Zoom",
+        "image_save": "Crop and save",
+        "image_saving": "Saving..."
+      }
     }
   }
 }

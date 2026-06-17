@@ -7,6 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@neighborhood-showcase/ui/components/tooltip';
+import { useTranslation } from 'react-i18next';
 import { ProviderDashboardEditImageField } from './-provider-dashboard-edit-image-field';
 
 interface ProviderDashboardEditFormFieldsProps {
@@ -59,6 +60,7 @@ export function ProviderDashboardEditFormFields({
   onUploadingChange,
   onWebsiteChange,
   onWhatsappChange,
+  isUploading,
   price,
   showVerifiedBadge,
   subtitle,
@@ -66,6 +68,8 @@ export function ProviderDashboardEditFormFields({
   website,
   whatsapp,
 }: ProviderDashboardEditFormFieldsProps) {
+  const { t } = useTranslation();
+
   return (
     <>
       <ProviderDashboardEditImageField
@@ -75,36 +79,27 @@ export function ProviderDashboardEditFormFields({
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <span className="block font-medium text-foreground text-sm">
-            Título *
-          </span>
+        <Field label={t('meus_anuncios.detail.form.title')}>
           <Input
             type="text"
             required
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
-            placeholder="Ex: Marmitas Saudáveis"
+            placeholder={t('meus_anuncios.detail.form.title_placeholder')}
           />
-        </div>
-        <div className="space-y-1.5">
-          <span className="block font-medium text-foreground text-sm">
-            Subtítulo (Opcional)
-          </span>
+        </Field>
+        <Field label={t('meus_anuncios.detail.form.subtitle')}>
           <Input
             type="text"
             value={subtitle}
             onChange={(e) => onSubtitleChange(e.target.value)}
-            placeholder="Ex: Feitas com amor e ingredientes locais"
+            placeholder={t('meus_anuncios.detail.form.subtitle_placeholder')}
           />
-        </div>
+        </Field>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <span className="block font-medium text-foreground text-sm">
-            Categoria *
-          </span>
+        <Field label={t('meus_anuncios.detail.form.category')}>
           <select
             required
             value={categoryId}
@@ -117,11 +112,8 @@ export function ProviderDashboardEditFormFields({
               </option>
             ))}
           </select>
-        </div>
-        <div className="space-y-1.5">
-          <span className="block font-medium text-foreground text-sm">
-            Preço (R$, opcional)
-          </span>
+        </Field>
+        <Field label={t('meus_anuncios.detail.form.price')}>
           <Input
             type="number"
             step="0.01"
@@ -130,63 +122,60 @@ export function ProviderDashboardEditFormFields({
             onChange={(e) =>
               onPriceChange(e.target.value === '' ? '' : Number(e.target.value))
             }
-            placeholder="Ex: 25.00 (deixe em branco para combinar)"
+            placeholder={t('meus_anuncios.detail.form.price_placeholder')}
           />
-        </div>
+        </Field>
       </div>
 
-      <div className="space-y-1.5">
-        <span className="block font-medium text-foreground text-sm">
-          Descrição Detalhada *
-        </span>
+      <Field label={t('meus_anuncios.detail.form.description')}>
         <Textarea
           required
           rows={4}
           value={description}
           onChange={(e) => onDescriptionChange(e.target.value)}
-          placeholder="Descreva o que você oferece, horários, prazos..."
+          placeholder={t('meus_anuncios.detail.form.description_placeholder')}
           className="resize-none"
         />
-      </div>
+      </Field>
 
       <div className="space-y-3">
         <h4 className="font-semibold text-foreground text-sm">
-          Meios de Contato (Forneça ao menos um)
+          {t('meus_anuncios.detail.form.contact_title')}
         </h4>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="space-y-1.5">
-            <span className="block text-muted-foreground text-xs">
-              WhatsApp (DDD + Número)
-            </span>
+          <Field
+            label={t('meus_anuncios.detail.contact_labels.whatsapp')}
+            subtle
+          >
             <Input
               type="text"
               value={whatsapp}
               onChange={(e) => onWhatsappChange(e.target.value)}
-              placeholder="Ex: 47999999999"
+              placeholder={t('meus_anuncios.detail.form.whatsapp_placeholder')}
             />
-          </div>
-          <div className="space-y-1.5">
-            <span className="block text-muted-foreground text-xs">
-              Instagram (Username)
-            </span>
+          </Field>
+          <Field
+            label={t('meus_anuncios.detail.contact_labels.instagram')}
+            subtle
+          >
             <Input
               type="text"
               value={instagram}
               onChange={(e) => onInstagramChange(e.target.value)}
-              placeholder="Ex: @seuusername"
+              placeholder={t('meus_anuncios.detail.form.instagram_placeholder')}
             />
-          </div>
-          <div className="space-y-1.5">
-            <span className="block text-muted-foreground text-xs">
-              Site / Portfólio (URL)
-            </span>
+          </Field>
+          <Field
+            label={t('meus_anuncios.detail.contact_labels.website')}
+            subtle
+          >
             <Input
               type="url"
               value={website}
               onChange={(e) => onWebsiteChange(e.target.value)}
-              placeholder="Ex: https://meusite.com"
+              placeholder={t('meus_anuncios.detail.form.website_placeholder')}
             />
-          </div>
+          </Field>
         </div>
       </div>
 
@@ -194,10 +183,10 @@ export function ProviderDashboardEditFormFields({
         <div className="flex items-center justify-between rounded-xl border border-border bg-muted/40 p-4">
           <div className="space-y-0.5">
             <span className="block font-semibold text-foreground text-sm">
-              Exibir Selo de Morador Verificado
+              {t('meus_anuncios.detail.form.verified_badge_title')}
             </span>
             <span className="text-muted-foreground text-xs">
-              Exiba que você é um morador aprovado neste condomínio.
+              {t('meus_anuncios.detail.form.verified_badge_hint')}
             </span>
           </div>
           <TooltipProvider>
@@ -206,7 +195,7 @@ export function ProviderDashboardEditFormFields({
                 render={
                   <span className="inline-block">
                     <Checkbox
-                      disabled={!canVerify}
+                      disabled={!canVerify || isUploading}
                       checked={showVerifiedBadge && canVerify}
                       onCheckedChange={(checked) =>
                         onShowVerifiedBadgeChange(checked === true)
@@ -221,9 +210,7 @@ export function ProviderDashboardEditFormFields({
                   align="center"
                   className="max-w-xs p-2 text-center"
                 >
-                  O selo de morador verificado está disponível apenas para
-                  moradores de condomínio aprovados. Acesse a página "Minha
-                  Conta" para verificar sua residência.
+                  {t('meus_anuncios.detail.form.verified_badge_disabled')}
                 </TooltipContent>
               )}
             </Tooltip>
@@ -231,12 +218,35 @@ export function ProviderDashboardEditFormFields({
         </div>
         {!canVerify && (
           <p className="px-1 text-[10px] text-warning">
-            Indisponível: O selo de morador verificado está disponível apenas
-            para moradores de condomínio aprovados. Acesse a página "Minha
-            Conta" para verificar sua residência.
+            {t('meus_anuncios.detail.form.verified_badge_disabled')}
           </p>
         )}
       </div>
     </>
+  );
+}
+
+function Field({
+  children,
+  label,
+  subtle = false,
+}: {
+  children: React.ReactNode;
+  label: string;
+  subtle?: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <span
+        className={
+          subtle
+            ? 'block text-muted-foreground text-xs'
+            : 'block font-medium text-foreground text-sm'
+        }
+      >
+        {label}
+      </span>
+      {children}
+    </div>
   );
 }

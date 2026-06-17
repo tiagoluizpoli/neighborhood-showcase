@@ -408,11 +408,11 @@ function PanelLayout() {
               <PopoverContent align="start" className="w-52 border bg-card">
                 <div className="flex flex-col gap-1">
                   <Link
-                    to="/panel/conta"
+                    to="/panel/account"
                     className="flex items-center gap-2 rounded-md px-3 py-2 text-foreground text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
                   >
                     <Settings className="h-4 w-4 text-muted-foreground" />
-                    {t('sidebar.user_menu.conta')}
+                    {t('sidebar.user_menu.account')}
                   </Link>
                   <AlertDialog>
                     <AlertDialogTrigger
@@ -423,15 +423,15 @@ function PanelLayout() {
                         />
                       }
                     >
-                      {t('sidebar.user_menu.sair')}
+                      {t('sidebar.user_menu.logout')}
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogTitle>
-                        {t('sidebar.user_menu.sair')}
+                        {t('sidebar.user_menu.logout')}
                       </AlertDialogTitle>
                       <AlertDialogDescription>
                         {session.data?.user?.name} —{' '}
-                        {t('sidebar.user_menu.confirm_sair')}
+                        {t('sidebar.user_menu.confirm_logout')}
                       </AlertDialogDescription>
                       <AlertDialogFooter>
                         <AlertDialogCancel>
@@ -448,7 +448,7 @@ function PanelLayout() {
                             });
                           }}
                         >
-                          {t('sidebar.user_menu.sair')}
+                          {t('sidebar.user_menu.logout')}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>

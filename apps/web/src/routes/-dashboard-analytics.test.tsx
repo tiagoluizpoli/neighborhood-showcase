@@ -144,17 +144,11 @@ mock.module('@tanstack/react-router', () => ({
 }));
 
 const { Route } = await import('./panel.dashboard.index');
-const { ProviderDashboardAnalyticsModal } = await import(
-  './panel/-provider-dashboard-analytics-modal'
-);
 const { ProviderDashboardEditImageField } = await import(
   './panel/-provider-dashboard-edit-image-field'
 );
 const { ProviderDashboardEditFormFields } = await import(
   './panel/-provider-dashboard-edit-form-fields'
-);
-const { ProviderDashboardEditModal } = await import(
-  './panel/-provider-dashboard-edit-modal'
 );
 Route.useRouteContext = () => ({
   session: { data: { user: { name: 'John Analytics' } } },
@@ -346,29 +340,6 @@ describe('Dashboard Analytics & Action Buttons Unit Tests', () => {
     expect(treeUpdated).toBeDefined();
   });
 
-  test('analytics modal renders extracted metrics view with period controls', () => {
-    const tree = renderComponent(() =>
-      ProviderDashboardAnalyticsModal({
-        ad: mockDashboardData.announcements.active[0],
-        onClose: () => {},
-      }),
-    );
-
-    const metricsTitle = findElement(
-      tree,
-      (el) => el.props?.children === 'Métricas: ',
-    );
-    expect(metricsTitle).toBeDefined();
-
-    const periodButtons = findAllElements(
-      tree,
-      (el) =>
-        el.type === 'button' &&
-        ['7 Dias', '30 Dias', '12 Meses'].includes(el.props?.children),
-    );
-    expect(periodButtons.length).toBe(3);
-  });
-
   test('edit image field renders preview and upload controls from extracted seam', () => {
     const tree = renderComponent(() =>
       ProviderDashboardEditImageField({
@@ -434,27 +405,5 @@ describe('Dashboard Analytics & Action Buttons Unit Tests', () => {
         el.props.children.includes('Exibir Selo de Morador Verificado'),
     );
     expect(verifiedCopy).toBeDefined();
-  });
-
-  test('edit modal renders extracted shell with save action', () => {
-    const tree = renderComponent(() =>
-      ProviderDashboardEditModal({
-        ad: mockDashboardData.announcements.active[0],
-        onClose: () => {},
-        onSuccess: () => {},
-      }),
-    );
-
-    const modalTitle = findElement(
-      tree,
-      (el) => el.props?.children === 'Editar Anúncio',
-    );
-    expect(modalTitle).toBeDefined();
-
-    const saveButton = findElement(
-      tree,
-      (el) => el.props?.children === 'Salvar Alterações',
-    );
-    expect(saveButton).toBeDefined();
   });
 });

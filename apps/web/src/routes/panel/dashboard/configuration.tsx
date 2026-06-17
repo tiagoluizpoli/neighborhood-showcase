@@ -47,9 +47,9 @@ function ConfigurationPageComponent() {
   useEffect(() => {
     if (!isLoading && assignments && !hasEnabledProviderAssignment) {
       toast.error(t('toast_error_no_provider_account'));
-      navigate({ to: '/panel/conta' });
+      navigate({ to: '/panel/account' });
     }
-  }, [isLoading, assignments, hasEnabledProviderAssignment, navigate]);
+  }, [isLoading, assignments, hasEnabledProviderAssignment, navigate, t]);
 
   // Section 1: Public Profile
   const [displayName, setDisplayName] = useState('');

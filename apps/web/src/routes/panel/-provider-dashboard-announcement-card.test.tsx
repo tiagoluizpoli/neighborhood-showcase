@@ -130,7 +130,7 @@ describe('ProviderDashboardAnnouncementCard', () => {
   test('renders the empty state link when available', () => {
     const tree = ProviderDashboardAnnouncementEmptyState({
       text: 'Nenhum anúncio ativo no momento.',
-      link: '/panel/dashboard/anuncios/novo',
+      link: '/panel/dashboard/announcements/new',
       buttonText: 'Criar Anúncio',
     });
 

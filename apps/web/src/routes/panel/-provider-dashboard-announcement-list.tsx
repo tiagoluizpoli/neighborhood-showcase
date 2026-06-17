@@ -74,7 +74,7 @@ export function ProviderDashboardAnnouncementList({
           <AnnouncementGrid
             emptyText="Nenhum anúncio ativo no momento."
             emptyButtonText="Criar Anúncio"
-            emptyLink="/panel/dashboard/anuncios/novo"
+            emptyLink="/panel/dashboard/announcements/new"
             items={announcements.active}
             onEdit={onEdit}
             onPay={undefined}
@@ -90,7 +90,7 @@ export function ProviderDashboardAnnouncementList({
           <AnnouncementGrid
             emptyText="Nenhum rascunho ou pagamento pendente."
             emptyButtonText="Criar Anúncio"
-            emptyLink="/panel/dashboard/anuncios/novo"
+            emptyLink="/panel/dashboard/announcements/new"
             items={announcements.draft}
             onEdit={onEdit}
             onPay={onPay}

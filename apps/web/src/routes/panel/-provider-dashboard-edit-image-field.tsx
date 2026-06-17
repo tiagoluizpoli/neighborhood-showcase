@@ -3,6 +3,7 @@ import { Button } from '@neighborhood-showcase/ui/components/button';
 import { Loader2, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import Cropper, { type Area } from 'react-easy-crop';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { getCroppedImg } from '@/utils/crop-image';
 
@@ -17,6 +18,7 @@ export function ProviderDashboardEditImageField({
   onImageUrlChange,
   onUploadingChange,
 }: ProviderDashboardEditImageFieldProps) {
+  const { t } = useTranslation();
   const [isUploading, setIsUploading] = useState(false);
   const [selectedImageSrc, setSelectedImageSrc] = useState('');
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -32,12 +34,10 @@ export function ProviderDashboardEditImageField({
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      toast.error('Por favor, selecione uma imagem válida.');
+      toast.error(t('meus_anuncios.detail.form.image_invalid'));
       return;
     }
 
@@ -53,9 +53,7 @@ export function ProviderDashboardEditImageField({
   };
 
   const handleCropConfirm = async () => {
-    if (!selectedImageSrc || !croppedAreaPixels) {
-      return;
-    }
+    if (!selectedImageSrc || !croppedAreaPixels) return;
 
     setUploadingState(true);
     try {
@@ -63,7 +61,6 @@ export function ProviderDashboardEditImageField({
         selectedImageSrc,
         croppedAreaPixels,
       );
-
       const formData = new FormData();
       formData.append('file', croppedBlob, 'cover-image.webp');
       formData.append('type', 'image');
@@ -75,15 +72,18 @@ export function ProviderDashboardEditImageField({
       });
 
       if (!response.ok) {
-        throw new Error('Falha no upload da imagem recortada.');
+        throw new Error(t('meus_anuncios.detail.form.image_upload_error'));
       }
 
       const data = await response.json();
       onImageUrlChange(data.url);
-      toast.success('Imagem recortada e enviada com sucesso!');
+      toast.success(t('meus_anuncios.detail.form.image_upload_success'));
       setIsCroppingOpen(false);
     } catch (err: unknown) {
-      toast.error((err as Error).message || 'Erro ao processar imagem.');
+      toast.error(
+        (err as Error).message ||
+          t('meus_anuncios.detail.form.image_upload_error'),
+      );
     } finally {
       setUploadingState(false);
     }
@@ -93,13 +93,13 @@ export function ProviderDashboardEditImageField({
     <>
       <div className="space-y-2">
         <span className="block font-medium text-foreground text-sm">
-          Imagem de Capa (4:3)
+          {t('meus_anuncios.detail.form.image_label')}
         </span>
         <div className="flex items-center gap-4">
           <div className="relative aspect-[4/3] w-32 overflow-hidden rounded-lg border border-border bg-muted">
             <img
               src={imageUrl}
-              alt="Preview"
+              alt={t('meus_anuncios.detail.form.image_preview_alt')}
               className="h-full w-full object-cover"
             />
             {isUploading && (
@@ -114,7 +114,7 @@ export function ProviderDashboardEditImageField({
               onClick={() => fileInputRef.current?.click()}
               variant="secondary"
             >
-              Alterar Imagem
+              {t('meus_anuncios.detail.form.image_change')}
             </Button>
             <input
               type="file"
@@ -124,7 +124,7 @@ export function ProviderDashboardEditImageField({
               className="hidden"
             />
             <p className="text-muted-foreground text-xs">
-              Imagens na proporção 4:3 são preferíveis.
+              {t('meus_anuncios.detail.form.image_hint')}
             </p>
           </div>
         </div>
@@ -136,10 +136,10 @@ export function ProviderDashboardEditImageField({
             <div className="flex items-center justify-between border-border border-b p-5">
               <div>
                 <h4 className="font-bold text-foreground text-lg">
-                  Ajustar Imagem
+                  {t('meus_anuncios.detail.form.crop_title')}
                 </h4>
                 <p className="mt-0.5 text-muted-foreground text-xs">
-                  Arraste para ajustar o enquadramento de 4:3.
+                  {t('meus_anuncios.detail.form.crop_subtitle')}
                 </p>
               </div>
               <button
@@ -169,7 +169,7 @@ export function ProviderDashboardEditImageField({
               <div className="space-y-1">
                 <div className="flex justify-between text-muted-foreground text-xs">
                   <span className="font-medium text-foreground text-sm">
-                    Zoom
+                    {t('meus_anuncios.detail.form.zoom')}
                   </span>
                   <span>{zoom.toFixed(1)}x</span>
                 </div>
@@ -191,14 +191,16 @@ export function ProviderDashboardEditImageField({
                 variant="outline"
                 onClick={() => setIsCroppingOpen(false)}
               >
-                Cancelar
+                {t('meus_anuncios.detail.cancel')}
               </Button>
               <Button
                 type="button"
                 onClick={handleCropConfirm}
                 disabled={isUploading}
               >
-                {isUploading ? 'Salvando...' : 'Recortar e Salvar'}
+                {isUploading
+                  ? t('meus_anuncios.detail.form.image_saving')
+                  : t('meus_anuncios.detail.form.image_save')}
               </Button>
             </div>
           </div>

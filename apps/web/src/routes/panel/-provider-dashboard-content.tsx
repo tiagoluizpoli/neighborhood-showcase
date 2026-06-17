@@ -1,6 +1,4 @@
-import { ProviderDashboardAnalyticsModal } from './-provider-dashboard-analytics-modal';
 import { ProviderDashboardAnnouncementList } from './-provider-dashboard-announcement-list';
-import { ProviderDashboardEditModal } from './-provider-dashboard-edit-modal';
 import {
   formatProviderDashboardDate,
   formatProviderDashboardPrice,
@@ -54,21 +52,6 @@ export function ProviderDashboardContent({
         onRenew={state.handleRenew}
         onViewAnalytics={state.setViewingAnalyticsAd}
       />
-
-      {state.editingAd && (
-        <ProviderDashboardEditModal
-          ad={state.editingAd}
-          onClose={() => state.setEditingAd(null)}
-          onSuccess={state.handleEditSuccess}
-        />
-      )}
-
-      {state.viewingAnalyticsAd && (
-        <ProviderDashboardAnalyticsModal
-          ad={state.viewingAnalyticsAd}
-          onClose={() => state.setViewingAnalyticsAd(null)}
-        />
-      )}
     </div>
   );
 }

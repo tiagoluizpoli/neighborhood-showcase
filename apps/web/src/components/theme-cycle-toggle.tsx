@@ -14,8 +14,7 @@ export function ThemeCycleToggle() {
     const idx = CYCLE.indexOf((theme ?? 'system') as Theme);
     const next = CYCLE[(idx + 1) % CYCLE.length];
     setTheme(next);
-    // Silent best-effort backend persist
-    updateMutation.mutate({ theme: next });
+    void updateMutation.mutateAsync({ theme: next }).catch(() => {});
   };
 
   const current = (theme ?? 'system') as Theme;

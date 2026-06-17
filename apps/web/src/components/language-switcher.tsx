@@ -19,9 +19,10 @@ export function LanguageSwitcher() {
   const updateMutation = useMutation(trpc.user.update.mutationOptions());
 
   const handleLanguageChange = (code: string) => {
-    i18n.changeLanguage(code);
-    // Silent best-effort backend persist
-    updateMutation.mutate({ language: code === 'pt' ? 'pt-BR' : 'en' });
+    void i18n.changeLanguage(code);
+    void updateMutation
+      .mutateAsync({ language: code === 'pt' ? 'pt-BR' : 'en' })
+      .catch(() => {});
   };
 
   return (

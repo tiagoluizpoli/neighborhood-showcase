@@ -39,9 +39,9 @@
       "open_reports": "denúncias abertas"
     },
     "user_menu": {
-      "conta": "Conta",
-      "sair": "Sair",
-      "confirm_sair": "Tem certeza que deseja sair?",
+      "account": "Conta",
+      "logout": "Sair",
+      "confirm_logout": "Tem certeza que deseja sair?",
       "cancel": "Cancelar"
     },
     "language_switcher": {
@@ -227,6 +227,173 @@
       "description": "Publique seus serviços ou produtos e seja visto por moradores do seu condomínio e região com facilidade e segurança.",
       "cta": "Anunciar serviço",
       "has_account": "Já tem conta? Entrar"
+    }
+  },
+  "account": {
+    "page_title": "Conta e Segurança",
+    "page_subtitle": "Gerencie sua identidade, preferências e proteções da conta em um único lugar.",
+    "section_profile": "Perfil",
+    "section_profile_help": "Atualize seus dados pessoais e a imagem exibida no painel.",
+    "section_preferences": "Preferências",
+    "section_preferences_help": "Escolha idioma e tema para restaurar a experiência em outros dispositivos.",
+    "section_security": "Segurança",
+    "section_security_help": "Controles de senha e sessões serão habilitados nas próximas entregas.",
+    "section_danger_zone": "Zona de Perigo",
+    "section_danger_zone_help": "A exclusão da conta remove seu acesso e seus dados pessoais.",
+    "field_avatar": "Avatar",
+    "field_avatar_help": "Envie uma imagem quadrada. Ela será recortada em formato 1:1.",
+    "field_displayName": "Nome",
+    "field_displayName_placeholder": "Como você quer aparecer no painel",
+    "field_displayName_help": "Use o nome que deve aparecer no painel e nos fluxos da conta.",
+    "field_phone": "Telefone",
+    "field_phone_placeholder": "(11) 99999-9999",
+    "field_email": "E-mail",
+    "field_email_help": "Seu e-mail é somente leitura e mostra o status atual de verificação.",
+    "email_verified": "Verificado",
+    "email_pending": "Pendente",
+    "preference_language": "Idioma",
+    "preference_language_pt": "Português",
+    "preference_language_en": "English",
+    "preference_theme": "Tema",
+    "preference_theme_system": "Sistema",
+    "preference_theme_light": "Claro",
+    "preference_theme_dark": "Escuro",
+    "security_password": "Senha",
+    "security_password_desc": "Troca de senha ficará disponível aqui em breve.",
+    "security_sessions": "Sessões ativas",
+    "security_sessions_desc": "Gerenciamento de dispositivos conectados chegará em breve.",
+    "coming_soon": "Em breve",
+    "danger_zone_lgpd": "Ao excluir a conta, seus dados pessoais e acessos vinculados serão removidos conforme a LGPD.",
+    "button_save_changes": "Salvar alterações",
+    "button_delete_account": "Excluir conta",
+    "modal_delete_title": "Excluir conta",
+    "modal_delete_body": "Essa ação é permanente e encerrará seu acesso imediatamente.",
+    "modal_delete_note": "Use esta opção somente se você realmente quiser apagar sua conta.",
+    "modal_cancel": "Cancelar",
+    "modal_confirm": "Confirmar exclusão",
+    "toast_success": "Dados atualizados com sucesso!",
+    "toast_error": "Algo deu errado. Tente novamente.",
+    "toast_delete_success": "Conta excluída com sucesso.",
+    "toast_delete_error": "Não foi possível excluir a conta.",
+    "validation_name_min": "O nome deve ter pelo menos 3 caracteres.",
+    "loading": "Carregando conta...",
+    "unauthenticated": "Faça login para acessar sua conta."
+  },
+  "meus_anuncios": {
+    "page_title": "Meus Anúncios",
+    "page_subtitle": "Acompanhe seus anúncios por status e entre no detalhe de cada um.",
+    "create_button": "Criar Anúncio",
+    "tabs": {
+      "active": "Ativos",
+      "draft": "Rascunhos & Pendentes",
+      "expired": "Expirados",
+      "suspended": "Suspensos"
+    },
+    "empty": {
+      "active": "Nenhum anúncio ativo no momento.",
+      "draft": "Nenhum rascunho ou pagamento pendente.",
+      "expired": "Nenhum anúncio expirado.",
+      "suspended": "Nenhum anúncio suspenso."
+    },
+    "count_badge_label": "{{count}} anúncios",
+    "open_details": "Abrir detalhes de {{title}}",
+    "load_error": "Não foi possível carregar seus anúncios.",
+    "toast_error_no_provider_account": "Você precisa de uma conta de prestador aprovada para acessar Meus Anúncios.",
+    "detail": {
+      "back": "Voltar para Meus Anúncios",
+      "edit": "Editar anúncio",
+      "save": "Salvar alterações",
+      "cancel": "Cancelar",
+      "loading": "Carregando anúncio...",
+      "not_found_toast": "Esse anúncio não existe ou não pertence à sua conta.",
+      "update_success": "Anúncio atualizado com sucesso.",
+      "update_error": "Não foi possível atualizar o anúncio.",
+      "verified_badge": "Morador verificado",
+      "description_title": "Descrição",
+      "contact_title": "Canais de contato",
+      "tags_title": "Tags",
+      "suspension_title": "Motivo da suspensão",
+      "summary_title": "Resumo rápido",
+      "edit_panel_title": "Editar anúncio",
+      "edit_panel_subtitle": "Altere os campos e salve quando terminar.",
+      "price_on_request": "A combinar",
+      "status": {
+        "active": "Ativo",
+        "active_review": "Ativo (em revisão)",
+        "draft": "Rascunho",
+        "pending_payment": "Aguardando pagamento",
+        "expired": "Expirado",
+        "suspended": "Suspenso"
+      },
+      "fields": {
+        "category": "Categoria",
+        "price": "Preço",
+        "condo": "Condomínio",
+        "created_at": "Criado em",
+        "paid_at": "Pago em",
+        "expires_at": "Expira em"
+      },
+      "summary": {
+        "status": "Status",
+        "contact_channels": "Canais de contato",
+        "tags": "Tags"
+      },
+      "contact_labels": {
+        "whatsapp": "WhatsApp",
+        "instagram": "Instagram",
+        "website": "Site"
+      },
+      "validation": {
+        "title": "O título do anúncio deve ter pelo menos 3 caracteres.",
+        "description": "A descrição do anúncio deve ter pelo menos 10 caracteres.",
+        "contact": "Forneça pelo menos um meio de contato para o anúncio."
+      },
+      "analytics": {
+        "title": "Métricas",
+        "subtitle": "Acompanhe visualizações, interações e conversão do anúncio selecionado.",
+        "loading": "Carregando métricas...",
+        "error": "Erro ao carregar métricas.",
+        "periods": {
+          "7d": "7 dias",
+          "30d": "30 dias",
+          "12m": "12 meses"
+        },
+        "metrics": {
+          "impressions": "Visualizações",
+          "interactions": "Interações",
+          "conversion": "Conversão"
+        }
+      },
+      "form": {
+        "title": "Título *",
+        "title_placeholder": "Ex: Marmitas saudáveis",
+        "subtitle": "Subtítulo (opcional)",
+        "subtitle_placeholder": "Ex: Feitas com ingredientes frescos",
+        "category": "Categoria *",
+        "price": "Preço (R$, opcional)",
+        "price_placeholder": "Ex: 25.00",
+        "description": "Descrição detalhada *",
+        "description_placeholder": "Descreva o que você oferece, horários e diferenciais.",
+        "contact_title": "Meios de contato (informe pelo menos um)",
+        "whatsapp_placeholder": "Ex: 47999999999",
+        "instagram_placeholder": "Ex: @seuusuario",
+        "website_placeholder": "Ex: https://meusite.com",
+        "verified_badge_title": "Exibir selo de morador verificado",
+        "verified_badge_hint": "Mostre que você é um morador aprovado neste condomínio.",
+        "verified_badge_disabled": "O selo está disponível apenas para moradores aprovados.",
+        "image_label": "Imagem de capa (4:3)",
+        "image_preview_alt": "Prévia da imagem do anúncio",
+        "image_change": "Alterar imagem",
+        "image_hint": "Imagens na proporção 4:3 ficam melhores na vitrine.",
+        "image_invalid": "Selecione uma imagem válida.",
+        "image_upload_success": "Imagem atualizada com sucesso.",
+        "image_upload_error": "Falha ao enviar a imagem.",
+        "crop_title": "Ajustar imagem",
+        "crop_subtitle": "Arraste para ajustar o enquadramento 4:3.",
+        "zoom": "Zoom",
+        "image_save": "Recortar e salvar",
+        "image_saving": "Salvando..."
+      }
     }
   }
 }
