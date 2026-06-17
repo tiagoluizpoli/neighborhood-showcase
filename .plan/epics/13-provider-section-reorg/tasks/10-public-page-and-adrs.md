@@ -2,8 +2,8 @@
 type: task
 id: T-13-10
 epic: E-13
-status: blocked
-blocked-by: [T-13-09]
+status: in-progress
+blocked-by: []
 default-model: medium
 ---
 
@@ -25,10 +25,10 @@ Migrated from legacy file `.specify/memory/epics/13-provider-section-reorg/tasks
 
 ### ST-01 - Translate the public provider route surface to English
 
-status: blocked
+status: done
 model: medium
 escalate-if: []
-blocked-by: [T-13-09]
+blocked-by: []
 
 what-to-do:
 - Rename the public provider route/file surface from PT naming to EN naming.
@@ -50,10 +50,10 @@ verification:
 
 ### ST-02 - Rebuild the public provider page body
 
-status: blocked
+status: done
 model: medium
 escalate-if: []
-blocked-by: [T-13-09]
+blocked-by: []
 
 what-to-do:
 - Render banner → identity → social links → Sobre → active announcements in that locked order.
@@ -77,7 +77,7 @@ verification:
 status: blocked
 model: medium
 escalate-if: []
-blocked-by: [T-13-09]
+blocked-by: [history-retrieval-exhausted]
 
 what-to-do:
 - Write `docs/adr/0005-user-vs-provider-profile-strict-split.md`.
@@ -95,10 +95,10 @@ verification:
 
 ### ST-04 - Write ADR 0006
 
-status: blocked
+status: done
 model: medium
 escalate-if: []
-blocked-by: [T-13-09]
+blocked-by: []
 
 what-to-do:
 - Write `docs/adr/0006-no-centered-content-full-width-layout.md`.
@@ -116,10 +116,10 @@ verification:
 
 ### ST-05 - Add Playwright coverage for the public provider page
 
-status: blocked
+status: ready
 model: medium
 escalate-if: []
-blocked-by: [T-13-09]
+blocked-by: []
 
 what-to-do:
 - Add E2E coverage for full branding render, no-banner render, and banned/not-found behavior.
