@@ -130,10 +130,10 @@ describe('ProviderProfile Router Integration Tests', () => {
 
     // User A tries to get User B — but providerProfile.get() uses ctx.session.user.id
     // so User A only ever gets their own. This is enforced by the router design.
-    // We verify User A gets null (their own profile doesn't exist yet)
-    const aProfile = await callerA.providerProfile.get();
-    expect(aProfile.displayName).not.toBe('User B Profile');
-    expect(aProfile.displayName).not.toBe('Company B');
+    // We verify User A's call fails with NOT_FOUND since their own profile doesn't exist yet
+    await expect(callerA.providerProfile.get()).rejects.toThrow(
+      expect.objectContaining({ code: 'NOT_FOUND' }),
+    );
   });
 
   test('(d) displayName with length < 3 is rejected', async () => {

@@ -57,17 +57,44 @@ export class UpdateProviderProfile {
       }
     }
 
+    const existing = await this.repo.findByProviderId(input.providerId);
+
     await this.repo.upsert({
       providerId: input.providerId,
-      displayName: input.displayName?.trim() ?? 'Provider',
-      avatarUrl: input.avatarUrl,
-      companyName: input.companyName,
-      tradeName: input.tradeName,
-      logoUrl: input.logoUrl,
-      bannerUrl: input.bannerUrl,
-      publicDescription: input.publicDescription,
-      socialLinks: input.socialLinks,
-      isProviderVisible: input.isProviderVisible,
+      displayName:
+        input.displayName?.trim() ?? existing?.displayName ?? 'Provider',
+      avatarUrl:
+        input.avatarUrl !== undefined
+          ? input.avatarUrl
+          : (existing?.avatarUrl ?? null),
+      companyName:
+        input.companyName !== undefined
+          ? input.companyName
+          : (existing?.companyName ?? null),
+      tradeName:
+        input.tradeName !== undefined
+          ? input.tradeName
+          : (existing?.tradeName ?? null),
+      logoUrl:
+        input.logoUrl !== undefined
+          ? input.logoUrl
+          : (existing?.logoUrl ?? null),
+      bannerUrl:
+        input.bannerUrl !== undefined
+          ? input.bannerUrl
+          : (existing?.bannerUrl ?? null),
+      publicDescription:
+        input.publicDescription !== undefined
+          ? input.publicDescription
+          : (existing?.publicDescription ?? null),
+      socialLinks:
+        input.socialLinks !== undefined
+          ? { ...(existing?.socialLinks ?? {}), ...input.socialLinks }
+          : (existing?.socialLinks ?? {}),
+      isProviderVisible:
+        input.isProviderVisible !== undefined
+          ? input.isProviderVisible
+          : (existing?.isProviderVisible ?? true),
     });
   }
 }

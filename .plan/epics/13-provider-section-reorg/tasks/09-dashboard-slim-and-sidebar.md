@@ -2,8 +2,8 @@
 type: task
 id: T-13-09
 epic: E-13
-status: blocked
-blocked-by: [T-13-08]
+status: in-progress
+blocked-by: []
 default-model: medium
 ---
 
@@ -25,10 +25,10 @@ Migrated from legacy file `.specify/memory/epics/13-provider-section-reorg/tasks
 
 ### ST-01 - Rebuild the KPI strip and compact chart
 
-status: blocked
+status: done
 model: medium
 escalate-if: []
-blocked-by: [T-13-08]
+blocked-by: []
 
 what-to-do:
 - Rebuild the dashboard summary surface into 4 KPI cards plus the compact chart.
@@ -51,10 +51,10 @@ verification:
 
 ### ST-02 - Fix the Provedor sidebar condition and footer avatar
 
-status: blocked
+status: done
 model: medium
 escalate-if: []
-blocked-by: [T-13-08]
+blocked-by: []
 
 what-to-do:
 - Change `GROUP_PROVEDOR.condition` from unconditional visibility to the enabled-provider-assignment rule.
@@ -73,10 +73,10 @@ verification:
 
 ### ST-03 - Add route guards for provider-only pages
 
-status: blocked
+status: done
 model: medium
 escalate-if: []
-blocked-by: [T-13-08]
+blocked-by: []
 
 what-to-do:
 - Guard `/panel/dashboard/configuration` and `/panel/dashboard/announcements` so non-providers redirect to `/panel/account`.
@@ -95,10 +95,10 @@ verification:
 
 ### ST-04 - Add Playwright coverage for the slim dashboard and guards
 
-status: blocked
+status: ready
 model: medium
 escalate-if: []
-blocked-by: [T-13-08]
+blocked-by: []
 
 what-to-do:
 - Add E2E coverage for the slim dashboard rendering, no embedded list, sidebar gating, route-guard redirects, and avatar fallback/image behavior.
@@ -116,6 +116,7 @@ verification:
 #### Execution Notes
 
 - The acceptance bar includes visual fit in a 1280×1024 viewport.
+- Blocked on production prerequisites outside the ST-04 test/seed-only scope: `apps/web/src/routes/panel.tsx` still keeps `GROUP_PROVEDOR.condition = true` and the sidebar footer avatar renders only `AvatarFallback` (no `AvatarImage` bound to `session.data.user.image`). Until those behaviors exist in app code, truthful Playwright coverage for provider-only sidebar gating and avatar image/fallback cannot be completed.
 
 
 ---

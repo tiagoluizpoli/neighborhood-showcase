@@ -5,7 +5,7 @@ import { expect, type Page, test } from '@playwright/test';
 // ---------------------------------------------------------------------------
 async function signInViaUI(page: Page, email: string, password: string) {
   await page.goto('/auth');
-  await page.getByPlaceholder(/e-mail/i).fill(email);
+  await page.getByPlaceholder(/email/i).fill(email);
   await page.getByPlaceholder(/senha/i).fill(password);
   await page.getByRole('button', { name: /entrar/i }).click();
   await page.waitForURL(/\/panel/, { timeout: 15_000 });
@@ -65,8 +65,11 @@ test.describe('CondoSelector', () => {
     });
 
     // Both condos should appear in the dropdown
-    await expect(page.getByText(/condomínio teste moderador/i)).toBeVisible();
-    await expect(page.getByText(/segundo condomínio/i)).toBeVisible();
+    const dropdown = page.locator('[data-condo-selector-dropdown]');
+    await expect(
+      dropdown.getByText(/condomínio teste moderador/i),
+    ).toBeVisible();
+    await expect(dropdown.getByText(/segundo condomínio/i)).toBeVisible();
   });
 
   test('selected condo persists across page reloads (localStorage)', async ({
@@ -81,7 +84,10 @@ test.describe('CondoSelector', () => {
     });
 
     // Select the second condo
-    await page.getByText(/segundo condomínio/i).click();
+    await page
+      .locator('[data-condo-selector-dropdown]')
+      .getByText(/segundo condomínio/i)
+      .click();
 
     // Reload the page
     await page.reload();
@@ -102,7 +108,10 @@ test.describe('CondoSelector', () => {
     });
 
     // Select "Condomínio Teste Moderador"
-    await page.getByText(/condomínio teste moderador/i).click();
+    await page
+      .locator('[data-condo-selector-dropdown]')
+      .getByText(/condomínio teste moderador/i)
+      .click();
 
     // Verify localStorage reflects the selection (key: mod_ctx__cndo)
     const stored = await page.evaluate(() => {

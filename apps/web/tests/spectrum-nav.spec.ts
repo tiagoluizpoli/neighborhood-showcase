@@ -6,7 +6,7 @@ import { expect, type Page, test } from '@playwright/test';
 async function signInViaUI(page: Page, email: string, password: string) {
   await page.goto('/auth');
   // "Entrar" tab is already selected by default — no click needed
-  await page.getByPlaceholder(/e-mail/i).fill(email);
+  await page.getByPlaceholder(/email/i).fill(email);
   await page.getByPlaceholder(/senha/i).fill(password);
   await page.getByRole('button', { name: /entrar/i }).click();
   await page.waitForURL(/\/panel/, { timeout: 15_000 });
@@ -35,9 +35,9 @@ test.describe('Spectrum Navigation Hierarchy', () => {
     await signInViaUI(page, ADMIN_EMAIL, ADMIN_PASSWORD);
     await page.waitForSelector('[data-sidebar]', { timeout: 10_000 });
 
-    // Locate the Spectrum group via its label text + sidebar group marker
-    // The group label is inside a SidebarGroupLabel element
-    const spectrumGroupLabel = page.getByText('Spectrum', { exact: false });
+    const spectrumGroupLabel = page
+      .locator('[data-sidebar="group-label"]')
+      .getByText('Spectrum', { exact: false });
     await expect(spectrumGroupLabel).toBeVisible();
 
     // Navigate UP to the group container, then DOWN to find the Spectrum item link
@@ -59,15 +59,20 @@ test.describe('Spectrum Navigation Hierarchy', () => {
     const groupCount = await directChildGroups.count();
     for (let i = 0; i < groupCount; i++) {
       const groupText = await directChildGroups.nth(i).innerText();
-      // If this group label is "Spectrum" and it has a direct link to /panel/spectrum,
-      // that would be the wrong placement (root-level item instead of child)
       if (groupText.toLowerCase().includes('spectrum')) {
-        const rootSpectrumLinks = await directChildGroups
+        const allSpectrumLinks = directChildGroups
           .nth(i)
-          .getByRole('link', { name: /spectrum/i })
-          .count();
-        if (rootSpectrumLinks > 0) {
-          foundRootLevelSpectrum = true;
+          .getByRole('link', { name: /spectrum/i });
+        const count = await allSpectrumLinks.count();
+        for (let j = 0; j < count; j++) {
+          const link = allSpectrumLinks.nth(j);
+          const isSubLink =
+            (await link
+              .locator('xpath=ancestor::*[@data-sidebar="menu-sub"]')
+              .count()) > 0;
+          if (!isSubLink) {
+            foundRootLevelSpectrum = true;
+          }
         }
       }
     }

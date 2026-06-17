@@ -7,9 +7,13 @@ import translationPT from './locales/pt/translation.json';
 const resources = {
   en: {
     translation: translationEN,
+    configuracoes: (translationEN as { configuracoes: Record<string, string> })
+      .configuracoes,
   },
   pt: {
     translation: translationPT,
+    configuracoes: (translationPT as { configuracoes: Record<string, string> })
+      .configuracoes,
   },
 };
 

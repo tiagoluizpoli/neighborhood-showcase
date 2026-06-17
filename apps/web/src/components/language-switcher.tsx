@@ -34,7 +34,9 @@ export function LanguageSwitcher() {
             className="flex h-9 items-center justify-center rounded-md px-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             aria-label={t('sidebar.language_switcher.language')}
           >
-            <span className="text-lg">{FLAGS[i18n.language] ?? '🌐'}</span>
+            <span className="text-lg">
+              {FLAGS[i18n.language.slice(0, 2)] ?? '🌐'}
+            </span>
           </button>
         }
       />

@@ -13,6 +13,7 @@ Horizon values: `now` | `soon` | `later`
 | ready | later | Routing | Finish mixed-language route naming sweep (PT → EN) | Some PT-named route/i18n surfaces remain outside the migrated active task path and should be cleaned in a future sweep. | legacy backlog |
 | ready | later | Admin | Reports section implementation | Sidebar/reporting placeholder work remains deferred. | legacy backlog |
 | ready | later | Admin | Admin provider management and condominium management UIs | Deferred admin surfaces remain outside the current provider-section reorg slice. | legacy backlog |
+| blocked | now | Provider / E2E | T-13-09/ST-04 Playwright coverage is blocked on sidebar capability gate + footer avatar image implementation | `apps/web/src/routes/panel.tsx` still has unconditional `GROUP_PROVEDOR.condition = true` and renders only `AvatarFallback`, so truthful E2E coverage for provider-only sidebar visibility and avatar image/fallback cannot pass until ST-02 lands or app-code edits are allowed. | `.plan/epics/13-provider-section-reorg/tasks/09-dashboard-slim-and-sidebar.md` |
 
 ## Legacy backlog note
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-# ⚡ RALPH LOOP RUNNER (AGY) ⚡
-# Runs the agy CLI in an autonomous loop to resolve issues iteratively without permission interrupts.
+# ⚡ RALPH LOOP RUNNER (CLAUDE) ⚡
+# Runs the claude CLI in an autonomous loop to resolve issues iteratively without permission interrupts.
+# Uses claude-haiku-4-5-20251001 by default to minimize token costs.
 # Managed as an agent-specific asset by the Ralph Loop installer.
-# Validated for shared vs agent-specific asset routing (iteration 10).
 #
 # Loop semantics: each iteration is ONE attempt at the current task.
 # - Task success → log it, move to the next task (loop continues)
@@ -21,8 +21,11 @@ YELLOW='\033[33m'
 RED='\033[31m'
 NC='\033[0m' # No Color
 
+# Default model: Haiku (cheapest, fastest)
+DEFAULT_MODEL="claude-haiku-4-5-20251001"
+
 echo -e "${BOLD}${CYAN}===========================================${NC}"
-echo -e "${BOLD}${CYAN}     ⚡ RALPH LOOP RUNNER (AGY) ⚡      ${NC}"
+echo -e "${BOLD}${CYAN}    ⚡ RALPH LOOP RUNNER (CLAUDE) ⚡   ${NC}"
 echo -e "${BOLD}${CYAN}===========================================${NC}"
 
 # Step 0: Iteration argument check
@@ -32,9 +35,9 @@ if [ -z "$1" ]; then
 fi
 MAX_ITERATIONS=$1
 
-# Check for active nested Antigravity CLI session (deadlock risk)
-if [ -n "$ANTIGRAVITY_AGENT" ] || [ -n "$ANTIGRAVITY_LS_ADDRESS" ]; then
-  echo -e "${RED}❌ Error: You are trying to run ralph-loop-agy.sh inside an active Antigravity agent shell session.${NC}"
+# Check for active nested Claude CLI session (deadlock risk)
+if [ -n "$CLAUDE_CODE_ENTRYPOINT" ]; then
+  echo -e "${RED}❌ Error: You are trying to run ralph-loop-claude.sh inside an active Claude CLI session.${NC}"
   echo -e "${YELLOW}Please exit the agent shell first (type 'exit') and run this script from your main host terminal.${NC}"
   exit 1
 fi
@@ -46,12 +49,12 @@ if [ ! -f ".plan/prompt.md" ] || [ ! -s ".plan/prompt.md" ]; then
   echo -e "${YELLOW}❓ .plan/prompt.md is missing or empty.${NC}"
   echo -n -e "Enter the instructions for the agent loop: "
   read -r user_prompt
-  
+
   if [ -z "$user_prompt" ]; then
     echo -e "${RED}❌ Error: A prompt is required to start the loop.${NC}"
     exit 1
   fi
-  
+
   # Create a default structure for .plan/prompt.md
   cat <<EOF > .plan/prompt.md
 ---
@@ -87,65 +90,38 @@ touch .plan/progress.txt
 start_line_count=$(wc -l < .plan/progress.txt 2>/dev/null || echo 0)
 
 get_latest_model_label() {
-  local latest_log model_line
-  latest_log=$(find "$HOME/.gemini/antigravity-cli/log" -maxdepth 1 -type f -name "cli-$(date +%Y%m%d)_*.log" -printf '%T@ %p\n' 2>/dev/null | sort -n | tail -n 1 | cut -d' ' -f2-)
-
-  if [ -z "$latest_log" ] || [ ! -f "$latest_log" ]; then
-    echo "unknown"
-    return
+  local settings_file="$HOME/.claude/settings.json"
+  if [ -f "$settings_file" ] && command -v jq >/dev/null 2>&1; then
+    local model
+    model=$(jq -r '.model // empty' "$settings_file" 2>/dev/null)
+    [ -n "$model" ] && echo "$model" && return
   fi
-
-  model_line=$(grep -oE 'Propagating selected model override to backend: label="[^"]+"' "$latest_log" | tail -n 1)
-  if [ -z "$model_line" ]; then
-    model_line=$(grep -oE 'Print mode: starting \(promptLength=[0-9]+, model="[^"]*"' "$latest_log" | tail -n 1)
-  fi
-
-  if [ -z "$model_line" ]; then
-    echo "unknown"
-    return
-  fi
-
-  echo "$model_line" | sed -E 's/.*label="([^"]+)".*/\1/; s/.*model="([^"]*)".*/\1/'
-}
-
-agy_model_exists() {
-  local candidate="$1"
-  agy models 2>/dev/null | grep -Fx "$candidate" >/dev/null 2>&1
+  echo "$DEFAULT_MODEL"
 }
 
 resolve_model_override() {
   local current_model="$1"
   local tier="$2"
-  local candidate="$current_model"
 
   if [ -z "$current_model" ] || [ "$current_model" = "unknown" ]; then
     echo ""
     return
   fi
 
-  if [ "$tier" = "medium" ]; then
-    echo "$current_model"
-    return
-  fi
-
-  # Swapping logic for Gemini models with (Low)/(Medium)/(High)
-  if [[ "$current_model" =~ (.*)\((Low|Medium|High)\) ]]; then
-    local prefix="${BASH_REMATCH[1]}"
-    if [ "$tier" = "high" ]; then
-      candidate="${prefix}(High)"
-    elif [ "$tier" = "low" ]; then
-      candidate="${prefix}(Low)"
-    fi
-
-    if agy_model_exists "$candidate"; then
-      echo "$candidate"
-    else
+  case "$tier" in
+    high)
+      echo "claude-opus-4-8"
+      ;;
+    medium)
+      echo "claude-sonnet-4-6"
+      ;;
+    low)
+      echo "$DEFAULT_MODEL"
+      ;;
+    *)
       echo "$current_model"
-    fi
-    return
-  fi
-
-  echo "$current_model"
+      ;;
+  esac
 }
 
 get_latest_ralph_commit() {
@@ -186,17 +162,17 @@ record_runtime_result() {
 # Loop continues until: max iterations reached, hard error, or explicit "no more tasks".
 for ((i=1; i<=MAX_ITERATIONS; i++)); do
   echo -e "\n${BOLD}${CYAN}🔄 Attempt [$i/$MAX_ITERATIONS]${NC}"
-  
+
   start_time=$(date +%s)
   start_commit=$(git rev-parse HEAD 2>/dev/null || echo "")
-  
+
   echo -e "ℹ️ The agent loop runs. Watch the command output above or monitor .plan/progress.txt in a new terminal:"
   echo -e "   ${CYAN}tail -f .plan/progress.txt${NC}\n"
 
   # Gather recent commits for context
   recent_commits=$(git log -n 10 --format="%H%n%ad%n%B---" --date=short 2>/dev/null || echo "No recent commits found")
   current_model_label=$(get_latest_model_label)
-  prepare_runtime_attempt "agy" "$current_model_label"
+  prepare_runtime_attempt "claude" "$current_model_label"
 
   if [ "${RUNNER_STATE_RESULT:-}" = "no-tasks" ]; then
     timestamp=$(date '+%Y-%m-%d %H:%M:%S')
@@ -214,6 +190,8 @@ for ((i=1; i<=MAX_ITERATIONS; i++)); do
         echo -e "${YELLOW}⬆️ Escalating model from '$current_model_label' to '$resolved_model' (tier: $CURRENT_REQUIRED_MODEL)${NC}"
       fi
     fi
+  else
+    model_args=("--model" "$current_model_label")
   fi
 
   runtime_contract=$(cat <<EOF
@@ -257,7 +235,7 @@ EOF
 
   # CRITICAL: every iteration is a fresh session (no --continue).
   # State lives in .plan/, agents.local.md, and git — not in the conversation.
-  agy --dangerously-skip-permissions --print-timeout 15m "${model_args[@]}" --print "Start the Ralph Loop iteration $i. Read .plan/RULES.md FIRST (canonical engineering rules), then agents.local.md if it exists, then .plan/PRD.md, then .plan/index.md (single source of truth for epics and tasks), then the current epic and task files. Pick the next task, complete ONLY that task, then log your status to .plan/progress.txt. Recent commits: $recent_commits
+  claude --dangerously-skip-permissions "${model_args[@]}" -p "Start the Ralph Loop iteration $i. Read .plan/RULES.md FIRST (canonical engineering rules), then agents.local.md if it exists, then .plan/PRD.md, then .plan/index.md (single source of truth for epics and tasks), then the current epic and task files. Pick the next task, complete ONLY that task, then log your status to .plan/progress.txt. Recent commits: $recent_commits
 
 $runtime_contract
 
@@ -269,7 +247,7 @@ ${escalation_directive:+$escalation_directive
 ${retrieval_bundle:+Historical retrieval bundle for this attempt:
 $retrieval_bundle
 }" | tee "$tmpfile"
-  
+
   cmd_status=$?
   end_time=$(date +%s)
   duration=$((end_time - start_time))
@@ -278,16 +256,16 @@ $retrieval_bundle
   if [ -n "$end_commit" ] && [ "$start_commit" != "$end_commit" ]; then
     commit_changed=true
   fi
-  
+
   if [ $cmd_status -ne 0 ]; then
-    echo -e "\n${RED}❌ Error: agy CLI exited with status $cmd_status after ${duration}s.${NC}"
+    echo -e "\n${RED}❌ Error: claude CLI exited with status $cmd_status after ${duration}s.${NC}"
     print_failure_model
     rm -f "$tmpfile"
     exit $cmd_status
   fi
-  
+
   echo -e "${GREEN}⏱️ Attempt $i completed in ${duration}s.${NC}"
-  
+
   # Read the progress lines appended during this attempt
   new_progress_lines=""
   current_progress=""
@@ -304,7 +282,7 @@ $retrieval_bundle
 
   # --- Termination detection ---
   has_abort=false
-  if grep -q -i -E "RESOURCE_EXHAUSTED|quota reached" "$tmpfile"; then
+  if grep -q -i -E "RESOURCE_EXHAUSTED|quota reached|rate_limit_error|overloaded_error" "$tmpfile"; then
     has_abort=true
   fi
 

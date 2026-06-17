@@ -64,6 +64,13 @@ For every implementation run, before considering the selected sub-task done:
 - if any command fails, fix the issue in the implementation and rerun the relevant verification steps
 - do not skip tests, type checks, lint, or e2e coverage when they apply
 - only commit after the required verification loop passes
+- if the run produced file changes, commit them before ending the run
+- use a Conventional Commit message scoped to the actual area changed
+- commit only the work completed in that run; do not mix unrelated unfinished changes into the same commit
 - do not weaken, delete, bypass, or narrow tests just to make the run pass
 - test changes are allowed only when they make coverage stricter, fix the test to reflect the real intended behavior more accurately, or repair a broken test harness without reducing the safeguard
 - prefer changing production code to satisfy existing tests rather than changing tests to accommodate broken behavior
+
+## Communication Style
+
+Invoke the `caveman:caveman` skill at the start of every session before any other work. This enables compressed communication mode and reduces token usage throughout the run.

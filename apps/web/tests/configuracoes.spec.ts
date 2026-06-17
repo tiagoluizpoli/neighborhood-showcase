@@ -5,7 +5,7 @@ import { expect, type Page, test } from '@playwright/test';
 // ---------------------------------------------------------------------------
 async function signInViaUI(page: Page, email: string, password: string) {
   await page.goto('/auth');
-  await page.getByPlaceholder(/e-mail/i).fill(email);
+  await page.getByPlaceholder(/email/i).fill(email);
   await page.getByPlaceholder(/senha/i).fill(password);
   await page.getByRole('button', { name: /entrar/i }).click();
   await page.waitForURL(/\/panel/, { timeout: 15_000 });
@@ -25,6 +25,7 @@ test.describe('Configurações page', () => {
   const PROVIDER_PASSWORD = 'Test@1234';
 
   test.beforeEach(async ({ page }) => {
+    page.on('console', (msg) => console.log('BROWSER:', msg.text()));
     await signInViaUI(page, PROVIDER_EMAIL, PROVIDER_PASSWORD);
     await page.waitForSelector('[data-sidebar]', { timeout: 10_000 });
     await page.goto('/panel/dashboard/configuration');
@@ -48,9 +49,12 @@ test.describe('Configurações page', () => {
     await saveButton.click();
 
     // Wait for success toast
-    await page.waitForSelector('text=/salvo|salvo com sucesso|success/i', {
-      timeout: 5_000,
-    });
+    await page.waitForSelector(
+      'text=/salvo|salvo com sucesso|success|atualizado|updated/i',
+      {
+        timeout: 5_000,
+      },
+    );
 
     // Reload the page
     await page.reload();
@@ -81,9 +85,12 @@ test.describe('Configurações page', () => {
     await saveButtons.nth(1).click();
 
     // Wait for success toast
-    await page.waitForSelector('text=/salvo|salvo com sucesso|success/i', {
-      timeout: 5_000,
-    });
+    await page.waitForSelector(
+      'text=/salvo|salvo com sucesso|success|atualizado|updated/i',
+      {
+        timeout: 5_000,
+      },
+    );
 
     // Reload the page
     await page.reload();
@@ -111,11 +118,17 @@ test.describe('Configurações page', () => {
 
     // Set up a network request listener BEFORE clicking
     const updateRequest = page.waitForRequest((req) => {
-      return (
-        req.url().includes('/trpc/providerProfile') &&
-        req.method() === 'POST' &&
-        req.postDataJSON()?.body?.isProviderVisible !== undefined
-      );
+      if (
+        !req.url().includes('/trpc/providerProfile') ||
+        req.method() !== 'POST'
+      ) {
+        return false;
+      }
+      const data = req.postDataJSON();
+      if (!data) return false;
+      const firstBatch = data['0'] || data;
+      const jsonPayload = firstBatch.json || firstBatch;
+      return jsonPayload.isProviderVisible !== undefined;
     });
 
     // Click the toggle — debounce is 300ms so the request fires shortly after
@@ -126,9 +139,11 @@ test.describe('Configurações page', () => {
     expect(request).not.toBeNull();
 
     // The request body should have the toggled value
-    const body = request.postDataJSON();
+    const data = request.postDataJSON();
+    const firstBatch = data['0'] || data;
+    const jsonPayload = firstBatch.json || firstBatch;
     // After toggle, if it was visible it becomes hidden (and vice versa)
     // So the value sent should be the opposite of isCurrentlyVisible
-    expect(body?.body?.isProviderVisible).toBe(!isCurrentlyVisible);
+    expect(jsonPayload.isProviderVisible).toBe(!isCurrentlyVisible);
   });
 });

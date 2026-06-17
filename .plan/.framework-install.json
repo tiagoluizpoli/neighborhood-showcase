@@ -8,17 +8,9 @@
     "sha": "c374e09972e1c1577bb2832848083b85246a3d2a"
   },
   "selection": {
-    "agents": [
-      "hermes",
-      "codex",
-      "agy"
-    ],
+    "agents": ["hermes", "codex", "agy"],
     "availabilityMode": "global",
-    "targets": [
-      "hermes-global",
-      "codex-global",
-      "agy-global"
-    ]
+    "targets": ["hermes-global", "codex-global", "agy-global"]
   },
   "firstInstalledAt": "2026-06-17T15:28:32.569Z",
   "lastUpdatedAt": "2026-06-17T15:30:27.106Z",

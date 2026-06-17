@@ -105,7 +105,7 @@ describe('UpdateProviderProfile integration', () => {
     const r = row as NonNullable<typeof row>;
     expect(r.displayName).toBe('Novo Nome');
     expect(r.isProviderVisible).toBe(false);
-    // companyName/logoUrl etc. should be null (overwritten, not merged)
-    expect(r.companyName).toBeNull();
+    // companyName/logoUrl etc. should be preserved (merged, not overwritten)
+    expect(r.companyName).toBe('Acme Tecnologia LTDA');
   });
 });

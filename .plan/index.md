@@ -46,8 +46,8 @@
 | T-13-05 | E-13 | Configurações page | done | — | `.plan/epics/13-provider-section-reorg/tasks/05-configuracoes-page.md` |
 | T-13-06 | E-13 | Conta e Segurança | done | — | `.plan/epics/13-provider-section-reorg/tasks/06-conta-e-seguranca.md` |
 | T-13-07 | E-13 | Meus Anúncios list | done | — | `.plan/epics/13-provider-section-reorg/tasks/07-meus-anuncios-list.md` |
-| T-13-08 | E-13 | Meus Anúncios detail | ready | — | `.plan/epics/13-provider-section-reorg/tasks/08-meus-anuncios-detail.md` |
-| T-13-09 | E-13 | Dashboard slim and sidebar | blocked | T-13-08 | `.plan/epics/13-provider-section-reorg/tasks/09-dashboard-slim-and-sidebar.md` |
+| T-13-08 | E-13 | Meus Anúncios detail | done | — | `.plan/epics/13-provider-section-reorg/tasks/08-meus-anuncios-detail.md` |
+| T-13-09 | E-13 | Dashboard slim and sidebar | in-progress | — | `.plan/epics/13-provider-section-reorg/tasks/09-dashboard-slim-and-sidebar.md` |
 | T-13-10 | E-13 | Public page and ADRs | blocked | T-13-09 | `.plan/epics/13-provider-section-reorg/tasks/10-public-page-and-adrs.md` |
 
 ## Migration Note

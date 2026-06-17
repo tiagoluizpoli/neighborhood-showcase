@@ -51,6 +51,12 @@ export function ProviderAnnouncementDetailPage() {
     [dashboardQuery.data, id],
   );
 
+  console.log('DEBUG ANNOUNCEMENT DETAIL:', {
+    id,
+    announcement,
+    announcements: dashboardQuery.data?.announcements,
+  });
+
   const selectedAssignment = assignmentsQuery.data?.find(
     (assignment) => assignment.id === announcement?.providerAssignmentId,
   );
@@ -170,7 +176,7 @@ export function ProviderAnnouncementDetailPage() {
   const locale = i18n.language === 'en' ? 'en-US' : 'pt-BR';
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 py-8">
+    <div className="flex w-full flex-col gap-6 px-6 py-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           to="/panel/dashboard/announcements"

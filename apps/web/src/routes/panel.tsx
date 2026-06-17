@@ -12,6 +12,7 @@ import {
 import {
   Avatar,
   AvatarFallback,
+  AvatarImage,
 } from '@neighborhood-showcase/ui/components/avatar';
 import { Collapsible } from '@neighborhood-showcase/ui/components/collapsible';
 import {
@@ -326,6 +327,9 @@ function PanelLayout() {
     }),
   );
 
+  const hasProviderAssignment = !!assignments?.some(
+    (a) => a.type === 'RESIDENT' && a.status === 'APPROVED',
+  );
   const hasModeratorRole = !!assignments?.some(
     (a) =>
       a.type === 'MODERATOR' &&
@@ -345,7 +349,7 @@ function PanelLayout() {
   // Sidebar groups — conditions resolved from session/assignments at render time
   // ---------------------------------------------------------------------------
   const sidebarGroups: SidebarGroupConfig[] = [
-    GROUP_PROVEDOR,
+    { ...GROUP_PROVEDOR, condition: hasProviderAssignment },
     { ...GROUP_MODERACAO, condition: hasModeratorRole },
     { ...GROUP_ADMINISTRACAO, condition: hasSystemManagerRole },
     { ...GROUP_SPECTRUM, condition: isAdministrator },
@@ -390,6 +394,10 @@ function PanelLayout() {
                     className="flex w-full items-center gap-3 rounded-md p-1 text-left transition-colors hover:bg-accent hover:text-accent-foreground"
                   >
                     <Avatar className="h-9 w-9 border">
+                      <AvatarImage
+                        src={session.data?.user?.image ?? undefined}
+                        alt={session.data?.user?.name ?? ''}
+                      />
                       <AvatarFallback className="bg-muted font-semibold text-muted-foreground text-sm">
                         {getInitials(session.data?.user?.name)}
                       </AvatarFallback>

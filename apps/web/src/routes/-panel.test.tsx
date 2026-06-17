@@ -98,10 +98,16 @@ mock.module('@tanstack/react-query', () => ({
     mutate: () => {},
     isPending: false,
   }),
+  useQueryClient: () => ({
+    invalidateQueries: () => {},
+    setQueryData: () => {},
+    getQueryData: () => undefined,
+  }),
 }));
 
 // Mock lucide-react icons used in sidebar
 mock.module('lucide-react', () => ({
+  ChevronDown: () => 'ChevronDown',
   LayoutDashboard: () => 'LayoutDashboard',
   Settings: () => 'Settings',
   ShieldAlert: () => 'ShieldAlert',
@@ -158,6 +164,7 @@ mock.module('@neighborhood-showcase/ui/components/alert-dialog', () => ({
 // Mock shadcn avatar
 mock.module('@neighborhood-showcase/ui/components/avatar', () => ({
   Avatar: ({ children }: any) => children,
+  AvatarImage: (_props: any) => null,
   AvatarFallback: ({ children }: any) => children,
 }));
 
@@ -253,24 +260,24 @@ mock.module('@/components/language-switcher', () => ({
   LanguageSwitcher: () => 'LanguageSwitcher',
 }));
 
-// Tree traversal — find by prop value
-const findNodeByProp = (node: any, propName: string, propValue: any): any => {
-  if (!node) return null;
-  // Handle primitive nodes (strings, numbers) — check if they equal the propValue
-  if (typeof node === 'string') {
-    return node === propValue ? node : null;
+// Tree traversal — find by React key (set on SidebarGroupSection elements by PanelLayout)
+// The group key equals group.i18nGroupKey (e.g. 'sidebar.group.moderacao')
+const findNodeByKey = (node: any, keyValue: string): any => {
+  if (!node || typeof node !== 'object') return null;
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const found = findNodeByKey(child, keyValue);
+      if (found) return found;
+    }
+    return null;
   }
-  if (typeof node === 'number') {
-    return String(node) === String(propValue) ? node : null;
-  }
-  // React element: check prop
-  if (node.props?.[propName] === propValue) return node;
+  if (node.key === keyValue) return node;
   if (node.props?.children) {
     const children = Array.isArray(node.props.children)
       ? node.props.children
       : [node.props.children];
     for (const child of children) {
-      const found = findNodeByProp(child, propName, propValue);
+      const found = findNodeByKey(child, keyValue);
       if (found) return found;
     }
   }
@@ -307,24 +314,16 @@ describe('Panel Layout Visibility Tests', () => {
     const tree = renderComponent(Route.component);
 
     // Moderação group label should NOT appear (no moderator assignment)
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.moderacao'),
-    ).toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.moderacao')).toBeNull();
     // Administração group label should NOT appear (USER role)
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.administracao'),
-    ).toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.administracao')).toBeNull();
     // Spectrum group label should NOT appear (ADMINISTRATOR only)
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.spectrum'),
-    ).toBeNull();
-    // Provedor group always visible for authenticated users
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.provedor'),
-    ).not.toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.spectrum')).toBeNull();
+    // Provedor group hidden for users without an approved PROVIDER assignment
+    expect(findNodeByKey(tree, 'sidebar.group.provedor')).toBeNull();
   });
 
-  test('PROVIDER with approved assignment sees only Provedor group', () => {
+  test('RESIDENT with approved assignment sees only Provedor group', () => {
     mockSession = {
       data: {
         user: {
@@ -340,26 +339,17 @@ describe('Panel Layout Visibility Tests', () => {
         id: 'assignment-prov-1',
         condominiumId: 'condo-1',
         condominium: { id: 'condo-1', name: 'Condo Alpha' },
-        type: 'PROVIDER',
+        type: 'RESIDENT',
         status: 'APPROVED',
-        enabled: true,
       },
     ];
 
     const tree = renderComponent(Route.component);
 
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.provedor'),
-    ).not.toBeNull();
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.moderacao'),
-    ).toBeNull();
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.administracao'),
-    ).toBeNull();
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.spectrum'),
-    ).toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.provedor')).not.toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.moderacao')).toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.administracao')).toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.spectrum')).toBeNull();
   });
 
   test('MODERATOR with approved assignment sees Moderação group', () => {
@@ -386,20 +376,12 @@ describe('Panel Layout Visibility Tests', () => {
     const tree = renderComponent(Route.component);
 
     // Moderação group visible (approved MODERATOR assignment)
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.moderacao'),
-    ).not.toBeNull();
-    // Provedor always visible
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.provedor'),
-    ).not.toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.moderacao')).not.toBeNull();
+    // No PROVIDER assignment → Provedor group hidden
+    expect(findNodeByKey(tree, 'sidebar.group.provedor')).toBeNull();
     // No admin role → no Administração or Spectrum
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.administracao'),
-    ).toBeNull();
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.spectrum'),
-    ).toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.administracao')).toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.spectrum')).toBeNull();
   });
 
   test('SYSTEM_MANAGER sees Administração group', () => {
@@ -417,16 +399,11 @@ describe('Panel Layout Visibility Tests', () => {
 
     const tree = renderComponent(Route.component);
 
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.administracao'),
-    ).not.toBeNull();
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.provedor'),
-    ).not.toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.administracao')).not.toBeNull();
+    // No PROVIDER assignment → Provedor group hidden
+    expect(findNodeByKey(tree, 'sidebar.group.provedor')).toBeNull();
     // Spectrum only for ADMINISTRATOR
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.spectrum'),
-    ).toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.spectrum')).toBeNull();
   });
 
   test('ADMINISTRATOR sees Spectrum group (Moderação requires moderator assignment)', () => {
@@ -444,20 +421,13 @@ describe('Panel Layout Visibility Tests', () => {
 
     const tree = renderComponent(Route.component);
 
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.provedor'),
-    ).not.toBeNull();
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.administracao'),
-    ).not.toBeNull();
+    // No PROVIDER assignment → Provedor group hidden
+    expect(findNodeByKey(tree, 'sidebar.group.provedor')).toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.administracao')).not.toBeNull();
     // Spectrum — ADMINISTRATOR only
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.spectrum'),
-    ).not.toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.spectrum')).not.toBeNull();
     // Moderação — requires moderator assignment (none here)
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.moderacao'),
-    ).toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.moderacao')).toBeNull();
   });
 
   test('ADMINISTRATOR with moderator assignment sees all four groups', () => {
@@ -483,17 +453,10 @@ describe('Panel Layout Visibility Tests', () => {
 
     const tree = renderComponent(Route.component);
 
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.provedor'),
-    ).not.toBeNull();
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.moderacao'),
-    ).not.toBeNull();
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.administracao'),
-    ).not.toBeNull();
-    expect(
-      findNodeByProp(tree, 'children', 'sidebar.group.spectrum'),
-    ).not.toBeNull();
+    // No PROVIDER assignment → Provedor group hidden even for ADMINISTRATOR+MODERATOR
+    expect(findNodeByKey(tree, 'sidebar.group.provedor')).toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.moderacao')).not.toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.administracao')).not.toBeNull();
+    expect(findNodeByKey(tree, 'sidebar.group.spectrum')).not.toBeNull();
   });
 });

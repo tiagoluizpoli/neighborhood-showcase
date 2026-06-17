@@ -96,13 +96,6 @@ export function ImageUploadField({
     }
   };
 
-  const handleUrlSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (urlText.trim()) {
-      onChange(urlText.trim());
-    }
-  };
-
   const handleRemove = () => {
     onChange('');
     setUrlText('');
@@ -138,21 +131,35 @@ export function ImageUploadField({
         {/* Controls */}
         <div className="space-y-1.5">
           {urlInput && (
-            <form
-              onSubmit={handleUrlSubmit}
-              className="flex items-center gap-2"
-            >
+            <div className="flex items-center gap-2">
               <Input
                 type="url"
                 value={urlText}
                 onChange={(e) => setUrlText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (urlText.trim()) {
+                      onChange(urlText.trim());
+                    }
+                  }
+                }}
                 placeholder="https://..."
                 className="h-9 flex-1 text-sm"
               />
-              <Button type="submit" variant="secondary" size="sm">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  if (urlText.trim()) {
+                    onChange(urlText.trim());
+                  }
+                }}
+              >
                 Apply
               </Button>
-            </form>
+            </div>
           )}
 
           {value && (

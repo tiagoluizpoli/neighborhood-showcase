@@ -97,7 +97,17 @@ touch .plan/progress.txt
 start_line_count=$(wc -l < .plan/progress.txt 2>/dev/null || echo 0)
 
 get_latest_model_label() {
-  local latest_log model_line
+  local config_file config_line latest_log model_line
+  config_file="$HOME/.hermes/config.yaml"
+
+  if [ -f "$config_file" ]; then
+    config_line=$(grep -E '^  default: ' "$config_file" | head -n 1)
+    if [ -n "$config_line" ]; then
+      echo "$config_line" | sed -E 's/^  default: //'
+      return
+    fi
+  fi
+
   latest_log="$HOME/.hermes/logs/agent.log"
 
   if [ ! -f "$latest_log" ]; then
@@ -105,7 +115,6 @@ get_latest_model_label() {
     return
   fi
 
-  # Hermes logs model per API call: "model=MiniMax-M2.7 provider=minimax-oauth"
   model_line=$(grep -oE 'model=[^ ]+' "$latest_log" 2>/dev/null | tail -n 1)
 
   if [ -z "$model_line" ]; then
@@ -125,35 +134,29 @@ resolve_model_override() {
     return
   fi
 
-  if [ "$tier" = "medium" ]; then
-    echo "$current_model"
-    return
-  fi
-
-  # Swapping logic for Gemini models with (Low)/(Medium)/(High)
-  if [[ "$current_model" =~ (.*)\((Low|Medium|High)\) ]]; then
-    local prefix="${BASH_REMATCH[1]}"
-    if [ "$tier" = "high" ]; then
-      echo "${prefix}(High)"
-    elif [ "$tier" = "low" ]; then
-      echo "${prefix}(Low)"
-    else
-      echo "$current_model"
-    fi
-    return
-  fi
-
-  # Swapping logic for models like gpt-5.4 / gpt-5.4-mini
-  if [[ "$current_model" =~ gpt-5\.4 ]]; then
-    if [ "$tier" = "high" ]; then
-      echo "gpt-5.4"
-    elif [ "$tier" = "low" ]; then
-      echo "gpt-5.4-mini"
-    else
-      echo "$current_model"
-    fi
-    return
-  fi
+  case "$current_model" in
+    gpt-5.5|gpt-5.4|gpt-5.4-mini|codex-auto-review)
+      case "$tier" in
+        high)
+          echo "gpt-5.5"
+          ;;
+        low)
+          echo "gpt-5.4-mini"
+          ;;
+        medium|mid|"")
+          if [ "$current_model" = "gpt-5.4-mini" ] || [ "$current_model" = "codex-auto-review" ]; then
+            echo "gpt-5.4"
+          else
+            echo "$current_model"
+          fi
+          ;;
+        *)
+          echo "$current_model"
+          ;;
+      esac
+      return
+      ;;
+  esac
 
   echo "$current_model"
 }
@@ -176,7 +179,9 @@ print_failure_model() {
 prepare_runtime_attempt() {
   local runner_name="$1"
   local runner_model="$2"
-  eval "$(bash .plan/helper-scripts/runtime-state.sh prepare-attempt --runner \"$runner_name\" --runner-model \"$runner_model\" --format shell)"
+  local state_output
+  state_output=$(bash .plan/helper-scripts/runtime-state.sh prepare-attempt --runner "$runner_name" --runner-model "$runner_model" --format shell)
+  eval "$state_output"
 }
 
 record_runtime_result() {
@@ -184,7 +189,9 @@ record_runtime_result() {
   local reason="$2"
   local commit_changed="$3"
   local runner_model="$4"
-  eval "$(bash .plan/helper-scripts/runtime-state.sh record-result --result \"$result\" --reason \"$reason\" --commit-changed \"$commit_changed\" --runner-model \"$runner_model\" --format shell)"
+  local state_output
+  state_output=$(bash .plan/helper-scripts/runtime-state.sh record-result --result "$result" --reason "$reason" --commit-changed "$commit_changed" --runner-model "$runner_model" --format shell)
+  eval "$state_output"
 }
 
 # Step 5: Execution Loop

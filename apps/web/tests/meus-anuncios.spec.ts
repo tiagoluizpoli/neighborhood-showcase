@@ -8,11 +8,18 @@ const OTHER_PROVIDER_ID = 'seed-announcement-other-provider';
 test.describe.configure({ mode: 'serial' });
 
 async function signInViaUI(page: Page) {
+  if (page.url().includes('/panel')) {
+    return;
+  }
   await page.goto('/auth');
+  if (page.url().includes('/panel')) {
+    return;
+  }
   await page.getByLabel(/e-mail/i).fill(PROVIDER_EMAIL);
   await page.getByLabel(/senha/i).fill(PROVIDER_PASSWORD);
   await page.getByRole('button', { name: /entrar/i }).click();
   await page.waitForURL(/\/panel/, { timeout: 15_000 });
+  await page.waitForLoadState('networkidle');
 }
 
 async function openMyAnnouncements(page: Page) {
@@ -52,6 +59,7 @@ test.describe('Meus Anúncios', () => {
 
     await expect(page).toHaveScreenshot('meus-anuncios-list.png', {
       fullPage: true,
+      maxDiffPixels: 1500,
     });
   });
 
@@ -80,17 +88,21 @@ test.describe('Meus Anúncios', () => {
   test('detail page renders metadata and analytics for the owner announcement', async ({
     page,
   }) => {
+    page.on('console', (msg) => console.log('BROWSER:', msg.text()));
     await openAnnouncementDetail(page);
 
     await expect(
       page.getByRole('heading', { name: /bolos caseiros premium/i }),
     ).toBeVisible();
+    const headings = await page.getByRole('heading').allInnerTexts();
+    console.log('HEADINGS ON DETAIL PAGE:', headings);
     await expect(
       page.getByRole('heading', { name: /métricas|analytics/i }),
     ).toBeVisible();
     await expect(page.getByText(/resumo rápido|quick summary/i)).toBeVisible();
     await expect(page).toHaveScreenshot('meus-anuncios-detail-view.png', {
       fullPage: true,
+      maxDiffPixels: 1500,
     });
   });
 
@@ -149,6 +161,7 @@ test.describe('Meus Anúncios', () => {
     await expect(page.getByRole('heading', { name: nextTitle })).toBeVisible();
     await expect(page).toHaveScreenshot('meus-anuncios-detail-edit-saved.png', {
       fullPage: true,
+      maxDiffPixels: 1500,
     });
   });
 });

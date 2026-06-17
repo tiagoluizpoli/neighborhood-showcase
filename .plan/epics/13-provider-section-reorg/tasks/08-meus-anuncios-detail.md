@@ -2,7 +2,7 @@
 type: task
 id: T-13-08
 epic: E-13
-status: ready
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -25,7 +25,7 @@ Migrated from legacy file `.specify/memory/epics/13-provider-section-reorg/tasks
 
 ### ST-01 - Extract reusable inline analytics surface
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
@@ -48,7 +48,7 @@ verification:
 
 ### ST-02 - Build the announcement detail route
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
@@ -74,7 +74,7 @@ verification:
 
 ### ST-03 - Delete obsolete dashboard modals
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
@@ -98,7 +98,7 @@ verification:
 
 ### ST-04 - Add Playwright coverage for the detail page flow
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []

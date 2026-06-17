@@ -1,22 +1,20 @@
 {
-  "currentRunId": "migration-cutover-2026-06-17",
-  "currentPrdId": "v7",
+  "currentRunId": "e-13-t-13-09-st-03",
+  "currentPrdId": "PRD-v7-provider-section-reorg",
   "currentEpicId": "E-13",
-  "currentTaskId": "T-13-08",
-  "currentSubTaskId": "ST-01",
-  "attemptCount": 0,
-  "retrievalRound": 0,
-  "lastModel": null,
+  "currentTaskId": "T-13-09",
+  "currentSubTaskId": "ST-03",
+  "attemptCount": 1,
+  "retrievalRound": 1,
+  "lastModel": "sonnet",
   "escalated": false,
   "lastFailureReason": null,
   "requiredModel": "medium",
-  "runnerName": "hermes",
+  "runnerName": "claude",
   "escalateIf": [],
   "filesToTouch": [
-    "apps/web/src/routes/panel/-provider-dashboard-analytics-modal.tsx",
-    "apps/web/src/routes/panel/dashboard/announcements/$id.tsx",
-    "apps/web/src/routes/panel/-provider-dashboard-edit-modal.tsx",
-    "apps/web/tests/announcement-detail.spec.ts"
+    "apps/web/src/routes/panel/dashboard/configuration.tsx",
+    "apps/web/src/routes/panel/dashboard/announcements.tsx"
   ],
   "lastCommitChanged": false
 }

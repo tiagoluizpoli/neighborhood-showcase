@@ -61,7 +61,7 @@ function CondominiumInfoPage() {
     error,
   } = useQuery(
     trpc.condominium.getCondominiumInfo.queryOptions(
-      { condominiumId: selectedCondoId! },
+      { condominiumId: selectedCondoId ?? '' },
       { enabled: !!selectedCondoId },
     ),
   );

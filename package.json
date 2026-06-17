@@ -49,7 +49,7 @@
     "check:arch": "depcruise apps/server/src --config .dependency-cruiser.cjs",
     "commit": "cz",
     "test": "NODE_ENV=test bun run packages/db/src/setup-test-db.ts && bun test",
-    "test:e2e": "turbo test:e2e"
+    "test:e2e": "bun run db:seed && turbo test:e2e"
   },
   "dependencies": {
     "@neighborhood-showcase/env": "workspace:*",

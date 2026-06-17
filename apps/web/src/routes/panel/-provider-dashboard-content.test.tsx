@@ -91,7 +91,6 @@ describe('ProviderDashboardContent', () => {
     expect(Array.isArray(children)).toBe(true);
     expect((renderedChildren[0] as { type?: unknown }).type).toBeTruthy();
     expect((renderedChildren[1] as { type?: unknown }).type).toBeTruthy();
-    expect((renderedChildren[2] as { type?: unknown }).type).toBeTruthy();
-    expect(renderedChildren.length).toBe(3);
+    expect(renderedChildren.length).toBe(2);
   });
 });

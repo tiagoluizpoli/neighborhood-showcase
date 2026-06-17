@@ -3,3 +3,14 @@
 [2026-06-17 13:12:39] Migrated current grilling session and current handoffs.
 [2026-06-17 13:12:39] Migrated active epic E-13 and preserved completed status for tasks 01-07.
 [2026-06-17 13:12:39] Next dependency-safe task: T-13-08 / Meus Anúncios detail.
+[2026-06-17 18:24:41] T-13-08 started — running E2E verification for Meus Anúncios detail
+[2026-06-17 19:46:00] T-13-08 done — all subtasks completed, form inputs associated via aria-label, and Playwright E2E tests passing
+[2026-06-17T16:58:29-03:00] T-13-09/ST-01 started — rebuilding KPI strip and compact chart with i18n
+[2026-06-17T17:04:50-03:00] T-13-09/ST-01 done — KPI strip rebuilt with i18n (dashboard.* namespace), file slimmed to 295 lines, tests pass, committed 3a70a27
+[2026-06-17T20:15:00-03:00] T-13-09/ST-04 started — auditing E2E coverage targets for slim dashboard, provider guards, sidebar gating, and footer avatar behavior.
+[2026-06-17T20:15:00-03:00] T-13-09/ST-04 BLOCKED — required behaviors under test are not fully implemented in production code: apps/web/src/routes/panel.tsx still has GROUP_PROVEDOR.condition = true and the sidebar footer Avatar renders only AvatarFallback (no AvatarImage bound to session.data.user.image), so Playwright coverage for provider-only sidebar gating and avatar image/fallback behavior cannot be completed truthfully within the ST-04 test/seed-only scope. Route guards exist in configuration/announcements pages, but ST-04 remains incomplete until ST-02 lands or app-code edits are explicitly allowed. needs-escalation=false
+[2026-06-17T17:17:55-03:00] T-13-09/ST-04 BLOCKED — iteration 2 confirmed the blocker from live code inspection and synchronized task/run state: `apps/web/src/routes/panel.tsx` still keeps the Provider sidebar group unconditional and renders footer avatar fallback-only, so truthful Playwright coverage for sidebar gating + avatar image/fallback remains outside the ST-04 test/seed-only scope. needs-escalation=false
+[2026-06-17 17:19:45] NO MORE TASKS
+[2026-06-17 18:05:10] NO MORE TASKS
+[2026-06-17 18:22:19] NO MORE TASKS
+[2026-06-17T19:24:02-03:00] T-13-09/ST-03 done — AnnouncementsGuard added to announcements.tsx, configuration.tsx guard fixed, route guards redirect non-providers to /panel/account. All 26 E2E tests pass, check/check-types clean.

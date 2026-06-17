@@ -83,6 +83,7 @@ export function ProviderDashboardEditFormFields({
           <Input
             type="text"
             required
+            aria-label={t('meus_anuncios.detail.form.title')}
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
             placeholder={t('meus_anuncios.detail.form.title_placeholder')}
@@ -91,6 +92,7 @@ export function ProviderDashboardEditFormFields({
         <Field label={t('meus_anuncios.detail.form.subtitle')}>
           <Input
             type="text"
+            aria-label={t('meus_anuncios.detail.form.subtitle')}
             value={subtitle}
             onChange={(e) => onSubtitleChange(e.target.value)}
             placeholder={t('meus_anuncios.detail.form.subtitle_placeholder')}
@@ -102,6 +104,7 @@ export function ProviderDashboardEditFormFields({
         <Field label={t('meus_anuncios.detail.form.category')}>
           <select
             required
+            aria-label={t('meus_anuncios.detail.form.category')}
             value={categoryId}
             onChange={(e) => onCategoryIdChange(e.target.value)}
             className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 dark:bg-input/30"
@@ -118,6 +121,7 @@ export function ProviderDashboardEditFormFields({
             type="number"
             step="0.01"
             min="0"
+            aria-label={t('meus_anuncios.detail.form.price')}
             value={price}
             onChange={(e) =>
               onPriceChange(e.target.value === '' ? '' : Number(e.target.value))
@@ -131,6 +135,7 @@ export function ProviderDashboardEditFormFields({
         <Textarea
           required
           rows={4}
+          aria-label={t('meus_anuncios.detail.form.description')}
           value={description}
           onChange={(e) => onDescriptionChange(e.target.value)}
           placeholder={t('meus_anuncios.detail.form.description_placeholder')}
@@ -149,6 +154,7 @@ export function ProviderDashboardEditFormFields({
           >
             <Input
               type="text"
+              aria-label={t('meus_anuncios.detail.contact_labels.whatsapp')}
               value={whatsapp}
               onChange={(e) => onWhatsappChange(e.target.value)}
               placeholder={t('meus_anuncios.detail.form.whatsapp_placeholder')}
@@ -160,6 +166,7 @@ export function ProviderDashboardEditFormFields({
           >
             <Input
               type="text"
+              aria-label={t('meus_anuncios.detail.contact_labels.instagram')}
               value={instagram}
               onChange={(e) => onInstagramChange(e.target.value)}
               placeholder={t('meus_anuncios.detail.form.instagram_placeholder')}
@@ -171,6 +178,7 @@ export function ProviderDashboardEditFormFields({
           >
             <Input
               type="url"
+              aria-label={t('meus_anuncios.detail.contact_labels.website')}
               value={website}
               onChange={(e) => onWebsiteChange(e.target.value)}
               placeholder={t('meus_anuncios.detail.form.website_placeholder')}
@@ -236,7 +244,7 @@ function Field({
   subtle?: boolean;
 }) {
   return (
-    <div className="space-y-1.5">
+    <div className="block space-y-1.5">
       <span
         className={
           subtle

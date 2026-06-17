@@ -35,7 +35,7 @@ function ConfigurationPageComponent() {
   );
 
   // Fetch user's assignments to check provider capability
-  const { data: assignments } = useQuery(
+  const { data: assignments, isLoading: assignmentsLoading } = useQuery(
     trpc.assignment.getMyAssignments.queryOptions(),
   );
 
@@ -45,11 +45,17 @@ function ConfigurationPageComponent() {
 
   // Redirect if no enabled provider assignment
   useEffect(() => {
-    if (!isLoading && assignments && !hasEnabledProviderAssignment) {
+    if (!assignmentsLoading && assignments && !hasEnabledProviderAssignment) {
       toast.error(t('toast_error_no_provider_account'));
       navigate({ to: '/panel/account' });
     }
-  }, [isLoading, assignments, hasEnabledProviderAssignment, navigate, t]);
+  }, [
+    assignmentsLoading,
+    assignments,
+    hasEnabledProviderAssignment,
+    navigate,
+    t,
+  ]);
 
   // Section 1: Public Profile
   const [displayName, setDisplayName] = useState('');
@@ -177,7 +183,7 @@ function ConfigurationPageComponent() {
     });
   };
 
-  if (isLoading || !session) {
+  if (isLoading || assignmentsLoading || !session) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center space-y-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

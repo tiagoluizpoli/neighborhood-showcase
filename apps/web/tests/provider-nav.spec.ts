@@ -6,7 +6,7 @@ import { expect, type Page, test } from '@playwright/test';
 async function signInViaUI(page: Page, email: string, password: string) {
   await page.goto('/auth');
   // "Entrar" tab is already selected by default — no click needed
-  await page.getByPlaceholder(/e-mail/i).fill(email);
+  await page.getByPlaceholder(/email/i).fill(email);
   await page.getByPlaceholder(/senha/i).fill(password);
   await page.getByRole('button', { name: /entrar/i }).click();
   await page.waitForURL(/\/panel/, { timeout: 15_000 });
@@ -27,6 +27,9 @@ test.describe('Provider Navigation Flatten', () => {
       .locator('[data-sidebar]')
       .locator('text=Provedor')
       .locator('..');
+
+    // Wait for the Provider group to appear (assignments load asynchronously)
+    await expect(providerGroup).toBeVisible({ timeout: 10_000 });
 
     // Find all SidebarMenuButton elements within the Provider group
     // Each button has class "md:hidden" or is a direct child of SidebarMenuItem
@@ -54,6 +57,8 @@ test.describe('Provider Navigation Flatten', () => {
       .locator('text=Provedor')
       .locator('..');
 
+    await expect(providerGroup).toBeVisible({ timeout: 10_000 });
+
     // Dashboard link
     const dashboardLink = providerGroup.locator('a[href="/panel/dashboard"]');
     await expect(dashboardLink).toBeVisible();
@@ -79,6 +84,8 @@ test.describe('Provider Navigation Flatten', () => {
       .locator('[data-sidebar]')
       .locator('text=Provedor')
       .locator('..');
+
+    await expect(providerGroup).toBeVisible({ timeout: 10_000 });
 
     // No element with chevron-down / chevron-right inside Provider group
     // (SidebarMenuSub renders a toggle indicator)

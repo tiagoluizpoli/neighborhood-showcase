@@ -6,7 +6,7 @@ import { expect, type Page, test } from '@playwright/test';
 async function signInViaUI(page: Page, email: string, password: string) {
   await page.goto('/auth');
   // "Entrar" tab is already selected by default — no click needed
-  await page.getByPlaceholder(/e-mail/i).fill(email);
+  await page.getByPlaceholder(/email/i).fill(email);
   await page.getByPlaceholder(/senha/i).fill(password);
   await page.getByRole('button', { name: /entrar/i }).click();
   await page.waitForURL(/\/panel/, { timeout: 15_000 });
