@@ -8,6 +8,7 @@
 import { db } from '@neighborhood-showcase/db';
 import { account, user } from '@neighborhood-showcase/db/schema/auth';
 import {
+  announcement,
   condominium,
   providerAssignment,
   providerProfile,
@@ -18,6 +19,7 @@ async function seed() {
   console.log('Seeding test users directly via Drizzle...');
 
   // Wipe all test data — order matters (foreign keys first)
+  await db.delete(announcement);
   await db.delete(providerAssignment);
   await db.delete(condominium);
   await db.delete(account);
@@ -32,10 +34,31 @@ async function seed() {
       name: 'Provider Test',
       email: 'provider@test.com',
       emailVerified: true,
+      image: null,
       role: 'USER',
       status: 'ACTIVE',
       cpfHash: 'cpf-hash-provider',
+      language: 'pt-BR',
       phone: '+551****9999',
+      theme: 'light',
+    })
+    .returning()) as [typeof user.$inferInsert];
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const [secondProviderUser] = (await db
+    .insert(user)
+    .values({
+      id: 'seed-provider-other-id',
+      name: 'Provider Other',
+      email: 'provider.other@test.com',
+      emailVerified: true,
+      image: null,
+      role: 'USER',
+      status: 'ACTIVE',
+      cpfHash: 'cpf-hash-provider-other',
+      language: 'pt-BR',
+      phone: '+551****9995',
+      theme: 'light',
     })
     .returning()) as [typeof user.$inferInsert];
 
@@ -80,6 +103,17 @@ async function seed() {
     providerId: 'credential',
     providerAccountId: 'provider@test.com',
     password: providerPw,
+  });
+
+  const secondProviderPw = await hashPassword('Test@1234');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db.insert(account).values as any)({
+    id: 'seed-account-provider-other',
+    accountId: 'provider.other@test.com',
+    userId: secondProviderUser.id,
+    providerId: 'credential',
+    providerAccountId: 'provider.other@test.com',
+    password: secondProviderPw,
   });
 
   const adminPw = await hashPassword('Test@1234');
@@ -161,10 +195,13 @@ async function seed() {
       name: 'Unverified Test',
       email: 'unverified@test.com',
       emailVerified: false,
+      image: null,
       role: 'USER',
       status: 'ACTIVE',
       cpfHash: 'cpf-hash-unverified',
+      language: 'pt-BR',
       phone: '+551****9996',
+      theme: 'light',
     })
     .returning()) as [typeof user.$inferInsert];
 
@@ -190,22 +227,132 @@ async function seed() {
       status: 'APPROVED',
       unitInfo: 'Provider HQ',
     },
+    {
+      id: 'provider-assignment-other-1',
+      providerId: secondProviderUser.id,
+      condominiumId: condo1.id,
+      type: 'RESIDENT',
+      status: 'APPROVED',
+      unitInfo: 'Provider Other HQ',
+    },
   ]);
 
-  // Create provider_profile row for provider@test.com
+  // Create provider_profile rows for seeded providers
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (db.insert(providerProfile) as any).values({
-    providerId: providerUser.id,
-    displayName: 'Provider Test',
-    avatarUrl: null,
-    companyName: null,
-    tradeName: null,
-    logoUrl: null,
-    bannerUrl: null,
-    publicDescription: null,
-    socialLinks: {},
-    isProviderVisible: true,
-  });
+  await (db.insert(providerProfile) as any).values([
+    {
+      providerId: providerUser.id,
+      displayName: 'Provider Test',
+      avatarUrl: null,
+      companyName: null,
+      tradeName: null,
+      logoUrl: null,
+      bannerUrl: null,
+      publicDescription: null,
+      socialLinks: {},
+      isProviderVisible: true,
+    },
+    {
+      providerId: secondProviderUser.id,
+      displayName: 'Provider Other',
+      avatarUrl: null,
+      companyName: null,
+      tradeName: null,
+      logoUrl: null,
+      bannerUrl: null,
+      publicDescription: null,
+      socialLinks: {},
+      isProviderVisible: true,
+    },
+  ]);
+
+  await db.insert(announcement).values([
+    {
+      id: 'seed-announcement-active',
+      providerId: providerUser.id,
+      providerAssignmentId: 'provider-assignment-1',
+      condominiumId: condo1.id,
+      title: 'Bolos Caseiros Premium',
+      description:
+        'Bolos artesanais sob encomenda para festas e encontros do condomínio.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1200&q=80',
+      categoryId: 'cat-servicos',
+      tags: ['bolo', 'doces'],
+      contactLinks: { whatsapp: '+5511999999999' },
+      showVerifiedBadge: true,
+      status: 'ACTIVE',
+      expiresAt: new Date('2026-07-10T12:00:00.000Z'),
+    },
+    {
+      id: 'seed-announcement-draft',
+      providerId: providerUser.id,
+      providerAssignmentId: 'provider-assignment-1',
+      condominiumId: condo1.id,
+      title: 'Aulas de Violão para Iniciantes',
+      description:
+        'Aulas presenciais para moradores com foco em repertório popular.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?auto=format&fit=crop&w=1200&q=80',
+      categoryId: 'cat-servicos',
+      tags: ['música'],
+      contactLinks: { instagram: '@provider.test' },
+      showVerifiedBadge: false,
+      status: 'DRAFT',
+    },
+    {
+      id: 'seed-announcement-expired',
+      providerId: providerUser.id,
+      providerAssignmentId: 'provider-assignment-1',
+      condominiumId: condo1.id,
+      title: 'Consultoria de Organização',
+      description:
+        'Sessões rápidas para organizar armários, depósitos e áreas de serviço.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80',
+      categoryId: 'cat-servicos',
+      tags: ['organização'],
+      contactLinks: { website: 'https://example.com/provider-test' },
+      showVerifiedBadge: false,
+      status: 'EXPIRED',
+      expiresAt: new Date('2026-05-10T12:00:00.000Z'),
+    },
+    {
+      id: 'seed-announcement-suspended',
+      providerId: providerUser.id,
+      providerAssignmentId: 'provider-assignment-1',
+      condominiumId: condo1.id,
+      title: 'Buffet para Eventos',
+      description:
+        'Buffet completo para aniversários e confraternizações com cardápio variado.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80',
+      categoryId: 'cat-servicos',
+      tags: ['eventos'],
+      contactLinks: { whatsapp: '+551****8888' },
+      showVerifiedBadge: false,
+      status: 'SUSPENDED',
+      suspensionReason:
+        'Aguardando revisão de conteúdo pelo time de moderação.',
+    },
+    {
+      id: 'seed-announcement-other-provider',
+      providerId: secondProviderUser.id,
+      providerAssignmentId: 'provider-assignment-other-1',
+      condominiumId: condo1.id,
+      title: 'Jardinagem Express',
+      description:
+        'Manutenção rápida de jardins e vasos para áreas privativas e varandas.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=1200&q=80',
+      categoryId: 'cat-servicos',
+      tags: ['jardim'],
+      contactLinks: { instagram: '@provider.other' },
+      showVerifiedBadge: false,
+      status: 'ACTIVE',
+      expiresAt: new Date('2026-07-20T12:00:00.000Z'),
+    },
+  ]);
 
   console.log(
     '✅ Seed complete: provider@test.com, admin@test.com, moderator@test.com (password: Test@1234)',

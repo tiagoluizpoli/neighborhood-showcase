@@ -6,6 +6,7 @@ import {
   category,
   providerProfile,
 } from '@neighborhood-showcase/db/schema/showcase';
+import { eq } from 'drizzle-orm';
 import { DrizzleSpectrumRepository } from '../../../infrastructure/db/spectrum-repository/spectrum-repository';
 import { GetSpectrumOverview } from './get-spectrum-overview';
 
@@ -18,7 +19,7 @@ describe('GetSpectrumOverview use case', () => {
     await db.delete(announcement);
     await db.delete(providerProfile);
     await db.delete(user);
-    await db.delete(category);
+    await db.delete(category).where(eq(category.id, 'spectrum-test-category'));
 
     // Seed test category
     await db.insert(category).values({
