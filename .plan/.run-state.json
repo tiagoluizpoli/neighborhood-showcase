@@ -1,20 +1,17 @@
 {
-  "currentRunId": "e-13-t-13-10-st-05",
+  "currentRunId": null,
   "currentPrdId": "PRD-v7-provider-section-reorg",
-  "currentEpicId": "E-13",
-  "currentTaskId": "T-13-10",
-  "currentSubTaskId": "ST-05",
-  "attemptCount": 2,
-  "retrievalRound": 2,
+  "currentEpicId": null,
+  "currentTaskId": null,
+  "currentSubTaskId": null,
+  "attemptCount": 0,
+  "retrievalRound": 0,
   "lastModel": "Claude Sonnet 4.6 (Thinking)",
   "escalated": false,
-  "lastFailureReason": "no-completion-signal",
-  "requiredModel": "medium",
+  "lastFailureReason": null,
+  "requiredModel": null,
   "runnerName": "agy",
   "escalateIf": [],
-  "filesToTouch": [
-    "apps/web/tests/public-provider.spec.ts",
-    "relevant seed/setup files"
-  ],
+  "filesToTouch": [],
   "lastCommitChanged": false
 }
