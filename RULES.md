@@ -344,6 +344,11 @@ schema definitions, and generate a new base schema migration from scratch.
 - **No project branding in the key name.** The key must look like internal
   technical state, not user-facing content.
 
+## 15. Form Management (TanStack Form)
+
+- **Form Library**: All frontend forms must use TanStack Form ([documentation](https://tanstack.com/form/latest/docs/overview)).
+- **Migration & Refactoring Rule**: While a complete refactoring of all existing forms is not required immediately, if a task touches or modifies a form that is currently using `useState` (or another manual state management approach), that form must be refactored to use TanStack Form as part of the task, or marked/logged for implementation ASAP.
+
 <!-- INDEX SYNC: This file is project-root canonical rules. Any change here
 should also be reflected in agents.local.md (project-context only) and the
 ralph-loop-orchestrator skill. -->
