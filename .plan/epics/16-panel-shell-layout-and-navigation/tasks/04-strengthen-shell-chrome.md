@@ -2,7 +2,7 @@
 type: task
 id: T-16-04
 epic: E-16
-status: in-progress
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -79,7 +79,7 @@ verification:
 
 ### ST-03 - Test that shell chrome shows section context
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
@@ -99,7 +99,7 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- 2026-06-19: Extended `apps/web/src/routes/-panel.test.tsx` at the panel layout seam with route-context assertions for both provider and moderation paths, using pathname/localStorage-controlled mocks so the test covers sidebar-header context plus top-bar section identity without widening scope beyond shell chrome.
 
 ---
 
