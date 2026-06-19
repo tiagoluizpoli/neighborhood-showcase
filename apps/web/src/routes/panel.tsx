@@ -71,6 +71,7 @@ import { trpc } from '@/utils/trpc';
 // ---------------------------------------------------------------------------
 
 const STORAGE_KEY_PREFIX = 'sb_grp:';
+const MODERATION_CONTEXT_STORAGE_KEY = 'mod_ctx__cndo';
 
 function readGroupOpen(groupKey: string, defaultOpen: boolean): boolean {
   try {
@@ -108,6 +109,11 @@ interface SidebarGroupConfig {
   condition: boolean;
   items: SidebarItem[];
   leadItem?: React.ReactNode;
+}
+
+interface SidebarHeaderContext {
+  activeGroup: SidebarGroupConfig | null;
+  activeItem: SidebarItem | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -207,6 +213,93 @@ function getInitials(name?: string) {
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function normalizePathname(pathname: string): string {
+  if (!pathname || pathname === '/') {
+    return pathname;
+  }
+  return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+}
+
+function pathnameMatches(pathname: string, href: string): boolean {
+  const normalizedPathname = normalizePathname(pathname);
+  const normalizedHref = normalizePathname(href);
+
+  return (
+    normalizedPathname === normalizedHref ||
+    normalizedPathname.startsWith(`${normalizedHref}/`)
+  );
+}
+
+function resolveSidebarHeaderContext(
+  pathname: string,
+  sidebarGroups: SidebarGroupConfig[],
+): SidebarHeaderContext {
+  const normalizedPathname = normalizePathname(pathname);
+  let activeGroup: SidebarGroupConfig | null = null;
+  let activeItem: SidebarItem | null = null;
+  let bestMatchLength = -1;
+
+  for (const group of sidebarGroups) {
+    for (const item of group.items) {
+      if (!pathnameMatches(normalizedPathname, item.href)) {
+        continue;
+      }
+      if (item.href.length <= bestMatchLength) {
+        continue;
+      }
+      activeGroup = group;
+      activeItem = item;
+      bestMatchLength = item.href.length;
+    }
+  }
+
+  if (activeGroup) {
+    return { activeGroup, activeItem };
+  }
+
+  if (normalizedPathname.startsWith('/panel/provider')) {
+    return {
+      activeGroup:
+        sidebarGroups.find(
+          (group) => group.i18nGroupKey === GROUP_PROVEDOR.i18nGroupKey,
+        ) ?? null,
+      activeItem: null,
+    };
+  }
+
+  if (normalizedPathname.startsWith('/panel/moderation')) {
+    return {
+      activeGroup:
+        sidebarGroups.find(
+          (group) => group.i18nGroupKey === GROUP_MODERACAO.i18nGroupKey,
+        ) ?? null,
+      activeItem: null,
+    };
+  }
+
+  if (normalizedPathname.startsWith('/panel/admin')) {
+    return {
+      activeGroup:
+        sidebarGroups.find(
+          (group) => group.i18nGroupKey === GROUP_ADMINISTRACAO.i18nGroupKey,
+        ) ?? null,
+      activeItem: null,
+    };
+  }
+
+  if (normalizedPathname.startsWith('/panel/spectrum')) {
+    return {
+      activeGroup:
+        sidebarGroups.find(
+          (group) => group.i18nGroupKey === GROUP_SPECTRUM.i18nGroupKey,
+        ) ?? null,
+      activeItem: null,
+    };
+  }
+
+  return { activeGroup: null, activeItem: null };
 }
 
 // ---------------------------------------------------------------------------
@@ -354,6 +447,51 @@ function PanelLayout() {
     { ...GROUP_ADMINISTRACAO, condition: hasSystemManagerRole },
     { ...GROUP_SPECTRUM, condition: isAdministrator },
   ];
+  const visibleSidebarGroups = sidebarGroups.filter((group) => group.condition);
+  const pathname = globalThis.location?.pathname ?? '';
+  const activeSidebarContext = resolveSidebarHeaderContext(
+    pathname,
+    visibleSidebarGroups,
+  );
+  const moderatorAssignments =
+    assignments?.filter(
+      (assignment) =>
+        assignment.type === 'MODERATOR' &&
+        assignment.status === 'APPROVED' &&
+        assignment.condominiumId !== null,
+    ) ?? [];
+  const moderationContextName =
+    pathname.startsWith('/panel/moderation') && moderatorAssignments.length > 0
+      ? (() => {
+          const storedCondominiumId = localStorage.getItem(
+            MODERATION_CONTEXT_STORAGE_KEY,
+          );
+          const selectedAssignment =
+            moderatorAssignments.find(
+              (assignment) => assignment.condominiumId === storedCondominiumId,
+            ) ?? moderatorAssignments[0];
+          return (
+            selectedAssignment.condominium?.name ??
+            selectedAssignment.condominiumId
+          );
+        })()
+      : null;
+  const accountLabel = pathnameMatches(pathname, '/panel/account')
+    ? t('sidebar.user_menu.account')
+    : null;
+  const sectionLabel = activeSidebarContext.activeGroup
+    ? t(activeSidebarContext.activeGroup.i18nGroupKey)
+    : null;
+  const pageLabel = activeSidebarContext.activeItem
+    ? t(activeSidebarContext.activeItem.i18nKey)
+    : accountLabel;
+  const sidebarHeaderContext = moderationContextName
+    ? moderationContextName
+    : pathnameMatches(pathname, '/panel/spectrum')
+      ? t('sidebar.spectrum.description')
+      : pageLabel && pageLabel !== sectionLabel
+        ? pageLabel
+        : accountLabel;
 
   return (
     <SidebarProvider
@@ -369,21 +507,33 @@ function PanelLayout() {
         className="flex h-svh w-full bg-background text-foreground [--sidebar-width:280px]"
       >
         <Sidebar collapsible="icon">
-          <SidebarHeader className="flex h-14 items-center border-b px-4">
-            <span className="truncate font-bold text-sm group-data-[collapsible=icon]:hidden">
-              Neighborhood Showcase
-            </span>
+          <SidebarHeader className="flex h-14 items-center gap-3 border-b px-4">
+            <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
+              <p className="truncate font-bold text-sm">
+                Neighborhood Showcase
+              </p>
+              {sidebarHeaderContext ? (
+                <p className="truncate text-muted-foreground text-xs">
+                  {sidebarHeaderContext}
+                </p>
+              ) : null}
+            </div>
             <span className="hidden font-bold text-sm group-data-[collapsible=icon]:block">
               NS
             </span>
+            <Link
+              to="/panel/account"
+              aria-label={t('sidebar.user_menu.account')}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md border text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <Settings className="h-4 w-4" />
+            </Link>
           </SidebarHeader>
 
           <SidebarContent>
-            {sidebarGroups
-              .filter((g) => g.condition)
-              .map((group) => (
-                <SidebarGroupSection key={group.i18nGroupKey} group={group} />
-              ))}
+            {visibleSidebarGroups.map((group) => (
+              <SidebarGroupSection key={group.i18nGroupKey} group={group} />
+            ))}
           </SidebarContent>
 
           <SidebarFooter className="border-t p-4">

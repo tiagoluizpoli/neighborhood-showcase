@@ -34,3 +34,8 @@ Verification:
 Committed planning recovery as `docs(multiple): recover T-16-03 completion signal`.
 
 <promise>100% Complete</promise>
+
+In-progress update (attempt 2, 2026-06-19T18:25:30-03:00):
+- Re-read `.plan/RULES.md`, `agents.local.md`, `.plan/PRD.md`, `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md`, `.plan/index.md`, the E-16 epic, and the T-16-04 task in the required order.
+- Confirmed the runtime contract remains T-16-04 / ST-01 only, medium tier, touching `apps/web/src/routes/panel.tsx`.
+- Re-ran `.plan/helper-scripts/runtime-state.sh prepare-attempt ...` and inspected the previously-worked shell/history surfaces before editing `panel.tsx`.

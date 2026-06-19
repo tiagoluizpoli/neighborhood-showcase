@@ -2,8 +2,8 @@
 type: task
 id: T-16-04
 epic: E-16
-status: ready
-blocked-by: [T-16-03]
+status: in-progress
+blocked-by: []
 default-model: medium
 ---
 
@@ -27,7 +27,7 @@ The shell lives in `apps/web/src/routes/panel.tsx`, which already composes `Side
 
 ### ST-01 - Add hierarchy to the sidebar header
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - Active section / condo context is not available at the shell layer without new data plumbing beyond this packet's scope.
@@ -49,6 +49,9 @@ verification:
 #### Execution Notes
 
 - No execution notes yet.
+- 2026-06-19: Kept the change local to `apps/web/src/routes/panel.tsx` by deriving sidebar header context from the active panel pathname and the already-available visible sidebar groups, rather than introducing new route metadata plumbing.
+- 2026-06-19: On moderation routes, the header context now resolves the selected condo from `mod_ctx__cndo` and the approved moderator assignments already loaded by the shell; other sections fall back to the active section/item labels already translated via existing `sidebar.*` keys.
+- 2026-06-19: Added a primary sidebar-header utility affordance as an account shortcut (`/panel/account`) reusing the existing `sidebar.user_menu.account` i18n key, so ST-01 strengthens the chrome without introducing hardcoded copy or redesigning the shell.
 
 ### ST-02 - Add a section title / breadcrumb to the top bar
 
