@@ -180,13 +180,17 @@ mock.module('lucide-react', () => {
     ArrowRight: dummyIcon,
     Calendar: dummyIcon,
     Check: dummyIcon,
+    CheckCircle2: dummyIcon,
     CheckIcon: dummyIcon,
     ChevronDown: dummyIcon,
     Edit: dummyIcon,
     Eye: dummyIcon,
     EyeOff: dummyIcon,
     Loader2: dummyIcon,
+    Mail: dummyIcon,
     Megaphone: dummyIcon,
+    MessageCircle: dummyIcon,
+    Phone: dummyIcon,
     Plus: dummyIcon,
     RefreshCw: dummyIcon,
     Settings: dummyIcon,
@@ -332,5 +336,24 @@ describe('Provider route migration — no per-route padding overrides', () => {
     const tree = renderComponent(Route.component);
     expect(tree.props?.className ?? '').not.toContain('px-6');
     expect(tree.props?.className ?? '').not.toContain('py-8');
+  });
+
+  test('announcements $id: uses AnnouncementPresentationPrimitive with detail-header variant', async () => {
+    mockDashboardData = {
+      announcements: {
+        active: [mockAnnouncement],
+        draft: [],
+        expired: [],
+        suspended: [],
+      },
+    };
+    hookState[0] = [false, () => {}]; // isEditing = false → non-editing view
+    hookState[1] = ['7d', () => {}]; // period
+    hookState[2] = [mockForm, () => {}]; // form non-null → skip loading guard
+
+    const { Route } = await import('@/routes/panel.provider.announcements.$id');
+    const tree = renderComponent(Route.component);
+    const primEl = findByProp(tree, 'variant', 'detail-header');
+    expect(primEl).not.toBeNull();
   });
 });

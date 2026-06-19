@@ -2,7 +2,7 @@
 type: task
 id: T-16-05
 epic: E-16
-status: in-progress
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -85,7 +85,7 @@ verification:
 
 ### ST-03 - Test the primitive at its variant boundaries
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
@@ -106,7 +106,11 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- Added `describe('AnnouncementPresentationPrimitive variant dispatch')` block in `announcement-card.test.tsx` with 3 tests: `public-card` dispatches to `AnnouncementCard` (type check), `dashboard-card` dispatches to `AnnouncementDashboardCard` (type check), `detail-header` renders title (renderComponent + findNodeByText). 13/13 green.
+- Added variant assertion to `-provider-dashboard-announcement-card.test.tsx`: `ProviderDashboardAnnouncementCard` output has `props.variant === 'dashboard-card'`. 4/4 green.
+- Added `detail-header` variant test to `-panel.provider.announcements.test.tsx` (non-editing `$id` route); also fixed pre-existing lucide-react CJS failures by adding missing icons (`CheckCircle2`, `Mail`, `MessageCircle`, `Phone`) to the existing mock. 5/5 green.
+- Created `portal/-public-vitrine-announcement-grid.test.tsx`: mocks the primitive, asserts results state uses `public-card` variant, guards against wrong variants, tests empty-state slot passthrough, and covers `resolvePublicVitrineAnnouncementGridState` (4 cases). 7/7 green.
+- `bun run check` and `bun run check-types` both pass.
 
 ---
 

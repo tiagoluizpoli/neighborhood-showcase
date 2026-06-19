@@ -128,6 +128,16 @@ describe('ProviderDashboardAnnouncementCard', () => {
     ).toBeTruthy();
   });
 
+  test('uses AnnouncementPresentationPrimitive with dashboard-card variant', () => {
+    const tree = ProviderDashboardAnnouncementCard({
+      ad: baseAd,
+      formatDate: (date) => date ?? '-',
+      formatPrice: () => 'R$ 0,00',
+      onEdit: () => {},
+    });
+    expect(tree.props?.variant).toBe('dashboard-card');
+  });
+
   test('renders the empty state link when available', () => {
     const tree = ProviderDashboardAnnouncementEmptyState({
       text: 'Nenhum anúncio ativo no momento.',
