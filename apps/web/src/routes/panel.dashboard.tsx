@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import { getUserAccessProfile } from './panel/-user-access-profile';
+import { trpcClient } from '@/utils/trpc';
 
 export const Route = createFileRoute('/panel/dashboard')({
   beforeLoad: async ({ location, context }) => {
@@ -17,17 +18,31 @@ export const Route = createFileRoute('/panel/dashboard')({
     const role = session.data.user.role;
 
     if (role === 'SYSTEM_MANAGER' || role === 'ADMINISTRATOR') {
-      throw redirect({ to: '/panel/admin' });
+      throw redirect({ to: '/panel/admin', search: location.search });
+    }
+
+    const assignments = await trpcClient.assignment.getMyAssignments.query();
+    const hasModeratorAssignment = assignments.some(
+      (a) =>
+        a.type === 'MODERATOR' &&
+        a.status === 'APPROVED' &&
+        a.condominiumId !== null,
+    );
+
+    if (hasModeratorAssignment) {
+      throw redirect({ to: '/panel/moderation', search: location.search });
     }
 
     const accessProfile = await getUserAccessProfile();
     if (accessProfile.providerEnabled) {
-      throw redirect({ to: '/panel/provider' });
+      throw redirect({ to: '/panel/provider', search: location.search });
     }
 
     // No active section scope — direct to setup onboarding.
-    // Moderator-specific landing refinement is handled by T-14-03.
-    throw redirect({ to: '/panel/dashboard/condo-setup' });
+    throw redirect({
+      to: '/panel/dashboard/condo-setup',
+      search: location.search,
+    });
   },
   component: DashboardShimLayout,
 });

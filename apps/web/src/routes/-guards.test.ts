@@ -13,7 +13,11 @@ import { trpc } from '../utils/trpc';
 
 const mockGetMyAssignments = mock(() => Promise.resolve([]));
 const mockMyCreatedCondo = mock(() => Promise.resolve(null));
-mock.module('../utils/trpc', () => ({
+const mockGetAccessProfile = mock(() =>
+  Promise.resolve({ providerEnabled: false }),
+);
+
+const trpcMockModule = {
   trpcClient: {
     assignment: {
       getMyAssignments: {
@@ -25,9 +29,17 @@ mock.module('../utils/trpc', () => ({
         query: mockMyCreatedCondo,
       },
     },
+    user: {
+      getAccessProfile: {
+        query: mockGetAccessProfile,
+      },
+    },
   },
   trpc,
-}));
+};
+
+mock.module('../utils/trpc', () => trpcMockModule);
+mock.module('@/utils/trpc', () => trpcMockModule);
 
 import { Route as PanelRoute } from './panel';
 import { Route as AdminRoute } from './panel.admin';

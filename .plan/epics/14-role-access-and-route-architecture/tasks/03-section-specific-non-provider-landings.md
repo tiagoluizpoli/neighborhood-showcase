@@ -2,7 +2,7 @@
 type: task
 id: T-14-03
 epic: E-14
-status: ready
+status: in-progress
 blocked-by: []
 default-model: medium
 ---
@@ -27,7 +27,7 @@ PRD-v8 requires Moderator, Administrator, and System Manager experiences to stay
 
 ### ST-01 - Define section-correct landings for Moderator, Administrator, and System Manager
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
