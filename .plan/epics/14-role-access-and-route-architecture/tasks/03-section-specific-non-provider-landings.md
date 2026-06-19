@@ -2,8 +2,8 @@
 type: task
 id: T-14-03
 epic: E-14
-status: in-progress
-blocked-by: []
+status: blocked
+blocked-by: [history-retrieval-exhausted]
 default-model: medium
 ---
 
@@ -81,10 +81,10 @@ verification:
 
 ### ST-03 - Add Playwright coverage for section-specific non-Provider landings
 
-status: ready
+status: blocked
 model: medium
 escalate-if: []
-blocked-by: []
+blocked-by: [history-retrieval-exhausted]
 
 what-to-do:
 - Add E2E coverage proving Moderator, Administrator, and System Manager land in the correct section-specific destination after sign-in and after visiting legacy `/panel/dashboard`.

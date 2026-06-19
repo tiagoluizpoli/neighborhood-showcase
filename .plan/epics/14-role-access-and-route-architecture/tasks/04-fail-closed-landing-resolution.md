@@ -2,8 +2,8 @@
 type: task
 id: T-14-04
 epic: E-14
-status: ready
-blocked-by: [T-14-02, T-14-03]
+status: in-progress
+blocked-by: []
 default-model: medium
 ---
 
@@ -27,10 +27,10 @@ Once Provider and non-Provider section ownership are explicit, the remaining con
 
 ### ST-01 - Centralize landing-resolution rules
 
-status: ready
+status: done
 model: medium
 escalate-if: []
-blocked-by: [T-14-02, T-14-03]
+blocked-by: []
 
 what-to-do:
 - Implement one explicit resolver for panel landing decisions across single-scope, no-scope, and multi-scope cases.

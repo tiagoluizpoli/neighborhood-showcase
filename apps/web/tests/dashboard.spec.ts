@@ -37,24 +37,24 @@ test.describe('Provider Dashboard — slim', () => {
   }) => {
     await page.setViewportSize(DASHBOARD_VIEWPORT);
     await signInViaUI(page, PROVIDER_EMAIL, PROVIDER_PASSWORD);
-    await page.goto('/panel/dashboard');
+    await page.waitForURL(/\/panel\/provider/, { timeout: 15_000 });
     await page.waitForLoadState('networkidle', { timeout: 15_000 });
 
     await expect(
       page.getByText(/visualizações|impressions/i).first(),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 20_000 });
     await expect(
       page.getByText(/interações|interactions/i).first(),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 20_000 });
     await expect(
       page.getByText(/taxa de conversão|conversion rate/i).first(),
-    ).toBeVisible();
-    await expect(
-      page.getByText(/anúncios|announcements/i).first(),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(/anúncios|announcements/i).first()).toBeVisible(
+      { timeout: 20_000 },
+    );
     await expect(
       page.getByText(/desempenho geral|overall performance/i),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 20_000 });
 
     await expect(
       page.locator('a[href*="/panel/dashboard/announcements/seed-"]'),

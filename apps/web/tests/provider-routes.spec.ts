@@ -26,6 +26,27 @@ test.describe('Provider sign-in landing', () => {
     expect(page.url()).toMatch(/\/panel\/provider/);
   });
 
+  test('moderator sign-in lands at /panel/moderation', async ({ page }) => {
+    await signInViaUI(page, MODERATOR_EMAIL);
+
+    await page.waitForURL(/\/panel\/moderation/, { timeout: 15_000 });
+    expect(page.url()).toMatch(/\/panel\/moderation/);
+  });
+
+  test('admin sign-in lands at /panel/admin', async ({ page }) => {
+    await signInViaUI(page, ADMIN_EMAIL);
+
+    await page.waitForURL(/\/panel\/admin/, { timeout: 15_000 });
+    expect(page.url()).toMatch(/\/panel\/admin/);
+  });
+
+  test('system manager sign-in lands at /panel/admin', async ({ page }) => {
+    await signInViaUI(page, SYSTEM_MANAGER_EMAIL);
+
+    await page.waitForURL(/\/panel\/admin/, { timeout: 15_000 });
+    expect(page.url()).toMatch(/\/panel\/admin/);
+  });
+
   test('provider section shows KPI dashboard identity', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 1024 });
     await signInViaUI(page, PROVIDER_EMAIL);
@@ -41,6 +62,82 @@ test.describe('Provider sign-in landing', () => {
 
     await expect(page).toHaveScreenshot(
       'provider-section-identity-1280x1024.png',
+      {
+        fullPage: false,
+        maxDiffPixels: 10000,
+        mask: [
+          page.locator('[data-slot="sidebar-footer"]'),
+          page.getByText(/bem-vindo de volta/i),
+          page.getByRole('application'),
+        ],
+      },
+    );
+  });
+
+  test('moderator section shows moderation dashboard identity', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 1024 });
+    await signInViaUI(page, MODERATOR_EMAIL);
+    await page.waitForURL(/\/panel\/moderation/, { timeout: 15_000 });
+    await page.waitForLoadState('networkidle', { timeout: 15_000 });
+
+    await expect(page.getByText(/moderação|moderation/i).first()).toBeVisible({
+      timeout: 20_000,
+    });
+
+    await expect(page).toHaveScreenshot(
+      'moderator-section-identity-1280x1024.png',
+      {
+        fullPage: false,
+        maxDiffPixels: 10000,
+        mask: [
+          page.locator('[data-slot="sidebar-footer"]'),
+          page.getByText(/bem-vindo de volta/i),
+          page.getByRole('application'),
+        ],
+      },
+    );
+  });
+
+  test('admin section shows admin dashboard identity', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 1024 });
+    await signInViaUI(page, ADMIN_EMAIL);
+    await page.waitForURL(/\/panel\/admin/, { timeout: 15_000 });
+    await page.waitForLoadState('networkidle', { timeout: 15_000 });
+
+    await expect(page.getByText(/showcase admin/i).first()).toBeVisible({
+      timeout: 20_000,
+    });
+
+    await expect(page).toHaveScreenshot(
+      'admin-section-identity-1280x1024.png',
+      {
+        fullPage: false,
+        maxDiffPixels: 10000,
+        mask: [
+          page.locator('[data-slot="sidebar-footer"]'),
+          page.getByText(/bem-vindo de volta/i),
+          page.getByRole('application'),
+        ],
+      },
+    );
+  });
+
+  test('system manager section shows admin dashboard identity', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 1024 });
+    await signInViaUI(page, SYSTEM_MANAGER_EMAIL);
+    await page.waitForURL(/\/panel\/admin/, { timeout: 15_000 });
+    await page.waitForLoadState('networkidle', { timeout: 15_000 });
+
+    await expect(page.getByText(/showcase admin/i).first()).toBeVisible({
+      timeout: 20_000,
+    });
+
+    await expect(page).toHaveScreenshot(
+      'system-manager-section-identity-1280x1024.png',
       {
         fullPage: false,
         maxDiffPixels: 10000,
@@ -145,6 +242,32 @@ test.describe('/panel/provider/* direct-URL blocking', () => {
 
     // Provider group guard → /panel/dashboard → shim → /panel/moderation
     await page.waitForURL(/\/panel\/moderation/, {
+      timeout: 10_000,
+    });
+    expect(page.url()).not.toMatch(/\/panel\/provider/);
+  });
+
+  test('admin visiting /panel/provider is redirected to admin', async ({
+    page,
+  }) => {
+    await signInViaUI(page, ADMIN_EMAIL);
+    await page.goto('/panel/provider');
+
+    // Provider group guard rejects non-providers → shim resolves to admin
+    await page.waitForURL(/\/panel\/admin/, {
+      timeout: 10_000,
+    });
+    expect(page.url()).not.toMatch(/\/panel\/provider/);
+  });
+
+  test('system manager visiting /panel/provider is redirected to admin', async ({
+    page,
+  }) => {
+    await signInViaUI(page, SYSTEM_MANAGER_EMAIL);
+    await page.goto('/panel/provider');
+
+    // Provider group guard rejects non-providers → shim resolves to admin
+    await page.waitForURL(/\/panel\/admin/, {
       timeout: 10_000,
     });
     expect(page.url()).not.toMatch(/\/panel\/provider/);
