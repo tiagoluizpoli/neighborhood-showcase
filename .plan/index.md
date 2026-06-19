@@ -38,7 +38,7 @@
 | E-13 | Provider Section Reorg | done | — | `.plan/epics/13-provider-section-reorg/epic.md` |
 | E-14 | Role Access and Route Architecture | done | — | `.plan/epics/14-role-access-and-route-architecture/epic.md` |
 | E-15 | Functional Testing | ready | — | `.plan/epics/15-functional-testing/epic.md` |
-| E-16 | Panel Shell, Layout, and Navigation | ready | — | `.plan/epics/16-panel-shell-layout-and-navigation/epic.md` |
+| E-16 | Panel Shell, Layout, and Navigation | in-progress | — | `.plan/epics/16-panel-shell-layout-and-navigation/epic.md` |
 
 ## Tasks
 
@@ -60,7 +60,7 @@
 | T-14-04 | E-14 | Fail-closed landing resolution | done | — | `.plan/epics/14-role-access-and-route-architecture/tasks/04-fail-closed-landing-resolution.md` |
 | T-14-05 | E-14 | Provider enablement surface sync | done | — | `.plan/epics/14-role-access-and-route-architecture/tasks/05-provider-enablement-surface-sync.md` |
 | T-15-01 | E-15 | Manual Verification Test Cases | ready | manual-execution-only | `.plan/epics/15-functional-testing/tasks/01-manual-verification.md` |
-| T-16-01 | E-16 | Canonical content container primitive | ready | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/01-canonical-content-container.md` |
+| T-16-01 | E-16 | Canonical content container primitive | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/01-canonical-content-container.md` |
 | T-16-02 | E-16 | Migrate provider routes to container variants | ready | T-16-01 | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/02-migrate-routes-to-variants.md` |
 | T-16-03 | E-16 | Sidebar collapse regression fix | ready | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/03-sidebar-collapse-regression-fix.md` |
 | T-16-04 | E-16 | Strengthen sidebar header and top bar chrome | ready | T-16-03 | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/04-strengthen-shell-chrome.md` |

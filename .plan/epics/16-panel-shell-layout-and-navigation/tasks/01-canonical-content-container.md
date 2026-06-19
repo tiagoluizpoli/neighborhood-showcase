@@ -2,7 +2,7 @@
 type: task
 id: T-16-01
 epic: E-16
-status: in_progress
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -17,17 +17,17 @@ After v8, the canonical Provider namespace is `/panel/provider/*` and its group 
 
 ## Acceptance Criteria
 
-- [ ] A single content-container primitive exists with exactly three variants: `default/list`, `centered-form`, `full-bleed`.
-- [ ] The container is mounted at the canonical provider-panel layout, replacing the bare `<Outlet />`.
-- [ ] The container owns max-width and padding; variant values are benchmarked against the dashboard.
-- [ ] The variant boundaries are documented so child routes select a variant instead of authoring a shell.
-- [ ] Tests assert the container renders each variant at the route/layout seam.
+- [x] A single content-container primitive exists with exactly three variants: `default/list`, `centered-form`, `full-bleed`.
+- [x] The container is mounted at the canonical provider-panel layout, replacing the bare `<Outlet />`.
+- [x] The container owns max-width and padding; variant values are benchmarked against the dashboard.
+- [x] The variant boundaries are documented so child routes select a variant instead of authoring a shell.
+- [x] Tests assert the container renders each variant at the route/layout seam.
 
 ## Sub-Tasks
 
 ### ST-01 - Build the content-container primitive with three variants
 
-status: done
+status: in-progress
 model: medium
 escalate-if:
 - The three named variants cannot cleanly express the existing route surfaces without a fourth bespoke frame.
@@ -58,7 +58,7 @@ verification:
 
 ### ST-02 - Mount the container at the provider layout and remove the bare Outlet
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The live provider layout seam differs from `panel.provider.tsx` and mounting there would change route semantics.
@@ -80,11 +80,14 @@ verification:
 
 #### Execution Notes
 
-- PRD says "panel.dashboard layout level"; post-v8 reality is `panel.provider`. Confirm before mounting.
+- Confirmed seam: `apps/web/src/routes/panel.provider.tsx` (`ProviderGroupLayout` component).
+- Replaced bare `<Outlet />` with `<PanelContentContainer><Outlet /></PanelContentContainer>` (default variant).
+- Route guards, redirects, and outer shell in `panel.tsx` unchanged.
+- `bun run check` ✓ (9 pre-existing warnings, no errors), `bun run check-types` ✓.
 
 ### ST-03 - Test the container variants at the route/layout seam
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
@@ -105,7 +108,9 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- Created `apps/web/src/components/panel-content-container.test.tsx`: 5 tests asserting each variant sets `data-container-variant` correctly and children pass through.
+- Created `apps/web/src/routes/-panel.provider.test.tsx`: 3 tests asserting container present at layout seam with `data-container-variant="default"` and Outlet inside.
+- 8 tests across 2 files, all pass. `bun run check` ✓, `bun run check-types` ✓.
 
 ---
 
