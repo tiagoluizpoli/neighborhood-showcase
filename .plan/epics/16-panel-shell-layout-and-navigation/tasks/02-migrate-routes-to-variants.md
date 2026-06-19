@@ -1,0 +1,108 @@
+---
+type: task
+id: T-16-02
+epic: E-16
+status: ready
+blocked-by: [T-16-01]
+default-model: medium
+---
+
+## What to Build
+
+Migrate every provider child route to consume a content-container variant and remove the per-route width and padding overrides that currently cause layout drift. "My Announcements" (full-width `px-6 py-8`) and "New Announcement" (centered `mx-auto max-w-4xl`) stop setting their own frames: list/index routes adopt `default/list`, create/edit forms adopt `centered-form`, and any intentional edge-to-edge surface adopts `full-bleed`. Layout drift can no longer be reintroduced at the route level.
+
+## Context
+
+Depends on T-16-01 (the container primitive and its provider-layout mount). Provider route surfaces include `panel.provider.announcements.index.tsx`, `panel.provider.announcements.new.tsx`, `panel.provider.announcements.$id.tsx`, `panel.provider.condo-setup.tsx`, `panel.provider.index.tsx`, and related anuncios routes. The dashboard remains the spacing benchmark. Do not redesign page content — only remove self-owned width/padding and select the correct variant.
+
+## Acceptance Criteria
+
+- [ ] List/index provider routes render the `default/list` variant and carry no own width/padding.
+- [ ] Create/edit provider routes (e.g. New Announcement) render the `centered-form` variant and carry no own width/padding.
+- [ ] Any intentional edge-to-edge surface uses the `full-bleed` variant deliberately.
+- [ ] The previous per-route overrides (`px-6 py-8`, `mx-auto max-w-4xl`) are removed.
+- [ ] Tests assert routes select the expected variant and no longer carry their own width/padding overrides.
+
+## Sub-Tasks
+
+### ST-01 - Migrate list/index provider routes to `default/list`
+
+status: ready
+model: medium
+escalate-if: []
+blocked-by: []
+
+what-to-do:
+- Adopt the `default/list` variant on provider list/index routes (My Announcements list, provider index, condo-setup as applicable).
+- Remove self-owned width/padding wrappers (e.g. full-width `px-6 py-8`) from those routes.
+- Preserve page content and behavior; only the frame ownership moves to the container.
+
+files-to-touch:
+- `apps/web/src/routes/panel.provider.announcements.index.tsx`
+- `apps/web/src/routes/panel.provider.index.tsx`
+- `apps/web/src/routes/panel.provider.condo-setup.tsx`
+- other touched provider list/index route consumers
+
+verification:
+- `bun run check`
+- `bun run check-types`
+
+#### Execution Notes
+
+- No execution notes yet.
+
+### ST-02 - Migrate create/edit provider routes to `centered-form`
+
+status: ready
+model: medium
+escalate-if: []
+blocked-by: []
+
+what-to-do:
+- Adopt the `centered-form` variant on provider create/edit routes (New Announcement and any sibling form route).
+- Remove self-owned centering/width wrappers (e.g. `mx-auto max-w-4xl`) from those routes.
+- Keep form behavior and validation untouched.
+
+files-to-touch:
+- `apps/web/src/routes/panel.provider.announcements.new.tsx`
+- `apps/web/src/routes/panel.provider.announcements.$id.tsx`
+- other touched provider form route consumers
+
+verification:
+- `bun run check`
+- `bun run check-types`
+
+#### Execution Notes
+
+- No execution notes yet.
+
+### ST-03 - Assert no per-route width/padding and correct variant selection
+
+status: ready
+model: medium
+escalate-if: []
+blocked-by: []
+
+what-to-do:
+- Add/extend tests proving list/index routes render `default/list`, create/edit routes render `centered-form`, and routes no longer carry their own width/padding overrides.
+- Reuse the route/layout render seam per v8 and v5/v6 prior art.
+- Use the dashboard as the framing benchmark where a structural assertion guards against regression.
+
+files-to-touch:
+- `apps/web/src/routes/` (route-level tests)
+- relevant existing panel route test files
+
+verification:
+- `bun run check`
+- `bun run check-types`
+- migration variant tests pass
+
+#### Execution Notes
+
+- No execution notes yet.
+
+---
+
+<!-- INDEX SYNC: After completing a sub-task, run
+.plan/helper-scripts/sync-state.sh and update the parent epic.md checklist and
+.plan/index.md in the same turn. -->
