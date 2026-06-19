@@ -2,7 +2,7 @@
 type: task
 id: T-16-02
 epic: E-16
-status: in-progress
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -82,8 +82,8 @@ verification:
 
 
 ### ST-03 - Assert no per-route width/padding and correct variant selection
-
-status: ready
+ 
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
@@ -104,7 +104,8 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- 2026-06-19: Fixed the mock for `@tanstack/react-router` in `apps/web/src/routes/-panel.provider.announcements.test.tsx` to include `useSearch` and `useRouteContext` to resolve TanStack Router runtime export errors.
+- 2026-06-19: Verified the 4 tests asserting that `announcements.index` and `announcements.$id` do not carry `px-6`/`py-8` overrides, and `announcements.new` correctly renders with `centered-form` variant and avoids raw `mx-auto max-w-4xl` divs. All tests pass successfully.
 
 ---
 

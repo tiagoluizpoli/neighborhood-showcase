@@ -93,6 +93,8 @@ mock.module('@tanstack/react-router', () => {
     Outlet: () => 'Outlet',
     useNavigate: () => () => {},
     useParams: () => ({ id: 'ann-1' }),
+    useSearch: () => ({}),
+    useRouteContext: () => ({}),
     redirect: () => {
       throw new Error('REDIRECT');
     },
