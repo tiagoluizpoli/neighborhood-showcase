@@ -2,8 +2,8 @@
 type: task
 id: T-14-05
 epic: E-14
-status: ready
-blocked-by: [T-14-02]
+status: in-progress
+blocked-by: []
 default-model: medium
 ---
 
@@ -27,10 +27,10 @@ PRD-v8 keeps two coordinated Provider enablement surfaces: a primary discovery/a
 
 ### ST-01 - Implement the non-Provider discovery and activation path
 
-status: ready
+status: in-progress
 model: medium
 escalate-if: []
-blocked-by: [T-14-02]
+blocked-by: []
 
 what-to-do:
 - Build or adapt the primary discovery/activation surface for users who are not currently Provider-enabled.

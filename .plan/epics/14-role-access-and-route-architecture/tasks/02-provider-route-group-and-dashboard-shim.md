@@ -2,7 +2,7 @@
 type: task
 id: T-14-02
 epic: E-14
-status: ready
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -25,7 +25,7 @@ PRD-v8 requires explicit section ownership. Today `/panel/dashboard` still behav
 
 ## Sub-Tasks
 
-## ST-01 - Introduce the Provider route-group boundary
+### ST-01 - Introduce the Provider route-group boundary
 
 status: done
 model: medium

@@ -8,10 +8,10 @@
   "retrievalRound": 1,
   "lastModel": "Gemini 3.5 Flash (Low)",
   "escalated": false,
-  "lastFailureReason": null,
+  "lastFailureReason": "no-completion-signal",
   "requiredModel": "medium",
   "runnerName": "agy",
   "escalateIf": [],
   "filesToTouch": ["apps/web/src/routes/", "apps/web/src/components/"],
-  "lastCommitChanged": false
+  "lastCommitChanged": true
 }
