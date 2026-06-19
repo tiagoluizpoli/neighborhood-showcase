@@ -6,8 +6,16 @@ ST-03: Extend provider route tests to assert that child routes:
 - Render correct layout variants (e.g. centered-form)
 - Fix TanStack Router route-seam mocks so provider layout and announcement-route tests can run together under Bun.
 
+Completion update (attempt 3, 2026-06-19T18:01:14-03:00):
+- Re-read the planning surface, confirmed ST-03 was the selected sub-task, and re-verified the route-level seam tests.
+- Restored the planning state to DONE after the previous attempt regressed to in-progress due a missing completion signal.
+- Verified T-16-02/ST-03 is complete and ready to close.
+
 Verification:
 - `bun test apps/web/src/routes/-panel.provider.test.tsx apps/web/src/routes/-panel.provider.announcements.test.tsx` ✓ (7/7 passed)
 - `bun run check-types` ✓
 - `bun run check` ✓ (repo has pre-existing warnings outside ST-03 scope)
+- `bun run test:e2e` ✓ (82/82 passed)
 - `bun run test` ✗ due pre-existing unrelated Playwright-under-Bun and component/unit failures outside T-16-02/ST-03 scope
+
+<promise>100% Complete</promise>
