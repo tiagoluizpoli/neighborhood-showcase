@@ -2,7 +2,7 @@
 type: task
 id: T-14-05
 epic: E-14
-status: in-progress
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -17,11 +17,11 @@ PRD-v8 keeps two coordinated Provider enablement surfaces: a primary discovery/a
 
 ## Acceptance Criteria
 
-- [ ] A non-Provider discovery/activation surface exists outside the active Provider namespace.
-- [ ] The canonical management/configuration surface writes the same backend source of truth as the discovery surface.
-- [ ] Enabling or disabling Provider capability updates navigation visibility and route authorization coherently.
-- [ ] Touched user guidance clearly explains the state instead of dropping users into half-working Provider pages.
-- [ ] Automated coverage proves capability transitions with real seeded states and visual assertions where relevant.
+- [x] A non-Provider discovery/activation surface exists outside the active Provider namespace.
+- [x] The canonical management/configuration surface writes the same backend source of truth as the discovery surface.
+- [x] Enabling or disabling Provider capability updates navigation visibility and route authorization coherently.
+- [x] Touched user guidance clearly explains the state instead of dropping users into half-working Provider pages.
+- [x] Automated coverage proves capability transitions with real seeded states and visual assertions where relevant.
 
 ## Sub-Tasks
 
@@ -79,10 +79,10 @@ verification:
 
 ### ST-03 - Add executable coverage for Provider capability transitions
 
-status: ready
+status: done
 model: medium
 escalate-if: []
-blocked-by: [T-14-02]
+blocked-by: []
 
 what-to-do:
 - Add E2E coverage for discovery-surface activation, management-surface updates, navigation visibility changes, and route-authorization changes after capability transitions.

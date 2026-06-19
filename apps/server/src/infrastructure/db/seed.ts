@@ -111,6 +111,42 @@ async function seed() {
     .returning()) as [typeof user.$inferInsert];
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const [transitionUser] = (await db
+    .insert(user)
+    .values({
+      id: 'seed-provider-transition-id',
+      name: 'Provider Transition Test',
+      email: 'provider.transition@test.com',
+      emailVerified: true,
+      image: null,
+      role: 'USER',
+      status: 'ACTIVE',
+      cpfHash: 'cpf-hash-provider-transition',
+      language: 'pt-BR',
+      phone: '+551****9991',
+      theme: 'light',
+    })
+    .returning()) as [typeof user.$inferInsert];
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const [transitionModeratorUser] = (await db
+    .insert(user)
+    .values({
+      id: 'seed-provider-transition-moderator-id',
+      name: 'Transition Moderator Test',
+      email: 'transition.moderator@test.com',
+      emailVerified: true,
+      image: null,
+      role: 'USER',
+      status: 'ACTIVE',
+      cpfHash: 'cpf-hash-provider-transition-moderator',
+      language: 'pt-BR',
+      phone: '+551****9990',
+      theme: 'light',
+    })
+    .returning()) as [typeof user.$inferInsert];
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   const [systemManagerUser] = (await db
     .insert(user)
     .values({
@@ -241,6 +277,28 @@ async function seed() {
     password: providerDisabledPw,
   });
 
+  const transitionPw = await hashPassword('Test@1234');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db.insert(account).values as any)({
+    id: 'seed-account-provider-transition',
+    accountId: 'provider.transition@test.com',
+    userId: transitionUser.id,
+    providerId: 'credential',
+    providerAccountId: 'provider.transition@test.com',
+    password: transitionPw,
+  });
+
+  const transitionModeratorPw = await hashPassword('Test@1234');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db.insert(account).values as any)({
+    id: 'seed-account-provider-transition-moderator',
+    accountId: 'transition.moderator@test.com',
+    userId: transitionModeratorUser.id,
+    providerId: 'credential',
+    providerAccountId: 'transition.moderator@test.com',
+    password: transitionModeratorPw,
+  });
+
   const systemManagerPw = await hashPassword('Test@1234');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (db.insert(account).values as any)({
@@ -314,6 +372,20 @@ async function seed() {
     })
     .returning()) as [typeof condominium.$inferInsert];
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const [transitionCondo] = (await db
+    .insert(condominium)
+    .values({
+      id: 'provider-transition-condo',
+      name: 'Condomínio Fluxo de Transição',
+      city: 'Campinas',
+      state: 'SP',
+      cep: '13000000',
+      createdBy: transitionModeratorUser.id,
+      status: 'APPROVED',
+    })
+    .returning()) as [typeof condominium.$inferInsert];
+
   // Assign moderator@test.com to both condos as APPROVED MODERATOR
   await db.insert(providerAssignment).values([
     {
@@ -331,6 +403,14 @@ async function seed() {
       type: 'MODERATOR',
       status: 'APPROVED',
       unitInfo: 'Unit 202',
+    },
+    {
+      id: 'transition-moderator-assignment-1',
+      providerId: transitionModeratorUser.id,
+      condominiumId: transitionCondo.id,
+      type: 'MODERATOR',
+      status: 'APPROVED',
+      unitInfo: 'Administração',
     },
   ]);
 
@@ -410,6 +490,18 @@ async function seed() {
     {
       providerId: secondProviderUser.id,
       displayName: 'Provider Other',
+      avatarUrl: null,
+      companyName: null,
+      tradeName: null,
+      logoUrl: null,
+      bannerUrl: null,
+      publicDescription: null,
+      socialLinks: {},
+      isProviderVisible: true,
+    },
+    {
+      providerId: transitionUser.id,
+      displayName: 'Provider Transition Test',
       avatarUrl: null,
       companyName: null,
       tradeName: null,

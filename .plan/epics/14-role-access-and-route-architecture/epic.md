@@ -2,7 +2,7 @@
 type: epic
 id: E-14
 name: "Role Access and Route Architecture"
-status: in-progress
+status: done
 blocked-by: []
 ---
 
@@ -26,7 +26,7 @@ The implementation must keep frontend navigation, redirect behavior, backend cap
 | T-14-02 | Provider route group and dashboard shim | done | — | `.plan/epics/14-role-access-and-route-architecture/tasks/02-provider-route-group-and-dashboard-shim.md` |
 | T-14-03 | Section-specific non-Provider landings | done | — | `.plan/epics/14-role-access-and-route-architecture/tasks/03-section-specific-non-provider-landings.md` |
 | T-14-04 | Fail-closed landing resolution | done | — | `.plan/epics/14-role-access-and-route-architecture/tasks/04-fail-closed-landing-resolution.md` |
-| T-14-05 | Provider enablement surface sync | in-progress | — | `.plan/epics/14-role-access-and-route-architecture/tasks/05-provider-enablement-surface-sync.md` |
+| T-14-05 | Provider enablement surface sync | done | — | `.plan/epics/14-role-access-and-route-architecture/tasks/05-provider-enablement-surface-sync.md` |
 
 ---
 
