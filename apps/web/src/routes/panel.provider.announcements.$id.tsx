@@ -16,7 +16,6 @@ import { toast } from 'sonner';
 import { ProviderDashboardAnalyticsPanel } from './panel/-provider-dashboard-analytics-panel';
 import { ProviderDashboardEditFormFields } from './panel/-provider-dashboard-edit-form-fields';
 import type { ProviderDashboardAnnouncementItem } from './panel/-provider-dashboard-types';
-import { authClient } from '@/lib/auth-client';
 import { trpc } from '@/utils/trpc';
 
 export const Route = createFileRoute('/panel/provider/announcements/$id')({
@@ -58,8 +57,6 @@ export function ProviderAnnouncementDetailPage() {
     selectedAssignment?.type === 'RESIDENT' &&
     selectedAssignment?.status === 'APPROVED';
 
-  const { data: session } = authClient.useSession();
-
   useEffect(() => {
     if (announcement) {
       setForm(createInitialFormState(announcement));
@@ -94,12 +91,7 @@ export function ProviderAnnouncementDetailPage() {
     }),
   );
 
-  if (
-    !session ||
-    assignmentsQuery.isLoading ||
-    dashboardQuery.isLoading ||
-    !form
-  ) {
+  if (assignmentsQuery.isLoading || dashboardQuery.isLoading || !form) {
     return (
       <CenteredState message={t('meus_anuncios.detail.loading')} spinning />
     );

@@ -3,7 +3,7 @@
 ## Project Architecture
 Monorepo using Turborepo and Bun.
 - `apps/server`: Fastify API server running tRPC and Better Auth handlers.
-- `apps/web`: React client with TanStack Router/Query, consuming the tRPC client.
+- `apps/web`: React client with TanStack Router/Query/Form, consuming the tRPC client.
 - `packages/api`: Thin helper / type definition package for shared contract.
 - `packages/db`: Drizzle schemas and client config.
 - `packages/ui`: Shared design UI components.
@@ -205,6 +205,10 @@ Use cases receive their repository dependencies through constructor injection (p
 #### 9.8 — Test Files Exception
 
 Integration test files (`*.integration.test.ts`, `*.test.ts`) are allowed to import from any layer for test setup purposes (e.g., seeding the database directly). This exception applies ONLY to test files, NEVER to production code.
+
+### 10. Form Management (TanStack Form)
+- **Form Library**: All frontend forms must use TanStack Form ([documentation](https://tanstack.com/form/latest/docs/overview)).
+- **Migration & Refactoring Rule**: While a complete refactoring of all existing forms is not required immediately, if a task touches or modifies a form that is currently using `useState` (or another manual state management approach), that form must be refactored to use TanStack Form as part of the task, or marked/logged for implementation ASAP.
 
 ## PRD Directory — Lazy Load, Do Not Eager-Read
 

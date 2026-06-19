@@ -95,32 +95,28 @@ test.describe('Sidebar gating', () => {
 // Route guards
 // ---------------------------------------------------------------------------
 test.describe('Route guards — non-provider redirect', () => {
-  test('visiting /panel/dashboard/configuration redirects to /panel/account', async ({
+  test('visiting /panel/provider/configuration as non-provider is redirected away', async ({
     page,
   }) => {
     await signInViaUI(page, MODERATOR_EMAIL, MODERATOR_PASSWORD);
-    await page.goto('/panel/dashboard/configuration');
+    await page.goto('/panel/provider/configuration');
 
-    await page.waitForURL(/\/panel\/account/, { timeout: 10_000 });
-    await expect(
-      page.getByText(
-        /não tem uma conta de prestador|do not have an active provider/i,
-      ),
-    ).toBeVisible({ timeout: 5_000 });
+    // Provider group guard rejects non-providers → shim resolves to condo-setup
+    await page.waitForURL(/\/panel\/dashboard\/condo-setup/, {
+      timeout: 10_000,
+    });
   });
 
-  test('visiting /panel/dashboard/announcements redirects to /panel/account', async ({
+  test('visiting /panel/provider/announcements as non-provider is redirected away', async ({
     page,
   }) => {
     await signInViaUI(page, MODERATOR_EMAIL, MODERATOR_PASSWORD);
-    await page.goto('/panel/dashboard/announcements');
+    await page.goto('/panel/provider/announcements');
 
-    await page.waitForURL(/\/panel\/account/, { timeout: 10_000 });
-    await expect(
-      page.getByText(
-        /precisa de uma conta de prestador|need an approved provider/i,
-      ),
-    ).toBeVisible({ timeout: 5_000 });
+    // Provider group guard rejects non-providers → shim resolves to condo-setup
+    await page.waitForURL(/\/panel\/dashboard\/condo-setup/, {
+      timeout: 10_000,
+    });
   });
 });
 

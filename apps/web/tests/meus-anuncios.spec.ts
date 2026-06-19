@@ -24,7 +24,7 @@ async function signInViaUI(page: Page) {
 
 async function openMyAnnouncements(page: Page) {
   await signInViaUI(page);
-  await page.goto('/panel/dashboard/announcements');
+  await page.goto('/panel/provider/announcements');
   await page.waitForLoadState('networkidle', { timeout: 15_000 });
   await expect(
     page.getByRole('heading', { name: /meus anúncios|my announcements/i }),
@@ -33,7 +33,7 @@ async function openMyAnnouncements(page: Page) {
 
 async function openAnnouncementDetail(page: Page, id = ACTIVE_ID) {
   await signInViaUI(page);
-  await page.goto(`/panel/dashboard/announcements/${id}`);
+  await page.goto(`/panel/provider/announcements/${id}`);
   await page.waitForLoadState('networkidle', { timeout: 15_000 });
 }
 
@@ -69,7 +69,7 @@ test.describe('Meus Anúncios', () => {
     await openMyAnnouncements(page);
     await page.getByTestId(`meus-anuncios-card-active-${ACTIVE_ID}`).click();
     await expect(page).toHaveURL(
-      /\/panel\/dashboard\/announcements\/seed-announcement-active$/,
+      /\/panel\/provider\/announcements\/seed-announcement-active$/,
     );
   });
 
@@ -111,7 +111,7 @@ test.describe('Meus Anúncios', () => {
   }) => {
     await openAnnouncementDetail(page, 'missing-announcement-id');
 
-    await page.waitForURL(/\/panel\/dashboard\/announcements$/, {
+    await page.waitForURL(/\/panel\/provider\/announcements$/, {
       timeout: 10_000,
     });
     await expect(
@@ -126,7 +126,7 @@ test.describe('Meus Anúncios', () => {
   }) => {
     await openAnnouncementDetail(page, OTHER_PROVIDER_ID);
 
-    await page.waitForURL(/\/panel\/dashboard\/announcements$/, {
+    await page.waitForURL(/\/panel\/provider\/announcements$/, {
       timeout: 10_000,
     });
     await expect(

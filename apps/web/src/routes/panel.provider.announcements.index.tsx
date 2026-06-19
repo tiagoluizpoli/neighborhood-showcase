@@ -9,7 +9,7 @@ import {
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { Loader2, Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { ProviderDashboardAnnouncementCard } from './panel/-provider-dashboard-announcement-card';
@@ -18,7 +18,6 @@ import {
   formatProviderDashboardPrice,
 } from './panel/-provider-dashboard-formatters';
 import type { ProviderDashboardAnnouncementItem } from './panel/-provider-dashboard-types';
-import { authClient } from '@/lib/auth-client';
 import { trpc } from '@/utils/trpc';
 
 export const Route = createFileRoute('/panel/provider/announcements/')({
@@ -68,7 +67,6 @@ const TAB_CONFIGS: AnnouncementTabConfig[] = [
 function ProviderAnnouncementsListPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { data: session } = authClient.useSession();
   const [activeTab, setActiveTab] = useState<AnnouncementTabKey>('active');
   const dashboardQuery = useQuery(
     trpc.announcement.getDashboardData.queryOptions(),
@@ -87,13 +85,7 @@ function ProviderAnnouncementsListPage() {
     }),
   );
 
-  useEffect(() => {
-    if (!session) {
-      navigate({ to: '/' });
-    }
-  }, [session, navigate]);
-
-  if (!session || dashboardQuery.isLoading) {
+  if (dashboardQuery.isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

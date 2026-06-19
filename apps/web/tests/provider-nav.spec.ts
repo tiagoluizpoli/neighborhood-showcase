@@ -34,7 +34,7 @@ test.describe('Provider Navigation Flatten', () => {
     // Find all SidebarMenuButton elements within the Provider group
     // Each button has class "md:hidden" or is a direct child of SidebarMenuItem
     // We count direct <a> links (rendered by the Link component)
-    const buttons = providerGroup.locator('a[href*="/panel/dashboard"]');
+    const buttons = providerGroup.locator('a[href*="/panel/provider"]');
     const count = await buttons.count();
 
     expect(count).toBe(3);
@@ -60,18 +60,18 @@ test.describe('Provider Navigation Flatten', () => {
     await expect(providerGroup).toBeVisible({ timeout: 10_000 });
 
     // Dashboard link
-    const dashboardLink = providerGroup.locator('a[href="/panel/dashboard"]');
+    const dashboardLink = providerGroup.locator('a[href="/panel/provider"]');
     await expect(dashboardLink).toBeVisible();
 
     // Announcements link
     const announcementsLink = providerGroup.locator(
-      'a[href="/panel/dashboard/announcements"]',
+      'a[href="/panel/provider/announcements"]',
     );
     await expect(announcementsLink).toBeVisible();
 
     // Configuration link
     const configurationLink = providerGroup.locator(
-      'a[href="/panel/dashboard/configuration"]',
+      'a[href="/panel/provider/configuration"]',
     );
     await expect(configurationLink).toBeVisible();
   });

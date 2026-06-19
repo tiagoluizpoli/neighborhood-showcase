@@ -28,7 +28,7 @@ test.describe('Configurações page', () => {
     page.on('console', (msg) => console.log('BROWSER:', msg.text()));
     await signInViaUI(page, PROVIDER_EMAIL, PROVIDER_PASSWORD);
     await page.waitForSelector('[data-sidebar]', { timeout: 10_000 });
-    await page.goto('/panel/dashboard/configuration');
+    await page.goto('/panel/provider/configuration');
     await page.waitForLoadState('networkidle', { timeout: 10_000 });
   });
 

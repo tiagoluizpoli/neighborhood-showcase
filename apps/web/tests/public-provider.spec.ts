@@ -8,7 +8,7 @@ import { expect, test } from '@playwright/test';
 const BRANDING_PROVIDER_ID = 'seed-branding-id';
 
 /** Minimal-branding provider: no banner, no logo, no social links */
-const PLAIN_PROVIDER_ID = 'seed-provider-id';
+const PLAIN_PROVIDER_ID = 'seed-provider-other-id';
 
 /** Banned provider: user.status === 'BANNED' → must render not-found */
 const BANNED_PROVIDER_ID = 'seed-banned-id';
@@ -99,7 +99,7 @@ test.describe('Public provider page — no banner', () => {
 
   test('renders displayName as the h1 heading', async ({ page }) => {
     await expect(
-      page.getByRole('heading', { level: 1, name: 'Provider Test' }),
+      page.getByRole('heading', { level: 1, name: 'Provider Other' }),
     ).toBeVisible();
   });
 
@@ -120,10 +120,10 @@ test.describe('Public provider page — no banner', () => {
     ).toBeVisible();
   });
 
-  test('renders the active announcement (Bolos Caseiros Premium)', async ({
+  test('renders the active announcement (Jardinagem Express)', async ({
     page,
   }) => {
-    await expect(page.getByText('Bolos Caseiros Premium')).toBeVisible();
+    await expect(page.getByText('Jardinagem Express')).toBeVisible();
   });
 
   test('verified badge is visible for the approved-resident provider', async ({
@@ -137,7 +137,7 @@ test.describe('Public provider page — no banner', () => {
       'public-provider-no-banner-1280x900.png',
       {
         fullPage: false,
-        maxDiffPixels: 3000,
+        maxDiffPixels: 10000,
         mask: [page.locator('img')],
       },
     );

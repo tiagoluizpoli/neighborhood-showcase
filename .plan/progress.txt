@@ -54,3 +54,5 @@
 - bun run check-types: clean, bun run check: clean (9 pre-existing warnings)
 - Provider group guard (panel.provider.tsx) unchanged; still redirects non-providers to /panel/dashboard which chains into the shim correctly (no circular loop)
 - Advancing to T-14-02/ST-04: Playwright coverage for provider route migration and shim semantics
+[2026-06-19T01:10:00-03:00] T-14-02/ST-04 done — added E2E coverage for Provider sign-in landing, direct-URL blocking of `/panel/provider/*`, and legacy `/panel/dashboard` redirect-shim behavior in `apps/web/tests/provider-routes.spec.ts`. Updated existing E2E tests (`configuracoes.spec.ts`, `dashboard.spec.ts`, `meus-anuncios.spec.ts`, `provider-nav.spec.ts`) to use `/panel/provider/*` instead of `/panel/dashboard/*` consistently. Fixed test isolation issue in `public-provider.spec.ts` by using `seed-provider-other-id`. Verification: all 19 tests in `public-provider.spec.ts` pass, all 10 tests in `provider-routes.spec.ts` pass, and all other E2E tests pass in isolation. Staged and committed all changes. Run-state advanced to T-14-03.
+

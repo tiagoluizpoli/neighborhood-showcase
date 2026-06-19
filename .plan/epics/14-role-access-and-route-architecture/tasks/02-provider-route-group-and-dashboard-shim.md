@@ -110,7 +110,7 @@ verification:
 
 ### ST-04 - Add Playwright coverage for Provider route migration and shim semantics
 
-status: in-progress
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
