@@ -1,21 +1,17 @@
 {
-  "currentRunId": "e-14-t-14-04-st-02",
+  "currentRunId": "e-14-t-14-05-st-01",
   "currentPrdId": "PRD-v8-role-access-and-route-architecture",
   "currentEpicId": "E-14",
-  "currentTaskId": "T-14-04",
-  "currentSubTaskId": "ST-02",
-  "attemptCount": 3,
-  "retrievalRound": 3,
+  "currentTaskId": "T-14-05",
+  "currentSubTaskId": "ST-01",
+  "attemptCount": 1,
+  "retrievalRound": 1,
   "lastModel": "Gemini 3.5 Flash (Low)",
   "escalated": false,
-  "lastFailureReason": "no-completion-signal",
+  "lastFailureReason": null,
   "requiredModel": "medium",
   "runnerName": "agy",
   "escalateIf": [],
-  "filesToTouch": [
-    "apps/web/src/routes/",
-    "shared landing/redirect helpers",
-    "touched auth/panel entry points"
-  ],
+  "filesToTouch": ["apps/web/src/routes/", "apps/web/src/components/"],
   "lastCommitChanged": false
 }

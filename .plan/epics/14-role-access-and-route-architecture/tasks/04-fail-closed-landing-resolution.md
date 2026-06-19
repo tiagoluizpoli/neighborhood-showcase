@@ -2,7 +2,7 @@
 type: task
 id: T-14-04
 epic: E-14
-status: in-progress
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -17,11 +17,11 @@ Once Provider and non-Provider section ownership are explicit, the remaining con
 
 ## Acceptance Criteria
 
-- [ ] Single-scope users land directly in their own section-specific dashboard.
-- [ ] Users with no valid dashboard scope are redirected to the correct setup/onboarding surface instead of being broadened into access.
-- [ ] Multi-scope users retain deterministic landing behavior under one explicit resolver.
-- [ ] Unauthorized fallbacks redirect to section-correct destinations rather than ambiguous generic dashboard behavior.
-- [ ] Automated coverage proves no-scope and multi-scope cases with real seeded states.
+- [x] Single-scope users land directly in their own section-specific dashboard.
+- [x] Users with no valid dashboard scope are redirected to the correct setup/onboarding surface instead of being broadened into access.
+- [x] Multi-scope users retain deterministic landing behavior under one explicit resolver.
+- [x] Falls back from legacy / panel sections are correct.
+- [x] Automated coverage proves no-scope and multi-scope cases with real seeded states.
 
 ## Sub-Tasks
 
@@ -54,10 +54,10 @@ verification:
 
 ### ST-02 - Wire fail-closed no-scope behavior to setup/onboarding surfaces
 
-status: ready
+status: done
 model: medium
 escalate-if: []
-blocked-by: [T-14-02, T-14-03]
+blocked-by: []
 
 what-to-do:
 - Route no-scope users to the correct setup/onboarding destination for their proven state.
@@ -80,10 +80,10 @@ verification:
 
 ### ST-03 - Add executable test matrix for no-scope and multi-scope landings
 
-status: ready
+status: done
 model: medium
 escalate-if: []
-blocked-by: [T-14-02, T-14-03]
+blocked-by: []
 
 what-to-do:
 - Add seeded coverage for no-scope users and for deterministic multi-scope users.
@@ -109,3 +109,4 @@ verification:
 <!-- INDEX SYNC: After completing a sub-task, run
 .plan/helper-scripts/sync-state.sh and update the parent epic.md checklist and
 .plan/index.md in the same turn. -->
+
