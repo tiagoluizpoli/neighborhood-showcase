@@ -54,8 +54,8 @@ verification:
 - 2026-06-19: Audited `panel.provider.condo-setup.tsx` against the ST-01 contract and left it unchanged for this slice because its current surface is a centered activation flow rather than a list/index page consuming the `default/list` variant.
 
 ### ST-02 - Migrate create/edit provider routes to `centered-form`
-
-status: in-progress
+ 
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
