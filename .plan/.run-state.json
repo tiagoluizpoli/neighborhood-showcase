@@ -1,27 +1,17 @@
 {
-  "currentRunId": "e-14-t-14-01-st-03",
+  "currentRunId": "e-14-t-14-02",
   "currentPrdId": "PRD-v8-role-access-and-route-architecture",
   "currentEpicId": "E-14",
-  "currentTaskId": "T-14-01",
-  "currentSubTaskId": "ST-03",
-  "attemptCount": 1,
-  "retrievalRound": 1,
-  "lastModel": "gpt-5.4",
+  "currentTaskId": "T-14-02",
+  "currentSubTaskId": null,
+  "attemptCount": 0,
+  "retrievalRound": 0,
+  "lastModel": "sonnet",
   "escalated": false,
   "lastFailureReason": null,
   "requiredModel": "medium",
-  "runnerName": "hermes",
+  "runnerName": "claude",
   "escalateIf": [],
-  "filesToTouch": [
-    "apps/server/src/infrastructure/db/seed.ts",
-    "apps/web/tests/access-states.spec.ts",
-    "apps/web/tests/spectrum-nav.spec.ts",
-    ".plan/epics/14-role-access-and-route-architecture/tasks/01-canonical-provider-enabled-contract.md",
-    ".plan/epics/14-role-access-and-route-architecture/epic.md",
-    ".plan/index.md",
-    ".plan/.run-summary.md",
-    ".plan/progress.txt",
-    ".plan/.run-history.jsonl"
-  ],
-  "lastCommitChanged": true
+  "filesToTouch": [],
+  "lastCommitChanged": false
 }
