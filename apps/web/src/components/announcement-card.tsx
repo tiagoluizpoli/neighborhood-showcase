@@ -19,7 +19,7 @@ import type { RouterOutputs } from '@/utils/trpc';
 
 type PublicAnnouncement = RouterOutputs['announcement']['listPublic'][number];
 
-interface AnnouncementCardProps {
+export interface AnnouncementCardProps {
   ad: PublicAnnouncement;
   selectedCondo?: { id: string; name: string } | null;
   visitorCoords?: { latitude: number; longitude: number } | null;

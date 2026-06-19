@@ -2,7 +2,7 @@
 type: task
 id: T-16-05
 epic: E-16
-status: ready
+status: in-progress
 blocked-by: []
 default-model: medium
 ---
@@ -27,7 +27,7 @@ Announcement presentation currently forks across surfaces: `apps/web/src/compone
 
 ### ST-01 - Build the shared announcement primitive with three variant slots
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The three existing surfaces cannot share one primitive without pulling in deep per-surface tuning reserved for packets 03/04/05.
@@ -49,7 +49,10 @@ verification:
 
 #### Execution Notes
 
-- Do not grow beyond variant boundaries; later packets own deep tuning.
+- Created `components/announcement-dashboard-card.tsx`: `AnnouncementDashboardCardData` interface + `AnnouncementDashboardCard` component (dashboard variant rendering, no dep on routes/).
+- Created `components/announcement-presentation-primitive.tsx`: `AnnouncementPresentationVariant` type, three variant prop interfaces, `AnnouncementPresentationPrimitive` dispatch component, `AnnouncementDetailHeader` slot renderer.
+- Exported `AnnouncementCardProps` from `announcement-card.tsx` so the primitive can extend it for the `public-card` variant.
+- `bun run check` and `bun run check-types` both pass; `announcement-card.test.tsx` 10/10.
 
 ### ST-02 - Adopt the primitive in the three surfaces at variant boundaries
 

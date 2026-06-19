@@ -69,9 +69,22 @@ Completion update (attempt 1, 2026-06-19T19:05:35-03:00):
 - Re-read `.plan/RULES.md`, `agents.local.md`, `.plan/PRD.md`, `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md`, `.plan/index.md`, the E-16 epic, and the T-16-04 task in the required order, then kept the runtime-contract scope to `T-16-04 / ST-03` only.
 - Extended `apps/web/src/routes/-panel.test.tsx` with two route-level shell seam assertions: provider-announcement chrome proves the provider section/title context, and moderation chrome proves the selected condo from `mod_ctx__cndo` appears in both the sidebar header and top bar.
 - Recorded `T-16-04/ST-03` as done, which closed `T-16-04` in the task/epic/index planning surface, refreshed `.plan/.run-summary.md` plus `.plan/.run-history.jsonl`, and preserved the selected sub-task with no escalation.
-- Staged and committed the implementation/planning updates as a single Conventional Commit before final verification.
+- Staged and committed the implementation/planning updates as `test(web): cover panel shell chrome context seam` (`c7f70efbdcbd66f81256b5daaa9e156489e84dcd`) before the final verification pass.
 
 Verification:
 - `bun test apps/web/src/routes/-panel.test.tsx` ✓ (8/8 passed)
 - `bun run check-types` ✓
 - `bun run check` ✓ (repo-wide warnings only: existing `useOptionalChain` suggestions plus the pre-existing broken `ralph-loop.sh` symlink notice)
+- Post-commit `bun run test` ✗ due the pre-existing Bun-vs-Playwright loading problem plus unrelated baseline unit/component failures outside T-16-04 scope (`LanguageSwitcher`, home discovery, route-guard, moderation/public-provider visuals, analytics, and other known red suites)
+- Post-commit `bun run test:e2e` ✗ on one pre-existing unrelated provider-nav assertion (`Provider buttons link to correct routes` in `apps/web/tests/provider-nav.spec.ts`); 82/83 other Playwright specs passed
+
+<promise>100% Complete</promise>
+
+Completion update (attempt 4, 2026-06-19 — T-16-05/ST-01):
+- Created `apps/web/src/components/announcement-dashboard-card.tsx`: self-contained `AnnouncementDashboardCardData` interface + `AnnouncementDashboardCard` component. No import from routes/.
+- Created `apps/web/src/components/announcement-presentation-primitive.tsx`: jsdoc variant boundary contract, `AnnouncementPresentationVariant` type, three variant prop interfaces, `AnnouncementPresentationPrimitive` dispatch component, `AnnouncementDetailHeader` slot renderer.
+- Exported `AnnouncementCardProps` from `announcement-card.tsx` (minimal touch).
+- `bun run check` ✓, `bun run check-types` ✓, `bun test apps/web/src/components/announcement-card.test.tsx` 10/10.
+- Marked ST-01 done; ST-02 and ST-03 remain ready.
+
+<promise>100% Complete</promise>
