@@ -3,7 +3,7 @@ type: task
 id: T-14-03
 epic: E-14
 status: ready
-blocked-by: [T-14-01]
+blocked-by: []
 default-model: medium
 ---
 
@@ -30,7 +30,7 @@ PRD-v8 requires Moderator, Administrator, and System Manager experiences to stay
 status: ready
 model: medium
 escalate-if: []
-blocked-by: [T-14-01]
+blocked-by: []
 
 what-to-do:
 - Identify the canonical landing route for Moderator, Administrator, and System Manager under the PRD-v8 contract.
@@ -58,7 +58,7 @@ verification:
 status: ready
 model: medium
 escalate-if: []
-blocked-by: [T-14-01]
+blocked-by: []
 
 what-to-do:
 - Create deterministic Administrator and System Manager seeded users and any required backing state.
@@ -84,7 +84,7 @@ verification:
 status: ready
 model: medium
 escalate-if: []
-blocked-by: [T-14-01]
+blocked-by: []
 
 what-to-do:
 - Add E2E coverage proving Moderator, Administrator, and System Manager land in the correct section-specific destination after sign-in and after visiting legacy `/panel/dashboard`.

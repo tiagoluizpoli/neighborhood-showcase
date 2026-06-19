@@ -3,7 +3,7 @@ type: task
 id: T-14-05
 epic: E-14
 status: ready
-blocked-by: [T-14-01, T-14-02]
+blocked-by: [T-14-02]
 default-model: medium
 ---
 
@@ -30,7 +30,7 @@ PRD-v8 keeps two coordinated Provider enablement surfaces: a primary discovery/a
 status: ready
 model: medium
 escalate-if: []
-blocked-by: [T-14-01, T-14-02]
+blocked-by: [T-14-02]
 
 what-to-do:
 - Build or adapt the primary discovery/activation surface for users who are not currently Provider-enabled.
@@ -56,7 +56,7 @@ verification:
 status: ready
 model: medium
 escalate-if: []
-blocked-by: [T-14-01, T-14-02]
+blocked-by: [T-14-02]
 
 what-to-do:
 - Align the account/settings/provider configuration management surface with the canonical Provider-enabled backend source of truth.
@@ -82,7 +82,7 @@ verification:
 status: ready
 model: medium
 escalate-if: []
-blocked-by: [T-14-01, T-14-02]
+blocked-by: [T-14-02]
 
 what-to-do:
 - Add E2E coverage for discovery-surface activation, management-surface updates, navigation visibility changes, and route-authorization changes after capability transitions.
@@ -102,6 +102,7 @@ verification:
 #### Execution Notes
 
 - The acceptance bar is synchronized behavior across activation, nav, and route access.
+
 
 ---
 

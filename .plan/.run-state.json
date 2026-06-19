@@ -1,17 +1,21 @@
 {
-  "currentRunId": "e-14-t-14-02",
+  "currentRunId": "e-14-t-14-02-st-01",
   "currentPrdId": "PRD-v8-role-access-and-route-architecture",
   "currentEpicId": "E-14",
   "currentTaskId": "T-14-02",
-  "currentSubTaskId": null,
-  "attemptCount": 0,
-  "retrievalRound": 0,
+  "currentSubTaskId": "ST-01",
+  "attemptCount": 1,
+  "retrievalRound": 1,
   "lastModel": "sonnet",
   "escalated": false,
   "lastFailureReason": null,
   "requiredModel": "medium",
   "runnerName": "claude",
   "escalateIf": [],
-  "filesToTouch": [],
+  "filesToTouch": [
+    "apps/web/src/routes/",
+    "route-group guard files for Provider-owned pages",
+    "any route-tree or shared route helper files needed for the new namespace"
+  ],
   "lastCommitChanged": false
 }

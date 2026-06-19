@@ -23,10 +23,10 @@ The implementation must keep frontend navigation, redirect behavior, backend cap
 | Task ID | Task | Status | Blocked By | File |
 | --- | --- | --- | --- | --- |
 | T-14-01 | Canonical Provider-enabled access contract | done | — | `.plan/epics/14-role-access-and-route-architecture/tasks/01-canonical-provider-enabled-contract.md` |
-| T-14-02 | Provider route group and dashboard shim | ready | T-14-01 | `.plan/epics/14-role-access-and-route-architecture/tasks/02-provider-route-group-and-dashboard-shim.md` |
-| T-14-03 | Section-specific non-Provider landings | ready | T-14-01 | `.plan/epics/14-role-access-and-route-architecture/tasks/03-section-specific-non-provider-landings.md` |
+| T-14-02 | Provider route group and dashboard shim | ready | — | `.plan/epics/14-role-access-and-route-architecture/tasks/02-provider-route-group-and-dashboard-shim.md` |
+| T-14-03 | Section-specific non-Provider landings | ready | — | `.plan/epics/14-role-access-and-route-architecture/tasks/03-section-specific-non-provider-landings.md` |
 | T-14-04 | Fail-closed landing resolution | ready | T-14-02, T-14-03 | `.plan/epics/14-role-access-and-route-architecture/tasks/04-fail-closed-landing-resolution.md` |
-| T-14-05 | Provider enablement surface sync | ready | T-14-01, T-14-02 | `.plan/epics/14-role-access-and-route-architecture/tasks/05-provider-enablement-surface-sync.md` |
+| T-14-05 | Provider enablement surface sync | ready | T-14-02 | `.plan/epics/14-role-access-and-route-architecture/tasks/05-provider-enablement-surface-sync.md` |
 
 ---
 

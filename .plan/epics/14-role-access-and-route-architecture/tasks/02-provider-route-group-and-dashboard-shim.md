@@ -3,7 +3,7 @@ type: task
 id: T-14-02
 epic: E-14
 status: ready
-blocked-by: [T-14-01]
+blocked-by: []
 default-model: medium
 ---
 
@@ -25,12 +25,12 @@ PRD-v8 requires explicit section ownership. Today `/panel/dashboard` still behav
 
 ## Sub-Tasks
 
-### ST-01 - Introduce the Provider route-group boundary
+## ST-01 - Introduce the Provider route-group boundary
 
 status: ready
 model: medium
 escalate-if: []
-blocked-by: [T-14-01]
+blocked-by: []
 
 what-to-do:
 - Add the canonical `/panel/provider/*` route-group boundary.
@@ -56,7 +56,7 @@ verification:
 status: ready
 model: medium
 escalate-if: []
-blocked-by: [T-14-01]
+blocked-by: []
 
 what-to-do:
 - Move Provider dashboard semantics and touched Provider-owned child routes into the canonical Provider namespace.
@@ -86,7 +86,7 @@ verification:
 status: ready
 model: medium
 escalate-if: []
-blocked-by: [T-14-01]
+blocked-by: []
 
 what-to-do:
 - Make `/panel/dashboard` resolve the signed-in User to the correct section-specific destination.
@@ -113,7 +113,7 @@ verification:
 status: ready
 model: medium
 escalate-if: []
-blocked-by: [T-14-01]
+blocked-by: []
 
 what-to-do:
 - Add E2E coverage for Provider sign-in landing, direct-URL blocking of `/panel/provider/*`, and legacy `/panel/dashboard` redirect-shim behavior.
@@ -134,6 +134,7 @@ verification:
 
 - Section identity is part of the acceptance bar.
 - Screenshot assertions should target stable section shells and route outcomes, not noisy dynamic areas.
+
 
 ---
 
