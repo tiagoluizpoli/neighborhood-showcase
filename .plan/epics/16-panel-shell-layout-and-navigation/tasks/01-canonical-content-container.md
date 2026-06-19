@@ -2,7 +2,7 @@
 type: task
 id: T-16-01
 epic: E-16
-status: ready
+status: in_progress
 blocked-by: []
 default-model: medium
 ---
@@ -27,7 +27,7 @@ After v8, the canonical Provider namespace is `/panel/provider/*` and its group 
 
 ### ST-01 - Build the content-container primitive with three variants
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The three named variants cannot cleanly express the existing route surfaces without a fourth bespoke frame.
@@ -50,7 +50,11 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- Created `apps/web/src/components/panel-content-container.tsx` exporting `PanelContentContainer` and `PanelContentContainerVariant`.
+- Three variants: `default` (`w-full`), `centered-form` (`mx-auto w-full max-w-2xl`), `full-bleed` (`w-full -mx-6 -my-6` — negates panel.tsx main's `p-6`).
+- `data-container-variant` attribute on the wrapper div enables test assertions without implementation-detail coupling.
+- No style token module was needed; variant classes are Tailwind utilities only.
+- `bun run check` ✓ (9 pre-existing warnings, no errors), `bun run check-types` ✓.
 
 ### ST-02 - Mount the container at the provider layout and remove the bare Outlet
 
