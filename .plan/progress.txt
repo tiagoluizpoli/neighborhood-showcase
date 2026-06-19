@@ -1,5 +1,5 @@
-docs(multiple): complete subtask T-16-02/ST-03 verification and sync run state
+feat(web): adopt centered-form variant on provider create/edit routes
 
-ST-03: Add apps/web/src/routes/-panel.provider.announcements.test.tsx containing 4 unit tests that verify provider announcements routes index, new, and $id have no per-route padding overrides, adopt the correct variant ('centered-form'), and use the canonical panel content container seam.
-
-All unit tests and 90 Playwright E2E tests pass cleanly. Typecheck and lint pass.
+ST-02: Migrate create/edit provider routes (New/Edit Announcement,
+Payment route, and Condo setup flows) to PanelContentContainer
+variant='centered-form' and remove overrides.
