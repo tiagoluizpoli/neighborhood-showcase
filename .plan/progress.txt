@@ -120,3 +120,9 @@ Completion update (attempt 4, 2026-06-19 — T-16-05/ST-01):
 
 <promise>100% Complete</promise>
 2026-06-19T19:40:17-03:00 T-16-05/ST-02 done: Adopted AnnouncementPresentationPrimitive in all three surfaces — dashboard card delegates to dashboard-card variant, detail route uses detail-header variant (header split from content), public vitrine uses public-card variant. Mock extended with useNavigate. check-types, check, and 3/3 targeted tests pass.
+
+[2026-06-19] T-16-06/ST-01 DONE
+- Added sidebar.brand.name / sidebar.brand.abbr to en and pt locale files
+- Replaced hardcoded "Neighborhood Showcase" and "NS" in panel.tsx with t() calls
+- bun run check and bun run check-types clean
+- ST-02 (new announcement), ST-03 (public provider profile), ST-04 (tests) remain

@@ -14,6 +14,10 @@
     "login": "Sign In"
   },
   "sidebar": {
+    "brand": {
+      "name": "Neighborhood Showcase",
+      "abbr": "NS"
+    },
     "group": {
       "provedor": "Provider",
       "moderacao": "Moderation",

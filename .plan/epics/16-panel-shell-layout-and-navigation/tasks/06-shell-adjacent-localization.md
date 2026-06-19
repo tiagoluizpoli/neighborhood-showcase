@@ -2,7 +2,7 @@
 type: task
 id: T-16-06
 epic: E-16
-status: ready
+status: in-progress
 blocked-by: [T-16-04]
 default-model: medium
 ---
@@ -28,7 +28,7 @@ i18n is wired through `apps/web/src/i18n.ts` and `apps/web/src/locales`. Sidebar
 
 ### ST-01 - Localize sidebar and top-bar copy
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []

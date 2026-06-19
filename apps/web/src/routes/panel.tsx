@@ -516,7 +516,7 @@ function PanelLayout() {
           <SidebarHeader className="flex h-14 items-center gap-3 border-b px-4">
             <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
               <p className="truncate font-bold text-sm">
-                Neighborhood Showcase
+                {t('sidebar.brand.name')}
               </p>
               {sidebarHeaderContext ? (
                 <p className="truncate text-muted-foreground text-xs">
@@ -525,15 +525,8 @@ function PanelLayout() {
               ) : null}
             </div>
             <span className="hidden font-bold text-sm group-data-[collapsible=icon]:block">
-              NS
+              {t('sidebar.brand.abbr')}
             </span>
-            <Link
-              to="/panel/account"
-              aria-label={t('sidebar.user_menu.account')}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md border text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              <Settings className="h-4 w-4" />
-            </Link>
           </SidebarHeader>
 
           <SidebarContent>
