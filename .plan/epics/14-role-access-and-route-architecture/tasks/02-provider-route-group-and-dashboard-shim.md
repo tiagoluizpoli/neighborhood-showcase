@@ -27,7 +27,7 @@ PRD-v8 requires explicit section ownership. Today `/panel/dashboard` still behav
 
 ## ST-01 - Introduce the Provider route-group boundary
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []

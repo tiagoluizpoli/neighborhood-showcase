@@ -1,9 +1,9 @@
 {
-  "currentRunId": "e-14-t-14-02-st-01",
+  "currentRunId": "e-14-t-14-02-st-02",
   "currentPrdId": "PRD-v8-role-access-and-route-architecture",
   "currentEpicId": "E-14",
   "currentTaskId": "T-14-02",
-  "currentSubTaskId": "ST-01",
+  "currentSubTaskId": "ST-02",
   "attemptCount": 1,
   "retrievalRound": 1,
   "lastModel": "sonnet",
@@ -13,9 +13,12 @@
   "runnerName": "claude",
   "escalateIf": [],
   "filesToTouch": [
-    "apps/web/src/routes/",
-    "route-group guard files for Provider-owned pages",
-    "any route-tree or shared route helper files needed for the new namespace"
+    "apps/web/src/routes/panel.dashboard.tsx",
+    "apps/web/src/routes/panel.dashboard.index.tsx",
+    "apps/web/src/routes/panel.dashboard.announcements.*",
+    "apps/web/src/routes/panel.dashboard.condo-setup.tsx",
+    "apps/web/src/routes/panel/-provider-*",
+    "other touched route consumers"
   ],
   "lastCommitChanged": false
 }
