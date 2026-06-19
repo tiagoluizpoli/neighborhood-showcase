@@ -18,3 +18,19 @@ Verification:
 - `bun run test:e2e` ✗ on one flaky pre-existing access-states assertion (`Provider-enabled user sees the Provedor group`); immediate targeted rerun passed, and the new sidebar regression test stayed green
 
 <promise>100% Complete</promise>
+
+Completion recovery (attempt 2, 2026-06-19T18:21:49-03:00):
+- Re-read the active planning surface for T-16-03/ST-02, confirmed the code/test work was already landed in `fix(web): restore panel sidebar collapse persistence`, and restored the missing completion signal only.
+- Re-synchronized run state/history so the selected sub-task is recorded as complete again with no escalation required.
+- Re-verified the sidebar persistence seam and the broader panel E2E surface before closing the task.
+
+Verification:
+- `bun run check-types` ✓
+- `bun run check` ✓ with the existing repo-wide warnings only (same non-task warnings as before)
+- `bun run test:e2e --grep "sidebar collapse toggle persists across reloads on panel routes"` ✓ (1/1 passed via `apps/web` Playwright)
+- `bun run test:e2e` ✓ (83/83 passed)
+- `bun run test` ✗ due the pre-existing Bun-vs-Playwright loading problem plus unrelated baseline unit/component failures outside T-16-03 scope
+
+Committed planning recovery as `docs(multiple): recover T-16-03 completion signal`.
+
+<promise>100% Complete</promise>

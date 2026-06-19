@@ -4,17 +4,16 @@
   "currentEpicId": "E-16",
   "currentTaskId": "T-16-03",
   "currentSubTaskId": "ST-02",
-  "attemptCount": 1,
-  "retrievalRound": 1,
+  "attemptCount": 2,
+  "retrievalRound": 2,
   "lastModel": "gpt-5.4",
   "escalated": false,
   "requiredModel": "medium",
   "runnerName": "hermes",
   "escalateIf": [],
   "filesToTouch": [
-    "apps/web/src/routes/panel.tsx",
-    "the shared `Sidebar` primitive wiring if the drift originates there",
-    "apps/web/tests/account.spec.ts"
+    "apps/web/src/routes/-panel.test.tsx",
+    "apps/web/tests/` (if persistence-across-reload needs the E2E seam)"
   ],
   "lastCommitChanged": true,
   "lastFailureReason": null
