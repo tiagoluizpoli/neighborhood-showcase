@@ -27,7 +27,7 @@ PRD-v8 keeps two coordinated Provider enablement surfaces: a primary discovery/a
 
 ### ST-01 - Implement the non-Provider discovery and activation path
 
-status: in-progress
+status: done
 model: medium
 escalate-if: []
 blocked-by: []

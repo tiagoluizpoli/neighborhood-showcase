@@ -218,6 +218,22 @@
     "toast_error_generic": "Algo deu errado. Tente novamente.",
     "toast_error_no_provider_account": "Você não tem uma conta de prestador ativa."
   },
+  "provider_activation": {
+    "page_title": "Ativar acesso de prestador",
+    "page_description": "Escolha o caminho que libera os recursos de prestador para a sua conta. A seção Provedor continua oculta até o backend confirmar a ativação.",
+    "guidance_title": "O que acontece depois",
+    "guidance_description": "Solicitações como morador só liberam o acesso de prestador após a aprovação do moderador. Cadastros de novo condomínio só liberam a área correta de gestão após a revisão do administrador. Até lá, as páginas de provedor continuam bloqueadas para você nunca cair em telas pela metade.",
+    "create_condo_title": "Criar um novo condomínio",
+    "create_condo_description": "Cadastre um novo condomínio como responsável para poder onboarding moradores e publicar anúncios locais após a aprovação.",
+    "create_condo_cta": "Iniciar cadastro",
+    "join_condo_title": "Entrar em um condomínio aprovado",
+    "join_condo_description": "Solicite acesso como morador a um condomínio existente com os dados da sua unidade e comprovante de residência.",
+    "join_condo_cta": "Solicitar acesso",
+    "external_title": "Prestador independente",
+    "external_description": "Esse caminho de ativação ainda está sendo alinhado com o contrato canônico de prestador habilitado. Por enquanto, use um fluxo baseado em condomínio para manter navegação e autorização sincronizadas.",
+    "external_badge": "Em breve",
+    "external_cta": "Disponível em breve"
+  },
   "home": {
     "hero": {
       "eyebrow": "Descubra perto de você",

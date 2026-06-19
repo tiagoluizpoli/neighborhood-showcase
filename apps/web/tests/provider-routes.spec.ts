@@ -221,9 +221,10 @@ test.describe('/panel/dashboard shim redirect semantics', () => {
 // /panel/provider/* direct-URL blocking for non-providers
 // ---------------------------------------------------------------------------
 test.describe('/panel/provider/* direct-URL blocking', () => {
-  test('non-provider visiting /panel/provider is redirected to condo-setup', async ({
+  test('non-provider visiting /panel/provider is redirected to condo-setup with activation guidance', async ({
     page,
   }) => {
+    await page.setViewportSize({ width: 1280, height: 1024 });
     await signInViaUI(page, NON_PROVIDER_EMAIL);
     await page.goto('/panel/provider');
 
@@ -232,6 +233,28 @@ test.describe('/panel/provider/* direct-URL blocking', () => {
       timeout: 10_000,
     });
     expect(page.url()).not.toMatch(/\/panel\/provider/);
+    await expect(
+      page.getByRole('heading', {
+        name: /ativar acesso de prestador|activate provider access/i,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        /páginas de provedor continuam bloqueadas|provider pages stay blocked/i,
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: /disponível em breve|available soon/i }),
+    ).toBeDisabled();
+
+    await expect(page).toHaveScreenshot(
+      'non-provider-provider-activation-surface-1280x1024.png',
+      {
+        fullPage: false,
+        maxDiffPixels: 10000,
+        mask: [page.locator('[data-slot="sidebar-footer"]')],
+      },
+    );
   });
 
   test('moderator visiting /panel/provider is redirected to moderation', async ({

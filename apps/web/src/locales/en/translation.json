@@ -218,6 +218,22 @@
     "toast_error_generic": "Something went wrong. Please try again.",
     "toast_error_no_provider_account": "You do not have an active provider account."
   },
+  "provider_activation": {
+    "page_title": "Activate provider access",
+    "page_description": "Choose the path that unlocks provider features for your account. The Provider section stays hidden until the backend confirms your activation.",
+    "guidance_title": "What happens next",
+    "guidance_description": "Resident requests unlock provider access only after moderator approval. New condominium registrations unlock the correct management area only after admin review. Until then, provider pages stay blocked so you never land in half-working screens.",
+    "create_condo_title": "Create a new condominium",
+    "create_condo_description": "Register a new condominium as the manager so you can onboard residents and publish local announcements after approval.",
+    "create_condo_cta": "Start setup",
+    "join_condo_title": "Join an approved condominium",
+    "join_condo_description": "Request resident access to an existing condominium with your unit details and proof of residency.",
+    "join_condo_cta": "Request access",
+    "external_title": "Independent provider",
+    "external_description": "This activation path is still being aligned with the canonical provider-enabled contract. Use a condominium-based path for now so navigation and authorization stay synchronized.",
+    "external_badge": "Coming soon",
+    "external_cta": "Available soon"
+  },
   "home": {
     "hero": {
       "eyebrow": "Discover nearby",
