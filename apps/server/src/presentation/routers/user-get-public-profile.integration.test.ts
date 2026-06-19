@@ -68,6 +68,11 @@ describe('user.getPublicProfile Router Procedure', () => {
         execute: async () => {},
       },
       getPublicProviderProfileUseCase,
+      getUserAccessProfileUseCase: {
+        execute: async () => ({
+          providerEnabled: false,
+        }),
+      },
       getUserProfileUseCase: {
         execute: async () => {
           throw new Error('Not used in this test');

@@ -35,7 +35,7 @@
 | Epic ID | Epic | Status | Blocked By | File |
 | --- | --- | --- | --- | --- |
 | E-13 | Provider Section Reorg | done | — | `.plan/epics/13-provider-section-reorg/epic.md` |
-| E-14 | Role Access and Route Architecture | ready | — | `.plan/epics/14-role-access-and-route-architecture/epic.md` |
+| E-14 | Role Access and Route Architecture | in-progress | — | `.plan/epics/14-role-access-and-route-architecture/epic.md` |
 
 ## Tasks
 
@@ -51,7 +51,7 @@
 | T-13-08 | E-13 | Meus Anúncios detail | done | — | `.plan/epics/13-provider-section-reorg/tasks/08-meus-anuncios-detail.md` |
 | T-13-09 | E-13 | Dashboard slim and sidebar | done | — | `.plan/epics/13-provider-section-reorg/tasks/09-dashboard-slim-and-sidebar.md` |
 | T-13-10 | E-13 | Public page and ADRs | done | — | `.plan/epics/13-provider-section-reorg/tasks/10-public-page-and-adrs.md` |
-| T-14-01 | E-14 | Canonical Provider-enabled access contract | ready | — | `.plan/epics/14-role-access-and-route-architecture/tasks/01-canonical-provider-enabled-contract.md` |
+| T-14-01 | E-14 | Canonical Provider-enabled access contract | in-progress | — | `.plan/epics/14-role-access-and-route-architecture/tasks/01-canonical-provider-enabled-contract.md` |
 | T-14-02 | E-14 | Provider route group and dashboard shim | ready | T-14-01 | `.plan/epics/14-role-access-and-route-architecture/tasks/02-provider-route-group-and-dashboard-shim.md` |
 | T-14-03 | E-14 | Section-specific non-Provider landings | ready | T-14-01 | `.plan/epics/14-role-access-and-route-architecture/tasks/03-section-specific-non-provider-landings.md` |
 | T-14-04 | E-14 | Fail-closed landing resolution | ready | T-14-02, T-14-03 | `.plan/epics/14-role-access-and-route-architecture/tasks/04-fail-closed-landing-resolution.md` |

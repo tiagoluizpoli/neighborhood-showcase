@@ -5,6 +5,11 @@ import {
   type PublicProviderProfileResult,
 } from '../../application/use-cases/user/get-public-provider-profile';
 import {
+  GetUserAccessProfile,
+  type GetUserAccessProfileInput,
+  type UserAccessProfileResult,
+} from '../../application/use-cases/user/get-user-access-profile';
+import {
   GetUserProfile,
   type GetUserProfileInput,
 } from '../../application/use-cases/user/get-user-profile';
@@ -24,6 +29,9 @@ export interface UserRouterDependencies {
     execute(
       input: GetPublicProviderProfileInput,
     ): Promise<PublicProviderProfileResult>;
+  };
+  getUserAccessProfileUseCase: {
+    execute(input: GetUserAccessProfileInput): Promise<UserAccessProfileResult>;
   };
   getUserProfileUseCase: {
     execute(input: GetUserProfileInput): Promise<{
@@ -54,6 +62,7 @@ export function createUserRouterDependencies(): UserRouterDependencies {
       assignmentRepo,
       announcementRepo,
     ),
+    getUserAccessProfileUseCase: new GetUserAccessProfile(assignmentRepo),
     getUserProfileUseCase: new GetUserProfile(userRepo),
     updateUserUseCase: new UpdateUser(userRepo),
   };

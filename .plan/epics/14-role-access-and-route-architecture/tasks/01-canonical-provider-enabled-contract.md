@@ -2,7 +2,7 @@
 type: task
 id: T-14-01
 epic: E-14
-status: ready
+status: in-progress
 blocked-by: []
 default-model: medium
 ---
@@ -26,7 +26,7 @@ The current codebase still uses broad approved-assignment checks in the panel sh
 
 ### ST-01 - Define the canonical Provider-enabled decision
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []

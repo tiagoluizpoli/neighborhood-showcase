@@ -1,17 +1,22 @@
 {
-  "currentRunId": null,
-  "currentPrdId": "PRD-v7-provider-section-reorg",
-  "currentEpicId": null,
-  "currentTaskId": null,
-  "currentSubTaskId": null,
-  "attemptCount": 0,
-  "retrievalRound": 0,
-  "lastModel": "Claude Sonnet 4.6 (Thinking)",
+  "currentRunId": "e-14-t-14-01-st-01",
+  "currentPrdId": "PRD-v8-role-access-and-route-architecture",
+  "currentEpicId": "E-14",
+  "currentTaskId": "T-14-01",
+  "currentSubTaskId": "ST-01",
+  "attemptCount": 1,
+  "retrievalRound": 1,
+  "lastModel": "gpt-5.4",
   "escalated": false,
   "lastFailureReason": null,
-  "requiredModel": null,
-  "runnerName": "agy",
+  "requiredModel": "medium",
+  "runnerName": "hermes",
   "escalateIf": [],
-  "filesToTouch": [],
-  "lastCommitChanged": false
+  "filesToTouch": [
+    "apps/server/src/domain/repositories/assignment.repository.ts",
+    "apps/server/src/application/use-cases/user/get-user-access-profile.ts",
+    "apps/server/src/main/di/user-router.ts",
+    "apps/server/src/presentation/routers/user.ts"
+  ],
+  "lastCommitChanged": true
 }

@@ -10,6 +10,7 @@ export function createUserRouter(
   const {
     deleteUserAccountUseCase,
     getPublicProviderProfileUseCase,
+    getUserAccessProfileUseCase,
     getUserProfileUseCase,
     updateUserUseCase,
   } = dependencies;
@@ -18,6 +19,11 @@ export function createUserRouter(
     deleteAccount: protectedProcedure.mutation(async ({ ctx }) => {
       await deleteUserAccountUseCase.execute({ userId: ctx.session.user.id });
       return { success: true };
+    }),
+    getAccessProfile: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserAccessProfileUseCase.execute({
+        userId: ctx.session.user.id,
+      });
     }),
     getProfile: protectedProcedure.query(async ({ ctx }) => {
       try {
