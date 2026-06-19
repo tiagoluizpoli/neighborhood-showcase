@@ -53,10 +53,10 @@ verification:
 
 ### ST-02 - Synchronize the management surface to the same source of truth
 
-status: ready
+status: done
 model: medium
 escalate-if: []
-blocked-by: [T-14-02]
+blocked-by: []
 
 what-to-do:
 - Align the account/settings/provider configuration management surface with the canonical Provider-enabled backend source of truth.

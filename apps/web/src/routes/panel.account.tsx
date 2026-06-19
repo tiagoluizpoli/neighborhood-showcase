@@ -10,6 +10,7 @@ import {
   AccountProfileSection,
   type AccountTheme,
 } from '@/components/account-page/profile-preferences';
+import { AccountProviderAccessSection } from '@/components/account-page/provider-access';
 import {
   AccountDangerZoneSection,
   AccountSecuritySection,
@@ -31,6 +32,9 @@ function AccountPage() {
   const { data: session, isPending: sessionLoading } = authClient.useSession();
   const { data: profile, isLoading: profileLoading } = useQuery(
     trpc.user.getProfile.queryOptions(undefined, { enabled: !!session }),
+  );
+  const { data: accessProfile, isLoading: accessProfileLoading } = useQuery(
+    trpc.user.getAccessProfile.queryOptions(undefined, { enabled: !!session }),
   );
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -117,7 +121,7 @@ function AccountPage() {
     updatePreferencesMutation.mutate({ language, theme });
   };
 
-  if (sessionLoading || profileLoading) {
+  if (sessionLoading || profileLoading || accessProfileLoading) {
     return (
       <AccountPageState
         icon={<Loader2 className="h-6 w-6 animate-spin text-primary" />}
@@ -167,6 +171,16 @@ function AccountPage() {
             onSave={handlePreferencesSave}
             onThemeChange={setThemePreference}
             theme={theme}
+          />
+          <AccountProviderAccessSection
+            isLoading={accessProfileLoading}
+            onOpenActivation={() =>
+              navigate({ to: '/panel/dashboard/condo-setup' })
+            }
+            onOpenProviderSettings={() =>
+              navigate({ to: '/panel/provider/configuration' })
+            }
+            providerEnabled={accessProfile?.providerEnabled ?? false}
           />
         </div>
 

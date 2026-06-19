@@ -207,6 +207,34 @@ test.describe('/panel/dashboard shim redirect semantics', () => {
     expect(page.url()).toMatch(/\/panel\/dashboard\/condo-setup/);
   });
 
+  test('provider visiting legacy dashboard configuration is redirected to canonical provider configuration', async ({
+    page,
+  }) => {
+    await signInViaUI(page, PROVIDER_EMAIL);
+    await page.goto('/panel/dashboard/configuration');
+
+    await page.waitForURL(/\/panel\/provider\/configuration/, {
+      timeout: 10_000,
+    });
+    expect(page.url()).not.toMatch(/\/panel\/dashboard\/configuration/);
+  });
+
+  test('non-provider visiting legacy dashboard configuration is redirected to activation guidance', async ({
+    page,
+  }) => {
+    await signInViaUI(page, NON_PROVIDER_EMAIL);
+    await page.goto('/panel/dashboard/configuration');
+
+    await page.waitForURL(/\/panel\/dashboard\/condo-setup/, {
+      timeout: 10_000,
+    });
+    await expect(
+      page.getByRole('heading', {
+        name: /ativar acesso de prestador|activate provider access/i,
+      }),
+    ).toBeVisible();
+  });
+
   test('/panel/dashboard does not render a real dashboard surface for provider', async ({
     page,
   }) => {

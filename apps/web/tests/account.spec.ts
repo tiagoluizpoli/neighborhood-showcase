@@ -1,6 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
 
 const PROVIDER_EMAIL = 'provider@test.com';
+const NON_PROVIDER_EMAIL = 'nonprovider@test.com';
 const UNVERIFIED_EMAIL = 'unverified@test.com';
 const PASSWORD = 'Test@1234';
 
@@ -92,5 +93,49 @@ test.describe('Conta e Segurança', () => {
     await expect(page.getByTestId('account-email-status-verified')).toHaveCount(
       0,
     );
+  });
+
+  test('provider account surface links to canonical provider configuration', async ({
+    page,
+  }) => {
+    await openAccountPage(page, PROVIDER_EMAIL);
+
+    const providerAccessCard = page.getByTestId('account-provider-access-card');
+    await expect(providerAccessCard).toContainText(
+      /provider access is active|acesso de prestador está ativo/i,
+    );
+    await expect(providerAccessCard).toHaveScreenshot(
+      'account-provider-access-enabled.png',
+    );
+
+    await page.getByTestId('account-provider-access-manage').click();
+    await page.waitForURL(/\/panel\/provider\/configuration/, {
+      timeout: 10_000,
+    });
+    await expect(page.url()).not.toMatch(/\/panel\/dashboard\/configuration/);
+  });
+
+  test('non-provider account surface links to activation guidance', async ({
+    page,
+  }) => {
+    await openAccountPage(page, NON_PROVIDER_EMAIL);
+
+    const providerAccessCard = page.getByTestId('account-provider-access-card');
+    await expect(providerAccessCard).toContainText(
+      /provider access is not active yet|acesso de prestador ainda não está ativo/i,
+    );
+    await expect(providerAccessCard).toHaveScreenshot(
+      'account-provider-access-disabled.png',
+    );
+
+    await page.getByTestId('account-provider-access-activate').click();
+    await page.waitForURL(/\/panel\/dashboard\/condo-setup/, {
+      timeout: 10_000,
+    });
+    await expect(
+      page.getByRole('heading', {
+        name: /ativar acesso de prestador|activate provider access/i,
+      }),
+    ).toBeVisible();
   });
 });
