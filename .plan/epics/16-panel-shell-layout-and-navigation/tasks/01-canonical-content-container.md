@@ -27,7 +27,7 @@ After v8, the canonical Provider namespace is `/panel/provider/*` and its group 
 
 ### ST-01 - Build the content-container primitive with three variants
 
-status: in-progress
+status: done
 model: medium
 escalate-if:
 - The three named variants cannot cleanly express the existing route surfaces without a fourth bespoke frame.

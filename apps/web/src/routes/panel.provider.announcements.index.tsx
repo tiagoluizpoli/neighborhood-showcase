@@ -95,7 +95,7 @@ function ProviderAnnouncementsListPage() {
 
   if (dashboardQuery.isError || !dashboardQuery.data) {
     return (
-      <div className="space-y-2 px-6 py-8">
+      <div className="space-y-2">
         <h1 className="font-bold text-3xl text-foreground tracking-tight">
           {t('meus_anuncios.page_title')}
         </h1>
@@ -111,7 +111,7 @@ function ProviderAnnouncementsListPage() {
     renewMutation.variables?.announcementId ?? null;
 
   return (
-    <div className="w-full space-y-8 px-6 py-8">
+    <div className="space-y-8">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="font-bold text-3xl text-foreground tracking-tight">

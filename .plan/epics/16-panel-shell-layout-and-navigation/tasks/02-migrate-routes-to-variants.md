@@ -2,8 +2,8 @@
 type: task
 id: T-16-02
 epic: E-16
-status: ready
-blocked-by: [T-16-01]
+status: in-progress
+blocked-by: []
 default-model: medium
 ---
 
@@ -27,7 +27,7 @@ Depends on T-16-01 (the container primitive and its provider-layout mount). Prov
 
 ### ST-01 - Migrate list/index provider routes to `default/list`
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
@@ -49,11 +49,13 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- 2026-06-19: Audited the provider list/index surfaces after ST-02 from the prior epic. `panel.provider.index.tsx` already delegates straight to `ProviderDashboardRouteFrame` with no route-owned frame classes, so no code change was needed there.
+- 2026-06-19: Removed the inherited dashboard-era `px-6 py-8` shell ownership from `panel.provider.announcements.index.tsx`; the page now relies on the canonical provider-layout `PanelContentContainer` default variant for framing.
+- 2026-06-19: Audited `panel.provider.condo-setup.tsx` against the ST-01 contract and left it unchanged for this slice because its current surface is a centered activation flow rather than a list/index page consuming the `default/list` variant.
 
 ### ST-02 - Migrate create/edit provider routes to `centered-form`
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
@@ -74,7 +76,10 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- 2026-06-19: Wrapped `panel.provider.anuncios.$id.pagamento.tsx` in `PanelContentContainer` with `variant="centered-form"`.
+- 2026-06-19: Wrapped `panel.provider.condo-setup.tsx` return JSX in `PanelContentContainer` with `variant="centered-form"`, and removed custom `flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8 max-w-4xl` centering wrappers.
+- 2026-06-19: Audited `panel.provider.announcements.new.tsx` and `panel.provider.announcements.$id.tsx` which were already adopting `PanelContentContainer` with `variant="centered-form"`.
+
 
 ### ST-03 - Assert no per-route width/padding and correct variant selection
 
