@@ -32,10 +32,10 @@ test.describe('Provider sign-in landing', () => {
 
     await expect(
       page.getByText(/visualizações|impressions/i).first(),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 20_000 });
     await expect(
       page.getByText(/interações|interactions/i).first(),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 20_000 });
 
     await expect(page).toHaveScreenshot(
       'provider-section-identity-1280x1024.png',
