@@ -130,7 +130,7 @@ get_latest_ralph_commit() {
 
 is_conventional_commit() {
   local subject=$1
-  [[ "$subject" =~ ^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)\([a-z0-9-]+\):[[:space:]].+ ]]
+  [[ "$subject" =~ ^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9-]+\))?!?:[[:space:]].+ ]]
 }
 
 print_failure_model() {
@@ -235,7 +235,7 @@ EOF
 
   # CRITICAL: every iteration is a fresh session (no --continue).
   # State lives in .plan/, agents.local.md, and git — not in the conversation.
-  claude --dangerously-skip-permissions "${model_args[@]}" -p "Start the Ralph Loop iteration $i. Read .plan/RULES.md FIRST (canonical engineering rules), then agents.local.md if it exists, then .plan/PRD.md, then .plan/index.md (single source of truth for epics and tasks), then the current epic and task files. Pick the next task, complete ONLY that task, then log your status to .plan/progress.txt. Recent commits: $recent_commits
+  claude --dangerously-skip-permissions "${model_args[@]}" -p "Start the Ralph Loop iteration $i. Read .plan/RULES.md FIRST (canonical engineering rules), then agents.local.md if it exists, then .plan/PRD.md, then .plan/index.md (single source of truth for epics and tasks), then the current epic and task files. Pick the next task, complete ONLY that task. Before logging your status to .plan/progress.txt and exiting, you MUST stage and commit all your changes (code, tests, planning files, and manifests) using a Conventional Commit message so that the git worktree is clean. Recent commits: $recent_commits
 
 $runtime_contract
 
@@ -319,8 +319,8 @@ $retrieval_bundle
   fi
 
   if [ -n "$new_progress_lines" ] && echo "$new_progress_lines" | grep -q -i -E "100% Complete"; then
-    # Check if there are any uncommitted changes left in git (dirty worktree)
-    git_status_output=$(git status --porcelain 2>/dev/null)
+    # Check if there are any uncommitted changes left in git (dirty worktree, ignoring planning/state files under .plan/)
+    git_status_output=$(git status --porcelain 2>/dev/null | grep -v ' \.plan/')
     if [ -n "$git_status_output" ]; then
       echo -e "${YELLOW}⚠️ Task marked 100% Complete but git is dirty (uncommitted changes). Retrying same task...${NC}"
       record_runtime_result "retry" "dirty-worktree-no-commit" "$commit_changed" "$(get_latest_model_label)"
