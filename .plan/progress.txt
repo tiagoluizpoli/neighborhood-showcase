@@ -1,5 +1,13 @@
-feat(web): adopt centered-form variant on provider create/edit routes
+test(web): assert provider routes use PanelContentContainer variants and lack padding overrides
 
-ST-02: Migrate create/edit provider routes (New/Edit Announcement,
-Payment route, and Condo setup flows) to PanelContentContainer
-variant='centered-form' and remove overrides.
+ST-03: Extend provider route tests to assert that child routes:
+- Render within PanelContentContainer
+- Lack per-route custom padding overrides (e.g. px-6 py-8, mx-auto max-w-4xl)
+- Render correct layout variants (e.g. centered-form)
+- Fix TanStack Router route-seam mocks so provider layout and announcement-route tests can run together under Bun.
+
+Verification:
+- `bun test apps/web/src/routes/-panel.provider.test.tsx apps/web/src/routes/-panel.provider.announcements.test.tsx` ✓ (7/7 passed)
+- `bun run check-types` ✓
+- `bun run check` ✓ (repo has pre-existing warnings outside ST-03 scope)
+- `bun run test` ✗ due pre-existing unrelated Playwright-under-Bun and component/unit failures outside T-16-02/ST-03 scope

@@ -17,9 +17,20 @@ mock.module('@tanstack/react-router', () => {
     get: () => routeConfig.component,
     enumerable: true,
   });
+  routeFn.useParams = () => ({ id: 'ann-1' });
+  routeFn.useSearch = () => ({});
+  routeFn.useRouteContext = () => ({});
   return {
     createFileRoute: (_path: string) => routeFn,
+    Link: ({ children, to, ...rest }: any) => ({
+      type: 'a',
+      props: { href: to, ...rest, children },
+    }),
     Outlet: () => 'Outlet',
+    useNavigate: () => () => {},
+    useParams: () => ({ id: 'ann-1' }),
+    useSearch: () => ({}),
+    useRouteContext: () => ({}),
     redirect: () => {
       throw new Error('REDIRECT');
     },

@@ -106,6 +106,8 @@ verification:
 
 - 2026-06-19: Fixed the mock for `@tanstack/react-router` in `apps/web/src/routes/-panel.provider.announcements.test.tsx` to include `useSearch` and `useRouteContext` to resolve TanStack Router runtime export errors.
 - 2026-06-19: Verified the 4 tests asserting that `announcements.index` and `announcements.$id` do not carry `px-6`/`py-8` overrides, and `announcements.new` correctly renders with `centered-form` variant and avoids raw `mx-auto max-w-4xl` divs. All tests pass successfully.
+- 2026-06-19: Fixed the shared `@tanstack/react-router` mock in `apps/web/src/routes/-panel.provider.test.tsx` so the provider-layout and announcement-route seam tests can run together without missing `Link` / `useNavigate` exports.
+- 2026-06-19: Re-ran `bun test apps/web/src/routes/-panel.provider.test.tsx apps/web/src/routes/-panel.provider.announcements.test.tsx` (7/7 pass) plus `bun run check-types` ✓ and `bun run check` ✓ (existing repo-wide warnings only).
 
 ---
 
