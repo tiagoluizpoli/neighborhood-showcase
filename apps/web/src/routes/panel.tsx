@@ -122,17 +122,17 @@ const GROUP_PROVEDOR: SidebarGroupConfig = {
     {
       i18nKey: 'sidebar.item.dashboard',
       icon: LayoutDashboard,
-      href: '/panel/dashboard',
+      href: '/panel/provider',
     },
     {
       i18nKey: 'sidebar.item.meus_anuncios',
       icon: Megaphone,
-      href: '/panel/dashboard/announcements',
+      href: '/panel/provider/announcements',
     },
     {
       i18nKey: 'sidebar.item.configuracoes',
       icon: Settings,
-      href: '/panel/dashboard/configuration',
+      href: '/panel/provider/configuration',
     },
   ],
 };

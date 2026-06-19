@@ -53,7 +53,7 @@ verification:
 
 ### ST-02 - Migrate Provider dashboard ownership into `/panel/provider/*`
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
