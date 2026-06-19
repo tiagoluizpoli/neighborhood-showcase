@@ -3,7 +3,7 @@ type: task
 id: T-15-01
 epic: E-15
 status: ready
-blocked-by: []
+blocked-by: [manual-execution-only]
 default-model: medium
 ---
 

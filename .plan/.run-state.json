@@ -4,14 +4,18 @@
   "currentEpicId": "E-14",
   "currentTaskId": "T-14-05",
   "currentSubTaskId": "ST-01",
-  "attemptCount": 1,
-  "retrievalRound": 1,
-  "lastModel": "Gemini 3.5 Flash (Low)",
+  "attemptCount": 2,
+  "retrievalRound": 2,
+  "lastModel": "gpt-5.4",
   "escalated": false,
   "lastFailureReason": "no-completion-signal",
   "requiredModel": "medium",
-  "runnerName": "agy",
+  "runnerName": "hermes",
   "escalateIf": [],
-  "filesToTouch": ["apps/web/src/routes/", "apps/web/src/components/"],
-  "lastCommitChanged": true
+  "filesToTouch": [
+    "apps/web/src/routes/",
+    "touched onboarding/account/provider-related surfaces",
+    "related i18n locale files"
+  ],
+  "lastCommitChanged": false
 }
