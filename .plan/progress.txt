@@ -1,21 +1,20 @@
-test(web): assert provider routes use PanelContentContainer variants and lack padding overrides
+fix(web): restore panel sidebar collapse toggle persistence
 
-ST-03: Extend provider route tests to assert that child routes:
-- Render within PanelContentContainer
-- Lack per-route custom padding overrides (e.g. px-6 py-8, mx-auto max-w-4xl)
-- Render correct layout variants (e.g. centered-form)
-- Fix TanStack Router route-seam mocks so provider layout and announcement-route tests can run together under Bun.
+ST-01/ST-02: Confirm the panel shell collapse regression root cause, wire SidebarProvider as a truly controlled component again, and add a Playwright regression that proves toggle + reload persistence.
 
-Completion update (attempt 3, 2026-06-19T18:01:14-03:00):
-- Re-read the planning surface, confirmed ST-03 was the selected sub-task, and re-verified the route-level seam tests.
-- Restored the planning state to DONE after the previous attempt regressed to in-progress due a missing completion signal.
-- Verified T-16-02/ST-03 is complete and ready to close.
+Completion update (attempt 1, 2026-06-19T18:09:36-03:00):
+- Re-read the planning surface, confirmed T-16-03/ST-01 and ST-02 were the selected work, and inspected both `apps/web/src/routes/panel.tsx` and `packages/ui/src/components/sidebar.tsx` before changing code.
+- Confirmed the true root cause: `panel.tsx` passed `onOpenChange` to `SidebarProvider` without also passing `open`, which made the shared sidebar provider behave as controlled without ever receiving the updated open state back. The trigger callback fired, localStorage wrote, but the provider never mutated its live `_open` state.
+- Fixed the wiring by passing `open={sidebarOpen}` back into `SidebarProvider` while preserving the existing `sidebar:state` persistence contract.
+- Added Playwright coverage plus visual snapshots on `/panel/account` that prove the header trigger collapses the sidebar, writes `sidebar:state=false`, and keeps the sidebar collapsed after reload.
+- Marked T-16-03 done and synchronized `.plan/epics/.../epic.md` plus `.plan/index.md` via `.plan/helper-scripts/sync-state.sh`.
+- Staged and committed the implementation with `fix(web): restore panel sidebar collapse persistence`, then ran the required post-commit verification suite.
 
 Verification:
-- `bun test apps/web/src/routes/-panel.provider.test.tsx apps/web/src/routes/-panel.provider.announcements.test.tsx` ✓ (7/7 passed)
+- `bun run test:e2e -- --grep "sidebar collapse toggle persists across reloads on panel routes"` ✓ (1/1 passed)
 - `bun run check-types` ✓
-- `bun run check` ✓ (repo has pre-existing warnings outside ST-03 scope)
-- `bun run test:e2e` ✓ (82/82 passed)
-- `bun run test` ✗ due pre-existing unrelated Playwright-under-Bun and component/unit failures outside T-16-02/ST-03 scope
+- `bun run check` ✓ (repo-wide warnings only; no new task-scoped failures)
+- `bun run test` ✗ due pre-existing Bun-vs-Playwright loading errors and unrelated baseline unit/component failures outside T-16-03 scope
+- `bun run test:e2e` ✗ on one flaky pre-existing access-states assertion (`Provider-enabled user sees the Provedor group`); immediate targeted rerun passed, and the new sidebar regression test stayed green
 
 <promise>100% Complete</promise>

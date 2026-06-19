@@ -26,7 +26,7 @@ Shared-shell tasks (T-16-03 collapse fix, T-16-04 chrome, T-16-06 localization) 
 | --- | --- | --- | --- | --- |
 | T-16-01 | Canonical content container primitive | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/01-canonical-content-container.md` |
 | T-16-02 | Migrate provider routes to container variants | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/02-migrate-routes-to-variants.md` |
-| T-16-03 | Sidebar collapse regression fix | ready | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/03-sidebar-collapse-regression-fix.md` |
+| T-16-03 | Sidebar collapse regression fix | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/03-sidebar-collapse-regression-fix.md` |
 | T-16-04 | Strengthen sidebar header and top bar chrome | ready | T-16-03 | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/04-strengthen-shell-chrome.md` |
 | T-16-05 | Shared announcement presentation primitive | ready | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/05-announcement-presentation-primitive.md` |
 | T-16-06 | Shell-adjacent localization | ready | T-16-04 | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/06-shell-adjacent-localization.md` |

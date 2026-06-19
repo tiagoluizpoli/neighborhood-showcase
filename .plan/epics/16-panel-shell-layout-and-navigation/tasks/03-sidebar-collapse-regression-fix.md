@@ -2,7 +2,7 @@
 type: task
 id: T-16-03
 epic: E-16
-status: ready
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -26,7 +26,7 @@ The outer shell lives in `apps/web/src/routes/panel.tsx` and uses the shared sha
 
 ### ST-01 - Root-cause and fix the collapse toggle
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The confirmed root cause is not localStorage/cookie init or `SidebarTrigger`/`useSidebar` API drift and points to deeper shell-state or upstream UI-package breakage.
@@ -49,11 +49,12 @@ verification:
 
 #### Execution Notes
 
-- Root cause is asserted in the PRD, not proven. Confirm before claiming the fix.
+- 2026-06-19: Confirmed the root cause in `apps/web/src/routes/panel.tsx`: the layout passed `onOpenChange` to `SidebarProvider` without also passing the controlled `open` prop. In `packages/ui/src/components/sidebar.tsx`, that API shape makes `SidebarProvider` treat the sidebar as externally controlled, so `toggleSidebar()` only fired the callback and never mutated the provider's internal `_open` state.
+- 2026-06-19: Fixed the wiring by feeding the persisted `sidebarOpen` state back into `SidebarProvider` via `open={sidebarOpen}` while keeping the existing `sidebar:state` localStorage contract. The provider toggle now changes live state and the persisted value together.
 
 ### ST-02 - Add a regression test for toggle and persistence
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
@@ -75,6 +76,8 @@ verification:
 #### Execution Notes
 
 - Persistence-across-reload may require the Playwright seam rather than a render-only test.
+- 2026-06-19: Added Playwright coverage in `apps/web/tests/account.spec.ts` that exercises the real panel shell on a provider account, asserts `data-state` transitions from expanded → collapsed when the header trigger is clicked, verifies `window.localStorage['sidebar:state']` flips to `false`, reloads the page, and proves the sidebar remains collapsed after reload.
+- 2026-06-19: Added sidebar screenshots for the expanded and collapsed account-shell states to guard the visual shell seam against regressions while masking the user footer.
 
 ---
 

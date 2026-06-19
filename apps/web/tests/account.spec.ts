@@ -25,6 +25,54 @@ async function openAccountPage(page: Page, email: string) {
 }
 
 test.describe('Conta e Segurança', () => {
+  test('sidebar collapse toggle persists across reloads on panel routes', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 1024 });
+    await signInViaUI(page, PROVIDER_EMAIL, PASSWORD);
+
+    await page.evaluate(() => {
+      window.localStorage.setItem('sidebar:state', 'true');
+    });
+    await page.goto('/panel/account');
+    await page.waitForLoadState('networkidle');
+
+    const sidebar = page.locator('[data-slot="sidebar"][data-state]').first();
+    const sidebarMask = [page.locator('[data-slot="sidebar-footer"]')];
+
+    await expect(sidebar).toHaveAttribute('data-state', 'expanded');
+    await expect(sidebar).toHaveScreenshot('account-sidebar-expanded.png', {
+      animations: 'disabled',
+      mask: sidebarMask,
+    });
+
+    await page.locator('[data-slot="sidebar-trigger"]').click();
+    await expect(sidebar).toHaveAttribute('data-state', 'collapsed');
+    await expect
+      .poll(() =>
+        page.evaluate(() => window.localStorage.getItem('sidebar:state')),
+      )
+      .toBe('false');
+    await expect(sidebar).toHaveScreenshot('account-sidebar-collapsed.png', {
+      animations: 'disabled',
+      mask: sidebarMask,
+    });
+
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+
+    const reloadedSidebar = page
+      .locator('[data-slot="sidebar"][data-state]')
+      .first();
+
+    await expect(reloadedSidebar).toHaveAttribute('data-state', 'collapsed');
+    await expect
+      .poll(() =>
+        page.evaluate(() => window.localStorage.getItem('sidebar:state')),
+      )
+      .toBe('false');
+  });
+
   test('edit name → save → reload → assert persistence', async ({ page }) => {
     await openAccountPage(page, PROVIDER_EMAIL);
 

@@ -342,7 +342,7 @@ function PanelLayout() {
   const isAdministrator = session?.data?.user.role === 'ADMINISTRATOR';
 
   const [sidebarOpen, setSidebarOpen] = React.useState(
-    localStorage.getItem('sidebar:state') !== 'false',
+    () => localStorage.getItem('sidebar:state') !== 'false',
   );
 
   // ---------------------------------------------------------------------------
@@ -358,6 +358,7 @@ function PanelLayout() {
   return (
     <SidebarProvider
       defaultOpen={sidebarOpen}
+      open={sidebarOpen}
       onOpenChange={(open) => {
         setSidebarOpen(open);
         localStorage.setItem('sidebar:state', String(open));
