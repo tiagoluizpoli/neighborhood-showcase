@@ -50,3 +50,17 @@ Verification:
 - `bun run check` ✓ (existing repo-wide warnings only; no ST-01-scoped failures)
 
 <promise>100% Complete</promise>
+
+Completion update (attempt 1, 2026-06-19T18:52:48-03:00):
+- Re-read `.plan/RULES.md`, `agents.local.md`, `.plan/PRD.md`, `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md`, `.plan/index.md`, the E-16 epic, and the T-16-04 task in the required order, then confirmed the selected scope remained T-16-04 / ST-02 only.
+- Added top-bar orientation chrome in `apps/web/src/routes/panel.tsx` by deriving an eyebrow/title/context row from the active sidebar labels and existing moderation condo context, without introducing new top-bar strings or route metadata plumbing.
+- Marked `T-16-04/ST-02` done, refreshed the task-scoped run summary/history, and committed the implementation as `feat(web): add panel top-bar section chrome` (`1326cbe92d284406adad6f888e8f149ccdbb21d1`).
+- Ran the required post-commit verification suite and confirmed the task-scoped UI change does not regress the broader Playwright surface.
+
+Verification:
+- `bun run test` ✗ due the pre-existing Bun-vs-Playwright loading problem plus unrelated baseline `LanguageSwitcher` hook failures outside T-16-04 scope
+- `bun run check-types` ✓
+- `bun run check` ✓ (repo-wide warnings only: existing `useOptionalChain` suggestions plus the pre-existing broken `ralph-loop.sh` symlink notice)
+- `bun run test:e2e` ✓ (83/83 passed)
+
+<promise>100% Complete</promise>

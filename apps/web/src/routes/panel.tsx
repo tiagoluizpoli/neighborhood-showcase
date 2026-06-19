@@ -492,6 +492,12 @@ function PanelLayout() {
       : pageLabel && pageLabel !== sectionLabel
         ? pageLabel
         : accountLabel;
+  const topBarEyebrow =
+    pageLabel && sectionLabel && pageLabel !== sectionLabel
+      ? sectionLabel
+      : null;
+  const topBarTitle = pageLabel ?? sectionLabel;
+  const topBarContext = moderationContextName;
 
   return (
     <SidebarProvider
@@ -623,8 +629,30 @@ function PanelLayout() {
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Top Panel Header */}
           <header className="flex h-14 items-center justify-between border-b bg-card px-4">
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-3">
               <SidebarTrigger />
+              {topBarTitle ? (
+                <div className="min-w-0">
+                  {topBarEyebrow ? (
+                    <p className="truncate text-muted-foreground text-xs">
+                      {topBarEyebrow}
+                    </p>
+                  ) : null}
+                  <div className="flex min-w-0 items-center gap-2">
+                    <p className="truncate font-semibold text-sm">
+                      {topBarTitle}
+                    </p>
+                    {topBarContext ? (
+                      <>
+                        <span className="text-muted-foreground text-xs">/</span>
+                        <p className="truncate text-muted-foreground text-xs">
+                          {topBarContext}
+                        </p>
+                      </>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
             </div>
             <div className="flex items-center gap-2">
               <ThemeCycleToggle />

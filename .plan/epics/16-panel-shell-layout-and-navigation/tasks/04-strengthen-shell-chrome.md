@@ -55,7 +55,7 @@ verification:
 
 ### ST-02 - Add a section title / breadcrumb to the top bar
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
@@ -74,7 +74,8 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- 2026-06-19: Kept the change local to `apps/web/src/routes/panel.tsx` by deriving the top-bar eyebrow/title/context from the same active route, translated sidebar labels, and moderation condo context already resolved at the shell layer.
+- 2026-06-19: Reused existing `sidebar.*` translation keys and the selected moderation condo name so the top bar gained orientation chrome without introducing new hardcoded copy or widening scope into T-16-06 localization work.
 
 ### ST-03 - Test that shell chrome shows section context
 
