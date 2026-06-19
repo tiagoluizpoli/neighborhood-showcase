@@ -9,13 +9,17 @@ issueId: auto
 Read in this order:
 
 1. `.plan/RULES.md`
-2. `agents.local.md` if it exists
-3. `.plan/PRD.md`
-4. `.plan/index.md`
-5. current pointer files under `.plan/grilling/`, `.plan/prds/`, and
+2. `CONTEXT.md` if it exists
+3. `agents.local.md` if it exists
+4. `.plan/PRD.md`
+5. `.plan/index.md`
+6. current pointer files under `.plan/grilling/`, `.plan/prds/`, and
    `.plan/handoffs/` when the selected phase depends on them
-6. the current epic and task files for the selected work
-7. `.plan/.run-summary.md`
+7. the current epic and task files for the selected work
+8. `.plan/.run-summary.md`
+9. `prompt.local.md` if it exists
+
+If `prompt.local.md` exists at the repo root, read it now.
 
 ## Work Selection
 
@@ -52,25 +56,3 @@ If yes, run `.plan/helper-scripts/retrieve-history.sh`.
 - Update `.plan/.run-summary.md` only with durable conclusions.
 
 If no other executable work remains after a blocker, emit `<promise>ABORT</promise>`.
-
-## Required Verification Loop
-
-For every implementation run, before considering the selected sub-task done:
-
-- run `bun run test`
-- run `bun run check-types`
-- run `bun run check`
-- if the change touches UI, run `bun run test:e2e`
-- if any command fails, fix the issue in the implementation and rerun the relevant verification steps
-- do not skip tests, type checks, lint, or e2e coverage when they apply
-- only commit after the required verification loop passes
-- if the run produced file changes, commit them before ending the run
-- use a Conventional Commit message scoped to the actual area changed
-- commit only the work completed in that run; do not mix unrelated unfinished changes into the same commit
-- do not weaken, delete, bypass, or narrow tests just to make the run pass
-- test changes are allowed only when they make coverage stricter, fix the test to reflect the real intended behavior more accurately, or repair a broken test harness without reducing the safeguard
-- prefer changing production code to satisfy existing tests rather than changing tests to accommodate broken behavior
-
-## Communication Style
-
-Invoke the `caveman:caveman` skill at the start of every session before any other work. This enables compressed communication mode and reduces token usage throughout the run.

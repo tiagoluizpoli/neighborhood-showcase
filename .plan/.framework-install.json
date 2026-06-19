@@ -5,18 +5,17 @@
   "source": {
     "repoUrl": "https://github.com/tiagoluizpoli/luna-ai-skills",
     "ref": "master",
-    "sha": "c374e09972e1c1577bb2832848083b85246a3d2a"
+    "sha": "c9c95d32bde3bc3f6e090ef9f9aa58f22e530e2e"
   },
   "selection": {
-    "agents": ["hermes", "codex", "agy"],
+    "agents": ["hermes", "codex", "agy", "claude"],
     "availabilityMode": "global",
-    "targets": ["hermes-global", "codex-global", "agy-global"]
+    "targets": ["hermes-global", "codex-global", "agy-global", "claude-global"]
   },
   "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-  "lastUpdatedAt": "2026-06-17T15:30:27.106Z",
+  "lastUpdatedAt": "2026-06-19T01:14:12.024Z",
   "managedFiles": [
     ".plan/prompt.md",
-    ".plan/RULES.md",
     ".plan/helper-scripts/common.sh",
     ".plan/helper-scripts/archive-run.sh",
     ".plan/helper-scripts/get-current-grill-handoff.sh",
@@ -66,10 +65,9 @@
       "installRoot": "repo",
       "installPath": "/home/tiago/01-dev-env/personal-repos/neighborhood-showcase/.plan",
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z",
+      "lastUpdatedAt": "2026-06-19T01:14:12.024Z",
       "managedFiles": [
         ".plan/prompt.md",
-        ".plan/RULES.md",
         ".plan/helper-scripts/common.sh",
         ".plan/helper-scripts/archive-run.sh",
         ".plan/helper-scripts/get-current-grill-handoff.sh",
@@ -123,7 +121,7 @@
       "installRoot": "repo",
       "installPath": "/home/tiago/01-dev-env/personal-repos/neighborhood-showcase/ralph-loop-hermes.sh",
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z",
+      "lastUpdatedAt": "2026-06-19T01:14:12.024Z",
       "agent": "hermes",
       "sourcePath": "ralph-loop-hermes.sh",
       "availabilityBehavior": "repo-root-for-all-modes",
@@ -139,7 +137,7 @@
       "installRoot": "repo",
       "installPath": "/home/tiago/01-dev-env/personal-repos/neighborhood-showcase/ralph-loop-codex.sh",
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z",
+      "lastUpdatedAt": "2026-06-19T01:14:12.024Z",
       "agent": "codex",
       "sourcePath": "ralph-loop-codex.sh",
       "availabilityBehavior": "repo-root-for-all-modes",
@@ -155,9 +153,25 @@
       "installRoot": "repo",
       "installPath": "/home/tiago/01-dev-env/personal-repos/neighborhood-showcase/ralph-loop-agy.sh",
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z",
+      "lastUpdatedAt": "2026-06-19T01:14:12.024Z",
       "agent": "agy",
       "sourcePath": "ralph-loop-agy.sh",
+      "availabilityBehavior": "repo-root-for-all-modes",
+      "availability": {
+        "behavior": "repo-root-for-all-modes",
+        "resolvedMode": "global"
+      }
+    },
+    {
+      "id": "runner-claude",
+      "class": "agent-specific",
+      "category": "runner-script",
+      "installRoot": "repo",
+      "installPath": "/home/tiago/01-dev-env/personal-repos/neighborhood-showcase/ralph-loop-claude.sh",
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-19T01:14:12.024Z",
+      "agent": "claude",
+      "sourcePath": "ralph-loop-claude.sh",
       "availabilityBehavior": "repo-root-for-all-modes",
       "availability": {
         "behavior": "repo-root-for-all-modes",
@@ -166,6 +180,30 @@
     }
   ],
   "installedSkills": [
+    {
+      "publicName": "commit",
+      "sourcePath": ".agents/skills/commit",
+      "target": "codex-global",
+      "installPath": "/home/tiago/.agents/skills/luna-ai/commit",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
+      "lastUpdatedAt": "2026-06-19T01:14:12.024Z"
+    },
+    {
+      "publicName": "luna-grill-with-docs",
+      "sourcePath": ".agents/skills/luna-grill-with-docs",
+      "target": "hermes-global",
+      "installPath": "/home/tiago/.hermes/skills/luna-ai/luna-grill-with-docs",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
     {
       "publicName": "luna-to-prd",
       "sourcePath": ".agents/skills/luna-to-prd",
@@ -176,7 +214,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "luna-to-issues",
@@ -188,7 +226,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "commit",
@@ -200,7 +238,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "code-review",
@@ -212,7 +250,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "backend-specialist",
@@ -224,7 +262,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "frontend-specialist",
@@ -236,7 +274,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "react-architect",
@@ -248,7 +286,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "tailwind-architect",
@@ -260,7 +298,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "shadcn-specialist",
@@ -272,7 +310,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-master",
@@ -284,7 +322,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "diagnose",
@@ -296,7 +334,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "conventional-commits",
@@ -308,7 +346,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-cases",
@@ -320,7 +358,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-backend",
@@ -332,7 +370,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-frontend",
@@ -344,7 +382,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-e2e",
@@ -356,7 +394,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-coverage",
@@ -368,7 +406,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "luna-grill-with-docs",
@@ -380,7 +418,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "luna-to-prd",
@@ -392,7 +430,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "luna-to-issues",
@@ -404,19 +442,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
-    },
-    {
-      "publicName": "commit",
-      "sourcePath": ".agents/skills/commit",
-      "target": "codex-global",
-      "installPath": "/home/tiago/.agents/skills/luna-ai/commit",
-      "availability": {
-        "behavior": "mode-dependent-templates",
-        "resolvedMode": "global"
-      },
-      "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "code-review",
@@ -428,7 +454,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "backend-specialist",
@@ -440,7 +466,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "frontend-specialist",
@@ -452,7 +478,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "react-architect",
@@ -464,7 +490,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "tailwind-architect",
@@ -476,7 +502,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "shadcn-specialist",
@@ -488,7 +514,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-master",
@@ -500,7 +526,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "diagnose",
@@ -512,7 +538,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "conventional-commits",
@@ -524,7 +550,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-cases",
@@ -536,7 +562,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-backend",
@@ -548,7 +574,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-frontend",
@@ -560,7 +586,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-e2e",
@@ -572,7 +598,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-coverage",
@@ -584,7 +610,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "luna-grill-with-docs",
@@ -596,7 +622,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "luna-to-prd",
@@ -608,7 +634,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "luna-to-issues",
@@ -620,7 +646,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "commit",
@@ -632,7 +658,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "code-review",
@@ -644,7 +670,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "backend-specialist",
@@ -656,7 +682,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "frontend-specialist",
@@ -668,7 +694,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "react-architect",
@@ -680,7 +706,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "tailwind-architect",
@@ -692,7 +718,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "shadcn-specialist",
@@ -704,7 +730,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-master",
@@ -716,7 +742,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "diagnose",
@@ -728,7 +754,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "conventional-commits",
@@ -740,7 +766,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-cases",
@@ -752,7 +778,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-backend",
@@ -764,7 +790,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-frontend",
@@ -776,7 +802,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-e2e",
@@ -788,7 +814,7 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     },
     {
       "publicName": "test-coverage",
@@ -800,7 +826,223 @@
         "resolvedMode": "global"
       },
       "firstInstalledAt": "2026-06-17T15:28:32.569Z",
-      "lastUpdatedAt": "2026-06-17T15:30:27.106Z"
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "luna-grill-with-docs",
+      "sourcePath": ".agents/skills/luna-grill-with-docs",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/luna-grill-with-docs",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "luna-to-prd",
+      "sourcePath": ".agents/skills/luna-to-prd",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/luna-to-prd",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "luna-to-issues",
+      "sourcePath": ".agents/skills/luna-to-issues",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/luna-to-issues",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "commit",
+      "sourcePath": ".agents/skills/commit",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/commit",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "code-review",
+      "sourcePath": ".agents/skills/code-review",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/code-review",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "backend-specialist",
+      "sourcePath": ".agents/skills/backend-specialist",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/backend-specialist",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "frontend-specialist",
+      "sourcePath": ".agents/skills/frontend-specialist",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/frontend-specialist",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "react-architect",
+      "sourcePath": ".agents/skills/react-architect",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/react-architect",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "tailwind-architect",
+      "sourcePath": ".agents/skills/tailwind-architect",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/tailwind-architect",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "shadcn-specialist",
+      "sourcePath": ".agents/skills/shadcn-specialist",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/shadcn-specialist",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "test-master",
+      "sourcePath": ".agents/skills/test-master",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/test-master",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "diagnose",
+      "sourcePath": ".agents/skills/diagnose",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/diagnose",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "conventional-commits",
+      "sourcePath": ".agents/skills/conventional-commits",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/conventional-commits",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "test-cases",
+      "sourcePath": ".agents/skills/test-cases",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/test-cases",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "test-backend",
+      "sourcePath": ".agents/skills/test-backend",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/test-backend",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "test-frontend",
+      "sourcePath": ".agents/skills/test-frontend",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/test-frontend",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "test-e2e",
+      "sourcePath": ".agents/skills/test-e2e",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/test-e2e",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
+    },
+    {
+      "publicName": "test-coverage",
+      "sourcePath": ".agents/skills/test-coverage",
+      "target": "claude-global",
+      "installPath": "/home/tiago/.claude/skills/test-coverage",
+      "availability": {
+        "behavior": "mode-dependent-templates",
+        "resolvedMode": "global"
+      },
+      "firstInstalledAt": "2026-06-18T05:00:28.014Z",
+      "lastUpdatedAt": "2026-06-18T05:00:28.014Z"
     }
   ]
 }

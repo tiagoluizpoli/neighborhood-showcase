@@ -12,7 +12,8 @@ Use this file as the thin index of versioned PRDs stored under `.plan/prds/`.
 | HISTORICAL | v4 | Whole-codebase remediation and architecture alignment | `.plan/prds/PRD-v4-whole-codebase-remediation.md` | Root `/PRD.md` inlined Module 4 is the preserved canonical record for v4; the versioned file is the migrated summary copy. | 2026-06-08 |
 | SUPERSEDED | v5 | Panel layout — sidebar and top bar redesign | `.plan/prds/PRD-v5-panel-layout.md` | Root `/PRD.md` inlined Module 23 is the preserved canonical record for v5; the versioned file is the migrated summary copy. | 2026-06-08 |
 | SUPERSEDED | v6 | Panel i18n, navigation hierarchy, moderation condo context | `.plan/prds/PRD-v6-panel-i18n-and-navigation-remediation.md` | Root `/PRD.md` inlined Module 24 is the preserved canonical record for v6; the versioned file is the migrated summary copy. | 2026-06-09 |
-| CURRENT | v7 | Provider section reorg | `.plan/prds/PRD-v7-provider-section-reorg.md` | `.plan/prds/PRD-v7-provider-section-reorg.md` | 2026-06-10 |
+| SUPERSEDED | v7 | Provider section reorg | `.plan/prds/PRD-v7-provider-section-reorg.md` | `.plan/prds/PRD-v7-provider-section-reorg.md` | 2026-06-10 |
+| CURRENT | v8 | Role access and route architecture | `.plan/prds/PRD-v8-role-access-and-route-architecture.md` | `.plan/prds/PRD-v8-role-access-and-route-architecture.md` | 2026-06-18 |
 
 ## Rules
 
