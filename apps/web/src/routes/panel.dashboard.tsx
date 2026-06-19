@@ -1,64 +1,37 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import { getUserAccessProfile } from './panel/-user-access-profile';
-import { trpcClient } from '@/utils/trpc';
 
 export const Route = createFileRoute('/panel/dashboard')({
   beforeLoad: async ({ location, context }) => {
     const session = context.session;
     if (!session?.data) {
-      throw redirect({
-        to: '/',
-      });
+      throw redirect({ to: '/' });
     }
 
-    // Bypass check if already on condo-setup
+    // Legacy condo-setup path is allowed through — it serves as the non-Provider
+    // onboarding surface until T-14-05 moves it outside the Provider namespace.
     if (location.pathname === '/panel/dashboard/condo-setup') {
       return;
     }
 
-    try {
-      if (
-        session.data.user.role === 'SYSTEM_MANAGER' ||
-        session.data.user.role === 'ADMINISTRATOR'
-      ) {
-        return;
-      }
+    const role = session.data.user.role;
 
-      // Check if they created an approved condo
-      const myCondo = await trpcClient.condominium.myCreated.query();
-      if (myCondo && myCondo.status === 'APPROVED') {
-        return;
-      }
-
-      const accessProfile = await getUserAccessProfile();
-
-      if (!accessProfile.providerEnabled) {
-        throw redirect({
-          to: '/panel/dashboard/condo-setup',
-        });
-      }
-    } catch (err) {
-      // Rethrow Redirect objects thrown by TanStack Router
-      if (
-        err &&
-        typeof err === 'object' &&
-        ('to' in err || 'isRedirect' in err)
-      ) {
-        throw err;
-      }
-      console.error('Error fetching condo status in route guard:', err);
-      throw redirect({
-        to: '/panel/dashboard/condo-setup',
-      });
+    if (role === 'SYSTEM_MANAGER' || role === 'ADMINISTRATOR') {
+      throw redirect({ to: '/panel/admin' });
     }
+
+    const accessProfile = await getUserAccessProfile();
+    if (accessProfile.providerEnabled) {
+      throw redirect({ to: '/panel/provider' });
+    }
+
+    // No active section scope — direct to setup onboarding.
+    // Moderator-specific landing refinement is handled by T-14-03.
+    throw redirect({ to: '/panel/dashboard/condo-setup' });
   },
-  component: DashboardLayoutComponent,
+  component: DashboardShimLayout,
 });
 
-function DashboardLayoutComponent() {
-  return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <Outlet />
-    </div>
-  );
+function DashboardShimLayout() {
+  return <Outlet />;
 }

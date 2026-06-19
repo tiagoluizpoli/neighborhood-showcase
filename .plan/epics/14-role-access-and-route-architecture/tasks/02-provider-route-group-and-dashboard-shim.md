@@ -83,7 +83,7 @@ verification:
 
 ### ST-03 - Convert `/panel/dashboard` into redirect-only shim behavior
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
@@ -110,7 +110,7 @@ verification:
 
 ### ST-04 - Add Playwright coverage for Provider route migration and shim semantics
 
-status: ready
+status: in-progress
 model: medium
 escalate-if: []
 blocked-by: []

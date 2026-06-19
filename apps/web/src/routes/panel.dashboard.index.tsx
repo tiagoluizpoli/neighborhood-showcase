@@ -1,24 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { z } from 'zod';
-import { ProviderDashboardRouteFrame } from './panel/-provider-dashboard-route-frame';
-
-const dashboardSearchSchema = z.object({
-  message: z.string().optional(),
-});
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/panel/dashboard/')({
-  validateSearch: (search) => dashboardSearchSchema.parse(search),
-  component: DashboardIndexComponent,
+  beforeLoad: () => {
+    throw redirect({ to: '/panel/dashboard' });
+  },
 });
-
-function DashboardIndexComponent() {
-  const { session } = Route.useRouteContext();
-  const { message } = Route.useSearch();
-
-  return (
-    <ProviderDashboardRouteFrame
-      displayName={session.data?.user.name}
-      message={message}
-    />
-  );
-}

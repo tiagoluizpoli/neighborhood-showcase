@@ -1,9 +1,9 @@
 {
-  "currentRunId": "e-14-t-14-02-st-03",
+  "currentRunId": "e-14-t-14-02-st-04",
   "currentPrdId": "PRD-v8-role-access-and-route-architecture",
   "currentEpicId": "E-14",
   "currentTaskId": "T-14-02",
-  "currentSubTaskId": "ST-03",
+  "currentSubTaskId": "ST-04",
   "attemptCount": 1,
   "retrievalRound": 1,
   "lastModel": "sonnet",
@@ -13,10 +13,9 @@
   "runnerName": "claude",
   "escalateIf": [],
   "filesToTouch": [
-    "apps/web/src/routes/panel.dashboard.tsx",
-    "apps/web/src/routes/dashboard.tsx",
-    "apps/web/src/routes/dashboard.index.tsx",
-    "other touched legacy route shims or entry points"
+    "apps/web/tests/",
+    "relevant snapshot files",
+    "relevant seed/setup files"
   ],
   "lastCommitChanged": false
 }
