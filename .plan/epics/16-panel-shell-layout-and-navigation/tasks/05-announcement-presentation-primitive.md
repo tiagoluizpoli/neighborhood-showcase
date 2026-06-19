@@ -56,7 +56,7 @@ verification:
 
 ### ST-02 - Adopt the primitive in the three surfaces at variant boundaries
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
@@ -77,7 +77,11 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- `ProviderDashboardAnnouncementCard` in `panel/-provider-dashboard-announcement-card.tsx` now delegates to `AnnouncementPresentationPrimitive variant="dashboard-card"`, eliminating the forked status-label/class/button logic. External API unchanged; `onViewAnalytics` callback wrapped to preserve `ProviderDashboardAnnouncementItem` typing.
+- `ProviderAnnouncementDetailPage` in `panel.provider.announcements.$id.tsx` replaces the inline image+header Card with `AnnouncementPresentationPrimitive variant="detail-header"`; the existing `CardContent` (description, tags, contact links, summary) moves to its own `<Card>`. Removed dead `StatusBadge` component and `ShieldCheck` import.
+- `PublicVitrineAnnouncementGrid` in `portal/-public-vitrine-announcement-grid.tsx` replaces direct `<AnnouncementCard>` render with `<AnnouncementPresentationPrimitive variant="public-card">`. Type derivation switched from `ComponentProps<typeof AnnouncementCard>` to direct `AnnouncementCardProps` import.
+- Mock in `-provider-dashboard-announcement-card.test.tsx` extended with `useNavigate` stub to cover the `AnnouncementCard` transitive import chain. All 3 tests 3/3 green; `announcement-card.test.tsx` 10/10.
+- `check-types` and `check` both pass with no errors.
 
 ### ST-03 - Test the primitive at its variant boundaries
 

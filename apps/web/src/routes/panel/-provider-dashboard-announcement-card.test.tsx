@@ -5,6 +5,7 @@ mock.module('@tanstack/react-router', () => ({
     type: 'a',
     props,
   }),
+  useNavigate: () => () => {},
 }));
 
 import type { ProviderDashboardAnnouncementItem } from './-provider-dashboard-types';
