@@ -93,6 +93,42 @@ async function seed() {
     .returning()) as [typeof user.$inferInsert];
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const [providerDisabledUser] = (await db
+    .insert(user)
+    .values({
+      id: 'seed-provider-disabled-id',
+      name: 'Provider Disabled Test',
+      email: 'nonprovider@test.com',
+      emailVerified: true,
+      image: null,
+      role: 'USER',
+      status: 'ACTIVE',
+      cpfHash: 'cpf-hash-provider-disabled',
+      language: 'pt-BR',
+      phone: '+551****9996',
+      theme: 'light',
+    })
+    .returning()) as [typeof user.$inferInsert];
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const [systemManagerUser] = (await db
+    .insert(user)
+    .values({
+      id: 'seed-system-manager-id',
+      name: 'System Manager Test',
+      email: 'system.manager@test.com',
+      emailVerified: true,
+      image: null,
+      role: 'SYSTEM_MANAGER',
+      status: 'ACTIVE',
+      cpfHash: 'cpf-hash-system-manager',
+      language: 'pt-BR',
+      phone: '+551****9996',
+      theme: 'light',
+    })
+    .returning()) as [typeof user.$inferInsert];
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   const [avatarUser] = (await db
     .insert(user)
     .values({
@@ -192,6 +228,28 @@ async function seed() {
     providerId: 'credential',
     providerAccountId: 'moderator@test.com',
     password: moderatorPw,
+  });
+
+  const providerDisabledPw = await hashPassword('Test@1234');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db.insert(account).values as any)({
+    id: 'seed-account-provider-disabled',
+    accountId: 'nonprovider@test.com',
+    userId: providerDisabledUser.id,
+    providerId: 'credential',
+    providerAccountId: 'nonprovider@test.com',
+    password: providerDisabledPw,
+  });
+
+  const systemManagerPw = await hashPassword('Test@1234');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db.insert(account).values as any)({
+    id: 'seed-account-system-manager',
+    accountId: 'system.manager@test.com',
+    userId: systemManagerUser.id,
+    providerId: 'credential',
+    providerAccountId: 'system.manager@test.com',
+    password: systemManagerPw,
   });
 
   const avatarPw = await hashPassword('Test@1234');
@@ -479,7 +537,13 @@ async function seed() {
   ]);
 
   console.log(
-    '✅ Seed complete: provider@test.com, admin@test.com, moderator@test.com, branding@test.com, banned@test.com (password: Test@1234)',
+    '✅ Seed complete: provider@test.com, nonprovider@test.com, moderator@test.com, admin@test.com, system.manager@test.com, branding@test.com, banned@test.com (password: Test@1234)',
+  );
+  console.log(
+    '   Capability states: provider@test.com = Provider-enabled, nonprovider@test.com = Provider-disabled, moderator@test.com = Moderator-only.',
+  );
+  console.log(
+    '   admin@test.com = ADMINISTRATOR, system.manager@test.com = SYSTEM_MANAGER.',
   );
   console.log(
     '   moderator@test.com has APPROVED MODERATOR assignments for 2 condos.',

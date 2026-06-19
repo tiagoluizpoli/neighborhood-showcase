@@ -2,7 +2,7 @@
 type: task
 id: T-14-01
 epic: E-14
-status: in-progress
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -19,8 +19,8 @@ The current codebase still uses broad approved-assignment checks in the panel sh
 
 - [x] One backend-derived Provider-enabled contract exists and is reusable from the highest practical seam.
 - [x] Broad approved-assignment heuristics no longer act as the Provider authorization rule in touched panel navigation and guard code.
-- [ ] Seeded test states exist for Provider-enabled, Provider-disabled, Moderator-only, Administrator, and System Manager scenarios without `test.skip()`.
-- [ ] Verification proves the shared contract is used consistently by backend-facing tests and by the touched frontend/router call sites.
+- [x] Seeded test states exist for Provider-enabled, Provider-disabled, Moderator-only, Administrator, and System Manager scenarios without `test.skip()`.
+- [x] Verification proves the shared contract is used consistently by backend-facing tests and by the touched frontend/router call sites.
 
 ## Sub-Tasks
 
@@ -56,7 +56,7 @@ verification:
 status: done
 model: medium
 escalate-if: []
-blocked-by: [T-14-01]
+blocked-by: []
 
 what-to-do:
 - Replace touched broad approved-assignment checks in panel navigation and route-access call sites with the canonical Provider-enabled decision.
@@ -81,10 +81,10 @@ verification:
 
 ### ST-03 - Seed explicit capability states for execution and E2E
 
-status: ready
+status: done
 model: medium
 escalate-if: []
-blocked-by: [T-14-01]
+blocked-by: []
 
 what-to-do:
 - Add or update test seed/setup flows so Provider-enabled, Provider-disabled, Moderator-only, Administrator, and System Manager scenarios are real executable states.

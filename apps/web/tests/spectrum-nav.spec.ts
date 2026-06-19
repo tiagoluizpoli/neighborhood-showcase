@@ -19,16 +19,8 @@ test.describe('Spectrum Navigation Hierarchy', () => {
   test('Spectrum item is INSIDE the Spectrum group (not root-level) for ADMINISTRATOR', async ({
     page,
   }) => {
-    // NOTE: This test requires an ADMINISTRATOR-seeded user.
-    // Current seed data has no ADMINISTRATOR user. This test will fail until
-    // a seed step creates one (e.g., an admin@ test account with ADMINISTRATOR role).
-    //
-    // Expected seeded credentials when available:
+    // Seeded in apps/server/src/infrastructure/db/seed.ts:
     //   admin@test.com / Test@1234 (role: ADMINISTRATOR)
-    //
-    // Until then, this test is skipped with an explicit reason.
-
-    // Placeholder credentials — replace with real admin account once seeded
     const ADMIN_EMAIL = 'admin@test.com';
     const ADMIN_PASSWORD = 'Test@1234';
 
