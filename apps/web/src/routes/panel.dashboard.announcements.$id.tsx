@@ -17,6 +17,7 @@ import { ProviderDashboardAnalyticsPanel } from './panel/-provider-dashboard-ana
 import { ProviderDashboardEditFormFields } from './panel/-provider-dashboard-edit-form-fields';
 import type { ProviderDashboardAnnouncementItem } from './panel/-provider-dashboard-types';
 import { authClient } from '@/lib/auth-client';
+import { useUserAccessProfile } from '@/routes/panel/-user-access-profile';
 import { trpc } from '@/utils/trpc';
 
 export const Route = createFileRoute('/panel/dashboard/announcements/$id')({
@@ -39,6 +40,7 @@ export function ProviderAnnouncementDetailPage() {
   const categoriesQuery = useQuery(
     trpc.announcement.listCategories.queryOptions(),
   );
+  const accessProfileQuery = useUserAccessProfile();
   const assignmentsQuery = useQuery(
     trpc.assignment.getMyAssignments.queryOptions(),
   );
@@ -66,10 +68,6 @@ export function ProviderAnnouncementDetailPage() {
 
   const { data: session } = authClient.useSession();
 
-  const hasProviderAssignment = assignmentsQuery.data?.some(
-    (a) => a.type === 'RESIDENT' && a.status === 'APPROVED',
-  );
-
   useEffect(() => {
     if (announcement) {
       setForm(createInitialFormState(announcement));
@@ -78,18 +76,13 @@ export function ProviderAnnouncementDetailPage() {
 
   useEffect(() => {
     if (
-      !assignmentsQuery.isLoading &&
-      assignmentsQuery.data &&
-      !hasProviderAssignment
+      !accessProfileQuery.isLoading &&
+      accessProfileQuery.data &&
+      !accessProfileQuery.data.providerEnabled
     ) {
       void navigate({ to: '/panel/account' });
     }
-  }, [
-    assignmentsQuery.isLoading,
-    assignmentsQuery.data,
-    hasProviderAssignment,
-    navigate,
-  ]);
+  }, [accessProfileQuery.data, accessProfileQuery.isLoading, navigate]);
 
   useEffect(() => {
     if (!dashboardQuery.isLoading && dashboardQuery.data && !announcement) {
@@ -121,6 +114,7 @@ export function ProviderAnnouncementDetailPage() {
 
   if (
     !session ||
+    accessProfileQuery.isLoading ||
     assignmentsQuery.isLoading ||
     dashboardQuery.isLoading ||
     !form

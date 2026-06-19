@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { ImageUploadField } from '@/components/image-upload-field';
 import { authClient } from '@/lib/auth-client';
+import { useUserAccessProfile } from '@/routes/panel/-user-access-profile';
 import { trpc } from '@/utils/trpc';
 
 export const Route = createFileRoute('/panel/dashboard/configuration')({
@@ -34,28 +35,19 @@ function ConfigurationPageComponent() {
     trpc.providerProfile.get.queryOptions(),
   );
 
-  // Fetch user's assignments to check provider capability
-  const { data: assignments, isLoading: assignmentsLoading } = useQuery(
-    trpc.assignment.getMyAssignments.queryOptions(),
-  );
-
-  const hasEnabledProviderAssignment = assignments?.some(
-    (a) => a.type === 'RESIDENT' && a.status === 'APPROVED',
-  );
+  const accessProfileQuery = useUserAccessProfile();
 
   // Redirect if no enabled provider assignment
   useEffect(() => {
-    if (!assignmentsLoading && assignments && !hasEnabledProviderAssignment) {
+    if (
+      !accessProfileQuery.isLoading &&
+      accessProfileQuery.data &&
+      !accessProfileQuery.data.providerEnabled
+    ) {
       toast.error(t('toast_error_no_provider_account'));
       navigate({ to: '/panel/account' });
     }
-  }, [
-    assignmentsLoading,
-    assignments,
-    hasEnabledProviderAssignment,
-    navigate,
-    t,
-  ]);
+  }, [accessProfileQuery.data, accessProfileQuery.isLoading, navigate, t]);
 
   // Section 1: Public Profile
   const [displayName, setDisplayName] = useState('');
@@ -183,7 +175,7 @@ function ConfigurationPageComponent() {
     });
   };
 
-  if (isLoading || assignmentsLoading || !session) {
+  if (isLoading || accessProfileQuery.isLoading || !session) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center space-y-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

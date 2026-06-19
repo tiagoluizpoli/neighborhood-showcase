@@ -71,6 +71,7 @@ mock.module('react', () => ({
 // Mutable mock state — set in beforeEach, read by PanelLayout via mocks
 let mockSession: any = null;
 let mockAssignments: any[] = [];
+let mockAccessProfile: any = { providerEnabled: false };
 
 // Mock react-i18next
 mock.module('react-i18next', () => ({
@@ -90,9 +91,27 @@ mock.module('react-i18next', () => ({
 mock.module('@tanstack/react-query', () => ({
   useQuery: (options: any) => {
     if (JSON.stringify(options.queryKey).includes('getMyAssignments')) {
-      return { data: mockAssignments, isPending: false, refetch: () => {} };
+      return {
+        data: mockAssignments,
+        isPending: false,
+        isLoading: false,
+        refetch: () => {},
+      };
     }
-    return { data: undefined, isPending: false, refetch: () => {} };
+    if (JSON.stringify(options.queryKey).includes('getAccessProfile')) {
+      return {
+        data: mockAccessProfile,
+        isPending: false,
+        isLoading: false,
+        refetch: () => {},
+      };
+    }
+    return {
+      data: undefined,
+      isPending: false,
+      isLoading: false,
+      refetch: () => {},
+    };
   },
   useMutation: () => ({
     mutate: () => {},
@@ -239,6 +258,18 @@ mock.module('@/utils/trpc', () => ({
         queryOptions: () => ({ queryKey: ['getMyAssignments'] }),
       },
     },
+    user: {
+      getAccessProfile: {
+        queryOptions: () => ({ queryKey: ['getAccessProfile'] }),
+      },
+    },
+  },
+  trpcClient: {
+    user: {
+      getAccessProfile: {
+        query: async () => mockAccessProfile,
+      },
+    },
   },
 }));
 
@@ -292,6 +323,7 @@ describe('Panel Layout Visibility Tests', () => {
     resetHookState();
     mockSession = null;
     mockAssignments = [];
+    mockAccessProfile = { providerEnabled: false };
     // Import panel module — all mocks are already registered above
     const mod = await import('@/routes/panel');
     Route = mod.Route;
@@ -343,6 +375,7 @@ describe('Panel Layout Visibility Tests', () => {
         status: 'APPROVED',
       },
     ];
+    mockAccessProfile = { providerEnabled: true };
 
     const tree = renderComponent(Route.component);
 

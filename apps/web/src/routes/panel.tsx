@@ -63,6 +63,7 @@ import { CondoSelector } from '@/components/condo-selector';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeCycleToggle } from '@/components/theme-cycle-toggle';
 import { authClient } from '@/lib/auth-client';
+import { useUserAccessProfile } from '@/routes/panel/-user-access-profile';
 import { trpc } from '@/utils/trpc';
 
 // ---------------------------------------------------------------------------
@@ -320,6 +321,7 @@ function PanelLayout() {
   const { session } = Route.useRouteContext();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const accessProfileQuery = useUserAccessProfile();
 
   const { data: assignments } = useQuery(
     trpc.assignment.getMyAssignments.queryOptions(undefined, {
@@ -327,9 +329,7 @@ function PanelLayout() {
     }),
   );
 
-  const hasProviderAssignment = !!assignments?.some(
-    (a) => a.type === 'RESIDENT' && a.status === 'APPROVED',
-  );
+  const providerEnabled = accessProfileQuery.data?.providerEnabled ?? false;
   const hasModeratorRole = !!assignments?.some(
     (a) =>
       a.type === 'MODERATOR' &&
@@ -349,7 +349,7 @@ function PanelLayout() {
   // Sidebar groups — conditions resolved from session/assignments at render time
   // ---------------------------------------------------------------------------
   const sidebarGroups: SidebarGroupConfig[] = [
-    { ...GROUP_PROVEDOR, condition: hasProviderAssignment },
+    { ...GROUP_PROVEDOR, condition: providerEnabled },
     { ...GROUP_MODERACAO, condition: hasModeratorRole },
     { ...GROUP_ADMINISTRACAO, condition: hasSystemManagerRole },
     { ...GROUP_SPECTRUM, condition: isAdministrator },

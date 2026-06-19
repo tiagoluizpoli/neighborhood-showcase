@@ -19,6 +19,7 @@ import {
 } from './panel/-provider-dashboard-formatters';
 import type { ProviderDashboardAnnouncementItem } from './panel/-provider-dashboard-types';
 import { authClient } from '@/lib/auth-client';
+import { useUserAccessProfile } from '@/routes/panel/-user-access-profile';
 import { trpc } from '@/utils/trpc';
 
 export const Route = createFileRoute('/panel/dashboard/announcements/')({
@@ -70,9 +71,7 @@ function ProviderAnnouncementsListPage() {
   const navigate = useNavigate();
   const { data: session } = authClient.useSession();
   const [activeTab, setActiveTab] = useState<AnnouncementTabKey>('active');
-  const { data: assignments, isLoading: isLoadingAssignments } = useQuery(
-    trpc.assignment.getMyAssignments.queryOptions(),
-  );
+  const accessProfileQuery = useUserAccessProfile();
   const dashboardQuery = useQuery(
     trpc.announcement.getDashboardData.queryOptions(),
   );
@@ -90,19 +89,18 @@ function ProviderAnnouncementsListPage() {
     }),
   );
 
-  const hasProviderAssignment = assignments?.some(
-    (assignment) =>
-      assignment.type === 'RESIDENT' && assignment.status === 'APPROVED',
-  );
-
   useEffect(() => {
-    if (!isLoadingAssignments && assignments && !hasProviderAssignment) {
+    if (
+      !accessProfileQuery.isLoading &&
+      accessProfileQuery.data &&
+      !accessProfileQuery.data.providerEnabled
+    ) {
       toast.error(t('meus_anuncios.toast_error_no_provider_account'));
       navigate({ to: '/panel/account' });
     }
-  }, [assignments, hasProviderAssignment, isLoadingAssignments, navigate, t]);
+  }, [accessProfileQuery.data, accessProfileQuery.isLoading, navigate, t]);
 
-  if (!session || isLoadingAssignments || dashboardQuery.isLoading) {
+  if (!session || accessProfileQuery.isLoading || dashboardQuery.isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

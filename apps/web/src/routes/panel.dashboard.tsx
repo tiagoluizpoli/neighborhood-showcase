@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { getUserAccessProfile } from './panel/-user-access-profile';
 import { trpcClient } from '@/utils/trpc';
 
 export const Route = createFileRoute('/panel/dashboard')({
@@ -29,13 +30,9 @@ export const Route = createFileRoute('/panel/dashboard')({
         return;
       }
 
-      // Check if they have an approved assignment
-      const assignments = await trpcClient.assignment.getMyAssignments.query();
-      const hasApprovedAssignment = assignments.some(
-        (a) => a.status === 'APPROVED',
-      );
+      const accessProfile = await getUserAccessProfile();
 
-      if (!hasApprovedAssignment) {
+      if (!accessProfile.providerEnabled) {
         throw redirect({
           to: '/panel/dashboard/condo-setup',
         });

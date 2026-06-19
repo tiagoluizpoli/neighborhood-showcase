@@ -17,8 +17,8 @@ The current codebase still uses broad approved-assignment checks in the panel sh
 
 ## Acceptance Criteria
 
-- [ ] One backend-derived Provider-enabled contract exists and is reusable from the highest practical seam.
-- [ ] Broad approved-assignment heuristics no longer act as the Provider authorization rule in touched panel navigation and guard code.
+- [x] One backend-derived Provider-enabled contract exists and is reusable from the highest practical seam.
+- [x] Broad approved-assignment heuristics no longer act as the Provider authorization rule in touched panel navigation and guard code.
 - [ ] Seeded test states exist for Provider-enabled, Provider-disabled, Moderator-only, Administrator, and System Manager scenarios without `test.skip()`.
 - [ ] Verification proves the shared contract is used consistently by backend-facing tests and by the touched frontend/router call sites.
 
@@ -53,7 +53,7 @@ verification:
 
 ### ST-02 - Replace broad Provider heuristics in touched panel consumers
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: [T-14-01]
