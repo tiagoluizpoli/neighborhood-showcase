@@ -25,9 +25,6 @@ export const Route = createFileRoute('/panel/admin')({
     ) {
       throw redirect({
         to: '/panel/dashboard',
-        search: {
-          message: 'Página não encontrada',
-        },
       });
     }
 

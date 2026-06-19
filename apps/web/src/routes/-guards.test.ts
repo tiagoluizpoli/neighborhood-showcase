@@ -245,9 +245,7 @@ describe('Route Guards Redirection & Security', () => {
         expect(err).toBeDefined();
         const redirectErr = err as RedirectError;
         const dest = redirectErr.to || redirectErr.options?.to;
-        const search = redirectErr.search || redirectErr.options?.search;
         expect(dest).toBe('/panel/dashboard');
-        expect(search).toEqual({ message: 'Página não encontrada' });
       }
     });
 
@@ -337,9 +335,7 @@ describe('Route Guards Redirection & Security', () => {
         expect(err).toBeDefined();
         const redirectErr = err as RedirectError;
         const dest = redirectErr.to || redirectErr.options?.to;
-        const search = redirectErr.search || redirectErr.options?.search;
         expect(dest).toBe('/panel/dashboard');
-        expect(search).toEqual({ message: 'Página não encontrada' });
       }
     });
 

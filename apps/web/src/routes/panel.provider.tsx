@@ -12,7 +12,6 @@ export const Route = createFileRoute('/panel/provider')({
     if (!accessProfile.providerEnabled) {
       throw redirect({
         to: '/panel/dashboard',
-        search: { message: 'Página não encontrada' },
       });
     }
   },

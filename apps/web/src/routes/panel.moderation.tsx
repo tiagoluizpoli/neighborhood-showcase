@@ -36,9 +36,6 @@ export const Route = createFileRoute('/panel/moderation')({
     ) {
       throw redirect({
         to: '/panel/dashboard',
-        search: {
-          message: 'Página não encontrada',
-        },
       });
     }
 
