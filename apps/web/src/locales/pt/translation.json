@@ -440,5 +440,82 @@
         "image_saving": "Salvando..."
       }
     }
+  },
+  "new_announcement": {
+    "title": "Novo Anúncio",
+    "subtitle": "Crie um rascunho da sua oferta e publique para seus vizinhos.",
+    "toast": {
+      "invalid_image": "Por favor, selecione uma imagem válida.",
+      "draft_created": "Rascunho do anúncio criado com sucesso!",
+      "create_error": "Erro ao criar o anúncio.",
+      "select_location": "Por favor, selecione uma localização.",
+      "select_category": "Por favor, selecione uma categoria.",
+      "title_too_short": "O título deve conter pelo menos 3 caracteres.",
+      "description_too_short": "A descrição deve conter pelo menos 10 caracteres.",
+      "contact_required": "Forneça pelo menos um meio de contato (WhatsApp, Instagram ou Website).",
+      "image_required": "A imagem de capa é obrigatória.",
+      "upload_failed": "Falha no upload da imagem recortada.",
+      "upload_or_form_error": "Erro ao realizar upload ou processar o formulário."
+    },
+    "details_card": {
+      "title": "Detalhes do Anúncio",
+      "description": "Insira as informações gerais sobre seu produto ou serviço.",
+      "location": {
+        "label": "Localização",
+        "label_required": "Localização do Anúncio *",
+        "no_approved": "Você não possui nenhuma localização aprovada. Cadastre-se em um condomínio ou registre-se de forma autônoma antes de anunciar.",
+        "placeholder": "Selecione a localização...",
+        "external_prefix": "Atendimento Autônomo",
+        "condo_fallback": "Condomínio"
+      },
+      "category": {
+        "label": "Categoria"
+      },
+      "form": {
+        "title_label": "Título",
+        "title_placeholder": "Ex: Bolos Decorados Artesanais",
+        "subtitle_label": "Subtítulo (opcional)",
+        "subtitle_placeholder": "Ex: Entregas gratuitas às sextas-feiras",
+        "description_label": "Descrição Completa",
+        "description_placeholder": "Descreva seu serviço ou produto em detalhes, incluindo formas de entrega...",
+        "description_min_chars": "Mínimo 10 caracteres",
+        "price_label": "Preço Inicial (opcional)",
+        "price_placeholder": "Ex: R$ 45,00",
+        "tags_label": "Tags / Palavras-chave",
+        "tags_placeholder": "Ex: bolo doce festa caseiro",
+        "tags_hint": "Separe por espaço ou vírgula.",
+        "chars_count": "{{current}}/{{max}} caracteres"
+      }
+    },
+    "contact_card": {
+      "title": "Canais de Contato",
+      "description": "Forneça pelo menos uma opção para os vizinhos entrarem em contato.",
+      "whatsapp_label": "WhatsApp (apenas números com DDD)",
+      "whatsapp_placeholder": "Ex: 11999999999",
+      "instagram_label": "Perfil do Instagram",
+      "instagram_placeholder": "Ex: @seu_negocio",
+      "website_label": "Website / Cardápio Online (link completo)",
+      "website_placeholder": "Ex: https://meusite.com.br"
+    },
+    "image_card": {
+      "title": "Imagem de Capa",
+      "description": "Imagens são obrigatórias e devem possuir a proporção 4:3.",
+      "choose": "Escolher imagem",
+      "format_hint": "PNG, JPG, WEBP de até 5MB",
+      "change": "Trocar imagem"
+    },
+    "trust_card": {
+      "title": "Confiança & Selos",
+      "verified_badge_title": "Selo Morador Verificado",
+      "verified_badge_description": "Exibe um selo para vizinhos de que você realmente mora neste condomínio.",
+      "verified_badge_tooltip": "O selo de morador verificado está disponível apenas para moradores de condomínio aprovados. Acesse a página \"Minha Conta\" para verificar sua residência.",
+      "verified_badge_unavailable": "Indisponível: O selo de morador verificado está disponível apenas para moradores de condomínio aprovados. Acesse a página \"Minha Conta\" para verificar sua residência."
+    },
+    "submit": {
+      "processing": "Processando Imagem...",
+      "saving": "Salvando Rascunho...",
+      "save": "Salvar Rascunho",
+      "cancel": "Cancelar"
+    }
   }
 }

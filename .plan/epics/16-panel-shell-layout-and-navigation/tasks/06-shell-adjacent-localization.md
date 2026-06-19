@@ -3,7 +3,7 @@ type: task
 id: T-16-06
 epic: E-16
 status: in-progress
-blocked-by: [T-16-04]
+blocked-by: []
 default-model: medium
 ---
 
@@ -52,7 +52,7 @@ verification:
 
 ### ST-02 - Localize the New Announcement route copy
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []

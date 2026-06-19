@@ -22,6 +22,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Check, Loader2, Sparkles, UploadCloud } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Cropper, { type Area } from 'react-easy-crop';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { PanelContentContainer } from '@/components/panel-content-container';
 import { getCroppedImg } from '@/utils/crop-image';
@@ -32,6 +33,7 @@ export const Route = createFileRoute('/panel/provider/announcements/new')({
 });
 
 function NewAnnouncementComponent() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -82,7 +84,7 @@ function NewAnnouncementComponent() {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      toast.error('Por favor, selecione uma imagem válida.');
+      toast.error(t('new_announcement.toast.invalid_image'));
       return;
     }
 
@@ -99,11 +101,11 @@ function NewAnnouncementComponent() {
   const createMutation = useMutation(
     trpc.announcement.create.mutationOptions({
       onSuccess: () => {
-        toast.success('Rascunho do anúncio criado com sucesso!');
+        toast.success(t('new_announcement.toast.draft_created'));
         navigate({ to: '/panel/provider' });
       },
       onError: (err) => {
-        toast.error(err.message || 'Erro ao criar o anúncio.');
+        toast.error(err.message || t('new_announcement.toast.create_error'));
       },
     }),
   );
@@ -112,29 +114,27 @@ function NewAnnouncementComponent() {
     e.preventDefault();
 
     if (!selectedLocationId) {
-      toast.error('Por favor, selecione uma localização.');
+      toast.error(t('new_announcement.toast.select_location'));
       return;
     }
     if (!categoryId) {
-      toast.error('Por favor, selecione uma categoria.');
+      toast.error(t('new_announcement.toast.select_category'));
       return;
     }
     if (title.trim().length < 3) {
-      toast.error('O título deve conter pelo menos 3 caracteres.');
+      toast.error(t('new_announcement.toast.title_too_short'));
       return;
     }
     if (description.trim().length < 10) {
-      toast.error('A descrição deve conter pelo menos 10 caracteres.');
+      toast.error(t('new_announcement.toast.description_too_short'));
       return;
     }
     if (!whatsapp.trim() && !instagram.trim() && !website.trim()) {
-      toast.error(
-        'Forneça pelo menos um meio de contato (WhatsApp, Instagram ou Website).',
-      );
+      toast.error(t('new_announcement.toast.contact_required'));
       return;
     }
     if (!imageSrc || !croppedAreaPixels) {
-      toast.error('A imagem de capa é obrigatória.');
+      toast.error(t('new_announcement.toast.image_required'));
       return;
     }
 
@@ -153,7 +153,7 @@ function NewAnnouncementComponent() {
       });
 
       if (!uploadRes.ok) {
-        throw new Error('Falha no upload da imagem recortada.');
+        throw new Error(t('new_announcement.toast.upload_failed'));
       }
 
       const uploadData = await uploadRes.json();
@@ -161,8 +161,8 @@ function NewAnnouncementComponent() {
 
       const tags = tagsStr
         .split(/[,\s]+/)
-        .map((t) => t.trim().toLowerCase())
-        .filter((t) => t.length > 0);
+        .map((tag) => tag.trim().toLowerCase())
+        .filter((tag) => tag.length > 0);
 
       let priceCents: number | null = null;
       if (priceStr.trim()) {
@@ -192,7 +192,7 @@ function NewAnnouncementComponent() {
       const errMessage =
         error instanceof Error
           ? error.message
-          : 'Erro ao realizar upload ou processar o formulário.';
+          : t('new_announcement.toast.upload_or_form_error');
       toast.error(errMessage);
     } finally {
       setIsUploading(false);
@@ -212,10 +212,11 @@ function NewAnnouncementComponent() {
           </Button>
           <div>
             <h1 className="flex items-center gap-2 font-bold text-2xl text-foreground tracking-tight">
-              Novo Anúncio <Sparkles className="h-5 w-5 text-warning" />
+              {t('new_announcement.title')}{' '}
+              <Sparkles className="h-5 w-5 text-warning" />
             </h1>
             <p className="text-muted-foreground text-sm">
-              Crie um rascunho da sua oferta e publique para seus vizinhos.
+              {t('new_announcement.subtitle')}
             </p>
           </div>
         </div>
@@ -227,31 +228,37 @@ function NewAnnouncementComponent() {
           <div className="space-y-6 md:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle>Detalhes do Anúncio</CardTitle>
+                <CardTitle>
+                  {t('new_announcement.details_card.title')}
+                </CardTitle>
                 <CardDescription>
-                  Insira as informações gerais sobre seu produto ou serviço.
+                  {t('new_announcement.details_card.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {isLoadingAssignments ? (
                   <div className="space-y-2">
-                    <Label>Localização</Label>
+                    <Label>
+                      {t('new_announcement.details_card.location.label')}
+                    </Label>
                     <div className="h-10 w-full animate-pulse rounded bg-muted" />
                   </div>
                 ) : approvedLocations.length === 0 ? (
                   <div className="space-y-2">
-                    <Label>Localização</Label>
+                    <Label>
+                      {t('new_announcement.details_card.location.label')}
+                    </Label>
                     <div className="rounded border border-warning/30 bg-warning/10 p-3 text-sm text-warning">
-                      Você não possui nenhuma localização aprovada. Cadastre-se
-                      em um condomínio ou registre-se de forma autônoma antes de
-                      anunciar.
+                      {t('new_announcement.details_card.location.no_approved')}
                     </div>
                   </div>
                 ) : (
                   approvedLocations.length > 1 && (
                     <div className="space-y-2">
                       <Label htmlFor="location-select">
-                        Localização do Anúncio *
+                        {t(
+                          'new_announcement.details_card.location.label_required',
+                        )}
                       </Label>
                       <select
                         id="location-select"
@@ -260,13 +267,15 @@ function NewAnnouncementComponent() {
                         className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 dark:bg-input/30"
                       >
                         <option value="" disabled>
-                          Selecione a localização...
+                          {t(
+                            'new_announcement.details_card.location.placeholder',
+                          )}
                         </option>
                         {approvedLocations.map((a) => (
                           <option key={a.id} value={a.id}>
                             {a.type === 'EXTERNAL'
-                              ? `Atendimento Autônomo (${a.unitInfo ? `${a.unitInfo}, ` : ''}${a.number})`
-                              : `${a.condominium?.name ?? 'Condomínio'} (${a.condominium?.city ?? ''} - ${a.condominium?.state ?? ''})`}
+                              ? `${t('new_announcement.details_card.location.external_prefix')} (${a.unitInfo ? `${a.unitInfo}, ` : ''}${a.number})`
+                              : `${a.condominium?.name ?? t('new_announcement.details_card.location.condo_fallback')} (${a.condominium?.city ?? ''} - ${a.condominium?.state ?? ''})`}
                           </option>
                         ))}
                       </select>
@@ -275,7 +284,9 @@ function NewAnnouncementComponent() {
                 )}
 
                 <div className="space-y-2">
-                  <Label>Categoria</Label>
+                  <Label>
+                    {t('new_announcement.details_card.category.label')}
+                  </Label>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     {backendCategories?.map((cat) => (
                       <Button
@@ -293,29 +304,39 @@ function NewAnnouncementComponent() {
 
                 <div className="space-y-2">
                   <Label htmlFor="title">
-                    Título <span className="text-destructive">*</span>
+                    {t('new_announcement.details_card.form.title_label')}{' '}
+                    <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="title"
                     type="text"
                     maxLength={100}
-                    placeholder="Ex: Bolos Decorados Artesanais"
+                    placeholder={t(
+                      'new_announcement.details_card.form.title_placeholder',
+                    )}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
                   />
                   <div className="flex justify-end text-[10px] text-muted-foreground">
-                    {title.length}/100 caracteres
+                    {t('new_announcement.details_card.form.chars_count', {
+                      current: title.length,
+                      max: 100,
+                    })}
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="subtitle">Subtítulo (opcional)</Label>
+                  <Label htmlFor="subtitle">
+                    {t('new_announcement.details_card.form.subtitle_label')}
+                  </Label>
                   <Input
                     id="subtitle"
                     type="text"
                     maxLength={100}
-                    placeholder="Ex: Entregas gratuitas às sextas-feiras"
+                    placeholder={t(
+                      'new_announcement.details_card.form.subtitle_placeholder',
+                    )}
                     value={subtitle}
                     onChange={(e) => setSubtitle(e.target.value)}
                   />
@@ -323,48 +344,67 @@ function NewAnnouncementComponent() {
 
                 <div className="space-y-2">
                   <Label htmlFor="description">
-                    Descrição Completa{' '}
+                    {t('new_announcement.details_card.form.description_label')}{' '}
                     <span className="text-destructive">*</span>
                   </Label>
                   <Textarea
                     id="description"
                     rows={4}
                     maxLength={2000}
-                    placeholder="Descreva seu serviço ou produto em detalhes, incluindo formas de entrega..."
+                    placeholder={t(
+                      'new_announcement.details_card.form.description_placeholder',
+                    )}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     required
                     className="min-h-[100px]"
                   />
                   <div className="flex justify-between text-[10px] text-muted-foreground">
-                    <span>Mínimo 10 caracteres</span>
-                    <span>{description.length}/2000 caracteres</span>
+                    <span>
+                      {t(
+                        'new_announcement.details_card.form.description_min_chars',
+                      )}
+                    </span>
+                    <span>
+                      {t('new_announcement.details_card.form.chars_count', {
+                        current: description.length,
+                        max: 2000,
+                      })}
+                    </span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="price">Preço Inicial (opcional)</Label>
+                    <Label htmlFor="price">
+                      {t('new_announcement.details_card.form.price_label')}
+                    </Label>
                     <Input
                       id="price"
                       type="text"
-                      placeholder="Ex: R$ 45,00"
+                      placeholder={t(
+                        'new_announcement.details_card.form.price_placeholder',
+                      )}
                       value={priceStr}
                       onChange={(e) => setPriceStr(e.target.value)}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="tags">Tags / Palavras-chave</Label>
+                    <Label htmlFor="tags">
+                      {t('new_announcement.details_card.form.tags_label')}
+                    </Label>
                     <Input
                       id="tags"
                       type="text"
-                      placeholder="Ex: bolo doce festa caseiro"
+                      placeholder={t(
+                        'new_announcement.details_card.form.tags_placeholder',
+                      )}
                       value={tagsStr}
                       onChange={(e) => setTagsStr(e.target.value)}
                     />
                     <p className="text-[10px] text-muted-foreground">
-                      Separe por espaço ou vírgula.
+                      {t('new_announcement.details_card.form.tags_hint')}
                     </p>
                   </div>
                 </div>
@@ -373,32 +413,39 @@ function NewAnnouncementComponent() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Canais de Contato</CardTitle>
+                <CardTitle>
+                  {t('new_announcement.contact_card.title')}
+                </CardTitle>
                 <CardDescription>
-                  Forneça pelo menos uma opção para os vizinhos entrarem em
-                  contato.
+                  {t('new_announcement.contact_card.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="whatsapp">
-                    WhatsApp (apenas números com DDD)
+                    {t('new_announcement.contact_card.whatsapp_label')}
                   </Label>
                   <Input
                     id="whatsapp"
                     type="tel"
-                    placeholder="Ex: 11999999999"
+                    placeholder={t(
+                      'new_announcement.contact_card.whatsapp_placeholder',
+                    )}
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="instagram">Perfil do Instagram</Label>
+                  <Label htmlFor="instagram">
+                    {t('new_announcement.contact_card.instagram_label')}
+                  </Label>
                   <Input
                     id="instagram"
                     type="text"
-                    placeholder="Ex: @seu_negocio"
+                    placeholder={t(
+                      'new_announcement.contact_card.instagram_placeholder',
+                    )}
                     value={instagram}
                     onChange={(e) => setInstagram(e.target.value)}
                   />
@@ -406,12 +453,14 @@ function NewAnnouncementComponent() {
 
                 <div className="space-y-2">
                   <Label htmlFor="website">
-                    Website / Cardápio Online (link completo)
+                    {t('new_announcement.contact_card.website_label')}
                   </Label>
                   <Input
                     id="website"
                     type="url"
-                    placeholder="Ex: https://meusite.com.br"
+                    placeholder={t(
+                      'new_announcement.contact_card.website_placeholder',
+                    )}
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
                   />
@@ -423,9 +472,9 @@ function NewAnnouncementComponent() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Imagem de Capa</CardTitle>
+                <CardTitle>{t('new_announcement.image_card.title')}</CardTitle>
                 <CardDescription>
-                  Imagens são obrigatórias e devem possuir a proporção 4:3.
+                  {t('new_announcement.image_card.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -437,10 +486,10 @@ function NewAnnouncementComponent() {
                   >
                     <UploadCloud className="mb-3 h-10 w-10 text-muted-foreground transition-colors group-hover:text-primary" />
                     <p className="font-semibold text-foreground text-xs">
-                      Escolher imagem
+                      {t('new_announcement.image_card.choose')}
                     </p>
                     <p className="mt-1 text-[10px] text-muted-foreground">
-                      PNG, JPG, WEBP de até 5MB
+                      {t('new_announcement.image_card.format_hint')}
                     </p>
                   </button>
                 ) : (
@@ -489,7 +538,7 @@ function NewAnnouncementComponent() {
                       }}
                       className="w-full"
                     >
-                      Trocar imagem
+                      {t('new_announcement.image_card.change')}
                     </Button>
                   </div>
                 )}
@@ -506,17 +555,18 @@ function NewAnnouncementComponent() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Confiança & Selos</CardTitle>
+                <CardTitle>{t('new_announcement.trust_card.title')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between rounded-lg border border bg-background p-3">
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-1.5 font-semibold text-foreground text-sm">
-                      Selo Morador Verificado
+                      {t('new_announcement.trust_card.verified_badge_title')}
                     </div>
                     <p className="text-muted-foreground text-xs">
-                      Exibe um selo para vizinhos de que você realmente mora
-                      neste condomínio.
+                      {t(
+                        'new_announcement.trust_card.verified_badge_description',
+                      )}
                     </p>
                   </div>
                   <div>
@@ -542,9 +592,9 @@ function NewAnnouncementComponent() {
                             align="center"
                             className="max-w-xs p-2 text-center"
                           >
-                            O selo de morador verificado está disponível apenas
-                            para moradores de condomínio aprovados. Acesse a
-                            página "Minha Conta" para verificar sua residência.
+                            {t(
+                              'new_announcement.trust_card.verified_badge_tooltip',
+                            )}
                           </TooltipContent>
                         )}
                       </Tooltip>
@@ -553,9 +603,9 @@ function NewAnnouncementComponent() {
                 </div>
                 {!canVerify && selectedLocationId && (
                   <p className="mt-2 text-[10px] text-warning">
-                    Indisponível: O selo de morador verificado está disponível
-                    apenas para moradores de condomínio aprovados. Acesse a
-                    página "Minha Conta" para verificar sua residência.
+                    {t(
+                      'new_announcement.trust_card.verified_badge_unavailable',
+                    )}
                   </p>
                 )}
               </CardContent>
@@ -569,17 +619,18 @@ function NewAnnouncementComponent() {
               >
                 {isUploading ? (
                   <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" /> Processando
-                    Imagem...
+                    <Loader2 className="h-4 w-4 animate-spin" />{' '}
+                    {t('new_announcement.submit.processing')}
                   </span>
                 ) : createMutation.isPending ? (
                   <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" /> Salvando
-                    Rascunho...
+                    <Loader2 className="h-4 w-4 animate-spin" />{' '}
+                    {t('new_announcement.submit.saving')}
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    <Check className="h-4 w-4" /> Salvar Rascunho
+                    <Check className="h-4 w-4" />{' '}
+                    {t('new_announcement.submit.save')}
                   </span>
                 )}
               </Button>
@@ -589,7 +640,7 @@ function NewAnnouncementComponent() {
                 onClick={() => navigate({ to: '/panel/provider' })}
                 className="w-full"
               >
-                Cancelar
+                {t('new_announcement.submit.cancel')}
               </Button>
             </div>
           </div>

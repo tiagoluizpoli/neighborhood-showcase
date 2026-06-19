@@ -126,3 +126,14 @@ Completion update (attempt 4, 2026-06-19 — T-16-05/ST-01):
 - Replaced hardcoded "Neighborhood Showcase" and "NS" in panel.tsx with t() calls
 - bun run check and bun run check-types clean
 - ST-02 (new announcement), ST-03 (public provider profile), ST-04 (tests) remain
+
+[2026-06-19] T-16-06/ST-01 signal recovered (was already done in HEAD)
+- Restored ST-01 done status in task file after harness lost completion signal
+
+[2026-06-19] T-16-06/ST-02 DONE
+- Added new_announcement i18n namespace to both en and pt locale files (11 toast keys, full form/card copy)
+- Added useTranslation import and hook to panel.provider.announcements.new.tsx
+- Replaced all hardcoded PT strings: page title/subtitle, all card titles/descriptions, all form labels/placeholders, trust badge copy, submit buttons, validation toasts
+- Renamed t loop variable in tags processing to tag to avoid conflict with i18n t function
+- bun run check and bun run check-types clean
+- ST-03 (public provider profile) and ST-04 (tests) remain

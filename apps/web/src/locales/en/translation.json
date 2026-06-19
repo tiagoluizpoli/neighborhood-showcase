@@ -440,5 +440,82 @@
         "image_saving": "Saving..."
       }
     }
+  },
+  "new_announcement": {
+    "title": "New Announcement",
+    "subtitle": "Create a draft of your offer and publish it to your neighbors.",
+    "toast": {
+      "invalid_image": "Please select a valid image.",
+      "draft_created": "Announcement draft created successfully!",
+      "create_error": "Error creating the announcement.",
+      "select_location": "Please select a location.",
+      "select_category": "Please select a category.",
+      "title_too_short": "Title must contain at least 3 characters.",
+      "description_too_short": "Description must contain at least 10 characters.",
+      "contact_required": "Provide at least one contact method (WhatsApp, Instagram, or Website).",
+      "image_required": "Cover image is required.",
+      "upload_failed": "Failed to upload the cropped image.",
+      "upload_or_form_error": "Error uploading or processing the form."
+    },
+    "details_card": {
+      "title": "Announcement Details",
+      "description": "Enter general information about your product or service.",
+      "location": {
+        "label": "Location",
+        "label_required": "Announcement Location *",
+        "no_approved": "You do not have any approved locations. Register with a condominium or independently before advertising.",
+        "placeholder": "Select a location...",
+        "external_prefix": "Autonomous Service",
+        "condo_fallback": "Condominium"
+      },
+      "category": {
+        "label": "Category"
+      },
+      "form": {
+        "title_label": "Title",
+        "title_placeholder": "Ex: Artisan Decorated Cakes",
+        "subtitle_label": "Subtitle (optional)",
+        "subtitle_placeholder": "Ex: Free deliveries on Fridays",
+        "description_label": "Full Description",
+        "description_placeholder": "Describe your service or product in detail, including delivery options...",
+        "description_min_chars": "Minimum 10 characters",
+        "price_label": "Starting Price (optional)",
+        "price_placeholder": "Ex: 45.00",
+        "tags_label": "Tags / Keywords",
+        "tags_placeholder": "Ex: cake sweet party homemade",
+        "tags_hint": "Separate by space or comma.",
+        "chars_count": "{{current}}/{{max}} characters"
+      }
+    },
+    "contact_card": {
+      "title": "Contact Channels",
+      "description": "Provide at least one option for neighbors to contact you.",
+      "whatsapp_label": "WhatsApp (numbers with area code only)",
+      "whatsapp_placeholder": "Ex: 11999999999",
+      "instagram_label": "Instagram Profile",
+      "instagram_placeholder": "Ex: @your_business",
+      "website_label": "Website / Online Menu (full link)",
+      "website_placeholder": "Ex: https://mysite.com"
+    },
+    "image_card": {
+      "title": "Cover Image",
+      "description": "Images are required and must have a 4:3 ratio.",
+      "choose": "Choose image",
+      "format_hint": "PNG, JPG, WEBP up to 5MB",
+      "change": "Change image"
+    },
+    "trust_card": {
+      "title": "Trust & Badges",
+      "verified_badge_title": "Verified Resident Badge",
+      "verified_badge_description": "Shows a badge to neighbors that you actually live in this condominium.",
+      "verified_badge_tooltip": "The verified resident badge is available only for approved condominium residents. Access the \"My Account\" page to verify your residence.",
+      "verified_badge_unavailable": "Unavailable: The verified resident badge is available only for approved condominium residents. Access the \"My Account\" page to verify your residence."
+    },
+    "submit": {
+      "processing": "Processing Image...",
+      "saving": "Saving Draft...",
+      "save": "Save Draft",
+      "cancel": "Cancel"
+    }
   }
 }
