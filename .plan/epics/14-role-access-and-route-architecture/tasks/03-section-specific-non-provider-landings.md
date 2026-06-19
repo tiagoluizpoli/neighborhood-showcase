@@ -55,7 +55,7 @@ verification:
 
 ### ST-02 - Seed Administrator and System Manager journeys for executable tests
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []

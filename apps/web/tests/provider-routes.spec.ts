@@ -4,6 +4,8 @@ const PASSWORD = 'Test@1234';
 const PROVIDER_EMAIL = 'provider@test.com';
 const MODERATOR_EMAIL = 'moderator@test.com';
 const ADMIN_EMAIL = 'admin@test.com';
+const SYSTEM_MANAGER_EMAIL = 'system.manager@test.com';
+const NON_PROVIDER_EMAIL = 'nonprovider@test.com';
 
 async function signInViaUI(page: Page, email: string) {
   await page.goto('/auth');
@@ -76,10 +78,30 @@ test.describe('/panel/dashboard shim redirect semantics', () => {
     expect(page.url()).toMatch(/\/panel\/admin/);
   });
 
-  test('non-provider visiting /panel/dashboard is redirected to condo-setup', async ({
+  test('system manager visiting /panel/dashboard is redirected to /panel/admin', async ({
+    page,
+  }) => {
+    await signInViaUI(page, SYSTEM_MANAGER_EMAIL);
+    await page.goto('/panel/dashboard');
+
+    await page.waitForURL(/\/panel\/admin/, { timeout: 10_000 });
+    expect(page.url()).toMatch(/\/panel\/admin/);
+  });
+
+  test('moderator visiting /panel/dashboard is redirected to /panel/moderation', async ({
     page,
   }) => {
     await signInViaUI(page, MODERATOR_EMAIL);
+    await page.goto('/panel/dashboard');
+
+    await page.waitForURL(/\/panel\/moderation/, { timeout: 10_000 });
+    expect(page.url()).toMatch(/\/panel\/moderation/);
+  });
+
+  test('non-provider visiting /panel/dashboard is redirected to condo-setup', async ({
+    page,
+  }) => {
+    await signInViaUI(page, NON_PROVIDER_EMAIL);
     await page.goto('/panel/dashboard');
 
     await page.waitForURL(/\/panel\/dashboard\/condo-setup/, {
@@ -102,10 +124,10 @@ test.describe('/panel/dashboard shim redirect semantics', () => {
 // /panel/provider/* direct-URL blocking for non-providers
 // ---------------------------------------------------------------------------
 test.describe('/panel/provider/* direct-URL blocking', () => {
-  test('non-provider visiting /panel/provider is redirected away', async ({
+  test('non-provider visiting /panel/provider is redirected to condo-setup', async ({
     page,
   }) => {
-    await signInViaUI(page, MODERATOR_EMAIL);
+    await signInViaUI(page, NON_PROVIDER_EMAIL);
     await page.goto('/panel/provider');
 
     // Provider group guard → /panel/dashboard → shim → /panel/dashboard/condo-setup
@@ -115,10 +137,23 @@ test.describe('/panel/provider/* direct-URL blocking', () => {
     expect(page.url()).not.toMatch(/\/panel\/provider/);
   });
 
-  test('non-provider visiting /panel/provider/announcements is redirected away', async ({
+  test('moderator visiting /panel/provider is redirected to moderation', async ({
     page,
   }) => {
     await signInViaUI(page, MODERATOR_EMAIL);
+    await page.goto('/panel/provider');
+
+    // Provider group guard → /panel/dashboard → shim → /panel/moderation
+    await page.waitForURL(/\/panel\/moderation/, {
+      timeout: 10_000,
+    });
+    expect(page.url()).not.toMatch(/\/panel\/provider/);
+  });
+
+  test('non-provider visiting /panel/provider/announcements is redirected to condo-setup', async ({
+    page,
+  }) => {
+    await signInViaUI(page, NON_PROVIDER_EMAIL);
     await page.goto('/panel/provider/announcements');
 
     await page.waitForURL(/\/panel\/dashboard\/condo-setup/, {
@@ -127,10 +162,10 @@ test.describe('/panel/provider/* direct-URL blocking', () => {
     expect(page.url()).not.toMatch(/\/panel\/provider/);
   });
 
-  test('non-provider visiting /panel/provider/configuration is redirected away', async ({
+  test('non-provider visiting /panel/provider/configuration is redirected to condo-setup', async ({
     page,
   }) => {
-    await signInViaUI(page, MODERATOR_EMAIL);
+    await signInViaUI(page, NON_PROVIDER_EMAIL);
     await page.goto('/panel/provider/configuration');
 
     await page.waitForURL(/\/panel\/dashboard\/condo-setup/, {

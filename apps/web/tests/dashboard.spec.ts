@@ -4,6 +4,8 @@ const PROVIDER_EMAIL = 'provider@test.com';
 const PROVIDER_PASSWORD = 'Test@1234';
 const MODERATOR_EMAIL = 'moderator@test.com';
 const MODERATOR_PASSWORD = 'Test@1234';
+const NON_PROVIDER_EMAIL = 'nonprovider@test.com';
+const NON_PROVIDER_PASSWORD = 'Test@1234';
 const AVATAR_EMAIL = 'avatar@test.com';
 const AVATAR_PASSWORD = 'Test@1234';
 const DASHBOARD_VIEWPORT = { width: 1280, height: 1024 };
@@ -98,7 +100,7 @@ test.describe('Route guards — non-provider redirect', () => {
   test('visiting /panel/provider/configuration as non-provider is redirected away', async ({
     page,
   }) => {
-    await signInViaUI(page, MODERATOR_EMAIL, MODERATOR_PASSWORD);
+    await signInViaUI(page, NON_PROVIDER_EMAIL, NON_PROVIDER_PASSWORD);
     await page.goto('/panel/provider/configuration');
 
     // Provider group guard rejects non-providers → shim resolves to condo-setup
@@ -110,7 +112,7 @@ test.describe('Route guards — non-provider redirect', () => {
   test('visiting /panel/provider/announcements as non-provider is redirected away', async ({
     page,
   }) => {
-    await signInViaUI(page, MODERATOR_EMAIL, MODERATOR_PASSWORD);
+    await signInViaUI(page, NON_PROVIDER_EMAIL, NON_PROVIDER_PASSWORD);
     await page.goto('/panel/provider/announcements');
 
     // Provider group guard rejects non-providers → shim resolves to condo-setup
