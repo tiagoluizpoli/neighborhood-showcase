@@ -3,18 +3,14 @@
   "currentPrdId": "PRD-v9-panel-shell-layout-and-navigation",
   "currentEpicId": "E-16",
   "currentTaskId": "T-16-02",
-  "currentSubTaskId": "ST-02",
-  "attemptCount": 31,
+  "currentSubTaskId": "ST-03",
+  "attemptCount": 0,
   "retrievalRound": 0,
   "lastModel": "Gemini 3.5 Flash (Low)",
   "escalated": false,
   "requiredModel": "medium",
   "runnerName": "agy",
   "escalateIf": [],
-  "filesToTouch": [
-    "apps/web/src/routes/panel.provider.announcements.new.tsx",
-    "apps/web/src/routes/panel.provider.announcements.$id.tsx",
-    "other touched provider form route consumers"
-  ],
-  "lastCommitChanged": true
+  "filesToTouch": ["apps/web/src/routes/"],
+  "lastCommitChanged": false
 }
