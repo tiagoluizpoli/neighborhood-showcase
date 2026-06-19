@@ -39,3 +39,14 @@ In-progress update (attempt 2, 2026-06-19T18:25:30-03:00):
 - Re-read `.plan/RULES.md`, `agents.local.md`, `.plan/PRD.md`, `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md`, `.plan/index.md`, the E-16 epic, and the T-16-04 task in the required order.
 - Confirmed the runtime contract remains T-16-04 / ST-01 only, medium tier, touching `apps/web/src/routes/panel.tsx`.
 - Re-ran `.plan/helper-scripts/runtime-state.sh prepare-attempt ...` and inspected the previously-worked shell/history surfaces before editing `panel.tsx`.
+
+Completion update (attempt 3, 2026-06-19T18:44:51-03:00):
+- Confirmed the ST-01 implementation already landed in `apps/web/src/routes/panel.tsx` via `feat(web): strengthen panel sidebar header chrome`, and verified the shell still derives sidebar-header context from the active route plus moderation condo context from `mod_ctx__cndo`.
+- Marked `T-16-04/ST-01` done again after the no-completion-signal retry reopened only the planning state, then re-synchronized the task/run-state surface.
+- Re-verified the task-scoped gates for this sub-task without widening scope to ST-02/ST-03.
+
+Verification:
+- `bun run check-types` ✓
+- `bun run check` ✓ (existing repo-wide warnings only; no ST-01-scoped failures)
+
+<promise>100% Complete</promise>
