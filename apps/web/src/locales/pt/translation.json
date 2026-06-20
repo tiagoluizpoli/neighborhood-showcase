@@ -35,7 +35,8 @@
       "providers": "Providers",
       "condominios": "Condomínios",
       "spectrum": "Spectrum",
-      "condominium_info": "Informações do Condomínio"
+      "condominium_info": "Informações do Condomínio",
+      "denuncias": "Denúncias"
     },
     "badge": {
       "pending_announcements": "anúncios pendentes",
@@ -87,6 +88,24 @@
   "moderation": {
     "title": "Painel de Moderação",
     "subtitle": "Moderação de moradores e anúncios do condomínio",
+    "active_condo": "Condomínio ativo",
+    "no_condo_selected": "Nenhum condomínio selecionado.",
+    "approve_success": "Morador aprovado com sucesso!",
+    "approve_error": "Erro ao aprovar morador.",
+    "reject_success": "Morador rejeitado com sucesso!",
+    "reject_error": "Erro ao rejeitar morador.",
+    "dismiss_error": "Erro ao arquivar denúncias.",
+    "suspend_error": "Erro ao suspender anúncio.",
+    "reinstate_success": "Anúncio reabilitado com sucesso!",
+    "reinstate_error": "Erro ao reabilitar anúncio.",
+    "ban_error": "Erro ao banir prestador.",
+    "condo": {
+      "city_state_cep": "Cidade / Estado / CEP",
+      "status": "Status",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "website": "Website"
+    },
     "tab_residents": "Moradores Pendentes",
     "tab_announcements": "Anúncios do Condomínio",
     "tab_reports": "Fila de Denúncias",
@@ -443,7 +462,10 @@
   },
   "provider_profile": {
     "loading": "Carregando perfil do prestador...",
-    "back_to_showcase": "Voltar para a vitrine"
+    "back_to_showcase": "Voltar para a vitrine",
+    "not_found_title": "Prestador não encontrado",
+    "not_found_description": "O prestador solicitado não foi encontrado.",
+    "back_home": "Voltar para o início"
   },
   "new_announcement": {
     "title": "Novo Anúncio",

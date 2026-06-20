@@ -172,14 +172,13 @@ function ProviderPublicProfileComponent() {
           <ChevronLeft className="h-6 w-6 rotate-180" />
         </div>
         <h2 className="font-bold text-foreground text-xl">
-          Prestador não encontrado
+          {t('provider_profile.not_found_title')}
         </h2>
         <p className="max-w-xl text-muted-foreground text-sm">
-          O prestador solicitado não existe, foi banido ou teve sua conta
-          removida de acordo com a LGPD.
+          {t('provider_profile.not_found_description')}
         </p>
         <Link to="/">
-          <Button>Voltar para o início</Button>
+          <Button>{t('provider_profile.back_home')}</Button>
         </Link>
       </div>
     );

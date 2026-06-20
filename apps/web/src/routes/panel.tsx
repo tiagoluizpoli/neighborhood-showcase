@@ -32,6 +32,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarProvider,
   SidebarRail,
   SidebarTrigger,
@@ -63,6 +64,7 @@ import { CondoSelector } from '@/components/condo-selector';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeCycleToggle } from '@/components/theme-cycle-toggle';
 import { authClient } from '@/lib/auth-client';
+import { useModerationCondoId } from '@/lib/moderation-condo-context';
 import { useUserAccessProfile } from '@/routes/panel/-user-access-profile';
 import { trpc } from '@/utils/trpc';
 
@@ -71,7 +73,6 @@ import { trpc } from '@/utils/trpc';
 // ---------------------------------------------------------------------------
 
 const STORAGE_KEY_PREFIX = 'sb_grp:';
-const MODERATION_CONTEXT_STORAGE_KEY = 'mod_ctx__cndo';
 
 function readGroupOpen(groupKey: string, defaultOpen: boolean): boolean {
   try {
@@ -163,6 +164,11 @@ const GROUP_MODERACAO: SidebarGroupConfig = {
       i18nKey: 'sidebar.item.moradores',
       icon: Users,
       href: '/panel/moderation/residents',
+    },
+    {
+      i18nKey: 'sidebar.item.denuncias',
+      icon: ShieldAlert,
+      href: '/panel/moderation/reports',
     },
   ],
 };
@@ -324,10 +330,12 @@ function SidebarGroupSection({ group }: { group: SidebarGroupConfig }) {
           {t(group.i18nGroupKey)}
         </SidebarGroupLabel>
         <SidebarGroupContent>
-          {group.leadItem}
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuSub>
+                {group.leadItem && (
+                  <SidebarMenuSubItem>{group.leadItem}</SidebarMenuSubItem>
+                )}
                 {group.items.map((item) => (
                   <SidebarMenuSubButton
                     key={item.i18nKey}
@@ -373,10 +381,12 @@ function SidebarGroupSection({ group }: { group: SidebarGroupConfig }) {
           keepMounted
           render={
             <SidebarGroupContent>
-              {group.leadItem}
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuSub>
+                    {group.leadItem && (
+                      <SidebarMenuSubItem>{group.leadItem}</SidebarMenuSubItem>
+                    )}
                     {group.items.map((item) => (
                       <SidebarMenuSubButton
                         key={item.i18nKey}
@@ -415,6 +425,7 @@ function PanelLayout() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const accessProfileQuery = useUserAccessProfile();
+  const storedModerationCondoId = useModerationCondoId();
 
   const { data: assignments } = useQuery(
     trpc.assignment.getMyAssignments.queryOptions(undefined, {
@@ -463,12 +474,10 @@ function PanelLayout() {
   const moderationContextName =
     pathname.startsWith('/panel/moderation') && moderatorAssignments.length > 0
       ? (() => {
-          const storedCondominiumId = localStorage.getItem(
-            MODERATION_CONTEXT_STORAGE_KEY,
-          );
           const selectedAssignment =
             moderatorAssignments.find(
-              (assignment) => assignment.condominiumId === storedCondominiumId,
+              (assignment) =>
+                assignment.condominiumId === storedModerationCondoId,
             ) ?? moderatorAssignments[0];
           return (
             selectedAssignment.condominium?.name ??

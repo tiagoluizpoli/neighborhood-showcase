@@ -35,7 +35,8 @@
       "providers": "Providers",
       "condominios": "Condominiums",
       "spectrum": "Spectrum",
-      "condominium_info": "Condominium Info"
+      "condominium_info": "Condominium Info",
+      "denuncias": "Reports"
     },
     "badge": {
       "pending_announcements": "pending announcements",
@@ -87,6 +88,24 @@
   "moderation": {
     "title": "Moderation Dashboard",
     "subtitle": "Moderate residents and condominium announcements",
+    "active_condo": "Active condo",
+    "no_condo_selected": "No condominium selected.",
+    "approve_success": "Resident approved successfully!",
+    "approve_error": "Failed to approve resident.",
+    "reject_success": "Resident rejected successfully!",
+    "reject_error": "Failed to reject resident.",
+    "dismiss_error": "Failed to dismiss reports.",
+    "suspend_error": "Failed to suspend announcement.",
+    "reinstate_success": "Announcement reinstated successfully!",
+    "reinstate_error": "Failed to reinstate announcement.",
+    "ban_error": "Failed to ban provider.",
+    "condo": {
+      "city_state_cep": "City / State / ZIP",
+      "status": "Status",
+      "email": "Email",
+      "phone": "Phone",
+      "website": "Website"
+    },
     "tab_residents": "Pending Residents",
     "tab_announcements": "Condo Announcements",
     "tab_reports": "Reports Queue",
@@ -443,7 +462,10 @@
   },
   "provider_profile": {
     "loading": "Loading provider profile...",
-    "back_to_showcase": "Back to showcase"
+    "back_to_showcase": "Back to showcase",
+    "not_found_title": "Provider not found",
+    "not_found_description": "The requested provider could not be found.",
+    "back_home": "Back to home"
   },
   "new_announcement": {
     "title": "New Announcement",

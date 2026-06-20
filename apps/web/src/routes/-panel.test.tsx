@@ -45,6 +45,7 @@ const renderComponent = (Component: () => any) => {
 // Mock react
 mock.module('react', () => ({
   ...RealReact,
+  useSyncExternalStore: (_subscribe: any, getSnapshot: any) => getSnapshot(),
   useCallback: (fn: any, _deps: any[]) => fn,
   useEffect: (callback: () => void, _deps: any[]) => {
     activeEffects.push(callback);
@@ -134,6 +135,8 @@ mock.module('@tanstack/react-query', () => ({
 // Mock lucide-react icons used in sidebar
 mock.module('lucide-react', () => ({
   ChevronDown: () => 'ChevronDown',
+  ChevronsUpDown: () => 'ChevronsUpDown',
+  Check: () => 'Check',
   LayoutDashboard: () => 'LayoutDashboard',
   Settings: () => 'Settings',
   ShieldAlert: () => 'ShieldAlert',
@@ -163,6 +166,7 @@ mock.module('@neighborhood-showcase/ui/components/sidebar', () => ({
   SidebarMenuButton: (props: any) => (props.render ? props.render : null),
   SidebarMenuItem: ({ children }: any) => children,
   SidebarMenuSub: ({ children }: any) => children,
+  SidebarMenuSubItem: ({ children }: any) => children,
   SidebarMenuSubButton: (props: any) => (props.render ? props.render : null),
   SidebarRail: () => null,
   SidebarTrigger: () => 'SidebarTrigger',

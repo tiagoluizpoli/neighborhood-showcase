@@ -249,7 +249,7 @@ describe('Route Guards Redirection & Security', () => {
       }
     });
 
-    test('allows moderator with approved assignment access to moderation page', async () => {
+    test('allows moderator with approved assignment, exposing the moderator context', async () => {
       mockGetSession.mockImplementation(() =>
         Promise.resolve({
           data: {
