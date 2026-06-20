@@ -41,7 +41,6 @@ describe('GetPublicAnnouncement use case', () => {
       providerId,
       displayName: 'Provider Profile Brand',
       avatarUrl: 'https://example.com/provider-profile-avatar.png',
-      socialLinks: {},
       isProviderVisible: true,
     });
 
@@ -66,7 +65,8 @@ describe('GetPublicAnnouncement use case', () => {
         imageUrl: 'https://example.com/public.png',
         categoryId: 'cat-servicos',
         tags: ['cleaning'],
-        contactLinks: { whatsapp: '5511999999999' },
+        contactMode: 'custom' as const,
+        contactCustom: { primaryPhone: '5511999999999', callEnabled: false },
         showVerifiedBadge: true,
         status: 'ACTIVE',
       },

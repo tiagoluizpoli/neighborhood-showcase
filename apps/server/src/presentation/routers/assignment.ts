@@ -18,11 +18,7 @@ const checkModerator = async (
     userId,
     condominiumId,
   );
-  if (
-    !existing ||
-    existing.type !== 'MODERATOR' ||
-    existing.status !== 'APPROVED'
-  ) {
+  if (existing?.type !== 'MODERATOR' || existing.status !== 'APPROVED') {
     throw new TRPCError({
       code: 'FORBIDDEN',
       message:

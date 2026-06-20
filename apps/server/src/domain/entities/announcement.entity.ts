@@ -1,5 +1,10 @@
 import { AuditableEntity, type AuditableProps } from '../../shared/base-entity';
 import { DomainError } from '../../shared/domain-error';
+import {
+  type AnnouncementContactSettings,
+  hasWhatsappBaseline,
+  WhatsappBaselineRequiredError,
+} from './contact';
 
 export type AnnouncementStatus =
   | 'DRAFT'
@@ -24,14 +29,6 @@ export class AnnouncementImageRequiredError extends DomainError {
   }
 }
 
-export class AnnouncementContactRequiredError extends DomainError {
-  constructor() {
-    super(
-      'Forneça pelo menos um meio de contato (WhatsApp, Instagram ou Website).',
-    );
-  }
-}
-
 export interface AnnouncementProps extends AuditableProps {
   providerId: string;
   condominiumId: string | null;
@@ -43,15 +40,7 @@ export interface AnnouncementProps extends AuditableProps {
   imageUrl: string;
   categoryId: string;
   tags: string[];
-  contactLinks: {
-    whatsapp?: string;
-    phone?: string;
-    email?: string;
-    instagram?: string;
-    tiktok?: string;
-    facebook?: string;
-    website?: string;
-  };
+  contact: AnnouncementContactSettings;
   showVerifiedBadge: boolean;
   flaggedForReview: boolean;
   status: AnnouncementStatus;
@@ -73,7 +62,7 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
       description: this.props.description,
       categoryId: this.props.categoryId,
       imageUrl: this.props.imageUrl,
-      contactLinks: this.props.contactLinks,
+      contact: this.props.contact,
     });
   }
 
@@ -82,15 +71,7 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
     description: string;
     categoryId: string;
     imageUrl: string;
-    contactLinks: {
-      whatsapp?: string;
-      phone?: string;
-      email?: string;
-      instagram?: string;
-      tiktok?: string;
-      facebook?: string;
-      website?: string;
-    };
+    contact: AnnouncementContactSettings;
   }): void {
     if (!input.title || input.title.trim().length < 3) {
       throw new InvalidAnnouncementTitleError(
@@ -119,18 +100,17 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
       throw new AnnouncementImageRequiredError();
     }
 
-    const { whatsapp, phone, email, instagram, tiktok, facebook, website } =
-      input.contactLinks;
-    if (
-      !whatsapp?.trim() &&
-      !phone?.trim() &&
-      !email?.trim() &&
-      !instagram?.trim() &&
-      !tiktok?.trim() &&
-      !facebook?.trim() &&
-      !website?.trim()
-    ) {
-      throw new AnnouncementContactRequiredError();
+    Announcement.validateContact(input.contact);
+  }
+
+  // WhatsApp is the locked publishable baseline. A custom announcement must
+  // carry a valid number itself; an inherited one resolves against provider
+  // defaults at publish/render time (enforced where defaults are available).
+  private static validateContact(contact: AnnouncementContactSettings): void {
+    if (contact.mode === 'custom') {
+      if (!contact.custom || !hasWhatsappBaseline(contact.custom)) {
+        throw new WhatsappBaselineRequiredError();
+      }
     }
   }
 
@@ -174,16 +154,8 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
     return this.props.tags;
   }
 
-  get contactLinks(): {
-    whatsapp?: string;
-    phone?: string;
-    email?: string;
-    instagram?: string;
-    tiktok?: string;
-    facebook?: string;
-    website?: string;
-  } {
-    return this.props.contactLinks;
+  get contact(): AnnouncementContactSettings {
+    return this.props.contact;
   }
 
   get showVerifiedBadge(): boolean {

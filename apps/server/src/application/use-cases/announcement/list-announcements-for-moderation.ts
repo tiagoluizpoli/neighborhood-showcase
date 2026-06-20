@@ -31,7 +31,7 @@ export class ListAnnouncementsForModeration {
         'MODERATOR',
       );
 
-    if (!moderatorAssignment || moderatorAssignment.status !== 'APPROVED') {
+    if (moderatorAssignment?.status !== 'APPROVED') {
       throw new ModerationAccessDeniedError();
     }
 

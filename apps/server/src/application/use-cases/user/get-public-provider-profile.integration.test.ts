@@ -54,10 +54,8 @@ describe('GetPublicProviderProfile use case', () => {
       providerId,
       displayName: 'Provider Branding Name',
       avatarUrl: 'https://cdn.example.com/provider-avatar.jpg',
-      socialLinks: {
-        whatsapp: '5511999999999',
-        instagram: 'provider-branding',
-      },
+      primaryPhone: '5511999999999',
+      contactMetadata: { instagram: 'provider-branding' },
       isProviderVisible: true,
     });
 
@@ -88,9 +86,8 @@ describe('GetPublicProviderProfile use case', () => {
       description: 'Atendimento rápido e confiável',
       imageUrl: 'https://cdn.example.com/encanador.jpg',
       categoryId,
-      contactLinks: {
-        whatsapp: '5511999999999',
-      },
+      contactMode: 'custom' as const,
+      contactCustom: { primaryPhone: '5511999999999', callEnabled: false },
       showVerifiedBadge: true,
       status: 'ACTIVE',
     });
@@ -145,10 +142,8 @@ describe('GetPublicProviderProfile use case', () => {
       providerId,
       displayName: 'Provider Branding Name',
       avatarUrl: 'https://cdn.example.com/provider-avatar.jpg',
-      socialLinks: {
-        whatsapp: '5511999999999',
-        instagram: 'provider-branding',
-      },
+      primaryPhone: '5511999999999',
+      contactMetadata: { instagram: 'provider-branding' },
       isProviderVisible: true,
     });
   });

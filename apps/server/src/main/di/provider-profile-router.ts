@@ -3,32 +3,12 @@ import {
   UpdateProviderProfile,
   type UpdateProviderProfileInput,
 } from '../../application/use-cases/provider-profile/update-provider-profile';
+import type { ProviderProfile } from '../../domain/entities/provider-profile.entity';
 import { ProviderProfileRepositoryImpl } from '../../infrastructure/db/provider-profile-repository';
 
 export interface ProviderProfileRouterDependencies {
   getProviderProfileUseCase: {
-    execute(input: { providerId: string }): Promise<{
-      id: string;
-      displayName: string;
-      avatarUrl: string | null | undefined;
-      companyName: string | null | undefined;
-      tradeName: string | null | undefined;
-      logoUrl: string | null | undefined;
-      bannerUrl: string | null | undefined;
-      publicDescription: string | null | undefined;
-      socialLinks: {
-        whatsapp?: string;
-        phone?: string;
-        email?: string;
-        instagram?: string;
-        tiktok?: string;
-        facebook?: string;
-        website?: string;
-      };
-      isProviderVisible: boolean;
-      createdAt: Date;
-      updatedAt: Date;
-    }>;
+    execute(input: { providerId: string }): Promise<ProviderProfile>;
   };
   updateProviderProfileUseCase: {
     execute(input: UpdateProviderProfileInput): Promise<void>;

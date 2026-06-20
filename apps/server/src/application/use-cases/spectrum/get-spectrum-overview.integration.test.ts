@@ -52,7 +52,6 @@ describe('GetSpectrumOverview use case', () => {
     await db.insert(providerProfile).values({
       providerId: 'spectrum-test-provider-1',
       displayName: 'Provider One',
-      socialLinks: {},
       isProviderVisible: true,
     });
 
@@ -65,7 +64,8 @@ describe('GetSpectrumOverview use case', () => {
       imageUrl: 'https://example.com/image1.jpg',
       categoryId: 'spectrum-test-category',
       tags: [],
-      contactLinks: { whatsapp: '11999999999' },
+      contactMode: 'custom' as const,
+      contactCustom: { primaryPhone: '11999999999', callEnabled: false },
       showVerifiedBadge: false,
       flaggedForReview: false,
       status: 'ACTIVE',

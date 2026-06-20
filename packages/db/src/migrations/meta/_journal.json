@@ -5,64 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1780403281682,
-      "tag": "0000_optimal_stark_industries",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1780456700845,
-      "tag": "0001_normal_rocket_racer",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1780458072087,
-      "tag": "0002_neat_dragon_lord",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1780502679962,
-      "tag": "0003_fair_emma_frost",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1780508813775,
-      "tag": "0004_cuddly_nick_fury",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1780537427919,
-      "tag": "0005_rainy_sir_ram",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1780595235960,
-      "tag": "0006_silly_christian_walker",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1780674000000,
-      "tag": "0007_silent_micromax",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1781135912347,
-      "tag": "0008_brainy_steve_rogers",
+      "when": 1781991664648,
+      "tag": "0000_dusty_norrin_radd",
       "breakpoints": true
     }
   ]

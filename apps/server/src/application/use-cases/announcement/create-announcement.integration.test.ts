@@ -85,9 +85,9 @@ describe('Create Announcement Integration Test', () => {
       imageUrl: 'http://localhost:9000/showcase/cake.jpg',
       categoryId: 'cat-alimentacao',
       tags: ['bolo', 'doce', 'artesanal'],
-      contactLinks: {
-        whatsapp: '5511999999999',
-        instagram: '@cake_palace',
+      contact: {
+        mode: 'custom',
+        custom: { primaryPhone: '5511999999999', callEnabled: false },
       },
       showVerifiedBadge: true,
     });
@@ -125,7 +125,10 @@ describe('Create Announcement Integration Test', () => {
         imageUrl: 'http://localhost:9000/showcase/cake.jpg',
         categoryId: 'cat-alimentacao',
         tags: [],
-        contactLinks: { whatsapp: '5511999999999' },
+        contact: {
+          mode: 'custom',
+          custom: { primaryPhone: '5511999999999', callEnabled: false },
+        },
         showVerifiedBadge: false,
       }),
     ).rejects.toThrow(
@@ -154,7 +157,10 @@ describe('Create Announcement Integration Test', () => {
         imageUrl: 'http://localhost:9000/showcase/cake.jpg',
         categoryId: 'cat-alimentacao',
         tags: [],
-        contactLinks: { whatsapp: '5511999999999' },
+        contact: {
+          mode: 'custom',
+          custom: { primaryPhone: '5511999999999', callEnabled: false },
+        },
         showVerifiedBadge: false,
       }),
     ).rejects.toThrow(
@@ -184,7 +190,10 @@ describe('Create Announcement Integration Test', () => {
         imageUrl: 'http://localhost:9000/showcase/cake.jpg',
         categoryId: 'cat-alimentacao',
         tags: [],
-        contactLinks: { whatsapp: '5511999999999' },
+        contact: {
+          mode: 'custom',
+          custom: { primaryPhone: '5511999999999', callEnabled: false },
+        },
         showVerifiedBadge: false,
       }),
     ).rejects.toThrow('O título do anúncio deve ter pelo menos 3 caracteres.');
@@ -224,7 +233,8 @@ describe('Create Announcement Integration Test', () => {
         imageUrl: 'http://localhost:9000/showcase/pizza.jpg',
         categoryId: 'cat-alimentacao',
         tags: [],
-        contactLinks: { whatsapp: '5511999999999' },
+        contactMode: 'custom' as const,
+        contactCustom: { primaryPhone: '5511999999999', callEnabled: false },
         showVerifiedBadge: false,
         status: 'DRAFT',
       });

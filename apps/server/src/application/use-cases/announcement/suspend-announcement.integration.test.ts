@@ -111,7 +111,8 @@ describe('Suspend and Reinstate Announcement Integration Test', () => {
       imageUrl: 'https://example.com/img.png',
       categoryId: 'cat-servicos',
       tags: [],
-      contactLinks: { whatsapp: '5511999999999' },
+      contactMode: 'custom' as const,
+      contactCustom: { primaryPhone: '5511999999999', callEnabled: false },
       status: 'ACTIVE',
       flaggedForReview: false,
     });

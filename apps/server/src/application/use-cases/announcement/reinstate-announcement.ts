@@ -63,7 +63,7 @@ export class ReinstateAnnouncement {
         'MODERATOR',
       );
 
-      if (!assignment || assignment.status !== 'APPROVED') {
+      if (assignment?.status !== 'APPROVED') {
         throw new ReinstateAnnouncementAccessDeniedError();
       }
     }

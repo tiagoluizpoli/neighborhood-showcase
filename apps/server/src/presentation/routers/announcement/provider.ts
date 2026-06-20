@@ -12,6 +12,10 @@ import {
   AnnouncementAccessDeniedError,
   PaymentNotFoundError,
 } from '../../../application/use-cases/payment/get-payment-status';
+import {
+  type AnnouncementContactSettings,
+  normalizePhone,
+} from '../../../domain/entities/contact';
 import type { AnnouncementRouterDependencies } from '../../../main/di/announcement-router';
 import { protectedProcedure } from '../../trpc';
 
@@ -24,6 +28,23 @@ const providerContactLinksSchema = z.object({
   facebook: z.string().optional(),
   website: z.string().optional(),
 });
+
+// Transitional adapter (T-17-01): the create/edit web forms still submit the
+// flat contactLinks shape. Map it onto the canonical custom contact contract.
+// Structured authoring + inherit mode arrive in T-17-02/03.
+function toContactSettings(links: {
+  whatsapp?: string;
+  phone?: string;
+}): AnnouncementContactSettings {
+  const primaryPhone = normalizePhone(links.whatsapp ?? links.phone ?? '');
+  return {
+    mode: 'custom',
+    custom: {
+      primaryPhone,
+      callEnabled: Boolean(links.phone?.trim()),
+    },
+  };
+}
 
 export function createProviderAnnouncementRouter(
   dependencies: AnnouncementRouterDependencies,
@@ -64,7 +85,7 @@ export function createProviderAnnouncementRouter(
           imageUrl: input.imageUrl,
           categoryId: input.categoryId,
           tags: input.tags,
-          contactLinks: input.contactLinks,
+          contact: toContactSettings(input.contactLinks),
           showVerifiedBadge: input.showVerifiedBadge,
         });
 
@@ -187,7 +208,7 @@ export function createProviderAnnouncementRouter(
             imageUrl: input.imageUrl,
             categoryId: input.categoryId,
             tags: input.tags,
-            contactLinks: input.contactLinks,
+            contact: toContactSettings(input.contactLinks),
             showVerifiedBadge: input.showVerifiedBadge,
           });
 

@@ -1,6 +1,8 @@
 import type { announcement as announcementSchema } from '@neighborhood-showcase/db/schema/showcase';
 import { Announcement } from '../../../domain/entities/announcement.entity';
+import type { AnnouncementContactSettings } from '../../../domain/entities/contact';
 import type { EntityMapper } from '../../../domain/mapper';
+import { rowToContactSettings } from './announcement-contact';
 
 type AnnouncementSchemaSelect = typeof announcementSchema.$inferSelect;
 type AnnouncementSchemaInsert = typeof announcementSchema.$inferInsert;
@@ -14,20 +16,6 @@ export class AnnouncementMapper
     >
 {
   toDomain(raw: AnnouncementSchemaSelect): Announcement {
-    // Supply a fallback contact link if the database contains empty links (e.g., from raw test seeds)
-    const hasContact =
-      raw.contactLinks &&
-      (raw.contactLinks.whatsapp ||
-        raw.contactLinks.phone ||
-        raw.contactLinks.email ||
-        raw.contactLinks.instagram ||
-        raw.contactLinks.tiktok ||
-        raw.contactLinks.facebook ||
-        raw.contactLinks.website);
-    const contactLinks = hasContact
-      ? raw.contactLinks
-      : { whatsapp: '0000000000' };
-
     return new Announcement(
       {
         providerId: raw.providerId,
@@ -40,15 +28,10 @@ export class AnnouncementMapper
         imageUrl: raw.imageUrl,
         categoryId: raw.categoryId,
         tags: raw.tags,
-        contactLinks: contactLinks as {
-          whatsapp?: string;
-          phone?: string;
-          email?: string;
-          instagram?: string;
-          tiktok?: string;
-          facebook?: string;
-          website?: string;
-        },
+        contact: rowToContactSettings({
+          mode: raw.contactMode,
+          custom: raw.contactCustom ?? null,
+        }),
         showVerifiedBadge: raw.showVerifiedBadge,
         flaggedForReview: raw.flaggedForReview,
         status: raw.status,
@@ -63,6 +46,7 @@ export class AnnouncementMapper
   }
 
   toPersistence(entity: Announcement): AnnouncementSchemaInsert {
+    const contact: AnnouncementContactSettings = entity.contact;
     return {
       id: entity.id,
       providerId: entity.providerId,
@@ -75,7 +59,8 @@ export class AnnouncementMapper
       imageUrl: entity.imageUrl,
       categoryId: entity.categoryId,
       tags: entity.tags,
-      contactLinks: entity.contactLinks,
+      contactMode: contact.mode,
+      contactCustom: contact.mode === 'custom' ? contact.custom : null,
       showVerifiedBadge: entity.showVerifiedBadge,
       flaggedForReview: entity.flaggedForReview,
       status: entity.status,

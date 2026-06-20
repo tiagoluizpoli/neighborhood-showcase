@@ -77,7 +77,8 @@ describe('ProviderProfile Router Integration Tests', () => {
       companyName: 'Company A',
       tradeName: 'TradeA',
       publicDescription: 'This is a description for provider A.',
-      socialLinks: { whatsapp: '5511999999999', email: 'contact@a.com' },
+      primaryPhone: '5511999999999',
+      contactMetadata: { email: 'contact@a.com' },
       isProviderVisible: true,
     });
 

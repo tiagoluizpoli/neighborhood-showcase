@@ -44,6 +44,10 @@ describe('user.getPublicProfile Router Procedure', () => {
             imageUrl: 'http://localhost/cleaning.jpg',
             categoryId: 'cat-servicos',
             tags: [],
+            contact: {
+              mode: 'custom' as const,
+              custom: { primaryPhone: '5511999999999', callEnabled: false },
+            },
             contactLinks: {
               whatsapp: '5511999999999',
             },

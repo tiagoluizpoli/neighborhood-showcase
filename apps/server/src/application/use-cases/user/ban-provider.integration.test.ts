@@ -81,7 +81,8 @@ describe('BanProvider use case', () => {
       imageUrl: 'https://example.com/bad.png',
       categoryId: 'cat-servicos',
       tags: [],
-      contactLinks: {},
+      contactMode: 'inherit' as const,
+      contactCustom: null,
       status: 'ACTIVE',
     });
   });

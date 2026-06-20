@@ -1,4 +1,5 @@
 import type { Announcement } from '../../entities/announcement.entity';
+import type { AnnouncementContactSettings } from '../../entities/contact';
 
 export interface CreateAnnouncementInput {
   providerId: string;
@@ -10,15 +11,7 @@ export interface CreateAnnouncementInput {
   imageUrl: string;
   categoryId: string;
   tags: string[];
-  contactLinks: {
-    whatsapp?: string;
-    phone?: string;
-    email?: string;
-    instagram?: string;
-    tiktok?: string;
-    facebook?: string;
-    website?: string;
-  };
+  contact: AnnouncementContactSettings;
   showVerifiedBadge: boolean;
 }
 

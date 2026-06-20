@@ -1,3 +1,9 @@
+import {
+  InvalidPrimaryPhoneError,
+  isValidPrimaryPhone,
+  type ProviderContactMetadata,
+} from '../../../domain/entities/contact';
+import { ProviderCallRequiresPhoneError } from '../../../domain/entities/provider-profile.entity';
 import type { ProviderProfileRepository } from '../../../domain/repositories/provider-profile.repository';
 import { DomainError } from '../../../shared/domain-error';
 
@@ -10,15 +16,9 @@ export interface UpdateProviderProfileInput {
   logoUrl?: string | null;
   bannerUrl?: string | null;
   publicDescription?: string | null;
-  socialLinks?: {
-    whatsapp?: string;
-    phone?: string;
-    email?: string;
-    instagram?: string;
-    tiktok?: string;
-    facebook?: string;
-    website?: string;
-  };
+  primaryPhone?: string;
+  callEnabled?: boolean;
+  contactMetadata?: ProviderContactMetadata;
   isProviderVisible?: boolean;
 }
 
@@ -59,6 +59,30 @@ export class UpdateProviderProfile {
 
     const existing = await this.repo.findByProviderId(input.providerId);
 
+    const contactDefaults = {
+      primaryPhone:
+        input.primaryPhone !== undefined
+          ? input.primaryPhone.trim()
+          : (existing?.contactDefaults.primaryPhone ?? ''),
+      callEnabled:
+        input.callEnabled !== undefined
+          ? input.callEnabled
+          : (existing?.contactDefaults.callEnabled ?? false),
+    };
+
+    const contactMetadata =
+      input.contactMetadata !== undefined
+        ? { ...(existing?.contactMetadata ?? {}), ...input.contactMetadata }
+        : (existing?.contactMetadata ?? {});
+
+    const hasPhone = contactDefaults.primaryPhone.length > 0;
+    if (hasPhone && !isValidPrimaryPhone(contactDefaults.primaryPhone)) {
+      throw new InvalidPrimaryPhoneError();
+    }
+    if (contactDefaults.callEnabled && !hasPhone) {
+      throw new ProviderCallRequiresPhoneError();
+    }
+
     await this.repo.upsert({
       providerId: input.providerId,
       displayName:
@@ -87,10 +111,8 @@ export class UpdateProviderProfile {
         input.publicDescription !== undefined
           ? input.publicDescription
           : (existing?.publicDescription ?? null),
-      socialLinks:
-        input.socialLinks !== undefined
-          ? { ...(existing?.socialLinks ?? {}), ...input.socialLinks }
-          : (existing?.socialLinks ?? {}),
+      contactDefaults,
+      contactMetadata,
       isProviderVisible:
         input.isProviderVisible !== undefined
           ? input.isProviderVisible

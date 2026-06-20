@@ -46,7 +46,7 @@ describe('GetProviderProfile integration', () => {
       displayName: 'Found Provider Profile',
       companyName: 'Found Company',
       publicDescription: 'This profile exists now.',
-      socialLinks: { website: 'https://found.example.com' },
+      contactMetadata: { website: 'https://found.example.com' },
     });
 
     const profile = await useCase.execute({ providerId: testUserId });
@@ -55,6 +55,6 @@ describe('GetProviderProfile integration', () => {
     expect(profile.displayName).toBe('Found Provider Profile');
     expect(profile.companyName).toBe('Found Company');
     expect(profile.publicDescription).toBe('This profile exists now.');
-    expect(profile.socialLinks.website).toBe('https://found.example.com');
+    expect(profile.contactMetadata.website).toBe('https://found.example.com');
   });
 });

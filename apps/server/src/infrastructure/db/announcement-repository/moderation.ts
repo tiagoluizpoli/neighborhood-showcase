@@ -11,6 +11,10 @@ import type {
   ModerationAnnouncementDTO,
   ReportedAnnouncementDTO,
 } from '../../../domain/repositories/announcement.repository';
+import {
+  contactSettingsToLinks,
+  rowToContactSettings,
+} from '../mappers/announcement-contact';
 
 export async function listAnnouncementsForModeration(
   condominiumId: string,
@@ -26,7 +30,8 @@ export async function listAnnouncementsForModeration(
       category: categorySchema.name,
       categoryId: announcementSchema.categoryId,
       tags: announcementSchema.tags,
-      contactLinks: announcementSchema.contactLinks,
+      contactMode: announcementSchema.contactMode,
+      contactCustom: announcementSchema.contactCustom,
       showVerifiedBadge: announcementSchema.showVerifiedBadge,
       flaggedForReview: announcementSchema.flaggedForReview,
       status: announcementSchema.status,
@@ -48,11 +53,19 @@ export async function listAnnouncementsForModeration(
       ),
     );
 
-  return rows.map((row) => ({
-    ...row,
-    contactLinks: row.contactLinks as Record<string, string | undefined>,
-    providerName: row.providerName ?? '',
-  }));
+  return rows.map((row) => {
+    const { contactMode, contactCustom, ...rest } = row;
+    const contact = rowToContactSettings({
+      mode: contactMode,
+      custom: contactCustom ?? null,
+    });
+    return {
+      ...rest,
+      contact,
+      contactLinks: contactSettingsToLinks(contact),
+      providerName: row.providerName ?? '',
+    };
+  });
 }
 
 export async function listReportedAnnouncements(

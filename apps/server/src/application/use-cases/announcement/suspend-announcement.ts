@@ -64,7 +64,7 @@ export class SuspendAnnouncement {
         'MODERATOR',
       );
 
-      if (!assignment || assignment.status !== 'APPROVED') {
+      if (assignment?.status !== 'APPROVED') {
         throw new SuspendAnnouncementAccessDeniedError();
       }
     }

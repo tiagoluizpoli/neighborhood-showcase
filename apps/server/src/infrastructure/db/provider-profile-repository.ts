@@ -2,7 +2,10 @@ import { db } from '@neighborhood-showcase/db';
 import { providerProfile as providerProfileSchema } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 import type { ProviderProfile } from '../../domain/entities/provider-profile.entity';
-import type { ProviderProfileRepository } from '../../domain/repositories/provider-profile.repository';
+import type {
+  ProviderProfileRepository,
+  UpsertProviderProfileInput,
+} from '../../domain/repositories/provider-profile.repository';
 import { ProviderProfileMapper } from './mappers/provider-profile.mapper';
 
 export class ProviderProfileRepositoryImpl
@@ -22,26 +25,7 @@ export class ProviderProfileRepositoryImpl
     return this.mapper.toDomain(row);
   }
 
-  async upsert(input: {
-    providerId: string;
-    displayName: string;
-    avatarUrl?: string | null;
-    companyName?: string | null;
-    tradeName?: string | null;
-    logoUrl?: string | null;
-    bannerUrl?: string | null;
-    publicDescription?: string | null;
-    socialLinks?: {
-      whatsapp?: string;
-      phone?: string;
-      email?: string;
-      instagram?: string;
-      tiktok?: string;
-      facebook?: string;
-      website?: string;
-    };
-    isProviderVisible?: boolean;
-  }): Promise<ProviderProfile> {
+  async upsert(input: UpsertProviderProfileInput): Promise<ProviderProfile> {
     await db
       .insert(providerProfileSchema)
       .values({
@@ -53,7 +37,9 @@ export class ProviderProfileRepositoryImpl
         logoUrl: input.logoUrl ?? null,
         bannerUrl: input.bannerUrl ?? null,
         publicDescription: input.publicDescription ?? null,
-        socialLinks: input.socialLinks ?? {},
+        primaryPhone: input.contactDefaults.primaryPhone,
+        callEnabled: input.contactDefaults.callEnabled,
+        contactMetadata: input.contactMetadata,
         isProviderVisible: input.isProviderVisible ?? true,
       })
       .onConflictDoUpdate({
@@ -66,7 +52,9 @@ export class ProviderProfileRepositoryImpl
           logoUrl: input.logoUrl ?? null,
           bannerUrl: input.bannerUrl ?? null,
           publicDescription: input.publicDescription ?? null,
-          socialLinks: input.socialLinks ?? {},
+          primaryPhone: input.contactDefaults.primaryPhone,
+          callEnabled: input.contactDefaults.callEnabled,
+          contactMetadata: input.contactMetadata,
           isProviderVisible: input.isProviderVisible ?? true,
           updatedAt: new Date(),
         },

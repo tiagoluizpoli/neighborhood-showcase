@@ -15,6 +15,10 @@ import type {
   ListPublicAnnouncementsInput,
   PublicAnnouncementDTO,
 } from '../../../../domain/repositories/announcement.repository';
+import {
+  contactSettingsToLinks,
+  rowToContactSettings,
+} from '../../mappers/announcement-contact';
 
 const condoAddress = alias(addressSchema, 'condo_address');
 
@@ -150,6 +154,15 @@ export async function listPublicAnnouncements(
     const condoState =
       row.condominium?.state || row.providerAddress?.state || '';
 
+    const contact = rowToContactSettings({
+      mode: row.announcement.contactMode,
+      custom: row.announcement.contactCustom ?? null,
+    });
+    const providerDefaults = {
+      primaryPhone: row.providerProfile?.primaryPhone ?? '',
+      callEnabled: row.providerProfile?.callEnabled ?? false,
+    };
+
     return {
       id: row.announcement.id,
       providerId: row.announcement.providerId,
@@ -162,10 +175,8 @@ export async function listPublicAnnouncements(
       imageUrl: row.announcement.imageUrl,
       categoryId: row.announcement.categoryId,
       tags: row.announcement.tags ?? [],
-      contactLinks: row.announcement.contactLinks as Record<
-        string,
-        string | undefined
-      >,
+      contact,
+      contactLinks: contactSettingsToLinks(contact, providerDefaults),
       showVerifiedBadge: row.announcement.showVerifiedBadge,
       status: row.announcement.status,
       createdAt: row.announcement.createdAt,

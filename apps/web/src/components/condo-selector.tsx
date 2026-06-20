@@ -71,7 +71,7 @@ export function CondoSelector({
     const iconBtn = (
       <span
         className="flex size-10 items-center justify-center rounded-md border border-primary/20 bg-primary/5"
-        title={selectedName}
+        title={selectedName ?? undefined}
       >
         <Building2 className="h-5 w-5 shrink-0 text-primary" />
       </span>

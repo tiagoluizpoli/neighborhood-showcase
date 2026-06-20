@@ -65,7 +65,7 @@ export class DismissReports {
         'MODERATOR',
       );
 
-      if (!assignment || assignment.status !== 'APPROVED') {
+      if (assignment?.status !== 'APPROVED') {
         throw new DismissReportsAccessDeniedError();
       }
     }

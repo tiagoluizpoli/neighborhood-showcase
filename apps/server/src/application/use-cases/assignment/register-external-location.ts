@@ -40,7 +40,7 @@ export class RegisterExternalLocation
     if (!input.city.trim()) {
       throw new InvalidAddressError('A cidade é obrigatória.');
     }
-    if (!input.state.trim() || input.state.trim().length !== 2) {
+    if (input.state.trim()?.length !== 2) {
       throw new InvalidAddressError(
         'O estado deve ser informado com 2 caracteres (UF).',
       );

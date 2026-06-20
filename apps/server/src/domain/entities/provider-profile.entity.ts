@@ -1,5 +1,11 @@
 import { AuditableEntity, type AuditableProps } from '../../shared/base-entity';
 import { DomainError } from '../../shared/domain-error';
+import {
+  InvalidPrimaryPhoneError,
+  isValidPrimaryPhone,
+  type ProviderContactDefaults,
+  type ProviderContactMetadata,
+} from './contact';
 
 export class ProviderProfileNotFoundError extends DomainError {
   constructor() {
@@ -19,6 +25,14 @@ export class InvalidProviderPublicDescriptionError extends DomainError {
   }
 }
 
+export class ProviderCallRequiresPhoneError extends DomainError {
+  constructor() {
+    super(
+      'A chamada direta exige um número de telefone principal configurado.',
+    );
+  }
+}
+
 export interface ProviderProfileProps extends AuditableProps {
   displayName: string;
   avatarUrl?: string | null;
@@ -27,15 +41,8 @@ export interface ProviderProfileProps extends AuditableProps {
   logoUrl?: string | null;
   bannerUrl?: string | null;
   publicDescription?: string | null;
-  socialLinks: {
-    whatsapp?: string;
-    phone?: string;
-    email?: string;
-    instagram?: string;
-    tiktok?: string;
-    facebook?: string;
-    website?: string;
-  };
+  contactDefaults: ProviderContactDefaults;
+  contactMetadata: ProviderContactMetadata;
   isProviderVisible: boolean;
 }
 
@@ -48,6 +55,7 @@ export class ProviderProfile extends AuditableEntity<ProviderProfileProps> {
   private validate(): void {
     ProviderProfile.validateDisplayName(this.props.displayName);
     ProviderProfile.validatePublicDescription(this.props.publicDescription);
+    ProviderProfile.validateContactDefaults(this.props.contactDefaults);
   }
 
   private static validateDisplayName(displayName: string): void {
@@ -61,6 +69,18 @@ export class ProviderProfile extends AuditableEntity<ProviderProfileProps> {
   ): void {
     if (description && description.length > 500) {
       throw new InvalidProviderPublicDescriptionError();
+    }
+  }
+
+  private static validateContactDefaults(
+    defaults: ProviderContactDefaults,
+  ): void {
+    const hasPhone = defaults.primaryPhone.trim().length > 0;
+    if (hasPhone && !isValidPrimaryPhone(defaults.primaryPhone)) {
+      throw new InvalidPrimaryPhoneError();
+    }
+    if (defaults.callEnabled && !hasPhone) {
+      throw new ProviderCallRequiresPhoneError();
     }
   }
 
@@ -92,8 +112,12 @@ export class ProviderProfile extends AuditableEntity<ProviderProfileProps> {
     return this.props.publicDescription;
   }
 
-  get socialLinks() {
-    return this.props.socialLinks;
+  get contactDefaults(): ProviderContactDefaults {
+    return this.props.contactDefaults;
+  }
+
+  get contactMetadata(): ProviderContactMetadata {
+    return this.props.contactMetadata;
   }
 
   get isProviderVisible(): boolean {

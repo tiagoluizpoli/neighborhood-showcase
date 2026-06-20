@@ -56,6 +56,11 @@ export const announcementStatusEnum = pgEnum('announcement_status', [
   'SUSPENDED',
 ]);
 
+export const announcementContactModeEnum = pgEnum('announcement_contact_mode', [
+  'inherit',
+  'custom',
+]);
+
 export const paymentStatusEnum = pgEnum('payment_status', [
   'PENDING',
   'PAID',
@@ -151,10 +156,13 @@ export const providerProfile = pgTable('provider_profile', {
   logoUrl: text('logo_url'),
   bannerUrl: text('banner_url'),
   publicDescription: text('public_description'),
-  socialLinks: jsonb('social_links')
+  // Canonical contact contract (PRD-v10): one WhatsApp-capable business number
+  // stored once, with direct call as a separate action on that same number.
+  primaryPhone: text('primary_phone').notNull().default(''),
+  callEnabled: boolean('call_enabled').default(false).notNull(),
+  // Supporting metadata preserved for future CTA suggestions (T-17-04).
+  contactMetadata: jsonb('contact_metadata')
     .$type<{
-      whatsapp?: string;
-      phone?: string;
       email?: string;
       instagram?: string;
       tiktok?: string;
@@ -252,18 +260,15 @@ export const announcement = pgTable('announcement', {
     .notNull()
     .references(() => category.id),
   tags: text('tags').array().notNull().default([]),
-  contactLinks: jsonb('contact_links')
-    .$type<{
-      whatsapp?: string;
-      phone?: string;
-      email?: string;
-      instagram?: string;
-      tiktok?: string;
-      facebook?: string;
-      website?: string;
-    }>()
+  // Inherit/custom contact contract (PRD-v10). `inherit` follows provider
+  // defaults live; `custom` carries its own self-contained contact in the jsonb.
+  contactMode: announcementContactModeEnum('contact_mode')
     .notNull()
-    .default({}),
+    .default('inherit'),
+  contactCustom: jsonb('contact_custom').$type<{
+    primaryPhone: string;
+    callEnabled: boolean;
+  } | null>(),
   showVerifiedBadge: boolean('show_verified_badge').default(false).notNull(),
   flaggedForReview: boolean('flagged_for_review').default(false).notNull(),
   status: announcementStatusEnum('status').default('DRAFT').notNull(),

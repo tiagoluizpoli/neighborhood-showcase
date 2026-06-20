@@ -10,6 +10,10 @@ import {
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 import type { PublicAnnouncementDTO } from '../../../../domain/repositories/announcement.repository';
+import {
+  contactSettingsToLinks,
+  rowToContactSettings,
+} from '../../mappers/announcement-contact';
 
 export async function findPublicAnnouncementById(
   id: string,
@@ -20,7 +24,7 @@ export async function findPublicAnnouncementById(
     .where(eq(announcementSchema.id, id))
     .limit(1);
 
-  if (!found || found.status !== 'ACTIVE' || found.deletedAt !== null) {
+  if (found?.status !== 'ACTIVE' || found.deletedAt !== null) {
     return null;
   }
 
@@ -61,6 +65,8 @@ export async function findPublicAnnouncementById(
       image: userSchema.image,
       profileName: providerProfileSchema.displayName,
       profileAvatarUrl: providerProfileSchema.avatarUrl,
+      primaryPhone: providerProfileSchema.primaryPhone,
+      callEnabled: providerProfileSchema.callEnabled,
     })
     .from(userSchema)
     .leftJoin(
@@ -76,6 +82,15 @@ export async function findPublicAnnouncementById(
     .where(eq(categorySchema.id, found.categoryId))
     .limit(1);
 
+  const contact = rowToContactSettings({
+    mode: found.contactMode,
+    custom: found.contactCustom ?? null,
+  });
+  const providerDefaults = {
+    primaryPhone: provider?.primaryPhone ?? '',
+    callEnabled: provider?.callEnabled ?? false,
+  };
+
   return {
     id: found.id,
     providerId: found.providerId,
@@ -88,7 +103,8 @@ export async function findPublicAnnouncementById(
     imageUrl: found.imageUrl,
     categoryId: found.categoryId,
     tags: found.tags,
-    contactLinks: found.contactLinks as Record<string, string | undefined>,
+    contact,
+    contactLinks: contactSettingsToLinks(contact, providerDefaults),
     showVerifiedBadge: found.showVerifiedBadge,
     status: found.status,
     createdAt: found.createdAt,

@@ -1,5 +1,5 @@
 {
-  "id": "625b6909-0bcb-4b43-917a-f8f78e444564",
+  "id": "d3570770-4cac-491b-bd7a-a4a5ff19c9f2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -307,7 +307,7 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'PROVIDER'"
+          "default": "'USER'"
         },
         "status": {
           "name": "status",
@@ -322,6 +322,34 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "social_links": {
+          "name": "social_links",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "is_provider_visible": {
+          "name": "is_provider_visible",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "language": {
+          "name": "language",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pt-BR'"
+        },
+        "theme": {
+          "name": "theme",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'system'"
         },
         "created_at": {
           "name": "created_at",
@@ -600,8 +628,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "category": {
-          "name": "category",
+        "category_id": {
+          "name": "category_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -613,12 +641,19 @@
           "notNull": true,
           "default": "'{}'"
         },
-        "contact_links": {
-          "name": "contact_links",
-          "type": "jsonb",
+        "contact_mode": {
+          "name": "contact_mode",
+          "type": "announcement_contact_mode",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'{}'::jsonb"
+          "default": "'inherit'"
+        },
+        "contact_custom": {
+          "name": "contact_custom",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
         },
         "show_verified_badge": {
           "name": "show_verified_badge",
@@ -702,6 +737,15 @@
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "announcement_category_id_category_id_fk": {
+          "name": "announcement_category_id_category_id_fk",
+          "tableFrom": "announcement",
+          "tableTo": "category",
+          "columnsFrom": ["category_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -710,8 +754,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.assignment": {
-      "name": "assignment",
+    "public.category": {
+      "name": "category",
       "schema": "",
       "columns": {
         "id": {
@@ -720,44 +764,43 @@
           "primaryKey": true,
           "notNull": true
         },
-        "provider_id": {
-          "name": "provider_id",
+        "slug": {
+          "name": "slug",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "condominium_id": {
-          "name": "condominium_id",
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "type": {
-          "name": "type",
-          "type": "assignment_type",
-          "typeSchema": "public",
+        "description": {
+          "name": "description",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
-        "status": {
-          "name": "status",
-          "type": "assignment_status",
-          "typeSchema": "public",
+        "icon": {
+          "name": "icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "display_order": {
+          "name": "display_order",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "'PENDING'"
+          "default": 0
         },
-        "unit_info": {
-          "name": "unit_info",
-          "type": "text",
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
           "primaryKey": false,
-          "notNull": false
-        },
-        "proof_of_residency": {
-          "name": "proof_of_residency",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": true
         },
         "created_at": {
           "name": "created_at",
@@ -765,38 +808,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "assignment_provider_id_user_id_fk": {
-          "name": "assignment_provider_id_user_id_fk",
-          "tableFrom": "assignment",
-          "tableTo": "user",
-          "columnsFrom": ["provider_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "assignment_condominium_id_condominium_id_fk": {
-          "name": "assignment_condominium_id_condominium_id_fk",
-          "tableFrom": "assignment",
-          "tableTo": "condominium",
-          "columnsFrom": ["condominium_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "category_slug_unique": {
+          "name": "category_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": ["slug"]
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -884,6 +907,24 @@
         "deleted_at": {
           "name": "deleted_at",
           "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "geog": {
+          "name": "geog",
+          "type": "geography(Point, 4326)",
           "primaryKey": false,
           "notNull": false
         }
@@ -1070,6 +1111,24 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "geog": {
+          "name": "geog",
+          "type": "geography(Point, 4326)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -1107,13 +1166,280 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
+    },
+    "public.provider_profile": {
+      "name": "provider_profile",
+      "schema": "",
+      "columns": {
+        "provider_id": {
+          "name": "provider_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "avatar_url": {
+          "name": "avatar_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "company_name": {
+          "name": "company_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "trade_name": {
+          "name": "trade_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "logo_url": {
+          "name": "logo_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "banner_url": {
+          "name": "banner_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "public_description": {
+          "name": "public_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "primary_phone": {
+          "name": "primary_phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "call_enabled": {
+          "name": "call_enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "contact_metadata": {
+          "name": "contact_metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "is_provider_visible": {
+          "name": "is_provider_visible",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "provider_profile_provider_id_user_id_fk": {
+          "name": "provider_profile_provider_id_user_id_fk",
+          "tableFrom": "provider_profile",
+          "tableTo": "user",
+          "columnsFrom": ["provider_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.report": {
+      "name": "report",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "reporter_id": {
+          "name": "reporter_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "announcement_id": {
+          "name": "announcement_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "report_reason",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "report_reporter_id_user_id_fk": {
+          "name": "report_reporter_id_user_id_fk",
+          "tableFrom": "report",
+          "tableTo": "user",
+          "columnsFrom": ["reporter_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "report_announcement_id_announcement_id_fk": {
+          "name": "report_announcement_id_announcement_id_fk",
+          "tableFrom": "report",
+          "tableTo": "announcement",
+          "columnsFrom": ["announcement_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "reporter_announcement_unique": {
+          "name": "reporter_announcement_unique",
+          "nullsNotDistinct": false,
+          "columns": ["reporter_id", "announcement_id"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.role_change_log": {
+      "name": "role_change_log",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_user_id": {
+          "name": "target_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "previous_role": {
+          "name": "previous_role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "new_role": {
+          "name": "new_role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "condominium_id": {
+          "name": "condominium_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "role_change_log_actor_id_user_id_fk": {
+          "name": "role_change_log_actor_id_user_id_fk",
+          "tableFrom": "role_change_log",
+          "tableTo": "user",
+          "columnsFrom": ["actor_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "role_change_log_target_user_id_user_id_fk": {
+          "name": "role_change_log_target_user_id_user_id_fk",
+          "tableFrom": "role_change_log",
+          "tableTo": "user",
+          "columnsFrom": ["target_user_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "role_change_log_condominium_id_condominium_id_fk": {
+          "name": "role_change_log_condominium_id_condominium_id_fk",
+          "tableFrom": "role_change_log",
+          "tableTo": "condominium",
+          "columnsFrom": ["condominium_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {
     "public.user_role": {
       "name": "user_role",
       "schema": "public",
-      "values": ["PROVIDER", "SYSTEM_MANAGER"]
+      "values": ["USER", "SYSTEM_MANAGER", "ADMINISTRATOR"]
     },
     "public.user_status": {
       "name": "user_status",
@@ -1129,6 +1455,11 @@
       "name": "analytics_target_type",
       "schema": "public",
       "values": ["WHATSAPP", "INSTAGRAM", "WEBSITE"]
+    },
+    "public.announcement_contact_mode": {
+      "name": "announcement_contact_mode",
+      "schema": "public",
+      "values": ["inherit", "custom"]
     },
     "public.announcement_status": {
       "name": "announcement_status",
@@ -1164,6 +1495,17 @@
       "name": "provider_location_type",
       "schema": "public",
       "values": ["RESIDENT", "MODERATOR", "EXTERNAL"]
+    },
+    "public.report_reason": {
+      "name": "report_reason",
+      "schema": "public",
+      "values": [
+        "FRAUDE_GOLPE",
+        "ASSEDIO_OFENSIVO",
+        "SPAM",
+        "SERVICO_ILEGAL",
+        "OUTROS"
+      ]
     }
   },
   "schemas": {},

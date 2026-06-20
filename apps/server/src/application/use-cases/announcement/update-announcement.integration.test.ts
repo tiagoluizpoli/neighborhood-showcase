@@ -85,7 +85,8 @@ describe('UpdateAnnouncement use case', () => {
       imageUrl: 'https://example.com/old.png',
       categoryId: 'cat-servicos',
       tags: ['old'],
-      contactLinks: { whatsapp: '5511999999999' },
+      contactMode: 'custom' as const,
+      contactCustom: { primaryPhone: '5511999999999', callEnabled: false },
       showVerifiedBadge: false,
       flaggedForReview: false,
       status: 'SUSPENDED',
@@ -104,7 +105,10 @@ describe('UpdateAnnouncement use case', () => {
       imageUrl: 'https://example.com/new.png',
       categoryId: 'cat-alimentacao',
       tags: ['new', 'fresh'],
-      contactLinks: { instagram: '@newtitle' },
+      contact: {
+        mode: 'custom',
+        custom: { primaryPhone: '5511988887777', callEnabled: false },
+      },
       showVerifiedBadge: true,
     });
 
@@ -137,7 +141,10 @@ describe('UpdateAnnouncement use case', () => {
         imageUrl: 'https://example.com/new.png',
         categoryId: 'cat-alimentacao',
         tags: ['new'],
-        contactLinks: { whatsapp: '5511999999999' },
+        contact: {
+          mode: 'custom',
+          custom: { primaryPhone: '5511999999999', callEnabled: false },
+        },
         showVerifiedBadge: false,
       }),
     ).rejects.toBeInstanceOf(AnnouncementUpdateAccessDeniedError);
@@ -160,7 +167,10 @@ describe('UpdateAnnouncement use case', () => {
         imageUrl: 'https://example.com/new.png',
         categoryId: 'cat-alimentacao',
         tags: ['new'],
-        contactLinks: { whatsapp: '5511999999999' },
+        contact: {
+          mode: 'custom',
+          custom: { primaryPhone: '5511999999999', callEnabled: false },
+        },
         showVerifiedBadge: true,
       }),
     ).rejects.toBeInstanceOf(VerifiedBadgeEligibilityError);

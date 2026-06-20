@@ -18,6 +18,10 @@ import type {
   UpdateAnnouncementRepositoryInput,
 } from '../../../domain/repositories/announcement.repository';
 import type { AnnouncementMapper } from '../mappers/announcement.mapper';
+import {
+  contactSettingsToLinks,
+  rowToContactSettings,
+} from '../mappers/announcement-contact';
 
 export async function createAnnouncement(
   mapper: AnnouncementMapper,
@@ -37,7 +41,9 @@ export async function createAnnouncement(
       imageUrl: input.imageUrl,
       categoryId: input.categoryId,
       tags: input.tags,
-      contactLinks: input.contactLinks,
+      contactMode: input.contact.mode,
+      contactCustom:
+        input.contact.mode === 'custom' ? input.contact.custom : null,
       showVerifiedBadge: input.showVerifiedBadge,
       flaggedForReview: false,
       status: input.status || 'DRAFT',
@@ -87,9 +93,18 @@ export async function updateAnnouncement(
   id: string,
   input: UpdateAnnouncementRepositoryInput,
 ): Promise<Announcement> {
+  const { contact, ...rest } = input;
+  const contactSet =
+    contact === undefined
+      ? {}
+      : {
+          contactMode: contact.mode,
+          contactCustom: contact.mode === 'custom' ? contact.custom : null,
+        };
+
   const [updated] = await db
     .update(announcementSchema)
-    .set(input)
+    .set({ ...rest, ...contactSet })
     .where(eq(announcementSchema.id, id))
     .returning();
 
@@ -118,7 +133,8 @@ export async function findActiveAnnouncementsByProviderId(
       categoryId: announcementSchema.categoryId,
       category: categorySchema.name,
       tags: announcementSchema.tags,
-      contactLinks: announcementSchema.contactLinks,
+      contactMode: announcementSchema.contactMode,
+      contactCustom: announcementSchema.contactCustom,
       showVerifiedBadge: announcementSchema.showVerifiedBadge,
       status: announcementSchema.status,
       createdAt: announcementSchema.createdAt,
@@ -153,31 +169,35 @@ export async function findActiveAnnouncementsByProviderId(
       ),
     );
 
-  return rows.map((row) => ({
-    id: row.id,
-    providerId: row.providerId,
-    condominiumId: row.condominiumId ?? null,
-    title: row.title,
-    subtitle: row.subtitle ?? null,
-    description: row.description,
-    priceCents: row.priceCents ?? null,
-    imageUrl: row.imageUrl,
-    categoryId: row.categoryId,
-    category: row.category,
-    tags: row.tags ?? [],
-    contactLinks: (row.contactLinks ?? {}) as Record<
-      string,
-      string | undefined
-    >,
-    showVerifiedBadge: row.showVerifiedBadge,
-    status: row.status,
-    createdAt: row.createdAt,
-    condoName: row.condoName ?? null,
-    condoCity: row.condoCity ?? row.providerLocCity ?? '',
-    condoState: row.condoState ?? row.providerLocState ?? '',
-    providerName,
-    providerAvatarUrl,
-  }));
+  return rows.map((row) => {
+    const contact = rowToContactSettings({
+      mode: row.contactMode,
+      custom: row.contactCustom ?? null,
+    });
+    return {
+      id: row.id,
+      providerId: row.providerId,
+      condominiumId: row.condominiumId ?? null,
+      title: row.title,
+      subtitle: row.subtitle ?? null,
+      description: row.description,
+      priceCents: row.priceCents ?? null,
+      imageUrl: row.imageUrl,
+      categoryId: row.categoryId,
+      category: row.category,
+      tags: row.tags ?? [],
+      contact,
+      contactLinks: contactSettingsToLinks(contact),
+      showVerifiedBadge: row.showVerifiedBadge,
+      status: row.status,
+      createdAt: row.createdAt,
+      condoName: row.condoName ?? null,
+      condoCity: row.condoCity ?? row.providerLocCity ?? '',
+      condoState: row.condoState ?? row.providerLocState ?? '',
+      providerName,
+      providerAvatarUrl,
+    };
+  });
 }
 
 export async function findAnnouncementIdsByProviderId(
@@ -210,7 +230,8 @@ export async function findDashboardAnnouncementsByProviderId(
       categoryId: announcementSchema.categoryId,
       categoryName: categorySchema.name,
       tags: announcementSchema.tags,
-      contactLinks: announcementSchema.contactLinks,
+      contactMode: announcementSchema.contactMode,
+      contactCustom: announcementSchema.contactCustom,
       showVerifiedBadge: announcementSchema.showVerifiedBadge,
       flaggedForReview: announcementSchema.flaggedForReview,
       status: announcementSchema.status,
@@ -237,28 +258,32 @@ export async function findDashboardAnnouncementsByProviderId(
       ),
     );
 
-  return rows.map((row) => ({
-    id: row.id,
-    title: row.title,
-    subtitle: row.subtitle ?? null,
-    description: row.description,
-    priceCents: row.priceCents ?? null,
-    imageUrl: row.imageUrl,
-    category: row.categoryName,
-    categoryId: row.categoryId,
-    tags: row.tags ?? [],
-    contactLinks: (row.contactLinks ?? {}) as Record<
-      string,
-      string | undefined
-    >,
-    showVerifiedBadge: row.showVerifiedBadge,
-    flaggedForReview: row.flaggedForReview,
-    status: row.status,
-    paidAt: row.paidAt ?? null,
-    expiresAt: row.expiresAt ?? null,
-    createdAt: row.createdAt,
-    suspensionReason: row.suspensionReason ?? null,
-    condoName: row.condoName || '',
-    providerAssignmentId: row.providerAssignmentId ?? null,
-  }));
+  return rows.map((row) => {
+    const contact = rowToContactSettings({
+      mode: row.contactMode,
+      custom: row.contactCustom ?? null,
+    });
+    return {
+      id: row.id,
+      title: row.title,
+      subtitle: row.subtitle ?? null,
+      description: row.description,
+      priceCents: row.priceCents ?? null,
+      imageUrl: row.imageUrl,
+      category: row.categoryName,
+      categoryId: row.categoryId,
+      tags: row.tags ?? [],
+      contact,
+      contactLinks: contactSettingsToLinks(contact),
+      showVerifiedBadge: row.showVerifiedBadge,
+      flaggedForReview: row.flaggedForReview,
+      status: row.status,
+      paidAt: row.paidAt ?? null,
+      expiresAt: row.expiresAt ?? null,
+      createdAt: row.createdAt,
+      suspensionReason: row.suspensionReason ?? null,
+      condoName: row.condoName || '',
+      providerAssignmentId: row.providerAssignmentId ?? null,
+    };
+  });
 }

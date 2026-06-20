@@ -76,7 +76,8 @@ describe('Delete User Account LGPD Integration Test', () => {
       imageUrl: 'https://example.com/sweet.png',
       categoryId: 'cat-alimentacao',
       tags: [],
-      contactLinks: {},
+      contactMode: 'inherit' as const,
+      contactCustom: null,
       status: 'ACTIVE',
     });
 

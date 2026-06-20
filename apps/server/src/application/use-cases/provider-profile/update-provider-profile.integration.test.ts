@@ -42,8 +42,9 @@ describe('UpdateProviderProfile integration', () => {
       logoUrl: 'https://cdn.example.com/logo.png',
       bannerUrl: 'https://cdn.example.com/banner.jpg',
       publicDescription: 'Oferecemos soluções completas para condomínios.',
-      socialLinks: {
-        whatsapp: '5511999999999',
+      primaryPhone: '5511999999999',
+      callEnabled: true,
+      contactMetadata: {
         instagram: 'https://instagram.com/acme',
         website: 'https://acme.example.com',
       },
@@ -67,8 +68,9 @@ describe('UpdateProviderProfile integration', () => {
     expect(r.publicDescription).toBe(
       'Oferecemos soluções completas para condomínios.',
     );
-    expect(r.socialLinks).toEqual({
-      whatsapp: '5511999999999',
+    expect(r.primaryPhone).toBe('5511999999999');
+    expect(r.callEnabled).toBe(true);
+    expect(r.contactMetadata).toEqual({
       instagram: 'https://instagram.com/acme',
       website: 'https://acme.example.com',
     });

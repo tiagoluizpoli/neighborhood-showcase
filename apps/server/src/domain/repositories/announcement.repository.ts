@@ -2,6 +2,7 @@ import type {
   Announcement,
   AnnouncementStatus,
 } from '../entities/announcement.entity';
+import type { AnnouncementContactSettings } from '../entities/contact';
 
 export interface ProviderAnnouncementDTO {
   id: string;
@@ -15,6 +16,8 @@ export interface ProviderAnnouncementDTO {
   categoryId: string;
   category: string;
   tags: string[];
+  contact: AnnouncementContactSettings;
+  // Transitional flat view derived from `contact`; removed in T-17-04.
   contactLinks: Record<string, string | undefined>;
   showVerifiedBadge: boolean;
   status: string;
@@ -38,6 +41,8 @@ export interface PublicAnnouncementDTO {
   imageUrl: string;
   categoryId: string;
   tags: string[];
+  contact: AnnouncementContactSettings;
+  // Transitional flat view derived from `contact`; removed in T-17-04.
   contactLinks: Record<string, string | undefined>;
   showVerifiedBadge: boolean;
   status: string;
@@ -63,6 +68,8 @@ export interface ModerationAnnouncementDTO {
   category: string;
   categoryId: string;
   tags: string[];
+  contact: AnnouncementContactSettings;
+  // Transitional flat view derived from `contact`; removed in T-17-04.
   contactLinks: Record<string, string | undefined>;
   showVerifiedBadge: boolean;
   flaggedForReview: boolean;
@@ -82,6 +89,8 @@ export interface DashboardAnnouncementDTO {
   category: string;
   categoryId: string;
   tags: string[];
+  contact: AnnouncementContactSettings;
+  // Transitional flat view derived from `contact`; removed in T-17-04.
   contactLinks: Record<string, string | undefined>;
   showVerifiedBadge: boolean;
   flaggedForReview: boolean;
@@ -138,15 +147,7 @@ export interface CreateAnnouncementRepositoryInput {
   imageUrl: string;
   categoryId: string;
   tags: string[];
-  contactLinks: {
-    whatsapp?: string;
-    phone?: string;
-    email?: string;
-    instagram?: string;
-    tiktok?: string;
-    facebook?: string;
-    website?: string;
-  };
+  contact: AnnouncementContactSettings;
   showVerifiedBadge: boolean;
   status?: AnnouncementStatus;
 }
@@ -159,15 +160,7 @@ export interface UpdateAnnouncementRepositoryInput {
   imageUrl?: string;
   categoryId?: string;
   tags?: string[];
-  contactLinks?: {
-    whatsapp?: string;
-    phone?: string;
-    email?: string;
-    instagram?: string;
-    tiktok?: string;
-    facebook?: string;
-    website?: string;
-  };
+  contact?: AnnouncementContactSettings;
   showVerifiedBadge?: boolean;
   flaggedForReview?: boolean;
   status?: AnnouncementStatus;

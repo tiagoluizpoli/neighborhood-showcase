@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@neighborhood-showcase/ui/components/card';
+import { Checkbox } from '@neighborhood-showcase/ui/components/checkbox';
 import { Input } from '@neighborhood-showcase/ui/components/input';
 import { Label } from '@neighborhood-showcase/ui/components/label';
 import { useMutation } from '@tanstack/react-query';
@@ -26,15 +27,23 @@ export function ContactChannelsSection({
 }: ContactChannelsSectionProps) {
   const { t } = useTranslation('configuracoes');
 
-  const [whatsapp, setWhatsapp] = useState(profile.socialLinks?.whatsapp ?? '');
-  const [phone, setPhone] = useState(profile.socialLinks?.phone ?? '');
-  const [email, setEmail] = useState(profile.socialLinks?.email ?? '');
-  const [instagram, setInstagram] = useState(
-    profile.socialLinks?.instagram ?? '',
+  const [primaryPhone, setPrimaryPhone] = useState(
+    profile.contactDefaults?.primaryPhone ?? '',
   );
-  const [tiktok, setTiktok] = useState(profile.socialLinks?.tiktok ?? '');
-  const [facebook, setFacebook] = useState(profile.socialLinks?.facebook ?? '');
-  const [website, setWebsite] = useState(profile.socialLinks?.website ?? '');
+  const [callEnabled, setCallEnabled] = useState(
+    profile.contactDefaults?.callEnabled ?? false,
+  );
+  const [email, setEmail] = useState(profile.contactMetadata?.email ?? '');
+  const [instagram, setInstagram] = useState(
+    profile.contactMetadata?.instagram ?? '',
+  );
+  const [tiktok, setTiktok] = useState(profile.contactMetadata?.tiktok ?? '');
+  const [facebook, setFacebook] = useState(
+    profile.contactMetadata?.facebook ?? '',
+  );
+  const [website, setWebsite] = useState(
+    profile.contactMetadata?.website ?? '',
+  );
 
   const updateMutation = useMutation(
     trpc.providerProfile.update.mutationOptions({
@@ -49,10 +58,11 @@ export function ContactChannelsSection({
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    const trimmedPhone = primaryPhone.trim();
     updateMutation.mutate({
-      socialLinks: {
-        whatsapp: whatsapp.trim() || undefined,
-        phone: phone.trim() || undefined,
+      primaryPhone: trimmedPhone,
+      callEnabled: trimmedPhone ? callEnabled : false,
+      contactMetadata: {
         email: email.trim() || undefined,
         instagram: instagram.trim() || undefined,
         tiktok: tiktok.trim() || undefined,
@@ -70,29 +80,37 @@ export function ContactChannelsSection({
       </CardHeader>
       <CardContent className="space-y-6 pt-6">
         <form onSubmit={handleSave} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="primaryPhone">{t('field_primary_phone')}</Label>
+            <Input
+              id="primaryPhone"
+              type="tel"
+              value={primaryPhone}
+              onChange={(e) => setPrimaryPhone(e.target.value)}
+              placeholder={t('field_primary_phone_placeholder')}
+              className="h-10"
+            />
+            <p className="text-muted-foreground text-sm">
+              {t('field_primary_phone_help')}
+            </p>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id="callEnabled"
+              checked={callEnabled}
+              disabled={!primaryPhone.trim()}
+              onCheckedChange={(checked) => setCallEnabled(checked === true)}
+            />
+            <div className="space-y-1 leading-none">
+              <Label htmlFor="callEnabled">{t('field_call_enabled')}</Label>
+              <p className="text-muted-foreground text-sm">
+                {t('field_call_enabled_help')}
+              </p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="whatsapp">{t('field_whatsapp')}</Label>
-              <Input
-                id="whatsapp"
-                type="tel"
-                value={whatsapp}
-                onChange={(e) => setWhatsapp(e.target.value)}
-                placeholder={t('field_whatsapp_placeholder')}
-                className="h-10"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">{t('field_phone')}</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder={t('field_phone_placeholder')}
-                className="h-10"
-              />
-            </div>
             <div className="space-y-2">
               <Label htmlFor="email">{t('field_email')}</Label>
               <Input

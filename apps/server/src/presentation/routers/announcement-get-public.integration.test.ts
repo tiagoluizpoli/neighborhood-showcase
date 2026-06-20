@@ -37,7 +37,6 @@ describe('getPublic Announcement Router Procedure', () => {
       providerId,
       displayName: 'Router Profile Provider',
       avatarUrl: 'http://localhost/profile-avatar.jpg',
-      socialLinks: {},
       isProviderVisible: true,
     });
 

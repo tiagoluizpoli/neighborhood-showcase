@@ -23,7 +23,11 @@ export class ProviderProfileMapper
         logoUrl: raw.logoUrl,
         bannerUrl: raw.bannerUrl,
         publicDescription: raw.publicDescription,
-        socialLinks: raw.socialLinks || {},
+        contactDefaults: {
+          primaryPhone: raw.primaryPhone,
+          callEnabled: raw.callEnabled,
+        },
+        contactMetadata: raw.contactMetadata || {},
         isProviderVisible: raw.isProviderVisible,
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
@@ -42,7 +46,9 @@ export class ProviderProfileMapper
       logoUrl: entity.logoUrl,
       bannerUrl: entity.bannerUrl,
       publicDescription: entity.publicDescription,
-      socialLinks: entity.socialLinks,
+      primaryPhone: entity.contactDefaults.primaryPhone,
+      callEnabled: entity.contactDefaults.callEnabled,
+      contactMetadata: entity.contactMetadata,
       isProviderVisible: entity.isProviderVisible,
       updatedAt: entity.updatedAt,
     };

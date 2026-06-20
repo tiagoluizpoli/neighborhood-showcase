@@ -22,6 +22,7 @@ import type {
   UserProfileDTO,
   UserRepository,
 } from '../../domain/repositories/user.repository';
+import { deriveSocialLinks } from './mappers/provider-social-links';
 import { UserMapper } from './mappers/user.mapper';
 
 export class DrizzleUserRepository implements UserRepository {
@@ -74,7 +75,9 @@ export class DrizzleUserRepository implements UserRepository {
         logoUrl: providerProfileSchema.logoUrl,
         bannerUrl: providerProfileSchema.bannerUrl,
         publicDescription: providerProfileSchema.publicDescription,
-        socialLinks: providerProfileSchema.socialLinks,
+        primaryPhone: providerProfileSchema.primaryPhone,
+        callEnabled: providerProfileSchema.callEnabled,
+        contactMetadata: providerProfileSchema.contactMetadata,
         isProviderVisible: providerProfileSchema.isProviderVisible,
       })
       .from(userSchema)
@@ -102,10 +105,11 @@ export class DrizzleUserRepository implements UserRepository {
       logoUrl: row.logoUrl ?? null,
       bannerUrl: row.bannerUrl ?? null,
       publicDescription: row.publicDescription ?? null,
-      socialLinks: (row.socialLinks ?? {}) as Record<
-        string,
-        string | undefined
-      >,
+      socialLinks: deriveSocialLinks({
+        primaryPhone: row.primaryPhone ?? '',
+        callEnabled: row.callEnabled ?? false,
+        metadata: row.contactMetadata ?? {},
+      }),
       status: row.status,
       deletedAt: row.deletedAt,
     };
@@ -190,11 +194,11 @@ export class DrizzleUserRepository implements UserRepository {
             role: user.role,
             status: user.status,
             phone: user.phone,
-            socialLinks:
-              (provider_profile?.socialLinks as Record<
-                string,
-                string | undefined
-              >) ?? {},
+            socialLinks: deriveSocialLinks({
+              primaryPhone: provider_profile?.primaryPhone ?? '',
+              callEnabled: provider_profile?.callEnabled ?? false,
+              metadata: provider_profile?.contactMetadata ?? {},
+            }),
             isProviderVisible: provider_profile?.isProviderVisible ?? true,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
@@ -238,7 +242,9 @@ export class DrizzleUserRepository implements UserRepository {
     const [row] = await db
       .select({
         user: userSchema,
-        socialLinks: providerProfileSchema.socialLinks,
+        primaryPhone: providerProfileSchema.primaryPhone,
+        callEnabled: providerProfileSchema.callEnabled,
+        contactMetadata: providerProfileSchema.contactMetadata,
         isProviderVisible: providerProfileSchema.isProviderVisible,
       })
       .from(userSchema)
@@ -261,10 +267,11 @@ export class DrizzleUserRepository implements UserRepository {
         role: row.user.role,
         status: row.user.status,
         phone: row.user.phone,
-        socialLinks: (row.socialLinks ?? {}) as Record<
-          string,
-          string | undefined
-        >,
+        socialLinks: deriveSocialLinks({
+          primaryPhone: row.primaryPhone ?? '',
+          callEnabled: row.callEnabled ?? false,
+          metadata: row.contactMetadata ?? {},
+        }),
         isProviderVisible: row.isProviderVisible ?? true,
         createdAt: row.user.createdAt,
         updatedAt: row.user.updatedAt,
@@ -345,7 +352,6 @@ export class DrizzleUserRepository implements UserRepository {
         providerId: id,
         displayName: userRow.name,
         avatarUrl: userRow.image ?? null,
-        socialLinks: {},
         isProviderVisible: isVisible,
       })
       .onConflictDoUpdate({

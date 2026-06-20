@@ -24,6 +24,7 @@ export function createProviderProfileRouter(
       };
       try {
         const profile = await getProviderProfileUseCase.execute(input);
+        const { primaryPhone, callEnabled } = profile.contactDefaults;
         return {
           id: profile.id,
           displayName: profile.displayName,
@@ -33,7 +34,15 @@ export function createProviderProfileRouter(
           logoUrl: profile.logoUrl,
           bannerUrl: profile.bannerUrl,
           publicDescription: profile.publicDescription,
-          socialLinks: profile.socialLinks,
+          contactDefaults: profile.contactDefaults,
+          contactMetadata: profile.contactMetadata,
+          // Transitional flat view derived from the canonical contract; removed
+          // when public surfaces migrate in T-17-04.
+          socialLinks: {
+            whatsapp: primaryPhone || undefined,
+            phone: callEnabled && primaryPhone ? primaryPhone : undefined,
+            ...profile.contactMetadata,
+          },
           isProviderVisible: profile.isProviderVisible,
           createdAt: profile.createdAt,
           updatedAt: profile.updatedAt,
@@ -67,10 +76,10 @@ export function createProviderProfileRouter(
             .max(500, 'A descrição pública não pode exceder 500 caracteres')
             .nullable()
             .optional(),
-          socialLinks: z
+          primaryPhone: z.string().optional(),
+          callEnabled: z.boolean().optional(),
+          contactMetadata: z
             .object({
-              whatsapp: z.string().optional(),
-              phone: z.string().optional(),
               email: z.string().optional(),
               instagram: z.string().optional(),
               tiktok: z.string().optional(),
@@ -91,7 +100,9 @@ export function createProviderProfileRouter(
           logoUrl: input.logoUrl,
           bannerUrl: input.bannerUrl,
           publicDescription: input.publicDescription,
-          socialLinks: input.socialLinks,
+          primaryPhone: input.primaryPhone,
+          callEnabled: input.callEnabled,
+          contactMetadata: input.contactMetadata,
           isProviderVisible: input.isProviderVisible,
         };
         try {
@@ -101,7 +112,10 @@ export function createProviderProfileRouter(
           if (err instanceof Error) {
             if (
               err.constructor.name === 'InvalidProviderDisplayNameError' ||
-              err.constructor.name === 'InvalidProviderPublicDescriptionError'
+              err.constructor.name ===
+                'InvalidProviderPublicDescriptionError' ||
+              err.constructor.name === 'InvalidPrimaryPhoneError' ||
+              err.constructor.name === 'ProviderCallRequiresPhoneError'
             ) {
               throw new TRPCError({
                 code: 'BAD_REQUEST',

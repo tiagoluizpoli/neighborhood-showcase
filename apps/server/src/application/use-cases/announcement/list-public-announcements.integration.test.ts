@@ -48,7 +48,6 @@ describe('List Public Announcements Integration Test', () => {
       providerId,
       displayName: 'Branded List Provider',
       avatarUrl: 'https://example.com/branded-list-provider.png',
-      socialLinks: {},
       isProviderVisible: true,
     });
 

@@ -61,7 +61,7 @@ describe('UpdateUser integration tests', () => {
     await db.insert(providerProfile).values({
       providerId: testUserId,
       displayName: 'Provider Display Name',
-      socialLinks: { whatsapp: '5511999999999' },
+      primaryPhone: '5511999999999',
       isProviderVisible: true,
     });
 
@@ -76,7 +76,7 @@ describe('UpdateUser integration tests', () => {
     const [profileAfter] = await db
       .select({
         displayName: providerProfile.displayName,
-        socialLinks: providerProfile.socialLinks,
+        primaryPhone: providerProfile.primaryPhone,
         isProviderVisible: providerProfile.isProviderVisible,
       })
       .from(providerProfile)
@@ -85,7 +85,7 @@ describe('UpdateUser integration tests', () => {
 
     expect(profileAfter).toBeDefined();
     expect(profileAfter?.displayName).toBe('Provider Display Name');
-    expect(profileAfter?.socialLinks).toEqual({ whatsapp: '5511999999999' });
+    expect(profileAfter?.primaryPhone).toBe('5511999999999');
     expect(profileAfter?.isProviderVisible).toBe(true);
   });
 

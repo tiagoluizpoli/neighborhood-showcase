@@ -84,7 +84,6 @@ describe('Admin listProviders Integration Tests', () => {
     await db.insert(providerProfile).values({
       providerId: providerResidentId,
       displayName: 'Resident Provider',
-      socialLinks: {},
       isProviderVisible: true,
     });
     await db.insert(providerAssignment).values({
@@ -107,7 +106,6 @@ describe('Admin listProviders Integration Tests', () => {
     await db.insert(providerProfile).values({
       providerId: providerExternalId,
       displayName: 'External Provider',
-      socialLinks: {},
       isProviderVisible: true,
     });
     await db.insert(providerAssignment).values({
@@ -130,7 +128,6 @@ describe('Admin listProviders Integration Tests', () => {
     await db.insert(providerProfile).values({
       providerId: systemManagerProviderId,
       displayName: 'Manager Provider',
-      socialLinks: {},
       isProviderVisible: true,
     });
     await db.insert(providerAssignment).values({
@@ -153,7 +150,6 @@ describe('Admin listProviders Integration Tests', () => {
     await db.insert(providerProfile).values({
       providerId: invisibleProviderId,
       displayName: 'Invisible Provider',
-      socialLinks: {},
       isProviderVisible: false,
     });
   });

@@ -1,4 +1,5 @@
 import type { Announcement } from '../../../domain/entities/announcement.entity';
+import type { AnnouncementContactSettings } from '../../../domain/entities/contact';
 import type { AnnouncementRepository } from '../../../domain/repositories/announcement.repository';
 import type { AssignmentRepository } from '../../../domain/repositories/assignment.repository';
 import { DomainError } from '../../../shared/domain-error';
@@ -27,15 +28,7 @@ export interface UpdateAnnouncementInput {
   imageUrl: string;
   categoryId: string;
   tags: string[];
-  contactLinks: {
-    whatsapp?: string;
-    phone?: string;
-    email?: string;
-    instagram?: string;
-    tiktok?: string;
-    facebook?: string;
-    website?: string;
-  };
+  contact: AnnouncementContactSettings;
   showVerifiedBadge: boolean;
 }
 
@@ -63,11 +56,7 @@ export class UpdateAnnouncement {
         announcement.providerAssignmentId,
       );
 
-      if (
-        !assignment ||
-        assignment.status !== 'APPROVED' ||
-        assignment.type !== 'RESIDENT'
-      ) {
+      if (assignment?.status !== 'APPROVED' || assignment.type !== 'RESIDENT') {
         throw new VerifiedBadgeEligibilityError();
       }
     }
@@ -80,7 +69,7 @@ export class UpdateAnnouncement {
       imageUrl: input.imageUrl,
       categoryId: input.categoryId,
       tags: input.tags,
-      contactLinks: input.contactLinks,
+      contact: input.contact,
       showVerifiedBadge: input.showVerifiedBadge,
       status:
         announcement.status === 'SUSPENDED' ? 'ACTIVE' : announcement.status,
