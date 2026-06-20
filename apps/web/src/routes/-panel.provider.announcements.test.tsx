@@ -299,14 +299,10 @@ describe('Provider route migration — no per-route padding overrides', () => {
     expect(tree.props?.className ?? '').not.toContain('py-8');
   });
 
-  test('announcements new: centered-form variant is present in the tree', async () => {
+  test('announcements new: default (full-width) container variant is present', async () => {
     const { Route } = await import('@/routes/panel.provider.announcements.new');
     const tree = renderComponent(Route.component);
-    const container = findByProp(
-      tree,
-      'data-container-variant',
-      'centered-form',
-    );
+    const container = findByProp(tree, 'data-container-variant', 'default');
     expect(container).not.toBeNull();
   });
 

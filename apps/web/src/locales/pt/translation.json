@@ -499,7 +499,9 @@
       "contact_required": "Forneça pelo menos um meio de contato (WhatsApp, Instagram ou Website).",
       "image_required": "A imagem de capa é obrigatória.",
       "upload_failed": "Falha no upload da imagem recortada.",
-      "upload_or_form_error": "Erro ao realizar upload ou processar o formulário."
+      "upload_or_form_error": "Erro ao realizar upload ou processar o formulário.",
+      "custom_phone_invalid": "Informe um número de WhatsApp válido com DDD.",
+      "inherit_no_baseline": "Adicione um número de WhatsApp ao seu perfil ou personalize o contato deste anúncio."
     },
     "details_card": {
       "title": "Detalhes do Anúncio",
@@ -539,7 +541,21 @@
       "instagram_label": "Perfil do Instagram",
       "instagram_placeholder": "Ex: @seu_negocio",
       "website_label": "Website / Cardápio Online (link completo)",
-      "website_placeholder": "Ex: https://meusite.com.br"
+      "website_placeholder": "Ex: https://meusite.com.br",
+      "mode_inherit_badge": "Usando padrões do perfil",
+      "mode_custom_badge": "Personalizado para este anúncio",
+      "inherit_description": "Os vizinhos falam com você pelo número de WhatsApp do seu perfil.",
+      "custom_description": "Use um número de contato diferente só para este anúncio.",
+      "calls_on": "Chamadas diretas ativadas neste número.",
+      "calls_off": "Apenas WhatsApp — chamadas diretas desativadas.",
+      "no_baseline_warning": "Adicione um número de WhatsApp ao seu perfil antes de publicar.",
+      "configure_link": "Ir para configurações de contato",
+      "customize_button": "Personalizar para este anúncio",
+      "custom_phone_label": "WhatsApp (apenas números com DDD)",
+      "custom_phone_placeholder": "Ex: 11999999999",
+      "custom_call_label": "Ativar chamadas diretas",
+      "custom_call_help": "Permita que os vizinhos liguem para este mesmo número.",
+      "use_defaults_button": "Usar padrões do perfil"
     },
     "image_card": {
       "title": "Imagem de Capa",

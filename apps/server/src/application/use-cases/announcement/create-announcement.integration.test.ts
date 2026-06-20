@@ -201,6 +201,117 @@ describe('Create Announcement Integration Test', () => {
     await db.delete(assignment);
   });
 
+  describe('Create via router — structured inherit/custom contact', () => {
+    const assignId = 'approved-assign-contact-id';
+
+    const buildCaller = () =>
+      appRouter.createCaller({
+        auth: null,
+        session: {
+          session: {
+            id: 'sess-create-contact',
+            userId: testUserId,
+            token: 'tok-create-contact',
+            expiresAt: new Date(Date.now() + 3600000),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            userAgent: null,
+            ipAddress: null,
+          },
+          user: {
+            id: testUserId,
+            name: 'John Provider',
+            email: 'john-provider@example.com',
+            emailVerified: true,
+            role: 'USER',
+            status: 'ACTIVE',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        },
+      });
+
+    const baseInput = {
+      providerAssignmentId: assignId,
+      title: 'Fresh Garden Vegetables',
+      subtitle: null,
+      description: 'Locally grown vegetables delivered to your door.',
+      priceCents: 1500,
+      imageUrl: 'http://localhost:9000/showcase/veg.jpg',
+      categoryId: 'cat-alimentacao',
+      tags: ['horta'],
+      showVerifiedBadge: false,
+    };
+
+    beforeEach(async () => {
+      await db.delete(announcement);
+      await db.delete(assignment);
+      await db.insert(assignment).values({
+        id: assignId,
+        providerId: testUserId,
+        condominiumId: testCondoId,
+        type: 'RESIDENT',
+        status: 'APPROVED',
+        unitInfo: 'Block C, Apt 101',
+      });
+    });
+
+    test('persists inherit mode without a custom payload', async () => {
+      const caller = buildCaller();
+      const res = await caller.announcement.create({
+        ...baseInput,
+        contact: { mode: 'inherit', custom: null },
+      });
+
+      const [dbAnn] = await db
+        .select()
+        .from(announcement)
+        .where(eq(announcement.id, res.id))
+        .limit(1);
+
+      expect(dbAnn?.contactMode).toBe('inherit');
+      expect(dbAnn?.contactCustom).toBeNull();
+    });
+
+    test('persists custom mode with the normalized baseline number', async () => {
+      const caller = buildCaller();
+      const res = await caller.announcement.create({
+        ...baseInput,
+        contact: {
+          mode: 'custom',
+          custom: { primaryPhone: '+55 (11) 98888-7777', callEnabled: true },
+        },
+      });
+
+      const [dbAnn] = await db
+        .select()
+        .from(announcement)
+        .where(eq(announcement.id, res.id))
+        .limit(1);
+
+      expect(dbAnn?.contactMode).toBe('custom');
+      expect(dbAnn?.contactCustom).toEqual({
+        primaryPhone: '+5511988887777',
+        callEnabled: true,
+      });
+    });
+
+    test('rejects custom mode without a valid WhatsApp baseline', async () => {
+      const caller = buildCaller();
+      expect(
+        caller.announcement.create({
+          ...baseInput,
+          contact: {
+            mode: 'custom',
+            custom: { primaryPhone: '123', callEnabled: false },
+          },
+        }),
+      ).rejects.toThrow(
+        'Um número de WhatsApp é obrigatório para o contato do anúncio.',
+      );
+    });
+  });
+
   describe('Update Announcement Verification Parity & Auto-Revocation', () => {
     let testAnnId: string;
     let assignId: string;

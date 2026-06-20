@@ -24,6 +24,11 @@ import { useEffect, useRef, useState } from 'react';
 import Cropper, { type Area } from 'react-easy-crop';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import {
+  type AnnouncementContactMode,
+  AnnouncementContactSection,
+  hasBaseline,
+} from './panel/provider/-announcement-contact-section';
 import { PanelContentContainer } from '@/components/panel-content-container';
 import { getCroppedImg } from '@/utils/crop-image';
 import { trpc } from '@/utils/trpc';
@@ -44,9 +49,10 @@ function NewAnnouncementComponent() {
   const [description, setDescription] = useState<string>('');
   const [priceStr, setPriceStr] = useState<string>('');
   const [tagsStr, setTagsStr] = useState<string>('');
-  const [whatsapp, setWhatsapp] = useState<string>('');
-  const [instagram, setInstagram] = useState<string>('');
-  const [website, setWebsite] = useState<string>('');
+  const [contactMode, setContactMode] =
+    useState<AnnouncementContactMode>('inherit');
+  const [customPhone, setCustomPhone] = useState<string>('');
+  const [customCallEnabled, setCustomCallEnabled] = useState<boolean>(false);
   const [showVerifiedBadge, setShowVerifiedBadge] = useState<boolean>(false);
 
   const [imageSrc, setImageSrc] = useState<string>('');
@@ -58,6 +64,11 @@ function NewAnnouncementComponent() {
   const { data: backendCategories } = useQuery(
     trpc.announcement.listCategories.queryOptions(),
   );
+
+  const providerProfileQuery = useQuery(
+    trpc.providerProfile.get.queryOptions(),
+  );
+  const providerDefaults = providerProfileQuery.data?.contactDefaults ?? null;
 
   const assignmentsQuery = useQuery(
     trpc.assignment.getMyAssignments.queryOptions(),
@@ -129,8 +140,13 @@ function NewAnnouncementComponent() {
       toast.error(t('new_announcement.toast.description_too_short'));
       return;
     }
-    if (!whatsapp.trim() && !instagram.trim() && !website.trim()) {
-      toast.error(t('new_announcement.toast.contact_required'));
+    if (contactMode === 'custom') {
+      if (customPhone.replace(/\D/g, '').length < 10) {
+        toast.error(t('new_announcement.toast.custom_phone_invalid'));
+        return;
+      }
+    } else if (!hasBaseline(providerDefaults)) {
+      toast.error(t('new_announcement.toast.inherit_no_baseline'));
       return;
     }
     if (!imageSrc || !croppedAreaPixels) {
@@ -181,11 +197,16 @@ function NewAnnouncementComponent() {
         imageUrl,
         categoryId,
         tags,
-        contactLinks: {
-          whatsapp: whatsapp || undefined,
-          instagram: instagram || undefined,
-          website: website || undefined,
-        },
+        contact:
+          contactMode === 'custom'
+            ? {
+                mode: 'custom' as const,
+                custom: {
+                  primaryPhone: customPhone.trim(),
+                  callEnabled: customCallEnabled,
+                },
+              }
+            : { mode: 'inherit' as const, custom: null },
         showVerifiedBadge: showVerifiedBadge && canVerify,
       });
     } catch (error) {
@@ -413,64 +434,19 @@ function NewAnnouncementComponent() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  {t('new_announcement.contact_card.title')}
-                </CardTitle>
-                <CardDescription>
-                  {t('new_announcement.contact_card.description')}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="whatsapp">
-                      {t('new_announcement.contact_card.whatsapp_label')}
-                    </Label>
-                    <Input
-                      id="whatsapp"
-                      type="tel"
-                      placeholder={t(
-                        'new_announcement.contact_card.whatsapp_placeholder',
-                      )}
-                      value={whatsapp}
-                      onChange={(e) => setWhatsapp(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="instagram">
-                      {t('new_announcement.contact_card.instagram_label')}
-                    </Label>
-                    <Input
-                      id="instagram"
-                      type="text"
-                      placeholder={t(
-                        'new_announcement.contact_card.instagram_placeholder',
-                      )}
-                      value={instagram}
-                      onChange={(e) => setInstagram(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="website">
-                      {t('new_announcement.contact_card.website_label')}
-                    </Label>
-                    <Input
-                      id="website"
-                      type="url"
-                      placeholder={t(
-                        'new_announcement.contact_card.website_placeholder',
-                      )}
-                      value={website}
-                      onChange={(e) => setWebsite(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <AnnouncementContactSection
+              mode={contactMode}
+              onModeChange={setContactMode}
+              customPhone={customPhone}
+              onCustomPhoneChange={setCustomPhone}
+              customCallEnabled={customCallEnabled}
+              onCustomCallEnabledChange={setCustomCallEnabled}
+              providerDefaults={providerDefaults}
+              isLoadingDefaults={providerProfileQuery.isLoading}
+              onConfigureContact={() =>
+                navigate({ to: '/panel/provider/configuration' })
+              }
+            />
           </div>
 
           <div className="space-y-6">

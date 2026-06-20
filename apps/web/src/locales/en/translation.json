@@ -499,7 +499,9 @@
       "contact_required": "Provide at least one contact method (WhatsApp, Instagram, or Website).",
       "image_required": "Cover image is required.",
       "upload_failed": "Failed to upload the cropped image.",
-      "upload_or_form_error": "Error uploading or processing the form."
+      "upload_or_form_error": "Error uploading or processing the form.",
+      "custom_phone_invalid": "Enter a valid WhatsApp number with area code.",
+      "inherit_no_baseline": "Add a WhatsApp number to your profile or customize the contact for this announcement."
     },
     "details_card": {
       "title": "Announcement Details",
@@ -539,7 +541,21 @@
       "instagram_label": "Instagram Profile",
       "instagram_placeholder": "Ex: @your_business",
       "website_label": "Website / Online Menu (full link)",
-      "website_placeholder": "Ex: https://mysite.com"
+      "website_placeholder": "Ex: https://mysite.com",
+      "mode_inherit_badge": "Using profile defaults",
+      "mode_custom_badge": "Custom for this announcement",
+      "inherit_description": "Neighbors reach you on the WhatsApp number from your profile.",
+      "custom_description": "Use a different contact number just for this announcement.",
+      "calls_on": "Direct calls enabled on this number.",
+      "calls_off": "WhatsApp only — direct calls are off.",
+      "no_baseline_warning": "Add a WhatsApp number to your profile before publishing.",
+      "configure_link": "Go to contact settings",
+      "customize_button": "Customize for this announcement",
+      "custom_phone_label": "WhatsApp (numbers with area code only)",
+      "custom_phone_placeholder": "Ex: 11999999999",
+      "custom_call_label": "Enable direct calls",
+      "custom_call_help": "Let neighbors call this same number.",
+      "use_defaults_button": "Use profile defaults"
     },
     "image_card": {
       "title": "Cover Image",

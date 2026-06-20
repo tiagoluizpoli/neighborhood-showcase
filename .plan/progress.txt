@@ -153,3 +153,10 @@ Completion update (attempt 4, 2026-06-19 — T-16-05/ST-01):
 
 2026-06-19 T-16-06/ST-03 DONE (attempt 3 — recovery): Code was already landed in 9e676de (useTranslation + provider_profile.loading + provider_profile.back_to_showcase keys in en/pt). Planning files had been regressed to in-progress by loop runtime; restored to committed done state. check + check-types pass. E-16 complete.
 [2026-06-19 21:38:27] NO MORE TASKS
+
+[2026-06-20] T-17-02 DONE — Create flow inherited contact authoring (committed next)
+- ST-01: extracted controlled AnnouncementContactSection (inherit badge + live baseline + lightweight customize); route reads providerProfile.get contactDefaults; dropped raw whatsapp/instagram/website + "one link required" rule; added contact_card i18n (en+pt).
+- ST-02: provider router create accepts structured contact{mode,custom} (canonical), contactLinks kept optional fallback for legacy dashboard create + edit (T-17-03). flat adapter renamed flatLinksToContactSettings.
+- ST-03: web unit (contact-section 4 + route 6, fixed stale centered-form->default), server integration (3 caller create tests), e2e announcement-create-contact.spec.ts (2 + screenshots).
+- Gates: check-types, check, web unit, server integration (test DB), e2e all green. Dev DB rebuilt to new schema + reseeded for e2e.
+- Note: T-17-01 committed as a8723dc before this task.

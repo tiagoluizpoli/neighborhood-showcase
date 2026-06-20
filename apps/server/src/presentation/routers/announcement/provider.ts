@@ -29,10 +29,38 @@ const providerContactLinksSchema = z.object({
   website: z.string().optional(),
 });
 
-// Transitional adapter (T-17-01): the create/edit web forms still submit the
-// flat contactLinks shape. Map it onto the canonical custom contact contract.
-// Structured authoring + inherit mode arrive in T-17-02/03.
-function toContactSettings(links: {
+// Canonical structured contact input (T-17-02). The provider create form sends
+// inherit/custom directly; inherit defers to live provider defaults, custom
+// carries its own baseline.
+const announcementContactInputSchema = z.object({
+  mode: z.enum(['inherit', 'custom']),
+  custom: z
+    .object({
+      primaryPhone: z.string(),
+      callEnabled: z.boolean(),
+    })
+    .nullable(),
+});
+
+function toContactSettings(
+  contact: z.infer<typeof announcementContactInputSchema>,
+): AnnouncementContactSettings {
+  if (contact.mode === 'custom') {
+    return {
+      mode: 'custom',
+      custom: {
+        primaryPhone: normalizePhone(contact.custom?.primaryPhone ?? ''),
+        callEnabled: Boolean(contact.custom?.callEnabled),
+      },
+    };
+  }
+  return { mode: 'inherit', custom: null };
+}
+
+// Transitional adapter: surfaces not yet migrated to structured contact (the
+// legacy dashboard create form and the edit flow, T-17-03) still submit the flat
+// contactLinks shape. Map it onto the canonical custom contract.
+function flatLinksToContactSettings(links: {
   whatsapp?: string;
   phone?: string;
 }): AnnouncementContactSettings {
@@ -70,11 +98,16 @@ export function createProviderAnnouncementRouter(
           imageUrl: z.string().min(1),
           categoryId: z.string().min(1),
           tags: z.array(z.string()),
-          contactLinks: providerContactLinksSchema,
+          contact: announcementContactInputSchema.optional(),
+          contactLinks: providerContactLinksSchema.optional(),
           showVerifiedBadge: z.boolean(),
         }),
       )
       .mutation(async ({ input, ctx }) => {
+        const contact = input.contact
+          ? toContactSettings(input.contact)
+          : flatLinksToContactSettings(input.contactLinks ?? {});
+
         const ann = await createAnnouncementUseCase.execute({
           providerId: ctx.session.user.id,
           providerAssignmentId: input.providerAssignmentId,
@@ -85,7 +118,7 @@ export function createProviderAnnouncementRouter(
           imageUrl: input.imageUrl,
           categoryId: input.categoryId,
           tags: input.tags,
-          contact: toContactSettings(input.contactLinks),
+          contact,
           showVerifiedBadge: input.showVerifiedBadge,
         });
 
@@ -208,7 +241,7 @@ export function createProviderAnnouncementRouter(
             imageUrl: input.imageUrl,
             categoryId: input.categoryId,
             tags: input.tags,
-            contact: toContactSettings(input.contactLinks),
+            contact: flatLinksToContactSettings(input.contactLinks),
             showVerifiedBadge: input.showVerifiedBadge,
           });
 

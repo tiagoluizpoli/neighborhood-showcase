@@ -2,7 +2,7 @@
 type: task
 id: T-17-02
 epic: E-17
-status: ready
+status: done
 blocked-by: [T-17-01]
 default-model: medium
 ---
@@ -17,17 +17,17 @@ Rebuild the announcement create flow around inherited provider contact defaults 
 
 ## Acceptance Criteria
 
-- [ ] The create route reads provider contact defaults and shows inherited contact state clearly with a lightweight badge/label plus simple customize affordance.
-- [ ] A provider can save a new announcement using inherited contact defaults without re-entering baseline contact information.
-- [ ] A provider can switch the draft into custom contact mode and edit the allowed override fields without losing the canonical contract.
-- [ ] Create-route validation and payload shape align with the new contract from T-17-01.
-- [ ] Route/component/integration tests cover both inherited and customized create flows.
+- [x] The create route reads provider contact defaults and shows inherited contact state clearly with a lightweight badge/label plus simple customize affordance.
+- [x] A provider can save a new announcement using inherited contact defaults without re-entering baseline contact information.
+- [x] A provider can switch the draft into custom contact mode and edit the allowed override fields without losing the canonical contract.
+- [x] Create-route validation and payload shape align with the new contract from T-17-01.
+- [x] Route/component/integration tests cover both inherited and customized create flows.
 
 ## Sub-Tasks
 
 ### ST-01 - Build the inherited-contact create authoring section
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The current create-page composition cannot host the inherited/default state affordance without a broader shell/layout change outside the PRD.
@@ -52,11 +52,13 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- Extracted controlled `AnnouncementContactSection` to `apps/web/src/routes/panel/provider/-announcement-contact-section.tsx` (inherit badge + live baseline display + lightweight customize affordance; custom mode exposes phone + callEnabled).
+- Route reads `trpc.providerProfile.get` -> `contactDefaults`; replaced raw whatsapp/instagram/website inputs and the old "one contact link required" rule.
+- Added `new_announcement.contact_card.*` + two toast keys to en + pt.
 
 ### ST-02 - Wire create mutation and persistence to the canonical inherited/custom model
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by:
@@ -80,11 +82,12 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- Provider router `create` now accepts structured `contact {mode, custom}` (canonical); `contactLinks` kept optional as fallback for the untouched legacy dashboard create route + edit flow (T-17-03). Renamed flat adapter to `flatLinksToContactSettings`; new `toContactSettings` maps structured input and normalizes the phone.
+- create use-case already consumed `AnnouncementContactSettings`; inherit persists `contact_mode='inherit'`/null, custom persists normalized `contact_custom`.
 
 ### ST-03 - Lock create-flow behavior with route-level and integration coverage
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by:
@@ -108,7 +111,9 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- Web unit: `-announcement-contact-section.test.tsx` (4) + fixed stale `centered-form` assertion to `default` (RULES §5 full-width) in `-panel.provider.announcements.test.tsx` (6).
+- Server integration: 3 caller-based create tests (inherit persists, custom normalizes phone, malformed rejects WhatsApp baseline).
+- E2E: `announcement-create-contact.spec.ts` (2, with screenshots) — inherit badge+baseline, customize reveals override + restores inherit. All gates green.
 
 ---
 
