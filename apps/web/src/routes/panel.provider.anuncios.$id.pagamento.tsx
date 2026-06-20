@@ -10,7 +10,7 @@ function PaymentRouteComponent() {
   const { id } = Route.useParams();
 
   return (
-    <PanelContentContainer variant="centered-form">
+    <PanelContentContainer variant="default">
       <ProviderDashboardPaymentFlow announcementId={id} />
     </PanelContentContainer>
   );

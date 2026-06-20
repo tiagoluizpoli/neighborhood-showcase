@@ -157,8 +157,6 @@ function CondoSetupComponent() {
   }
 
   return (
-    <PanelContentContainer variant="centered-form">
-      {content}
-    </PanelContentContainer>
+    <PanelContentContainer variant="default">{content}</PanelContentContainer>
   );
 }

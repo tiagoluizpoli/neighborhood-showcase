@@ -145,7 +145,7 @@ export function ProviderAnnouncementDetailPage() {
   const locale = i18n.language === 'en' ? 'en-US' : 'pt-BR';
 
   return (
-    <PanelContentContainer variant={isEditing ? 'centered-form' : 'default'}>
+    <PanelContentContainer variant="default">
       <div className="flex flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link

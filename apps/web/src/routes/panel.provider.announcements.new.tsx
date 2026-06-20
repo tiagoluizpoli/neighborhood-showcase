@@ -200,7 +200,7 @@ function NewAnnouncementComponent() {
   };
 
   return (
-    <PanelContentContainer variant="centered-form">
+    <PanelContentContainer variant="default">
       <div className="space-y-6">
         <div className="flex items-center space-x-4">
           <Button
@@ -302,44 +302,46 @@ function NewAnnouncementComponent() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="title">
-                    {t('new_announcement.details_card.form.title_label')}{' '}
-                    <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="title"
-                    type="text"
-                    maxLength={100}
-                    placeholder={t(
-                      'new_announcement.details_card.form.title_placeholder',
-                    )}
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    required
-                  />
-                  <div className="flex justify-end text-[10px] text-muted-foreground">
-                    {t('new_announcement.details_card.form.chars_count', {
-                      current: title.length,
-                      max: 100,
-                    })}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">
+                      {t('new_announcement.details_card.form.title_label')}{' '}
+                      <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="title"
+                      type="text"
+                      maxLength={100}
+                      placeholder={t(
+                        'new_announcement.details_card.form.title_placeholder',
+                      )}
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      required
+                    />
+                    <div className="flex justify-end text-[10px] text-muted-foreground">
+                      {t('new_announcement.details_card.form.chars_count', {
+                        current: title.length,
+                        max: 100,
+                      })}
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="subtitle">
-                    {t('new_announcement.details_card.form.subtitle_label')}
-                  </Label>
-                  <Input
-                    id="subtitle"
-                    type="text"
-                    maxLength={100}
-                    placeholder={t(
-                      'new_announcement.details_card.form.subtitle_placeholder',
-                    )}
-                    value={subtitle}
-                    onChange={(e) => setSubtitle(e.target.value)}
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="subtitle">
+                      {t('new_announcement.details_card.form.subtitle_label')}
+                    </Label>
+                    <Input
+                      id="subtitle"
+                      type="text"
+                      maxLength={100}
+                      placeholder={t(
+                        'new_announcement.details_card.form.subtitle_placeholder',
+                      )}
+                      value={subtitle}
+                      onChange={(e) => setSubtitle(e.target.value)}
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -420,50 +422,52 @@ function NewAnnouncementComponent() {
                   {t('new_announcement.contact_card.description')}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="whatsapp">
-                    {t('new_announcement.contact_card.whatsapp_label')}
-                  </Label>
-                  <Input
-                    id="whatsapp"
-                    type="tel"
-                    placeholder={t(
-                      'new_announcement.contact_card.whatsapp_placeholder',
-                    )}
-                    value={whatsapp}
-                    onChange={(e) => setWhatsapp(e.target.value)}
-                  />
-                </div>
+              <CardContent>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="whatsapp">
+                      {t('new_announcement.contact_card.whatsapp_label')}
+                    </Label>
+                    <Input
+                      id="whatsapp"
+                      type="tel"
+                      placeholder={t(
+                        'new_announcement.contact_card.whatsapp_placeholder',
+                      )}
+                      value={whatsapp}
+                      onChange={(e) => setWhatsapp(e.target.value)}
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="instagram">
-                    {t('new_announcement.contact_card.instagram_label')}
-                  </Label>
-                  <Input
-                    id="instagram"
-                    type="text"
-                    placeholder={t(
-                      'new_announcement.contact_card.instagram_placeholder',
-                    )}
-                    value={instagram}
-                    onChange={(e) => setInstagram(e.target.value)}
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="instagram">
+                      {t('new_announcement.contact_card.instagram_label')}
+                    </Label>
+                    <Input
+                      id="instagram"
+                      type="text"
+                      placeholder={t(
+                        'new_announcement.contact_card.instagram_placeholder',
+                      )}
+                      value={instagram}
+                      onChange={(e) => setInstagram(e.target.value)}
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="website">
-                    {t('new_announcement.contact_card.website_label')}
-                  </Label>
-                  <Input
-                    id="website"
-                    type="url"
-                    placeholder={t(
-                      'new_announcement.contact_card.website_placeholder',
-                    )}
-                    value={website}
-                    onChange={(e) => setWebsite(e.target.value)}
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="website">
+                      {t('new_announcement.contact_card.website_label')}
+                    </Label>
+                    <Input
+                      id="website"
+                      type="url"
+                      placeholder={t(
+                        'new_announcement.contact_card.website_placeholder',
+                      )}
+                      value={website}
+                      onChange={(e) => setWebsite(e.target.value)}
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -482,7 +486,7 @@ function NewAnnouncementComponent() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="group flex aspect-[4/3] w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-2 border-dashed bg-background p-6 hover:bg-card"
+                    className="group mx-auto flex aspect-[4/3] w-full max-w-[220px] cursor-pointer flex-col items-center justify-center rounded-lg border border-2 border-dashed bg-background p-6 hover:bg-card"
                   >
                     <UploadCloud className="mb-3 h-10 w-10 text-muted-foreground transition-colors group-hover:text-primary" />
                     <p className="font-semibold text-foreground text-xs">
@@ -494,7 +498,7 @@ function NewAnnouncementComponent() {
                   </button>
                 ) : (
                   <div className="space-y-4">
-                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border bg-background">
+                    <div className="relative mx-auto aspect-[4/3] w-full max-w-[220px] overflow-hidden rounded-lg border bg-background">
                       <Cropper
                         image={imageSrc}
                         crop={crop}
@@ -611,11 +615,11 @@ function NewAnnouncementComponent() {
               </CardContent>
             </Card>
 
-            <div className="space-y-2">
+            <div className="flex gap-2">
               <Button
                 type="submit"
                 disabled={isUploading || createMutation.isPending}
-                className="w-full"
+                className="flex-1"
               >
                 {isUploading ? (
                   <span className="flex items-center gap-2">
@@ -638,7 +642,7 @@ function NewAnnouncementComponent() {
                 type="button"
                 variant="outline"
                 onClick={() => navigate({ to: '/panel/provider' })}
-                className="w-full"
+                className="flex-1"
               >
                 {t('new_announcement.submit.cancel')}
               </Button>
