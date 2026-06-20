@@ -1,7 +1,7 @@
 ---
 type: future-grilling-session
 date: 2026-06-18
-status: queued
+status: completed
 group: announcement-creation-and-authoring-model
 source_session: ./00-umbrella-intake-and-audit.md
 ---
@@ -306,3 +306,12 @@ Why this excerpt matters:
 - Required vs optional contact/target types.
 - The create-page layout and selection primitives.
 - How much create/edit parity must land in the same pass.
+
+## Grilling completion
+- Completed on: 2026-06-20
+- Live grilling file: `.plan/grilling/2026-06-20-06-announcement-creation-and-authoring-model-grilling.md`
+- Handoff file: `.plan/handoffs/grill-to-prd-announcement-creation-and-authoring-model.md`
+- Outcome summary:
+  - Locked a three-layer authoring model: provider contact defaults, announcement-level contact overrides, and separate CTA targets.
+  - Locked WhatsApp as mandatory baseline contact infrastructure, with optional direct-call exposure on the same number and default-plus-override behavior.
+  - Locked scalable authoring primitives, core create/edit parity, and an announcement-level optional CTA system with resilient public fallback to contact actions.

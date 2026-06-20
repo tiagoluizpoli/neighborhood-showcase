@@ -99,7 +99,7 @@ Default order unless the user explicitly reprioritizes:
 | --- | --- | --- | --- | --- | --- |
 | 1 | `07-role-access-and-route-architecture.md` | completed | Capability gating, provider-route namespace, default landings, direct-URL protection, legacy-test mismatch | `.plan/grilling/2026-06-18-07-role-access-and-route-architecture-grilling.md` | `.plan/handoffs/grill-to-prd-role-access-and-route-architecture.md` |
 | 2 | `01-panel-shell-layout-and-navigation.md` | completed | Cross-panel visual shell consistency, collapse behavior, header treatment, spacing/padding, language/style drift | `.plan/grilling/2026-06-19-01-panel-shell-layout-and-navigation-grilling.md` | `.plan/handoffs/grill-to-prd-panel-shell-layout-and-navigation.md` |
-| 3 | `06-announcement-creation-and-authoring-model.md` | queued | New announcement form layout, scalable category selection, money/tags/contact/target model | — | — |
+| 3 | `06-announcement-creation-and-authoring-model.md` | completed | New announcement form layout, scalable category selection, money/tags/contact/target model | `.plan/grilling/2026-06-20-06-announcement-creation-and-authoring-model-grilling.md` | `.plan/handoffs/grill-to-prd-announcement-creation-and-authoring-model.md` |
 | 4 | `05-announcement-detail-edit-and-analytics.md` | queued | Detail-page composition, edit-mode scope, analytics alignment, missing editable fields | — | — |
 | 5 | `03-provider-configuration-and-public-profile.md` | queued | Provider config IA, branding/image UX, public visibility placement, public provider page structure | — | — |
 | 6 | `04-provider-dashboard-and-announcement-cards.md` | queued | Dashboard/list visual density, shared card system, cross-surface card consistency | — | — |

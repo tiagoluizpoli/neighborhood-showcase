@@ -5,7 +5,7 @@
 
 ## Current Run Family
 
-- Current PRD: `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md`
+- Current PRD: `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md`
 - Current PRD pointer: `.plan/prds/.current-prd`
 - Current grilling pointer: `.plan/grilling/.current-session`
 - Current grill handoff pointer: `.plan/handoffs/.current-grill-handoff`
@@ -29,7 +29,8 @@
 | SUPERSEDED | v6 | Panel i18n, navigation hierarchy, moderation condo context | `.plan/prds/PRD-v6-panel-i18n-and-navigation-remediation.md` | Root `/PRD.md` inlined Module 24 | 2026-06-09 |
 | SUPERSEDED | v7 | Provider section reorg | `.plan/prds/PRD-v7-provider-section-reorg.md` | `.plan/prds/PRD-v7-provider-section-reorg.md` | 2026-06-10 |
 | SUPERSEDED | v8 | Role access and route architecture | `.plan/prds/PRD-v8-role-access-and-route-architecture.md` | `.plan/prds/PRD-v8-role-access-and-route-architecture.md` | 2026-06-18 |
-| CURRENT | v9 | Panel shell, layout, and navigation | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | 2026-06-19 |
+| SUPERSEDED | v9 | Panel shell, layout, and navigation | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | 2026-06-19 |
+| CURRENT | v10 | Announcement creation and authoring model | `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md` | `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md` | 2026-06-20 |
 
 ## Epics
 
@@ -39,6 +40,7 @@
 | E-14 | Role Access and Route Architecture | done | — | `.plan/epics/14-role-access-and-route-architecture/epic.md` |
 | E-15 | Functional Testing | ready | — | `.plan/epics/15-functional-testing/epic.md` |
 | E-16 | Panel Shell, Layout, and Navigation | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/epic.md` |
+| E-17 | Announcement Creation and Authoring Model | ready | — | `.plan/epics/17-announcement-creation-and-authoring-model/epic.md` |
 
 ## Tasks
 
@@ -66,6 +68,12 @@
 | T-16-04 | E-16 | Strengthen sidebar header and top bar chrome | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/04-strengthen-shell-chrome.md` |
 | T-16-05 | E-16 | Shared announcement presentation primitive | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/05-announcement-presentation-primitive.md` |
 | T-16-06 | E-16 | Shell-adjacent localization | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/06-shell-adjacent-localization.md` |
+| T-17-01 | E-17 | Provider contact defaults and WhatsApp baseline | ready | — | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/01-provider-contact-defaults-and-whatsapp-baseline.md` |
+| T-17-02 | E-17 | Create flow inherited contact authoring | ready | T-17-01 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/02-create-flow-inherited-contact-authoring.md` |
+| T-17-03 | E-17 | Edit flow contact parity and live inheritance | ready | T-17-02 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/03-edit-flow-contact-parity-and-live-inheritance.md` |
+| T-17-04 | E-17 | Bounded CTA authoring and public fallback | ready | T-17-02, T-17-03 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/04-bounded-cta-authoring-and-public-fallback.md` |
+| T-17-05 | E-17 | Structured category, tags, and money primitives | ready | T-17-03 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/05-structured-category-tags-and-money-primitives.md` |
+| T-17-06 | E-17 | Authoring surface regression and seeded Playwright matrix | ready | T-17-04, T-17-05 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/06-authoring-surface-regression-and-seeded-playwright-matrix.md` |
 
 ## Migration Note
 

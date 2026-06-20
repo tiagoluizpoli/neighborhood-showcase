@@ -14,7 +14,8 @@ Use this file as the thin index of versioned PRDs stored under `.plan/prds/`.
 | SUPERSEDED | v6 | Panel i18n, navigation hierarchy, moderation condo context | `.plan/prds/PRD-v6-panel-i18n-and-navigation-remediation.md` | Root `/PRD.md` inlined Module 24 is the preserved canonical record for v6; the versioned file is the migrated summary copy. | 2026-06-09 |
 | SUPERSEDED | v7 | Provider section reorg | `.plan/prds/PRD-v7-provider-section-reorg.md` | `.plan/prds/PRD-v7-provider-section-reorg.md` | 2026-06-10 |
 | SUPERSEDED | v8 | Role access and route architecture | `.plan/prds/PRD-v8-role-access-and-route-architecture.md` | `.plan/prds/PRD-v8-role-access-and-route-architecture.md` | 2026-06-18 |
-| CURRENT | v9 | Panel shell, layout, and navigation | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | 2026-06-19 |
+| SUPERSEDED | v9 | Panel shell, layout, and navigation | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | 2026-06-19 |
+| CURRENT | v10 | Announcement creation and authoring model | `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md` | `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md` | 2026-06-20 |
 
 ## Rules
 
