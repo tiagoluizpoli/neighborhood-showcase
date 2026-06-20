@@ -441,6 +441,10 @@
       }
     }
   },
+  "provider_profile": {
+    "loading": "Carregando perfil do prestador...",
+    "back_to_showcase": "Voltar para a vitrine"
+  },
   "new_announcement": {
     "title": "Novo Anúncio",
     "subtitle": "Crie um rascunho da sua oferta e publique para seus vizinhos.",

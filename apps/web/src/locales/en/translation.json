@@ -441,6 +441,10 @@
       }
     }
   },
+  "provider_profile": {
+    "loading": "Loading provider profile...",
+    "back_to_showcase": "Back to showcase"
+  },
   "new_announcement": {
     "title": "New Announcement",
     "subtitle": "Create a draft of your offer and publish it to your neighbors.",

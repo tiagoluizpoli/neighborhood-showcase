@@ -76,7 +76,7 @@ verification:
 
 ### ST-03 - Localize the public provider-profile copy
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []
