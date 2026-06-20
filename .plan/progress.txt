@@ -1,3 +1,15 @@
+test(web): cover i18n resolution for shell-adjacent localization (T-16-06/ST-04)
+
+Completion update (attempt 2, 2026-06-19):
+- ST-03 was already complete in HEAD (code + locales landed in prior commit) but planning state wasn't updated; corrected status to done.
+- ST-04: added react-i18next mock + lucide-react mock to `-provider-profile.test.tsx`; updated loading assertion to `'provider_profile.loading'` key; added back-to-showcase assertion for `'provider_profile.back_to_showcase'` key; fixed pre-existing mock data bug (name→displayName) and wrong location string format (Residencial Aurora • São Paulo); fixed 404 assertion casing. 7/7 green.
+- Fixed 2 failing panel tests: `'Neighborhood Showcase'` assertions updated to `'sidebar.brand.name'` i18n key. 8/8 green.
+- Extended `-panel.provider.announcements.test.tsx` with `announcements new: page title and subtitle resolve through i18n keys` test asserting `new_announcement.title` and `new_announcement.subtitle` in serialized tree. 6/6 green.
+- `bun run check` and `bun run check-types` both pass.
+- Marked T-16-06/ST-03, ST-04, and T-16-06 task done in task file, epic.md, index.md.
+
+<promise>100% Complete</promise>
+
 test(web): cover announcement primitive at variant boundaries (T-16-05/ST-03)
 
 Completion update (attempt 2, 2026-06-19):
@@ -137,3 +149,4 @@ Completion update (attempt 4, 2026-06-19 — T-16-05/ST-01):
 - Renamed t loop variable in tags processing to tag to avoid conflict with i18n t function
 - bun run check and bun run check-types clean
 - ST-03 (public provider profile) and ST-04 (tests) remain
+[2026-06-19T21:20:28-03:00] T-16-06/ST-03 DONE — localized public provider-profile loading and back-to-showcase copy; committed 9e676de

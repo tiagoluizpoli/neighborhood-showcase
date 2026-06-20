@@ -2,7 +2,7 @@
 type: epic
 id: E-16
 name: "Panel Shell, Layout, and Navigation"
-status: in-progress
+status: done
 blocked-by: []
 ---
 
@@ -29,7 +29,7 @@ Shared-shell tasks (T-16-03 collapse fix, T-16-04 chrome, T-16-06 localization) 
 | T-16-03 | Sidebar collapse regression fix | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/03-sidebar-collapse-regression-fix.md` |
 | T-16-04 | Strengthen sidebar header and top bar chrome | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/04-strengthen-shell-chrome.md` |
 | T-16-05 | Shared announcement presentation primitive | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/05-announcement-presentation-primitive.md` |
-| T-16-06 | Shell-adjacent localization | in-progress | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/06-shell-adjacent-localization.md` |
+| T-16-06 | Shell-adjacent localization | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/06-shell-adjacent-localization.md` |
 
 ---
 

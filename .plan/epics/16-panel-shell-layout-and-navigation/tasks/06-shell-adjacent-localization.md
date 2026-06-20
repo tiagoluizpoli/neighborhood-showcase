@@ -2,7 +2,7 @@
 type: task
 id: T-16-06
 epic: E-16
-status: in-progress
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -100,7 +100,7 @@ verification:
 
 ### ST-04 - Test that called-out strings resolve through i18n
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by: []

@@ -601,7 +601,7 @@ describe('Panel Layout Visibility Tests', () => {
 
     expect(sidebarHeaderContent).not.toBeNull();
     expect(readTextContent(sidebarHeaderContent)).toContain(
-      'Neighborhood Showcase',
+      'sidebar.brand.name',
     );
     expect(readTextContent(sidebarHeaderContent)).toContain(
       'sidebar.item.meus_anuncios',
@@ -650,7 +650,7 @@ describe('Panel Layout Visibility Tests', () => {
 
     expect(sidebarHeaderContent).not.toBeNull();
     expect(readTextContent(sidebarHeaderContent)).toContain(
-      'Neighborhood Showcase',
+      'sidebar.brand.name',
     );
     expect(readTextContent(sidebarHeaderContent)).toContain('Condo Beta');
     expect(topBar).not.toBeNull();

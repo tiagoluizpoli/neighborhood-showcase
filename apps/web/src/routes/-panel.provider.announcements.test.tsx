@@ -310,6 +310,14 @@ describe('Provider route migration — no per-route padding overrides', () => {
     expect(container).not.toBeNull();
   });
 
+  test('announcements new: page title and subtitle resolve through i18n keys', async () => {
+    const { Route } = await import('@/routes/panel.provider.announcements.new');
+    const tree = renderComponent(Route.component);
+    const serialized = JSON.stringify(tree);
+    expect(serialized).toContain('new_announcement.title');
+    expect(serialized).toContain('new_announcement.subtitle');
+  });
+
   test('announcements new: outer element is not a plain div with mx-auto max-w-4xl', async () => {
     const { Route } = await import('@/routes/panel.provider.announcements.new');
     const tree = renderComponent(Route.component);

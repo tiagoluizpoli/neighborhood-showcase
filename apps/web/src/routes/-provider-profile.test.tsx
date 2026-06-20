@@ -113,6 +113,30 @@ mock.module('@tanstack/react-query', () => ({
   },
 }));
 
+// Mock lucide-react — Bun CJS bundle omits named exports not in its snapshot
+mock.module('lucide-react', () => {
+  const icon = () => null;
+  return {
+    CheckCircle2: icon,
+    ChevronLeft: icon,
+    Facebook: icon,
+    Globe: icon,
+    Instagram: icon,
+    Loader2: icon,
+    Mail: icon,
+    MessageCircle: icon,
+    Phone: icon,
+  };
+});
+
+// Mock react-i18next — t returns the key so assertions confirm i18n resolution
+mock.module('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: 'en' },
+  }),
+}));
+
 // Dynamic import for component
 const { Route: ProfileRoute } = await import('./_portal.providers.$id');
 ProfileRoute.useParams = () => ({ id: 'provider-123' });
@@ -159,8 +183,13 @@ describe('Provider Public Profile Component Visuals', () => {
     mockQueryData = {
       provider: {
         id: 'provider-123',
-        name: 'Maria Silva',
+        displayName: 'Maria Silva',
         avatarUrl: 'http://localhost/maria.jpg',
+        logoUrl: null,
+        bannerUrl: null,
+        companyName: null,
+        tradeName: null,
+        publicDescription: null,
         socialLinks: {
           whatsapp: '5511988888888',
           phone: '5511777777777',
@@ -202,15 +231,22 @@ describe('Provider Public Profile Component Visuals', () => {
     mockError = null;
   });
 
-  test('renders loading state correctly', () => {
+  test('renders loading state correctly — resolves through i18n', () => {
     mockIsLoading = true;
     mockQueryData = null;
 
     const component = ProfileRoute.options.component;
     const tree = renderComponent(component);
 
+    expect(findElementByText(tree, 'provider_profile.loading')).not.toBeNull();
+  });
+
+  test('back-to-showcase link resolves through i18n', () => {
+    const component = ProfileRoute.options.component;
+    const tree = renderComponent(component);
+
     expect(
-      findElementByText(tree, 'Carregando perfil do prestador...'),
+      findElementByText(tree, 'provider_profile.back_to_showcase'),
     ).not.toBeNull();
   });
 
@@ -222,7 +258,7 @@ describe('Provider Public Profile Component Visuals', () => {
     const component = ProfileRoute.options.component;
     const tree = renderComponent(component);
 
-    expect(findElementByText(tree, 'Prestador Não Encontrado')).not.toBeNull();
+    expect(findElementByText(tree, 'Prestador não encontrado')).not.toBeNull();
   });
 
   test('renders provider display name, avatar, and verified badge', () => {
@@ -232,13 +268,8 @@ describe('Provider Public Profile Component Visuals', () => {
     // Verify name
     expect(findElementByText(tree, 'Maria Silva')).not.toBeNull();
 
-    // Verify verified badge details
-    const verifiedBages = findElementsByProp(
-      tree,
-      'title',
-      'Morador Verificado',
-    );
-    expect(verifiedBages.length).toBeGreaterThan(0);
+    // Verify verified badge text
+    expect(findElementByText(tree, 'Morador verificado')).not.toBeNull();
   });
 
   test('renders all 7 configured contact channels on profile sidebar', () => {
@@ -270,7 +301,7 @@ describe('Provider Public Profile Component Visuals', () => {
 
     expect(findElementByText(tree, 'Aulas de Violão')).not.toBeNull();
     expect(
-      findElementByText(tree, 'Residencial Aurora (São Paulo)'),
+      findElementByText(tree, 'Residencial Aurora • São Paulo'),
     ).not.toBeNull();
   });
 

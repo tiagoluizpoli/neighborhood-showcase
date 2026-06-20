@@ -38,7 +38,7 @@
 | E-13 | Provider Section Reorg | done | — | `.plan/epics/13-provider-section-reorg/epic.md` |
 | E-14 | Role Access and Route Architecture | done | — | `.plan/epics/14-role-access-and-route-architecture/epic.md` |
 | E-15 | Functional Testing | ready | — | `.plan/epics/15-functional-testing/epic.md` |
-| E-16 | Panel Shell, Layout, and Navigation | in-progress | — | `.plan/epics/16-panel-shell-layout-and-navigation/epic.md` |
+| E-16 | Panel Shell, Layout, and Navigation | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/epic.md` |
 
 ## Tasks
 
@@ -65,7 +65,7 @@
 | T-16-03 | E-16 | Sidebar collapse regression fix | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/03-sidebar-collapse-regression-fix.md` |
 | T-16-04 | E-16 | Strengthen sidebar header and top bar chrome | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/04-strengthen-shell-chrome.md` |
 | T-16-05 | E-16 | Shared announcement presentation primitive | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/05-announcement-presentation-primitive.md` |
-| T-16-06 | E-16 | Shell-adjacent localization | in-progress | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/06-shell-adjacent-localization.md` |
+| T-16-06 | E-16 | Shell-adjacent localization | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/06-shell-adjacent-localization.md` |
 
 ## Migration Note
 
