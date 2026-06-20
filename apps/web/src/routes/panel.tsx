@@ -29,13 +29,16 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarProvider,
   SidebarRail,
+  SidebarSeparator,
   SidebarTrigger,
+  useSidebar,
 } from '@neighborhood-showcase/ui/components/sidebar';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -407,6 +410,72 @@ function SidebarGroupSection({ group }: { group: SidebarGroupConfig }) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// CollapsedSidebarNav — icon-only rail shown when the sidebar is collapsed.
+// Each visible group's items render as tooltip'd icon buttons, with a vertical
+// separator between groups so the sections stay visually distinct without
+// labels. The moderation group leads with an icon-only condo switcher.
+// ---------------------------------------------------------------------------
+
+function CollapsedSidebarNav({ groups }: { groups: SidebarGroupConfig[] }) {
+  const { t } = useTranslation();
+
+  return (
+    <>
+      {groups.map((group, index) => (
+        <React.Fragment key={group.i18nGroupKey}>
+          {index > 0 && <SidebarSeparator className="mx-0" />}
+          <SidebarGroup className="py-1">
+            <SidebarGroupContent>
+              <SidebarMenu className="items-center gap-1">
+                {group.i18nGroupKey === GROUP_MODERACAO.i18nGroupKey && (
+                  <SidebarMenuItem>
+                    <CondoSelector variant="icon" />
+                  </SidebarMenuItem>
+                )}
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.i18nKey}>
+                    <SidebarMenuButton
+                      tooltip={t(item.i18nKey)}
+                      render={<Link to={item.href} />}
+                      className="group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:[&_svg]:size-5"
+                    >
+                      <item.icon />
+                      <span className="group-data-[collapsible=icon]:hidden">
+                        {t(item.i18nKey)}
+                      </span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </React.Fragment>
+      ))}
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// SidebarNav — picks the icon rail or the full labelled groups by sidebar state
+// ---------------------------------------------------------------------------
+
+function SidebarNav({ groups }: { groups: SidebarGroupConfig[] }) {
+  const { state, isMobile } = useSidebar();
+
+  if (state === 'collapsed' && !isMobile) {
+    return <CollapsedSidebarNav groups={groups} />;
+  }
+
+  return (
+    <>
+      {groups.map((group) => (
+        <SidebarGroupSection key={group.i18nGroupKey} group={group} />
+      ))}
+    </>
+  );
+}
+
 export const Route = createFileRoute('/panel')({
   beforeLoad: async () => {
     const session = await authClient.getSession();
@@ -519,7 +588,7 @@ function PanelLayout() {
     >
       <div
         data-theme="panel"
-        className="flex h-svh w-full bg-background text-foreground [--sidebar-width:280px]"
+        className="flex h-svh w-full bg-background text-foreground [--sidebar-width-icon:4rem] [--sidebar-width:280px]"
       >
         <Sidebar collapsible="icon">
           <SidebarHeader className="flex h-14 items-center gap-3 border-b px-4">
@@ -539,18 +608,16 @@ function PanelLayout() {
           </SidebarHeader>
 
           <SidebarContent>
-            {visibleSidebarGroups.map((group) => (
-              <SidebarGroupSection key={group.i18nGroupKey} group={group} />
-            ))}
+            <SidebarNav groups={visibleSidebarGroups} />
           </SidebarContent>
 
-          <SidebarFooter className="border-t p-4">
+          <SidebarFooter className="border-t p-4 group-data-[collapsible=icon]:p-2">
             <Popover>
               <PopoverTrigger
                 render={
                   <button
                     type="button"
-                    className="flex w-full items-center gap-3 rounded-md p-1 text-left transition-colors hover:bg-accent hover:text-accent-foreground"
+                    className="flex w-full items-center gap-3 rounded-md p-1 text-left transition-colors hover:bg-accent hover:text-accent-foreground group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:p-0"
                   >
                     <Avatar className="h-9 w-9 border">
                       <AvatarImage
@@ -561,7 +628,7 @@ function PanelLayout() {
                         {getInitials(session.data?.user?.name)}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 truncate">
+                    <div className="flex-1 truncate group-data-[collapsible=icon]:hidden">
                       <p className="truncate font-semibold text-foreground text-sm">
                         {session.data?.user?.name}
                       </p>

@@ -14,7 +14,11 @@ import { useModerationCondo } from '@/lib/moderation-condo-context';
  * are working on. Selecting writes to the shared reactive store, which re-syncs
  * every moderation section.
  */
-export function CondoSelector() {
+export function CondoSelector({
+  variant = 'full',
+}: {
+  variant?: 'full' | 'icon';
+}) {
   const { t } = useTranslation();
   const { assignments, selectedId, selectedName, setSelected } =
     useModerationCondo();
@@ -26,6 +30,80 @@ export function CondoSelector() {
 
   const label = t('moderation.active_condo');
   const isSwitchable = assignments.length > 1;
+
+  // Condo dropdown body, shared by full and icon variants.
+  const dropdown = (
+    <PopoverContent
+      align="start"
+      className="w-60 border bg-card p-1"
+      data-condo-selector-dropdown
+    >
+      <p className="px-2 py-1.5 font-medium text-[10px] text-muted-foreground uppercase tracking-wider">
+        {label}
+      </p>
+      <div className="flex flex-col">
+        {assignments.map((assignment) => {
+          const name = assignment.condominium?.name ?? assignment.condominiumId;
+          const isSelected = assignment.condominiumId === selectedId;
+          return (
+            <button
+              key={assignment.condominiumId}
+              type="button"
+              onClick={() => setSelected(assignment.condominiumId)}
+              className="flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span className="truncate">{name}</span>
+              {isSelected && (
+                <Check className="ml-auto h-4 w-4 shrink-0 text-primary" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </PopoverContent>
+  );
+
+  // Icon variant — collapsed sidebar rail. A square Building2 button tinted as
+  // the active-condo accent. Single condo → static indicator; multiple → opens
+  // the same dropdown as the full variant.
+  if (variant === 'icon') {
+    const iconBtn = (
+      <span
+        className="flex size-10 items-center justify-center rounded-md border border-primary/20 bg-primary/5"
+        title={selectedName}
+      >
+        <Building2 className="h-5 w-5 shrink-0 text-primary" />
+      </span>
+    );
+
+    if (!isSwitchable) {
+      return (
+        <div className="mb-1" data-condo-selector>
+          {iconBtn}
+        </div>
+      );
+    }
+
+    return (
+      <div className="mb-1" data-condo-selector>
+        <Popover>
+          <PopoverTrigger
+            render={
+              <button
+                type="button"
+                data-condo-selector-trigger
+                className="rounded-md transition-colors hover:bg-primary/10"
+              >
+                {iconBtn}
+              </button>
+            }
+          />
+          {dropdown}
+        </Popover>
+      </div>
+    );
+  }
 
   // A single-line row matching the sibling sub-item metrics (h-7, px-2,
   // text-xs, -translate-x-px) but tinted and accented so it reads as the
@@ -66,36 +144,7 @@ export function CondoSelector() {
             </button>
           }
         />
-        <PopoverContent
-          align="start"
-          className="w-60 border bg-card p-1"
-          data-condo-selector-dropdown
-        >
-          <p className="px-2 py-1.5 font-medium text-[10px] text-muted-foreground uppercase tracking-wider">
-            {label}
-          </p>
-          <div className="flex flex-col">
-            {assignments.map((assignment) => {
-              const name =
-                assignment.condominium?.name ?? assignment.condominiumId;
-              const isSelected = assignment.condominiumId === selectedId;
-              return (
-                <button
-                  key={assignment.condominiumId}
-                  type="button"
-                  onClick={() => setSelected(assignment.condominiumId)}
-                  className="flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-                >
-                  <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  <span className="truncate">{name}</span>
-                  {isSelected && (
-                    <Check className="ml-auto h-4 w-4 shrink-0 text-primary" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </PopoverContent>
+        {dropdown}
       </Popover>
     </div>
   );
