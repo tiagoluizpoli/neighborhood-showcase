@@ -3,103 +3,79 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@neighborhood-showcase/ui/components/popover';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Building2, ChevronDown } from 'lucide-react';
-import { type RouterOutputs, trpc } from '@/utils/trpc';
+import { Building2, Check, ChevronsUpDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useModerationCondo } from '@/lib/moderation-condo-context';
 
-const LS_KEY = 'mod_ctx__cndo';
-
-type Assignment = RouterOutputs['assignment']['getMyAssignments'][number];
-type ModeratorAssignment = Assignment & { condominiumId: string };
-
-function isModeratorWithCondoId(a: Assignment): a is ModeratorAssignment {
-  return (
-    a.type === 'MODERATOR' &&
-    a.status === 'APPROVED' &&
-    typeof a.condominiumId === 'string'
-  );
-}
-
+/**
+ * The active-condominium indicator that lives at the top of the Moderation
+ * sidebar group. It is deliberately styled apart from the sibling nav items so
+ * a moderator immediately recognises it as the place to switch the condo they
+ * are working on. Selecting writes to the shared reactive store, which re-syncs
+ * every moderation section.
+ */
 export function CondoSelector() {
-  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const { assignments, selectedId, selectedName, setSelected } =
+    useModerationCondo();
 
-  const { data: assignments, isPending } = useQuery(
-    trpc.assignment.getMyAssignments.queryOptions(undefined),
-  );
-
-  const moderatorAssignments =
-    assignments?.filter(isModeratorWithCondoId) ?? [];
-
-  // Zero assignments → don't render
-  if (isPending || moderatorAssignments.length === 0) {
+  // Nothing to moderate → render nothing.
+  if (assignments.length === 0) {
     return null;
   }
 
-  // Determine selected condo
-  const stored = localStorage.getItem(LS_KEY);
-  const validIds = new Set(moderatorAssignments.map((a) => a.condominiumId));
+  const label = t('moderation.active_condo');
+  const isSwitchable = assignments.length > 1;
 
-  let selectedId: string;
-  if (stored && validIds.has(stored)) {
-    selectedId = stored;
-  } else {
-    const first = moderatorAssignments[0]?.condominiumId;
-    selectedId = first ?? '';
-    if (selectedId) localStorage.setItem(LS_KEY, selectedId);
-  }
+  // A single-line row matching the sibling sub-item metrics (h-7, px-2,
+  // text-xs, -translate-x-px) but tinted and accented so it reads as the
+  // group's active-condo indicator rather than just another link.
+  const row = (
+    <span className="flex h-7 w-full -translate-x-px items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-2 text-left text-xs">
+      <Building2 className="h-4 w-4 shrink-0 text-primary" />
+      <span className="min-w-0 flex-1 truncate font-medium text-foreground">
+        {selectedName}
+      </span>
+      {isSwitchable && (
+        <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+      )}
+    </span>
+  );
 
-  const selectedAssignment =
-    moderatorAssignments.find((a) => a.condominiumId === selectedId) ??
-    moderatorAssignments[0];
-  const selectedName = selectedAssignment.condominium?.name ?? selectedId;
-
-  function handleSelect(condoId: string) {
-    localStorage.setItem(LS_KEY, condoId);
-    queryClient.invalidateQueries({
-      queryKey: ['assignment.getMyAssignments'],
-    });
-  }
-
-  // Single condo: display-only, no chevron
-  if (moderatorAssignments.length === 1) {
+  // Single condo → display-only indicator, not interactive.
+  if (!isSwitchable) {
     return (
-      <div
-        data-condo-selector
-        data-condo-selector-trigger
-        className="flex items-center gap-2 rounded-md px-3 py-2 font-medium text-foreground text-sm"
-      >
-        <Building2 className="h-4 w-4 text-muted-foreground" />
-        <span className="truncate">{selectedName}</span>
+      <div className="mb-1" data-condo-selector>
+        {row}
       </div>
     );
   }
 
-  // Multi condos: dropdown selector
+  // Multiple condos → the indicator is a dropdown trigger.
   return (
-    <div data-condo-selector>
+    <div className="mb-1" data-condo-selector>
       <Popover>
         <PopoverTrigger
           render={
             <button
               type="button"
               data-condo-selector-trigger
-              className="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 font-medium text-foreground text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+              className="w-full rounded-md transition-colors hover:bg-primary/10"
             >
-              <div className="flex min-w-0 items-center gap-2">
-                <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <span className="truncate">{selectedName}</span>
-              </div>
-              <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+              {row}
             </button>
           }
         />
         <PopoverContent
-          data-condo-selector-dropdown
           align="start"
-          className="w-52 border bg-card p-1"
+          className="w-60 border bg-card p-1"
+          data-condo-selector-dropdown
         >
+          <p className="px-2 py-1.5 font-medium text-[10px] text-muted-foreground uppercase tracking-wider">
+            {label}
+          </p>
           <div className="flex flex-col">
-            {moderatorAssignments.map((assignment) => {
+            {assignments.map((assignment) => {
               const name =
                 assignment.condominium?.name ?? assignment.condominiumId;
               const isSelected = assignment.condominiumId === selectedId;
@@ -107,13 +83,13 @@ export function CondoSelector() {
                 <button
                   key={assignment.condominiumId}
                   type="button"
-                  onClick={() => handleSelect(assignment.condominiumId)}
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+                  onClick={() => setSelected(assignment.condominiumId)}
+                  className="flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                  <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
                   <span className="truncate">{name}</span>
                   {isSelected && (
-                    <span className="ml-auto text-primary">✓</span>
+                    <Check className="ml-auto h-4 w-4 shrink-0 text-primary" />
                   )}
                 </button>
               );

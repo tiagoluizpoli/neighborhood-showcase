@@ -71,6 +71,37 @@ mock.module('react-i18next', () => ({
   }),
 }));
 
+// Mock lucide-react icons used by the reports chain
+mock.module('lucide-react', () => ({
+  AlertTriangle: () => 'AlertTriangle',
+  Check: () => 'Check',
+  History: () => 'History',
+  Loader2: () => 'Loader2',
+  ShieldAlert: () => 'ShieldAlert',
+}));
+
+// Mock shadcn UI primitives so the real ones (and their lucide imports) stay out
+mock.module('@neighborhood-showcase/ui/components/card', () => ({
+  Card: ({ children }: any) => children,
+  CardContent: ({ children }: any) => children,
+}));
+mock.module('@neighborhood-showcase/ui/components/badge', () => ({
+  Badge: ({ children }: any) => children,
+}));
+mock.module('@neighborhood-showcase/ui/components/button', () => ({
+  Button: ({ children }: any) => children,
+}));
+mock.module('@neighborhood-showcase/ui/components/label', () => ({
+  Label: ({ children }: any) => children,
+}));
+mock.module('@neighborhood-showcase/ui/components/dialog', () => ({
+  Dialog: ({ children }: any) => children,
+  DialogContent: ({ children }: any) => children,
+  DialogDescription: ({ children }: any) => children,
+  DialogHeader: ({ children }: any) => children,
+  DialogTitle: ({ children }: any) => children,
+}));
+
 let mockResidentsData: any[] = [];
 let mockAnnouncementsData: any[] = [];
 let mockReportedData: any[] = [];
@@ -102,17 +133,24 @@ mock.module('@tanstack/react-query', () => ({
   },
 }));
 
-// Dynamic import for component
-const { Route: ModerationRoute } = await import('./panel.moderation');
+// Mock @tanstack/react-router so route context can be driven directly
+let mockRouteContext: any = { isSystemManager: true };
+mock.module('@tanstack/react-router', () => ({
+  createFileRoute: () => (options: any) => ({
+    options,
+    useRouteContext: () => mockRouteContext,
+  }),
+  redirect: (opts: any) => ({ isRedirect: true, ...opts }),
+  Link: (props: any) => props.children,
+  Outlet: () => null,
+  useNavigate: () => () => {},
+}));
 
-// Set mock context
-let mockSession: any = { data: { user: { role: 'SYSTEM_MANAGER' } } };
-let mockModeratorAssignments: any[] = [];
+// Dynamic import for the reports section component
+const { Route: ReportsRoute } = await import('./panel/moderation/reports');
 
-ModerationRoute.useRouteContext = () => ({
-  session: mockSession,
-  moderatorAssignments: mockModeratorAssignments,
-});
+// Dynamic import for the index redirect route
+const { Route: IndexRoute } = await import('./panel/moderation/index');
 
 const findElementByText = (node: any, text: string): any => {
   if (!node) return null;
@@ -140,18 +178,10 @@ const findElementByText = (node: any, text: string): any => {
   return null;
 };
 
-describe('Moderation Dashboard Component Visuals', () => {
+describe('Moderation Reports Section', () => {
   beforeEach(() => {
     resetHookState();
-    mockSession = { data: { user: { role: 'SYSTEM_MANAGER' } } };
-    mockModeratorAssignments = [
-      {
-        condominiumId: 'condo-1',
-        condominium: { id: 'condo-1', name: 'Condo Alpha' },
-        type: 'MODERATOR',
-        status: 'APPROVED',
-      },
-    ];
+    mockRouteContext = { isSystemManager: true };
     mockResidentsData = [];
     mockAnnouncementsData = [];
     mockReportedData = [
@@ -186,19 +216,8 @@ describe('Moderation Dashboard Component Visuals', () => {
     ];
   });
 
-  test('renders title and sub-tabs correctly', () => {
-    const component = ModerationRoute.options.component;
-    const tree = renderComponent(component);
-
-    // Should find title key
-    expect(findElementByText(tree, 'moderation.title')).not.toBeNull();
-  });
-
-  test('displays reported announcements with counts and reasons in reports view', () => {
-    const component = ModerationRoute.options.component;
-    mockModeratorAssignments = []; // Forces default to 'reports'
-
-    resetHookState();
+  test('displays reported announcements with counts and reasons', () => {
+    const component = ReportsRoute.options.component;
     const tree = renderComponent(component);
 
     // Verify reported ad title is present
@@ -206,24 +225,48 @@ describe('Moderation Dashboard Component Visuals', () => {
     // Verify provider details
     expect(findElementByText(tree, 'John Spam')).not.toBeNull();
     expect(findElementByText(tree, 'john@spam.com')).not.toBeNull();
-    // Verify total reports count text
-    expect(findElementByText(tree, 'Denúncias')).not.toBeNull();
   });
 
-  test('ban provider button is visible to SYSTEM_MANAGER and hidden from PROVIDER', () => {
-    const component = ModerationRoute.options.component;
+  test('ban provider button is visible to SYSTEM_MANAGER and hidden otherwise', () => {
+    const component = ReportsRoute.options.component;
 
-    // 1. SYSTEM_MANAGER context
-    mockModeratorAssignments = []; // Forces reports view
-    mockSession = { data: { user: { role: 'SYSTEM_MANAGER' } } };
+    // 1. System manager sees the ban action
+    mockRouteContext = { isSystemManager: true };
     resetHookState();
     let tree = renderComponent(component);
     expect(findElementByText(tree, 'moderation.ban')).not.toBeNull();
 
-    // 2. PROVIDER context
-    mockSession = { data: { user: { role: 'USER' } } };
+    // 2. Non system manager does not
+    mockRouteContext = { isSystemManager: false };
     resetHookState();
     tree = renderComponent(component);
     expect(findElementByText(tree, 'moderation.ban')).toBeNull();
+  });
+});
+
+describe('Moderation Index Redirect', () => {
+  const runBeforeLoad = (context: any): any => {
+    try {
+      IndexRoute.options.beforeLoad({ context });
+    } catch (redirectResult) {
+      return redirectResult;
+    }
+    return null;
+  };
+
+  test('redirects a moderator with assignments to the residents queue', () => {
+    const result = runBeforeLoad({
+      isSystemManager: false,
+      moderatorAssignments: [{ condominiumId: 'condo-1' }],
+    });
+    expect(result?.to).toBe('/panel/moderation/residents');
+  });
+
+  test('redirects a system manager without assignments to the reports queue', () => {
+    const result = runBeforeLoad({
+      isSystemManager: true,
+      moderatorAssignments: [],
+    });
+    expect(result?.to).toBe('/panel/moderation/reports');
   });
 });

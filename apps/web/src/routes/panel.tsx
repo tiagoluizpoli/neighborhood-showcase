@@ -32,6 +32,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarProvider,
   SidebarRail,
   SidebarTrigger,
@@ -63,6 +64,7 @@ import { CondoSelector } from '@/components/condo-selector';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeCycleToggle } from '@/components/theme-cycle-toggle';
 import { authClient } from '@/lib/auth-client';
+import { useModerationCondoId } from '@/lib/moderation-condo-context';
 import { useUserAccessProfile } from '@/routes/panel/-user-access-profile';
 import { trpc } from '@/utils/trpc';
 
@@ -108,6 +110,11 @@ interface SidebarGroupConfig {
   condition: boolean;
   items: SidebarItem[];
   leadItem?: React.ReactNode;
+}
+
+interface SidebarHeaderContext {
+  activeGroup: SidebarGroupConfig | null;
+  activeItem: SidebarItem | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -157,6 +164,11 @@ const GROUP_MODERACAO: SidebarGroupConfig = {
       i18nKey: 'sidebar.item.moradores',
       icon: Users,
       href: '/panel/moderation/residents',
+    },
+    {
+      i18nKey: 'sidebar.item.denuncias',
+      icon: ShieldAlert,
+      href: '/panel/moderation/reports',
     },
   ],
 };
@@ -209,6 +221,93 @@ function getInitials(name?: string) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+function normalizePathname(pathname: string): string {
+  if (!pathname || pathname === '/') {
+    return pathname;
+  }
+  return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+}
+
+function pathnameMatches(pathname: string, href: string): boolean {
+  const normalizedPathname = normalizePathname(pathname);
+  const normalizedHref = normalizePathname(href);
+
+  return (
+    normalizedPathname === normalizedHref ||
+    normalizedPathname.startsWith(`${normalizedHref}/`)
+  );
+}
+
+function resolveSidebarHeaderContext(
+  pathname: string,
+  sidebarGroups: SidebarGroupConfig[],
+): SidebarHeaderContext {
+  const normalizedPathname = normalizePathname(pathname);
+  let activeGroup: SidebarGroupConfig | null = null;
+  let activeItem: SidebarItem | null = null;
+  let bestMatchLength = -1;
+
+  for (const group of sidebarGroups) {
+    for (const item of group.items) {
+      if (!pathnameMatches(normalizedPathname, item.href)) {
+        continue;
+      }
+      if (item.href.length <= bestMatchLength) {
+        continue;
+      }
+      activeGroup = group;
+      activeItem = item;
+      bestMatchLength = item.href.length;
+    }
+  }
+
+  if (activeGroup) {
+    return { activeGroup, activeItem };
+  }
+
+  if (normalizedPathname.startsWith('/panel/provider')) {
+    return {
+      activeGroup:
+        sidebarGroups.find(
+          (group) => group.i18nGroupKey === GROUP_PROVEDOR.i18nGroupKey,
+        ) ?? null,
+      activeItem: null,
+    };
+  }
+
+  if (normalizedPathname.startsWith('/panel/moderation')) {
+    return {
+      activeGroup:
+        sidebarGroups.find(
+          (group) => group.i18nGroupKey === GROUP_MODERACAO.i18nGroupKey,
+        ) ?? null,
+      activeItem: null,
+    };
+  }
+
+  if (normalizedPathname.startsWith('/panel/admin')) {
+    return {
+      activeGroup:
+        sidebarGroups.find(
+          (group) => group.i18nGroupKey === GROUP_ADMINISTRACAO.i18nGroupKey,
+        ) ?? null,
+      activeItem: null,
+    };
+  }
+
+  if (normalizedPathname.startsWith('/panel/spectrum')) {
+    return {
+      activeGroup:
+        sidebarGroups.find(
+          (group) => group.i18nGroupKey === GROUP_SPECTRUM.i18nGroupKey,
+        ) ?? null,
+      activeItem: null,
+    };
+  }
+
+  return { activeGroup: null, activeItem: null };
+}
+
 // ---------------------------------------------------------------------------
 // SidebarGroupSection — renders a single group, optionally collapsible
 // ---------------------------------------------------------------------------
@@ -231,10 +330,12 @@ function SidebarGroupSection({ group }: { group: SidebarGroupConfig }) {
           {t(group.i18nGroupKey)}
         </SidebarGroupLabel>
         <SidebarGroupContent>
-          {group.leadItem}
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuSub>
+                {group.leadItem && (
+                  <SidebarMenuSubItem>{group.leadItem}</SidebarMenuSubItem>
+                )}
                 {group.items.map((item) => (
                   <SidebarMenuSubButton
                     key={item.i18nKey}
@@ -280,10 +381,12 @@ function SidebarGroupSection({ group }: { group: SidebarGroupConfig }) {
           keepMounted
           render={
             <SidebarGroupContent>
-              {group.leadItem}
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuSub>
+                    {group.leadItem && (
+                      <SidebarMenuSubItem>{group.leadItem}</SidebarMenuSubItem>
+                    )}
                     {group.items.map((item) => (
                       <SidebarMenuSubButton
                         key={item.i18nKey}
@@ -322,6 +425,7 @@ function PanelLayout() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const accessProfileQuery = useUserAccessProfile();
+  const storedModerationCondoId = useModerationCondoId();
 
   const { data: assignments } = useQuery(
     trpc.assignment.getMyAssignments.queryOptions(undefined, {
@@ -342,7 +446,7 @@ function PanelLayout() {
   const isAdministrator = session?.data?.user.role === 'ADMINISTRATOR';
 
   const [sidebarOpen, setSidebarOpen] = React.useState(
-    localStorage.getItem('sidebar:state') !== 'false',
+    () => localStorage.getItem('sidebar:state') !== 'false',
   );
 
   // ---------------------------------------------------------------------------
@@ -354,10 +458,60 @@ function PanelLayout() {
     { ...GROUP_ADMINISTRACAO, condition: hasSystemManagerRole },
     { ...GROUP_SPECTRUM, condition: isAdministrator },
   ];
+  const visibleSidebarGroups = sidebarGroups.filter((group) => group.condition);
+  const pathname = globalThis.location?.pathname ?? '';
+  const activeSidebarContext = resolveSidebarHeaderContext(
+    pathname,
+    visibleSidebarGroups,
+  );
+  const moderatorAssignments =
+    assignments?.filter(
+      (assignment) =>
+        assignment.type === 'MODERATOR' &&
+        assignment.status === 'APPROVED' &&
+        assignment.condominiumId !== null,
+    ) ?? [];
+  const moderationContextName =
+    pathname.startsWith('/panel/moderation') && moderatorAssignments.length > 0
+      ? (() => {
+          const selectedAssignment =
+            moderatorAssignments.find(
+              (assignment) =>
+                assignment.condominiumId === storedModerationCondoId,
+            ) ?? moderatorAssignments[0];
+          return (
+            selectedAssignment.condominium?.name ??
+            selectedAssignment.condominiumId
+          );
+        })()
+      : null;
+  const accountLabel = pathnameMatches(pathname, '/panel/account')
+    ? t('sidebar.user_menu.account')
+    : null;
+  const sectionLabel = activeSidebarContext.activeGroup
+    ? t(activeSidebarContext.activeGroup.i18nGroupKey)
+    : null;
+  const pageLabel = activeSidebarContext.activeItem
+    ? t(activeSidebarContext.activeItem.i18nKey)
+    : accountLabel;
+  const sidebarHeaderContext = moderationContextName
+    ? moderationContextName
+    : pathnameMatches(pathname, '/panel/spectrum')
+      ? t('sidebar.spectrum.description')
+      : pageLabel && pageLabel !== sectionLabel
+        ? pageLabel
+        : accountLabel;
+  const topBarEyebrow =
+    pageLabel && sectionLabel && pageLabel !== sectionLabel
+      ? sectionLabel
+      : null;
+  const topBarTitle = pageLabel ?? sectionLabel;
+  const topBarContext = moderationContextName;
 
   return (
     <SidebarProvider
       defaultOpen={sidebarOpen}
+      open={sidebarOpen}
       onOpenChange={(open) => {
         setSidebarOpen(open);
         localStorage.setItem('sidebar:state', String(open));
@@ -368,21 +522,26 @@ function PanelLayout() {
         className="flex h-svh w-full bg-background text-foreground [--sidebar-width:280px]"
       >
         <Sidebar collapsible="icon">
-          <SidebarHeader className="flex h-14 items-center border-b px-4">
-            <span className="truncate font-bold text-sm group-data-[collapsible=icon]:hidden">
-              Neighborhood Showcase
-            </span>
+          <SidebarHeader className="flex h-14 items-center gap-3 border-b px-4">
+            <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
+              <p className="truncate font-bold text-sm">
+                {t('sidebar.brand.name')}
+              </p>
+              {sidebarHeaderContext ? (
+                <p className="truncate text-muted-foreground text-xs">
+                  {sidebarHeaderContext}
+                </p>
+              ) : null}
+            </div>
             <span className="hidden font-bold text-sm group-data-[collapsible=icon]:block">
-              NS
+              {t('sidebar.brand.abbr')}
             </span>
           </SidebarHeader>
 
           <SidebarContent>
-            {sidebarGroups
-              .filter((g) => g.condition)
-              .map((group) => (
-                <SidebarGroupSection key={group.i18nGroupKey} group={group} />
-              ))}
+            {visibleSidebarGroups.map((group) => (
+              <SidebarGroupSection key={group.i18nGroupKey} group={group} />
+            ))}
           </SidebarContent>
 
           <SidebarFooter className="border-t p-4">
@@ -472,8 +631,30 @@ function PanelLayout() {
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Top Panel Header */}
           <header className="flex h-14 items-center justify-between border-b bg-card px-4">
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-3">
               <SidebarTrigger />
+              {topBarTitle ? (
+                <div className="min-w-0">
+                  {topBarEyebrow ? (
+                    <p className="truncate text-muted-foreground text-xs">
+                      {topBarEyebrow}
+                    </p>
+                  ) : null}
+                  <div className="flex min-w-0 items-center gap-2">
+                    <p className="truncate font-semibold text-sm">
+                      {topBarTitle}
+                    </p>
+                    {topBarContext ? (
+                      <>
+                        <span className="text-muted-foreground text-xs">/</span>
+                        <p className="truncate text-muted-foreground text-xs">
+                          {topBarContext}
+                        </p>
+                      </>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
             </div>
             <div className="flex items-center gap-2">
               <ThemeCycleToggle />

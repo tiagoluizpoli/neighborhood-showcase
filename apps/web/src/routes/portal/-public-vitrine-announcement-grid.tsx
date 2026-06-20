@@ -1,18 +1,13 @@
 import { Button } from '@neighborhood-showcase/ui/components/button';
-import type { ComponentProps, ReactNode } from 'react';
-import { AnnouncementCard } from '@/components/announcement-card';
+import type { ReactNode } from 'react';
+import type { AnnouncementCardProps } from '@/components/announcement-card';
 import { AnnouncementCardSkeleton } from '@/components/announcement-card-skeleton';
+import { AnnouncementPresentationPrimitive } from '@/components/announcement-presentation-primitive';
 
-type PublicAnnouncement = ComponentProps<typeof AnnouncementCard>['ad'];
-type PublicSelectedCondo = ComponentProps<
-  typeof AnnouncementCard
->['selectedCondo'];
-type PublicVisitorCoords = ComponentProps<
-  typeof AnnouncementCard
->['visitorCoords'];
-type PublicContactClickHandler = ComponentProps<
-  typeof AnnouncementCard
->['onContactClick'];
+type PublicAnnouncement = AnnouncementCardProps['ad'];
+type PublicSelectedCondo = AnnouncementCardProps['selectedCondo'];
+type PublicVisitorCoords = AnnouncementCardProps['visitorCoords'];
+type PublicContactClickHandler = AnnouncementCardProps['onContactClick'];
 
 interface ResolvePublicVitrineAnnouncementGridStateParams {
   announcements?: ReadonlyArray<PublicAnnouncement>;
@@ -89,8 +84,9 @@ export function PublicVitrineAnnouncementGrid(
     return (
       <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
         {state.announcements.map((announcement) => (
-          <AnnouncementCard
+          <AnnouncementPresentationPrimitive
             key={announcement.id}
+            variant="public-card"
             ad={announcement}
             selectedCondo={props.selectedCondo}
             visitorCoords={props.visitorCoords}

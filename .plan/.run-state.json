@@ -1,21 +1,17 @@
 {
-  "currentRunId": "e-14-t-14-05-st-03",
-  "currentPrdId": "PRD-v8-role-access-and-route-architecture",
-  "currentEpicId": "E-14",
-  "currentTaskId": "T-14-05",
-  "currentSubTaskId": "ST-03",
-  "attemptCount": 2,
-  "retrievalRound": 2,
-  "lastModel": "gpt-5.4",
+  "currentRunId": null,
+  "currentPrdId": "PRD-v9-panel-shell-layout-and-navigation",
+  "currentEpicId": null,
+  "currentTaskId": null,
+  "currentSubTaskId": null,
+  "attemptCount": 0,
+  "retrievalRound": 0,
+  "lastModel": "opus",
   "escalated": false,
-  "lastFailureReason": null,
-  "requiredModel": "medium",
-  "runnerName": "hermes",
+  "requiredModel": null,
+  "runnerName": "claude",
   "escalateIf": [],
-  "filesToTouch": [
-    "apps/web/tests/",
-    "relevant snapshot files",
-    "relevant seed/setup files"
-  ],
-  "lastCommitChanged": true
+  "filesToTouch": [],
+  "lastCommitChanged": false,
+  "lastFailureReason": null
 }

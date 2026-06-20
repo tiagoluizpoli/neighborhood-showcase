@@ -5,6 +5,7 @@ mock.module('@tanstack/react-router', () => ({
     type: 'a',
     props,
   }),
+  useNavigate: () => () => {},
 }));
 
 import type { ProviderDashboardAnnouncementItem } from './-provider-dashboard-types';
@@ -125,6 +126,16 @@ describe('ProviderDashboardAnnouncementCard', () => {
         textContent(element).includes('Publicar Anúncio'),
       ),
     ).toBeTruthy();
+  });
+
+  test('uses AnnouncementPresentationPrimitive with dashboard-card variant', () => {
+    const tree = ProviderDashboardAnnouncementCard({
+      ad: baseAd,
+      formatDate: (date) => date ?? '-',
+      formatPrice: () => 'R$ 0,00',
+      onEdit: () => {},
+    });
+    expect(tree.props?.variant).toBe('dashboard-card');
   });
 
   test('renders the empty state link when available', () => {

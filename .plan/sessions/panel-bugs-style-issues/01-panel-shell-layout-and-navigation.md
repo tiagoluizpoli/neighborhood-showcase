@@ -1,7 +1,7 @@
 ---
 type: future-grilling-session
 date: 2026-06-18
-status: queued
+status: completed
 group: panel-shell-layout-and-navigation
 source_session: ./00-umbrella-intake-and-audit.md
 ---
@@ -279,3 +279,15 @@ Why this excerpt matters:
 - Whether sidebar/header chrome needs polish only or a stronger redesign.
 - Which announcement/card surfaces must share the same primitive to keep the panel visually coherent.
 - How much localization consistency must be enforced immediately vs later.
+
+## Grilling completion
+- Completed on: 2026-06-19
+- Live grilling file: `.plan/grilling/2026-06-19-01-panel-shell-layout-and-navigation-grilling.md`
+- Handoff file: `.plan/handoffs/grill-to-prd-panel-shell-layout-and-navigation.md`
+- Outcome summary:
+  - One canonical shared content container owns provider-route width/padding; child routes stop inventing their own shells.
+  - Container is one primitive with explicit variants: `default/list`, `centered-form`, `full-bleed`.
+  - Stronger (not redesigned) sidebar/top-bar chrome: header gains section/condo context + utility; top bar gains section title/breadcrumb.
+  - One shared announcement primitive now (`dashboard-card`/`detail-header`/`public-card`); deep tuning deferred to packets 04/05/03.
+  - Localization scoped to shell/nav-adjacent surfaces this pass; full PT/EN sweep deferred to a dedicated i18n task.
+  - Sidebar collapse regression handled as an implementation-level fix captured in the handoff.

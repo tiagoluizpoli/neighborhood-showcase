@@ -2,57 +2,19 @@ import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { Building2, Globe, Loader2, Mail, MapPin, Phone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { authClient } from '@/lib/auth-client';
-import { trpc, trpcClient } from '@/utils/trpc';
-
-const STORAGE_KEY = 'mod_ctx__cndo';
-
-async function getModeratorAssignments() {
-  const session = await authClient.getSession();
-  if (!session.data) return [];
-  const assignments = await trpcClient.assignment.getMyAssignments.query();
-  return assignments.filter(
-    (a): a is (typeof assignments)[number] & { condominiumId: string } =>
-      a.type === 'MODERATOR' &&
-      a.status === 'APPROVED' &&
-      a.condominiumId !== null,
-  );
-}
-
-function getSelectedCondoId(assignments: { condominiumId: string }[]): string {
-  if (assignments.length === 0) return '';
-  const stored = localStorage.getItem(STORAGE_KEY);
-  const valid =
-    stored != null && assignments.some((a) => a.condominiumId === stored);
-  if (!valid) {
-    const id = assignments[0].condominiumId;
-    localStorage.setItem(STORAGE_KEY, id);
-    return id;
-  }
-  return stored;
-}
+import { useModerationCondo } from '@/lib/moderation-condo-context';
+import { trpc } from '@/utils/trpc';
 
 export const Route = createFileRoute('/panel/moderation/condominium')({
-  beforeLoad: async () => {
-    const session = await authClient.getSession();
-    if (!session.data) {
-      throw new Response(null, { status: 401 });
-    }
-  },
   component: CondominiumInfoPage,
 });
 
 function CondominiumInfoPage() {
   const { t } = useTranslation();
 
-  // Get assignments and resolve the selected condo ID
-  const { data: assignments, isLoading: assignmentsLoading } = useQuery({
-    queryKey: ['assignment:getMyAssignments'],
-    queryFn: getModeratorAssignments,
-  });
-
-  const selectedCondoId =
-    !assignmentsLoading && assignments ? getSelectedCondoId(assignments) : null;
+  // Resolve the selected condo from the shared reactive store.
+  const { selectedId: selectedCondoId, isPending: assignmentsLoading } =
+    useModerationCondo();
 
   const {
     data: condo,
@@ -77,9 +39,7 @@ function CondominiumInfoPage() {
   if (!selectedCondoId) {
     return (
       <div className="text-muted-foreground text-sm">
-        {t('moderation.no_condo_selected', {
-          defaultValue: 'Nenhum condomínio selecionado.',
-        })}
+        {t('moderation.no_condo_selected')}
       </div>
     );
   }
@@ -116,16 +76,14 @@ function CondominiumInfoPage() {
         {/* City / State / CEP */}
         <InfoCard
           icon={<MapPin className="h-4 w-4 text-muted-foreground" />}
-          label={t('moderation.condo.city_state_cep', {
-            defaultValue: 'Cidade / Estado / CEP',
-          })}
+          label={t('moderation.condo.city_state_cep')}
           value={`${condo.city}–${condo.state} · ${condo.cep}`}
         />
 
         {/* Status */}
         <InfoCard
           icon={<Building2 className="h-4 w-4 text-muted-foreground" />}
-          label={t('moderation.condo.status', { defaultValue: 'Status' })}
+          label={t('moderation.condo.status')}
           value={condo.status}
         />
 
@@ -133,7 +91,7 @@ function CondominiumInfoPage() {
         {condo.contactInfo?.email && (
           <InfoCard
             icon={<Mail className="h-4 w-4 text-muted-foreground" />}
-            label={t('moderation.condo.email', { defaultValue: 'E-mail' })}
+            label={t('moderation.condo.email')}
             value={condo.contactInfo.email}
           />
         )}
@@ -142,7 +100,7 @@ function CondominiumInfoPage() {
         {condo.contactInfo?.phone && (
           <InfoCard
             icon={<Phone className="h-4 w-4 text-muted-foreground" />}
-            label={t('moderation.condo.phone', { defaultValue: 'Telefone' })}
+            label={t('moderation.condo.phone')}
             value={condo.contactInfo.phone}
           />
         )}
@@ -151,7 +109,7 @@ function CondominiumInfoPage() {
         {condo.contactInfo?.website && (
           <InfoCard
             icon={<Globe className="h-4 w-4 text-muted-foreground" />}
-            label={t('moderation.condo.website', { defaultValue: 'Website' })}
+            label={t('moderation.condo.website')}
             value={condo.contactInfo.website}
           />
         )}

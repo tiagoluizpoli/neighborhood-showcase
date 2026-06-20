@@ -130,6 +130,8 @@ mock.module('react', () => ({
 }));
 
 import { AnnouncementCard } from './announcement-card';
+import { AnnouncementDashboardCard } from './announcement-dashboard-card';
+import { AnnouncementPresentationPrimitive } from './announcement-presentation-primitive';
 
 describe('AnnouncementCard', () => {
   beforeEach(() => {
@@ -331,5 +333,85 @@ describe('AnnouncementCard', () => {
     };
     const tree = renderComponent(() => AnnouncementCard({ ad: adNoContact }));
     expect(findNodeByText(tree, 'Detalhes')).toBeTruthy();
+  });
+});
+
+describe('AnnouncementPresentationPrimitive variant dispatch', () => {
+  beforeEach(() => {
+    resetHookState();
+  });
+
+  const mockPublicAd = {
+    id: 'pub-1',
+    providerId: 'prov-1',
+    condominiumId: 'condo-1',
+    condoName: 'Condo Public',
+    condoCity: 'City',
+    condoState: 'SC',
+    condoNeighborhood: 'Bairro',
+    title: 'Public Ad Title',
+    subtitle: null,
+    description: 'Public desc.',
+    priceCents: null,
+    imageUrl: 'pub.jpg',
+    category: 'Services',
+    categoryId: 'cat-1',
+    tags: [],
+    contactLinks: { whatsapp: '', phone: '', email: '' },
+    showVerifiedBadge: false,
+    status: 'ACTIVE',
+    createdAt: new Date(),
+    providerName: 'Provider A',
+    providerAvatarUrl: null,
+  };
+
+  const mockDashAd = {
+    id: 'dash-1',
+    title: 'Dashboard Ad',
+    description: 'Dash desc.',
+    imageUrl: 'dash.jpg',
+    category: 'Services',
+    condoName: 'Condo B',
+    priceCents: null,
+    expiresAt: null,
+    status: 'ACTIVE' as const,
+    flaggedForReview: false,
+    showVerifiedBadge: false,
+    suspensionReason: null,
+  };
+
+  test('public-card variant dispatches to AnnouncementCard', () => {
+    const result = AnnouncementPresentationPrimitive({
+      variant: 'public-card',
+      ad: mockPublicAd as any,
+    });
+    expect(result.type).toBe(AnnouncementCard);
+  });
+
+  test('dashboard-card variant dispatches to AnnouncementDashboardCard', () => {
+    const result = AnnouncementPresentationPrimitive({
+      variant: 'dashboard-card',
+      ad: mockDashAd,
+      formatDate: (s) => s ?? '-',
+      formatPrice: () => 'R$ 0,00',
+      onEdit: () => {},
+    });
+    expect(result.type).toBe(AnnouncementDashboardCard);
+  });
+
+  test('detail-header variant renders announcement title', () => {
+    const primitive = AnnouncementPresentationPrimitive({
+      variant: 'detail-header',
+      announcement: {
+        title: 'Detail Header Title',
+        imageUrl: 'header.jpg',
+        status: 'ACTIVE',
+        flaggedForReview: false,
+        showVerifiedBadge: false,
+        subtitle: null,
+      },
+    });
+    const result = renderComponent(() => primitive.type(primitive.props));
+    expect(findNodeByText(result, 'Detail Header Title')).toBeTruthy();
   });
 });

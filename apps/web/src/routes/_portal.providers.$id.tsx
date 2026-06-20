@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import type { SVGProps } from 'react';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { trpc } from '@/utils/trpc';
 
 const TiktokIcon = (props: SVGProps<SVGSVGElement>) => (
@@ -137,6 +138,7 @@ export const Route = createFileRoute('/_portal/providers/$id')({
 });
 
 function ProviderPublicProfileComponent() {
+  const { t } = useTranslation();
   const { id } = Route.useParams();
   const { data, isLoading, error } = useQuery(
     trpc.user.getPublicProfile.queryOptions({ id }),
@@ -157,7 +159,7 @@ function ProviderPublicProfileComponent() {
       <div className="flex min-h-[50vh] w-full flex-col items-center justify-center gap-4 px-4 py-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <p className="text-muted-foreground text-sm">
-          Carregando perfil do prestador...
+          {t('provider_profile.loading')}
         </p>
       </div>
     );
@@ -170,14 +172,13 @@ function ProviderPublicProfileComponent() {
           <ChevronLeft className="h-6 w-6 rotate-180" />
         </div>
         <h2 className="font-bold text-foreground text-xl">
-          Prestador não encontrado
+          {t('provider_profile.not_found_title')}
         </h2>
         <p className="max-w-xl text-muted-foreground text-sm">
-          O prestador solicitado não existe, foi banido ou teve sua conta
-          removida de acordo com a LGPD.
+          {t('provider_profile.not_found_description')}
         </p>
         <Link to="/">
-          <Button>Voltar para o início</Button>
+          <Button>{t('provider_profile.back_home')}</Button>
         </Link>
       </div>
     );
@@ -195,7 +196,7 @@ function ProviderPublicProfileComponent() {
         className="inline-flex items-center gap-1.5 text-muted-foreground text-sm hover:text-foreground"
       >
         <ChevronLeft className="h-4 w-4" />
-        <span>Voltar para a vitrine</span>
+        <span>{t('provider_profile.back_to_showcase')}</span>
       </Link>
 
       {provider.bannerUrl ? (

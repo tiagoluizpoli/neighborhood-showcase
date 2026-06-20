@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { PanelContentContainer } from '../components/panel-content-container';
 import { getUserAccessProfile } from './panel/-user-access-profile';
 
 export const Route = createFileRoute('/panel/provider')({
@@ -19,5 +20,9 @@ export const Route = createFileRoute('/panel/provider')({
 });
 
 function ProviderGroupLayout() {
-  return <Outlet />;
+  return (
+    <PanelContentContainer>
+      <Outlet />
+    </PanelContentContainer>
+  );
 }

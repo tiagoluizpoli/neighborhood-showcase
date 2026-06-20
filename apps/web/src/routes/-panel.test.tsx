@@ -3,11 +3,18 @@ import { beforeEach, describe, expect, mock, test } from 'bun:test';
 import * as RealReact from 'react';
 
 // Mock localStorage for Node/Bun environment
+const localStorageState = new Map<string, string>();
 const localStorageMock = {
-  getItem: () => null,
-  setItem: () => {},
-  removeItem: () => {},
-  clear: () => {},
+  getItem: (key: string) => localStorageState.get(key) ?? null,
+  setItem: (key: string, value: string) => {
+    localStorageState.set(key, value);
+  },
+  removeItem: (key: string) => {
+    localStorageState.delete(key);
+  },
+  clear: () => {
+    localStorageState.clear();
+  },
 };
 Object.defineProperty(globalThis, 'localStorage', {
   value: localStorageMock,
@@ -38,6 +45,7 @@ const renderComponent = (Component: () => any) => {
 // Mock react
 mock.module('react', () => ({
   ...RealReact,
+  useSyncExternalStore: (_subscribe: any, getSnapshot: any) => getSnapshot(),
   useCallback: (fn: any, _deps: any[]) => fn,
   useEffect: (callback: () => void, _deps: any[]) => {
     activeEffects.push(callback);
@@ -127,6 +135,8 @@ mock.module('@tanstack/react-query', () => ({
 // Mock lucide-react icons used in sidebar
 mock.module('lucide-react', () => ({
   ChevronDown: () => 'ChevronDown',
+  ChevronsUpDown: () => 'ChevronsUpDown',
+  Check: () => 'Check',
   LayoutDashboard: () => 'LayoutDashboard',
   Settings: () => 'Settings',
   ShieldAlert: () => 'ShieldAlert',
@@ -156,6 +166,7 @@ mock.module('@neighborhood-showcase/ui/components/sidebar', () => ({
   SidebarMenuButton: (props: any) => (props.render ? props.render : null),
   SidebarMenuItem: ({ children }: any) => children,
   SidebarMenuSub: ({ children }: any) => children,
+  SidebarMenuSubItem: ({ children }: any) => children,
   SidebarMenuSubButton: (props: any) => (props.render ? props.render : null),
   SidebarRail: () => null,
   SidebarTrigger: () => 'SidebarTrigger',
@@ -315,6 +326,73 @@ const findNodeByKey = (node: any, keyValue: string): any => {
   return null;
 };
 
+const findNodeByType = (node: any, typeValue: string): any => {
+  if (!node || typeof node !== 'object') return null;
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const found = findNodeByType(child, typeValue);
+      if (found) return found;
+    }
+    return null;
+  }
+  if (node.type === typeValue) return node;
+  if (node.props?.children) {
+    const children = Array.isArray(node.props.children)
+      ? node.props.children
+      : [node.props.children];
+    for (const child of children) {
+      const found = findNodeByType(child, typeValue);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
+const findNodeByClassName = (node: any, classNameValue: string): any => {
+  if (!node || typeof node !== 'object') return null;
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const found = findNodeByClassName(child, classNameValue);
+      if (found) return found;
+    }
+    return null;
+  }
+  if (node.props?.className === classNameValue) return node;
+  if (node.props?.children) {
+    const children = Array.isArray(node.props.children)
+      ? node.props.children
+      : [node.props.children];
+    for (const child of children) {
+      const found = findNodeByClassName(child, classNameValue);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
+const collectText = (node: any): string[] => {
+  if (typeof node === 'string') {
+    return [node];
+  }
+  if (!node || typeof node !== 'object') {
+    return [];
+  }
+  if (Array.isArray(node)) {
+    return node.flatMap((child) => collectText(child));
+  }
+  return collectText(node.props?.children);
+};
+
+const readTextContent = (node: any): string => collectText(node).join(' ');
+
+const setMockPathname = (pathname: string) => {
+  Object.defineProperty(globalThis, 'location', {
+    value: { pathname },
+    writable: true,
+    configurable: true,
+  });
+};
+
 // Import panel after all mocks are set up — Route.component is accessible after import
 let Route: any;
 
@@ -324,6 +402,8 @@ describe('Panel Layout Visibility Tests', () => {
     mockSession = null;
     mockAssignments = [];
     mockAccessProfile = { providerEnabled: false };
+    localStorageMock.clear();
+    setMockPathname('/panel');
     // Import panel module — all mocks are already registered above
     const mod = await import('@/routes/panel');
     Route = mod.Route;
@@ -491,5 +571,95 @@ describe('Panel Layout Visibility Tests', () => {
     expect(findNodeByKey(tree, 'sidebar.group.moderacao')).not.toBeNull();
     expect(findNodeByKey(tree, 'sidebar.group.administracao')).not.toBeNull();
     expect(findNodeByKey(tree, 'sidebar.group.spectrum')).not.toBeNull();
+  });
+
+  test('provider announcement route chrome shows provider section context', () => {
+    mockSession = {
+      data: {
+        user: {
+          id: 'user-7',
+          name: 'Provider User',
+          email: 'provider@example.com',
+          role: 'USER',
+        },
+      },
+    };
+    mockAssignments = [
+      {
+        id: 'assignment-prov-1',
+        condominiumId: 'condo-1',
+        condominium: { id: 'condo-1', name: 'Condo Alpha' },
+        type: 'RESIDENT',
+        status: 'APPROVED',
+      },
+    ];
+    mockAccessProfile = { providerEnabled: true };
+    setMockPathname('/panel/provider/announcements');
+
+    const tree = renderComponent(Route.component);
+    const sidebarHeaderContent = findNodeByClassName(
+      tree,
+      'min-w-0 flex-1 group-data-[collapsible=icon]:hidden',
+    );
+    const topBar = findNodeByType(tree, 'header');
+
+    expect(sidebarHeaderContent).not.toBeNull();
+    expect(readTextContent(sidebarHeaderContent)).toContain(
+      'sidebar.brand.name',
+    );
+    expect(readTextContent(sidebarHeaderContent)).toContain(
+      'sidebar.item.meus_anuncios',
+    );
+    expect(topBar).not.toBeNull();
+    expect(readTextContent(topBar)).toContain('sidebar.group.provedor');
+    expect(readTextContent(topBar)).toContain('sidebar.item.meus_anuncios');
+  });
+
+  test('moderation chrome shows selected condo context in sidebar header and top bar', () => {
+    mockSession = {
+      data: {
+        user: {
+          id: 'user-8',
+          name: 'Moderator User',
+          email: 'moderator@example.com',
+          role: 'USER',
+        },
+      },
+    };
+    mockAssignments = [
+      {
+        id: 'assignment-mod-1',
+        condominiumId: 'condo-1',
+        condominium: { id: 'condo-1', name: 'Condo Alpha' },
+        type: 'MODERATOR',
+        status: 'APPROVED',
+      },
+      {
+        id: 'assignment-mod-2',
+        condominiumId: 'condo-2',
+        condominium: { id: 'condo-2', name: 'Condo Beta' },
+        type: 'MODERATOR',
+        status: 'APPROVED',
+      },
+    ];
+    localStorageMock.setItem('mod_ctx__cndo', 'condo-2');
+    setMockPathname('/panel/moderation/condominium');
+
+    const tree = renderComponent(Route.component);
+    const sidebarHeaderContent = findNodeByClassName(
+      tree,
+      'min-w-0 flex-1 group-data-[collapsible=icon]:hidden',
+    );
+    const topBar = findNodeByType(tree, 'header');
+
+    expect(sidebarHeaderContent).not.toBeNull();
+    expect(readTextContent(sidebarHeaderContent)).toContain(
+      'sidebar.brand.name',
+    );
+    expect(readTextContent(sidebarHeaderContent)).toContain('Condo Beta');
+    expect(topBar).not.toBeNull();
+    expect(readTextContent(topBar)).toContain('sidebar.group.moderacao');
+    expect(readTextContent(topBar)).toContain('sidebar.item.condominium_info');
+    expect(readTextContent(topBar)).toContain('Condo Beta');
   });
 });
