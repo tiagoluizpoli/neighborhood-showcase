@@ -245,7 +245,7 @@ function ProviderPublicProfileComponent() {
                 {provider.isVerified ? (
                   <Badge className="gap-1.5 px-3 py-1 text-xs">
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    Morador verificado
+                    {t('provider_profile.verified_resident')}
                   </Badge>
                 ) : null}
               </div>
@@ -259,10 +259,9 @@ function ProviderPublicProfileComponent() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Canais de contato</CardTitle>
+          <CardTitle>{t('provider_profile.contact_title')}</CardTitle>
           <CardDescription>
-            Entre em contato pelos canais públicos disponibilizados pelo
-            prestador.
+            {t('provider_profile.contact_description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -294,7 +293,7 @@ function ProviderPublicProfileComponent() {
             </div>
           ) : (
             <p className="text-muted-foreground text-sm italic">
-              Nenhum canal de contato cadastrado.
+              {t('provider_profile.contact_empty')}
             </p>
           )}
         </CardContent>
@@ -302,15 +301,14 @@ function ProviderPublicProfileComponent() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Sobre</CardTitle>
+          <CardTitle>{t('provider_profile.about_title')}</CardTitle>
           <CardDescription>
-            Conheça mais sobre este prestador e os serviços oferecidos.
+            {t('provider_profile.about_description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <p className="whitespace-pre-wrap text-muted-foreground text-sm leading-7">
-            {provider.publicDescription ??
-              'Este prestador ainda não adicionou uma descrição pública.'}
+            {provider.publicDescription ?? t('provider_profile.about_empty')}
           </p>
         </CardContent>
       </Card>
@@ -318,17 +316,17 @@ function ProviderPublicProfileComponent() {
       <section className="space-y-4">
         <div>
           <h2 className="font-bold text-2xl text-foreground tracking-tight">
-            Anúncios ativos
+            {t('provider_profile.announcements_title')}
           </h2>
           <p className="text-muted-foreground text-sm">
-            Confira os serviços e listagens oferecidos por este prestador.
+            {t('provider_profile.announcements_description')}
           </p>
         </div>
 
         {announcements.length === 0 ? (
           <Card className="border-dashed">
             <CardContent className="p-10 text-center text-muted-foreground text-sm">
-              Este prestador não possui anúncios ativos no momento.
+              {t('provider_profile.announcements_empty')}
             </CardContent>
           </Card>
         ) : (

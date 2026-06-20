@@ -8,6 +8,9 @@
     "how_it_works": "Como funciona",
     "advertise": "Anunciar"
   },
+  "footer": {
+    "tagline": "Conectando vizinhos e impulsionando os serviços locais no seu condomínio."
+  },
   "menu": {
     "account": "Minha Conta",
     "logout": "Sair",
@@ -15,7 +18,7 @@
   },
   "sidebar": {
     "brand": {
-      "name": "Neighborhood Showcase",
+      "name": "Showcase do Bairro",
       "abbr": "NS"
     },
     "group": {
@@ -465,7 +468,17 @@
     "back_to_showcase": "Voltar para a vitrine",
     "not_found_title": "Prestador não encontrado",
     "not_found_description": "O prestador solicitado não foi encontrado.",
-    "back_home": "Voltar para o início"
+    "back_home": "Voltar para o início",
+    "verified_resident": "Morador verificado",
+    "contact_title": "Canais de contato",
+    "contact_description": "Entre em contato pelos canais públicos disponibilizados pelo prestador.",
+    "contact_empty": "Nenhum canal de contato cadastrado.",
+    "about_title": "Sobre",
+    "about_description": "Conheça mais sobre este prestador e os serviços oferecidos.",
+    "about_empty": "Este prestador ainda não adicionou uma descrição pública.",
+    "announcements_title": "Anúncios ativos",
+    "announcements_description": "Confira os serviços e listagens oferecidos por este prestador.",
+    "announcements_empty": "Este prestador não possui anúncios ativos no momento."
   },
   "new_announcement": {
     "title": "Novo Anúncio",

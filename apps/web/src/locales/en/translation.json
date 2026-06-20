@@ -8,6 +8,9 @@
     "how_it_works": "How it works",
     "advertise": "Advertise"
   },
+  "footer": {
+    "tagline": "Connecting neighbors and boosting local services in your condominium."
+  },
   "menu": {
     "account": "My Account",
     "logout": "Sign Out",
@@ -465,7 +468,17 @@
     "back_to_showcase": "Back to showcase",
     "not_found_title": "Provider not found",
     "not_found_description": "The requested provider could not be found.",
-    "back_home": "Back to home"
+    "back_home": "Back to home",
+    "verified_resident": "Verified resident",
+    "contact_title": "Contact channels",
+    "contact_description": "Get in touch through the public channels provided by this provider.",
+    "contact_empty": "No contact channels registered.",
+    "about_title": "About",
+    "about_description": "Learn more about this provider and the services offered.",
+    "about_empty": "This provider has not added a public description yet.",
+    "announcements_title": "Active announcements",
+    "announcements_description": "Check out the services and listings offered by this provider.",
+    "announcements_empty": "This provider has no active announcements at the moment."
   },
   "new_announcement": {
     "title": "New Announcement",

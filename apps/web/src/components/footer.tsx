@@ -11,10 +11,7 @@ export function Footer() {
           <span className="font-bold text-foreground">
             Neighborhood Showcase
           </span>
-          <p className="max-w-sm text-xs">
-            Conectando vizinhos e impulsionando os serviços locais no seu
-            condomínio.
-          </p>
+          <p className="max-w-sm text-xs">{t('footer.tagline')}</p>
         </div>
 
         <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 font-medium text-xs">
