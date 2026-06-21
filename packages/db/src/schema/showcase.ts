@@ -269,6 +269,17 @@ export const announcement = pgTable('announcement', {
     primaryPhone: string;
     callEnabled: boolean;
   } | null>(),
+  // Bounded CTA targets (PRD-v10 / T-17-04), kept separate from contact
+  // channels. `primary` is the high-importance action; `secondary` is a small
+  // capped list of additional bounded targets. Announcement-level only — there
+  // is no provider-level CTA inheritance.
+  cta: jsonb('cta')
+    .$type<{
+      primary: { type: string; value: string | null } | null;
+      secondary: Array<{ type: string; value: string | null }>;
+    }>()
+    .notNull()
+    .default({ primary: null, secondary: [] }),
   showVerifiedBadge: boolean('show_verified_badge').default(false).notNull(),
   flaggedForReview: boolean('flagged_for_review').default(false).notNull(),
   status: announcementStatusEnum('status').default('DRAFT').notNull(),

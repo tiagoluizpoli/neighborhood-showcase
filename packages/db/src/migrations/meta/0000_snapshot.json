@@ -1,5 +1,5 @@
 {
-  "id": "d3570770-4cac-491b-bd7a-a4a5ff19c9f2",
+  "id": "3859cb46-687d-4c3c-9b1a-f31a08ec97f1",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -654,6 +654,13 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false
+        },
+        "cta": {
+          "name": "cta",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"primary\":null,\"secondary\":[]}'::jsonb"
         },
         "show_verified_badge": {
           "name": "show_verified_badge",
