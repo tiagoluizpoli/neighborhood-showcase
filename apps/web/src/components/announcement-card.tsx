@@ -15,6 +15,13 @@ import { useNavigate } from '@tanstack/react-router';
 import { CheckCircle2, Mail, MessageCircle, Phone } from 'lucide-react';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  type CtaAnalyticsTarget,
+  CtaIcon,
+  ctaActionLabelKey,
+  ctaAnalyticsTarget,
+  resolveCtaHref,
+} from '@/components/announcement-cta';
 import type { RouterOutputs } from '@/utils/trpc';
 
 type PublicAnnouncement = RouterOutputs['announcement']['listPublic'][number];
@@ -108,13 +115,28 @@ export function AnnouncementCard({
     return baseLoc;
   };
 
-  // Determine the single primary action
+  // Determine the single primary action. A configured CTA takes priority as the
+  // high-importance action; otherwise fall back to the WhatsApp/call contact.
   let contactUrl = '';
   let contactLabel = '';
-  let contactIcon = null;
-  let targetType: 'WHATSAPP' | 'INSTAGRAM' | 'WEBSITE' | null = null;
+  let contactIcon: React.ReactNode = null;
+  let targetType: CtaAnalyticsTarget = null;
 
-  if (ad.contactLinks?.whatsapp) {
+  const ctaPrimary = ad.cta?.primary ?? null;
+  const ctaHref = ctaPrimary
+    ? resolveCtaHref({
+        target: ctaPrimary,
+        providerId: ad.providerId,
+        fallbackWhatsapp: ad.contactLinks?.whatsapp,
+      })
+    : null;
+
+  if (ctaPrimary && ctaHref) {
+    contactUrl = ctaHref;
+    contactLabel = t(ctaActionLabelKey(ctaPrimary.type));
+    contactIcon = <CtaIcon type={ctaPrimary.type} className="h-3.5 w-3.5" />;
+    targetType = ctaAnalyticsTarget(ctaPrimary.type);
+  } else if (ad.contactLinks?.whatsapp) {
     contactUrl = `https://wa.me/${ad.contactLinks.whatsapp.replace(/\D/g, '')}`;
     contactLabel = 'WhatsApp';
     contactIcon = <MessageCircle className="h-3.5 w-3.5" />;

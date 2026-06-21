@@ -1,3 +1,5 @@
+import type { AnnouncementCtaData } from './provider/-announcement-cta-section';
+
 export interface ProviderDashboardAnnouncementItem {
   id: string;
   title: string;
@@ -15,6 +17,7 @@ export interface ProviderDashboardAnnouncementItem {
       callEnabled: boolean;
     } | null;
   };
+  cta: AnnouncementCtaData;
   contactLinks: {
     whatsapp?: string;
     phone?: string;

@@ -10,6 +10,13 @@ import {
 import { Checkbox } from '@neighborhood-showcase/ui/components/checkbox';
 import { Input } from '@neighborhood-showcase/ui/components/input';
 import { Label } from '@neighborhood-showcase/ui/components/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@neighborhood-showcase/ui/components/select';
 import { Textarea } from '@neighborhood-showcase/ui/components/textarea';
 import {
   Tooltip,
@@ -266,23 +273,25 @@ function NewAnnouncementComponent() {
                     <Label htmlFor="location-select">
                       Localização do Anúncio *
                     </Label>
-                    <select
-                      id="location-select"
+                    <Select
                       value={selectedLocationId}
-                      onChange={(e) => setSelectedLocationId(e.target.value)}
-                      className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 dark:bg-input/30"
+                      onValueChange={(value) =>
+                        setSelectedLocationId(value ?? '')
+                      }
                     >
-                      <option value="" disabled>
-                        Selecione a localização...
-                      </option>
-                      {approvedLocations.map((a) => (
-                        <option key={a.id} value={a.id}>
-                          {a.type === 'EXTERNAL'
-                            ? `Atendimento Autônomo (${a.unitInfo ? `${a.unitInfo}, ` : ''}${a.number})`
-                            : `${a.condominium?.name ?? 'Condomínio'} (${a.condominium?.city ?? ''} - ${a.condominium?.state ?? ''})`}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger id="location-select" className="w-full">
+                        <SelectValue placeholder="Selecione a localização..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {approvedLocations.map((a) => (
+                          <SelectItem key={a.id} value={a.id}>
+                            {a.type === 'EXTERNAL'
+                              ? `Atendimento Autônomo (${a.unitInfo ? `${a.unitInfo}, ` : ''}${a.number})`
+                              : `${a.condominium?.name ?? 'Condomínio'} (${a.condominium?.city ?? ''} - ${a.condominium?.state ?? ''})`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 )
               )}

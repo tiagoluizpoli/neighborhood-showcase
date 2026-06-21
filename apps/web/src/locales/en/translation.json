@@ -501,7 +501,8 @@
       "upload_failed": "Failed to upload the cropped image.",
       "upload_or_form_error": "Error uploading or processing the form.",
       "custom_phone_invalid": "Enter a valid WhatsApp number with area code.",
-      "inherit_no_baseline": "Add a WhatsApp number to your profile or customize the contact for this announcement."
+      "inherit_no_baseline": "Add a WhatsApp number to your profile or customize the contact for this announcement.",
+      "cta_incomplete": "Complete the CTA targets with a valid link before saving."
     },
     "details_card": {
       "title": "Announcement Details",
@@ -557,6 +558,28 @@
       "custom_call_help": "Let neighbors call this same number.",
       "use_defaults_button": "Use profile defaults"
     },
+    "cta_card": {
+      "title": "Primary action (CTA)",
+      "description": "Where this announcement sends the neighbor. Separate from contact channels.",
+      "primary_label": "Primary CTA",
+      "secondary_label": "Additional targets (optional)",
+      "add_primary": "Add primary CTA",
+      "add_secondary": "Add target",
+      "type_label": "Target type",
+      "types": {
+        "provider_profile": "My provider profile",
+        "website": "Website / Menu",
+        "instagram": "Instagram",
+        "tiktok": "TikTok",
+        "whatsapp": "WhatsApp"
+      },
+      "value_placeholder": {
+        "website": "https://mysite.com",
+        "instagram": "https://instagram.com/your_profile",
+        "tiktok": "https://tiktok.com/@your_profile",
+        "whatsapp": "Optional — uses your contact number if empty"
+      }
+    },
     "image_card": {
       "title": "Cover Image",
       "description": "Images are required and must have a 4:3 ratio.",
@@ -576,6 +599,17 @@
       "saving": "Saving Draft...",
       "save": "Save Draft",
       "cancel": "Cancel"
+    }
+  },
+  "announcement_cta": {
+    "primary_title": "Primary action",
+    "more_title": "More options",
+    "actions": {
+      "provider_profile": "View profile",
+      "website": "Visit website",
+      "instagram": "View Instagram",
+      "tiktok": "View TikTok",
+      "whatsapp": "WhatsApp"
     }
   }
 }

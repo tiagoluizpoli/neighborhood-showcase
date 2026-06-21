@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { AnnouncementCtaActions } from '@/components/announcement-cta';
 import { authClient } from '@/lib/auth-client';
 import { trpc } from '@/utils/trpc';
 
@@ -274,6 +275,18 @@ function PublicAnnouncementDetailsComponent() {
                 <span>Ver perfil completo</span>
               </Link>
             </div>
+          </div>
+
+          {/* Primary CTA — distinct from reach-me contact channels */}
+          <div className="mb-6">
+            <AnnouncementCtaActions
+              cta={ad.cta}
+              providerId={ad.providerId}
+              fallbackWhatsapp={ad.contactLinks.whatsapp}
+              onCtaClick={(analyticsTarget) =>
+                handleContactClick(analyticsTarget)
+              }
+            />
           </div>
 
           {/* Contact Actions */}

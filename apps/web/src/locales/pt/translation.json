@@ -501,7 +501,8 @@
       "upload_failed": "Falha no upload da imagem recortada.",
       "upload_or_form_error": "Erro ao realizar upload ou processar o formulário.",
       "custom_phone_invalid": "Informe um número de WhatsApp válido com DDD.",
-      "inherit_no_baseline": "Adicione um número de WhatsApp ao seu perfil ou personalize o contato deste anúncio."
+      "inherit_no_baseline": "Adicione um número de WhatsApp ao seu perfil ou personalize o contato deste anúncio.",
+      "cta_incomplete": "Complete os destinos de CTA com um link válido antes de salvar."
     },
     "details_card": {
       "title": "Detalhes do Anúncio",
@@ -557,6 +558,28 @@
       "custom_call_help": "Permita que os vizinhos liguem para este mesmo número.",
       "use_defaults_button": "Usar padrões do perfil"
     },
+    "cta_card": {
+      "title": "Ação principal (CTA)",
+      "description": "Para onde este anúncio leva o vizinho. Separado dos canais de contato.",
+      "primary_label": "CTA principal",
+      "secondary_label": "Destinos adicionais (opcional)",
+      "add_primary": "Adicionar CTA principal",
+      "add_secondary": "Adicionar destino",
+      "type_label": "Tipo de destino",
+      "types": {
+        "provider_profile": "Meu perfil de prestador",
+        "website": "Site / Cardápio",
+        "instagram": "Instagram",
+        "tiktok": "TikTok",
+        "whatsapp": "WhatsApp"
+      },
+      "value_placeholder": {
+        "website": "https://meusite.com.br",
+        "instagram": "https://instagram.com/seu_perfil",
+        "tiktok": "https://tiktok.com/@seu_perfil",
+        "whatsapp": "Opcional — usa seu número de contato se vazio"
+      }
+    },
     "image_card": {
       "title": "Imagem de Capa",
       "description": "Imagens são obrigatórias e devem possuir a proporção 4:3.",
@@ -576,6 +599,17 @@
       "saving": "Salvando Rascunho...",
       "save": "Salvar Rascunho",
       "cancel": "Cancelar"
+    }
+  },
+  "announcement_cta": {
+    "primary_title": "Ação principal",
+    "more_title": "Mais opções",
+    "actions": {
+      "provider_profile": "Ver perfil",
+      "website": "Acessar site",
+      "instagram": "Ver Instagram",
+      "tiktok": "Ver TikTok",
+      "whatsapp": "WhatsApp"
     }
   }
 }

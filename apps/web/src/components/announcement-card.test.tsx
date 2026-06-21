@@ -291,6 +291,35 @@ describe('AnnouncementCard', () => {
     expect(findNodeByText(tree, 'WhatsApp')).toBeTruthy();
   });
 
+  test('prefers a configured CTA over the WhatsApp contact fallback', () => {
+    const adWithCta = {
+      ...mockAd,
+      cta: {
+        primary: { type: 'website', value: 'https://menu.example.com' },
+        secondary: [],
+      },
+    };
+    const tree = renderComponent(() => AnnouncementCard({ ad: adWithCta }));
+    expect(
+      findNodeByProp(tree, 'href', 'https://menu.example.com'),
+    ).toBeTruthy();
+    // The WhatsApp fallback must not be the rendered primary action.
+    expect(
+      findNodeByProp(tree, 'href', 'https://wa.me/5548999999999'),
+    ).toBeFalsy();
+  });
+
+  test('falls back to WhatsApp when no CTA primary is present', () => {
+    const adNoCta = {
+      ...mockAd,
+      cta: { primary: null, secondary: [] },
+    };
+    const tree = renderComponent(() => AnnouncementCard({ ad: adNoCta }));
+    expect(
+      findNodeByProp(tree, 'href', 'https://wa.me/5548999999999'),
+    ).toBeTruthy();
+  });
+
   test('fallback sequence: uses phone when WhatsApp is missing', () => {
     const adPhoneOnly = {
       ...mockAd,

@@ -1,5 +1,12 @@
 import { Checkbox } from '@neighborhood-showcase/ui/components/checkbox';
 import { Input } from '@neighborhood-showcase/ui/components/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@neighborhood-showcase/ui/components/select';
 import { Textarea } from '@neighborhood-showcase/ui/components/textarea';
 import {
   Tooltip,
@@ -14,6 +21,10 @@ import {
   AnnouncementContactSection,
   type ProviderContactDefaultsView,
 } from './provider/-announcement-contact-section';
+import {
+  AnnouncementCtaSection,
+  type AnnouncementCtaView,
+} from './provider/-announcement-cta-section';
 
 interface ProviderDashboardEditFormFieldsProps {
   backendCategories:
@@ -25,6 +36,7 @@ interface ProviderDashboardEditFormFieldsProps {
   canVerify: boolean;
   categoryId: string;
   contactMode: AnnouncementContactMode;
+  cta: AnnouncementCtaView;
   customCallEnabled: boolean;
   customPhone: string;
   description: string;
@@ -39,6 +51,7 @@ interface ProviderDashboardEditFormFieldsProps {
   onCategoryIdChange: (value: string) => void;
   onConfigureContact: () => void;
   onContactModeChange: (value: AnnouncementContactMode) => void;
+  onCtaChange: (value: AnnouncementCtaView) => void;
   onCustomCallEnabledChange: (value: boolean) => void;
   onCustomPhoneChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
@@ -55,6 +68,7 @@ export function ProviderDashboardEditFormFields({
   canVerify,
   categoryId,
   contactMode,
+  cta,
   customCallEnabled,
   customPhone,
   description,
@@ -63,6 +77,7 @@ export function ProviderDashboardEditFormFields({
   onCategoryIdChange,
   onConfigureContact,
   onContactModeChange,
+  onCtaChange,
   onCustomCallEnabledChange,
   onCustomPhoneChange,
   onDescriptionChange,
@@ -113,19 +128,26 @@ export function ProviderDashboardEditFormFields({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label={t('meus_anuncios.detail.form.category')}>
-          <select
-            required
-            aria-label={t('meus_anuncios.detail.form.category')}
+          <Select
             value={categoryId}
-            onChange={(e) => onCategoryIdChange(e.target.value)}
-            className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 dark:bg-input/30"
+            onValueChange={(value) => onCategoryIdChange(value ?? '')}
           >
-            {backendCategories?.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger
+              className="w-full"
+              aria-label={t('meus_anuncios.detail.form.category')}
+            >
+              <SelectValue
+                placeholder={t('meus_anuncios.detail.form.category')}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {backendCategories?.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {cat.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
         <Field label={t('meus_anuncios.detail.form.price')}>
           <Input
@@ -165,6 +187,8 @@ export function ProviderDashboardEditFormFields({
         isLoadingDefaults={isLoadingProviderDefaults}
         onConfigureContact={onConfigureContact}
       />
+
+      <AnnouncementCtaSection cta={cta} onChange={onCtaChange} />
 
       <div className="space-y-2">
         <div className="flex items-center justify-between rounded-xl border border-border bg-muted/40 p-4">

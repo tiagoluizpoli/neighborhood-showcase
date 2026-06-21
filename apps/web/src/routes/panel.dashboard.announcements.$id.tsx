@@ -21,6 +21,11 @@ import {
   hasBaseline,
   type ProviderContactDefaultsView,
 } from './panel/provider/-announcement-contact-section';
+import {
+  type AnnouncementCtaView,
+  ctaHasIncompleteTarget,
+  withCtaIds,
+} from './panel/provider/-announcement-cta-section';
 import { authClient } from '@/lib/auth-client';
 import { useUserAccessProfile } from '@/routes/panel/-user-access-profile';
 import { trpc } from '@/utils/trpc';
@@ -157,6 +162,11 @@ export function ProviderAnnouncementDetailPage() {
       return;
     }
 
+    if (ctaHasIncompleteTarget(form.cta)) {
+      toast.error(t('new_announcement.toast.cta_incomplete'));
+      return;
+    }
+
     updateMutation.mutate({
       categoryId: form.categoryId,
       contact:
@@ -169,6 +179,7 @@ export function ProviderAnnouncementDetailPage() {
                 callEnabled: form.customCallEnabled,
               },
             },
+      cta: form.cta,
       description: form.description,
       id: announcement.id,
       imageUrl: form.imageUrl,
@@ -360,6 +371,7 @@ export function ProviderAnnouncementDetailPage() {
                 canVerify={canVerify}
                 categoryId={form.categoryId}
                 contactMode={form.contactMode}
+                cta={form.cta}
                 customCallEnabled={form.customCallEnabled}
                 customPhone={form.customPhone}
                 description={form.description}
@@ -379,6 +391,9 @@ export function ProviderAnnouncementDetailPage() {
                 }
                 onContactModeChange={(value: AnnouncementContactMode) =>
                   setForm({ ...form, contactMode: value })
+                }
+                onCtaChange={(value: AnnouncementCtaView) =>
+                  setForm({ ...form, cta: value })
                 }
                 onCustomCallEnabledChange={(value: boolean) =>
                   setForm({ ...form, customCallEnabled: value })
@@ -424,6 +439,7 @@ export function ProviderAnnouncementDetailPage() {
 interface ProviderAnnouncementFormState {
   categoryId: string;
   contactMode: AnnouncementContactMode;
+  cta: AnnouncementCtaView;
   customCallEnabled: boolean;
   customPhone: string;
   description: string;
@@ -440,6 +456,7 @@ function createInitialFormState(
   return {
     categoryId: announcement.categoryId,
     contactMode: announcement.contact.mode,
+    cta: withCtaIds(announcement.cta),
     customCallEnabled: announcement.contact.custom?.callEnabled ?? false,
     customPhone: announcement.contact.custom?.primaryPhone ?? '',
     description: announcement.description,

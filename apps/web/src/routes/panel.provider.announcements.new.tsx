@@ -10,6 +10,14 @@ import {
 import { Checkbox } from '@neighborhood-showcase/ui/components/checkbox';
 import { Input } from '@neighborhood-showcase/ui/components/input';
 import { Label } from '@neighborhood-showcase/ui/components/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@neighborhood-showcase/ui/components/select';
+import { Slider } from '@neighborhood-showcase/ui/components/slider';
 import { Textarea } from '@neighborhood-showcase/ui/components/textarea';
 import {
   Tooltip,
@@ -29,6 +37,12 @@ import {
   AnnouncementContactSection,
   hasBaseline,
 } from './panel/provider/-announcement-contact-section';
+import {
+  AnnouncementCtaSection,
+  type AnnouncementCtaView,
+  ctaHasIncompleteTarget,
+  EMPTY_CTA_VIEW,
+} from './panel/provider/-announcement-cta-section';
 import { PanelContentContainer } from '@/components/panel-content-container';
 import { getCroppedImg } from '@/utils/crop-image';
 import { trpc } from '@/utils/trpc';
@@ -53,6 +67,7 @@ function NewAnnouncementComponent() {
     useState<AnnouncementContactMode>('inherit');
   const [customPhone, setCustomPhone] = useState<string>('');
   const [customCallEnabled, setCustomCallEnabled] = useState<boolean>(false);
+  const [cta, setCta] = useState<AnnouncementCtaView>(EMPTY_CTA_VIEW);
   const [showVerifiedBadge, setShowVerifiedBadge] = useState<boolean>(false);
 
   const [imageSrc, setImageSrc] = useState<string>('');
@@ -153,6 +168,10 @@ function NewAnnouncementComponent() {
       toast.error(t('new_announcement.toast.image_required'));
       return;
     }
+    if (ctaHasIncompleteTarget(cta)) {
+      toast.error(t('new_announcement.toast.cta_incomplete'));
+      return;
+    }
 
     try {
       setIsUploading(true);
@@ -207,6 +226,7 @@ function NewAnnouncementComponent() {
                 },
               }
             : { mode: 'inherit' as const, custom: null },
+        cta,
         showVerifiedBadge: showVerifiedBadge && canVerify,
       });
     } catch (error) {
@@ -281,25 +301,29 @@ function NewAnnouncementComponent() {
                           'new_announcement.details_card.location.label_required',
                         )}
                       </Label>
-                      <select
-                        id="location-select"
+                      <Select
                         value={selectedLocationId}
-                        onChange={(e) => setSelectedLocationId(e.target.value)}
-                        className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 dark:bg-input/30"
+                        onValueChange={(value) =>
+                          setSelectedLocationId(value ?? '')
+                        }
                       >
-                        <option value="" disabled>
-                          {t(
-                            'new_announcement.details_card.location.placeholder',
-                          )}
-                        </option>
-                        {approvedLocations.map((a) => (
-                          <option key={a.id} value={a.id}>
-                            {a.type === 'EXTERNAL'
-                              ? `${t('new_announcement.details_card.location.external_prefix')} (${a.unitInfo ? `${a.unitInfo}, ` : ''}${a.number})`
-                              : `${a.condominium?.name ?? t('new_announcement.details_card.location.condo_fallback')} (${a.condominium?.city ?? ''} - ${a.condominium?.state ?? ''})`}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger id="location-select" className="w-full">
+                          <SelectValue
+                            placeholder={t(
+                              'new_announcement.details_card.location.placeholder',
+                            )}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {approvedLocations.map((a) => (
+                            <SelectItem key={a.id} value={a.id}>
+                              {a.type === 'EXTERNAL'
+                                ? `${t('new_announcement.details_card.location.external_prefix')} (${a.unitInfo ? `${a.unitInfo}, ` : ''}${a.number})`
+                                : `${a.condominium?.name ?? t('new_announcement.details_card.location.condo_fallback')} (${a.condominium?.city ?? ''} - ${a.condominium?.state ?? ''})`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   )
                 )}
@@ -447,6 +471,8 @@ function NewAnnouncementComponent() {
                 navigate({ to: '/panel/provider/configuration' })
               }
             />
+
+            <AnnouncementCtaSection cta={cta} onChange={setCta} />
           </div>
 
           <div className="space-y-6">
@@ -493,17 +519,15 @@ function NewAnnouncementComponent() {
                         <Label htmlFor="zoom-slider">Zoom</Label>
                         <span>{zoom.toFixed(1)}x</span>
                       </div>
-                      <input
+                      <Slider
                         id="zoom-slider"
-                        type="range"
                         min={1}
                         max={3}
                         step={0.1}
                         value={zoom}
-                        onChange={(e) =>
-                          setZoom(Number.parseFloat(e.target.value))
+                        onValueChange={(value) =>
+                          setZoom(Array.isArray(value) ? value[0] : value)
                         }
-                        className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-primary"
                       />
                     </div>
 
