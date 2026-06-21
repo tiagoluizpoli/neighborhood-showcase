@@ -1,30 +1,33 @@
 import { describe, expect, mock, test } from 'bun:test';
-import * as RealReact from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, screen } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
 import type { ProviderDashboardAnnouncementItem } from './-provider-dashboard-types';
+import i18n from '@/i18n';
 
-mock.module('react', () => ({
-  ...RealReact,
-  useEffect: (callback: () => void) => {
-    callback();
-  },
-}));
+const baseAnnouncement = {
+  id: 'ad-1',
+  title: 'Bolos caseiros',
+  description: 'Bolos sob encomenda para festas e aniversários.',
+  imageUrl: 'https://example.com/image.jpg',
+  category: 'Doces',
+  condoName: 'Residencial Aurora',
+  status: 'ACTIVE',
+  flaggedForReview: false,
+  showVerifiedBadge: true,
+  priceCents: 4500,
+  expiresAt: '2026-06-30T12:00:00.000Z',
+  suspensionReason: null,
+} satisfies ProviderDashboardAnnouncementItem;
 
-mock.module('@tanstack/react-router', () => ({
-  createFileRoute: (_path: string) => (options: unknown) => options,
-  Link: (props: Record<string, unknown>) => {
-    const { to, params, ...rest } = props;
-    return <a {...rest} data-to={to} data-params={JSON.stringify(params)} />;
-  },
-  useNavigate: () => () => {},
-}));
+// @tanstack/react-router (Link/useNavigate/createFileRoute) is stubbed globally
+// in test-setup.ts.
 
 mock.module('./-provider-dashboard-state', () => ({
   useProviderDashboardState: () => ({
     activeTab: 'active',
     analyticsQuery: {
-      data: {
-        chartData: [],
-      },
+      data: { chartData: [] },
       isError: false,
       isLoading: false,
     },
@@ -59,99 +62,47 @@ mock.module('./-provider-dashboard-state', () => ({
   }),
 }));
 
+// recharts' ResponsiveContainer needs ResizeObserver, which happy-dom lacks; the
+// frame's KPI/bucket labels under test render outside the chart, so stub the
+// chart boundary to keep the real DOM rendering crash-free.
+mock.module('@neighborhood-showcase/ui/components/chart', () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test boundary mock
+  ChartContainer: ({ children }: any) => <div>{children}</div>,
+  ChartTooltip: () => null,
+  ChartTooltipContent: () => null,
+}));
+mock.module('recharts', () => ({
+  CartesianGrid: () => null,
+  Line: () => null,
+  LineChart: () => null,
+  XAxis: () => null,
+  YAxis: () => null,
+}));
+
 const { ProviderDashboardRouteFrame } = await import(
   './-provider-dashboard-route-frame'
 );
 
-const baseAnnouncement = {
-  id: 'ad-1',
-  title: 'Bolos caseiros',
-  description: 'Bolos sob encomenda para festas e aniversários.',
-  imageUrl: 'https://example.com/image.jpg',
-  category: 'Doces',
-  condoName: 'Residencial Aurora',
-  status: 'ACTIVE',
-  flaggedForReview: false,
-  showVerifiedBadge: true,
-  priceCents: 4500,
-  expiresAt: '2026-06-30T12:00:00.000Z',
-  suspensionReason: null,
-} satisfies ProviderDashboardAnnouncementItem;
-
-const textContent = (node: unknown): string => {
-  if (!node) return '';
-  if (typeof node === 'string' || typeof node === 'number') {
-    return String(node);
-  }
-  if (typeof node !== 'object' || node === null) return '';
-  const children = (node as { props?: { children?: unknown } }).props?.children;
-  if (!children) return '';
-  if (Array.isArray(children)) {
-    return children.map((child) => textContent(child)).join('');
-  }
-  return textContent(children);
-};
-
-const findElement = (
-  node: unknown,
-  predicate: (el: {
-    props?: { [key: string]: unknown };
-    type?: unknown;
-  }) => boolean,
-): { props?: { [key: string]: unknown }; type?: unknown } | null => {
-  if (!node) return null;
-  if (
-    predicate(node as { props?: { [key: string]: unknown }; type?: unknown })
-  ) {
-    return node as { props?: { [key: string]: unknown }; type?: unknown };
-  }
-  if (
-    typeof node === 'object' &&
-    node !== null &&
-    'type' in node &&
-    typeof (node as { type?: unknown }).type === 'function'
-  ) {
-    try {
-      const evaluated = (
-        node as { type: (props?: unknown) => unknown; props?: unknown }
-      ).type?.((node as { props?: unknown }).props);
-      const found = findElement(evaluated, predicate);
-      if (found) return found;
-    } catch (_error) {}
-  }
-  const children =
-    typeof node === 'object' && node !== null
-      ? (node as { props?: { children?: unknown } }).props?.children
-      : null;
-  if (children) {
-    const items = Array.isArray(children) ? children : [children];
-    for (const child of items) {
-      const found = findElement(child, predicate);
-      if (found) return found;
-    }
-  }
-  return null;
-};
+function renderFrame() {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={client}>
+      <I18nextProvider i18n={i18n}>
+        <ProviderDashboardRouteFrame displayName="John Analytics" message="" />
+      </I18nextProvider>
+    </QueryClientProvider>,
+  );
+}
 
 describe('ProviderDashboardRouteFrame', () => {
-  test('renders the dashboard shell with the composed content', () => {
-    const tree = ProviderDashboardRouteFrame({
-      displayName: 'John Analytics',
-      message: '',
-    });
+  test('renders the dashboard shell with the composed content', async () => {
+    await i18n.changeLanguage('pt');
+    renderFrame();
 
-    expect(
-      findElement(tree, (element) =>
-        textContent(element).includes('John Analytics'),
-      ),
-    ).toBeTruthy();
-    expect(
-      findElement(tree, (element) =>
-        textContent(element).includes('Visualizações'),
-      ),
-    ).toBeTruthy();
-    expect(
-      findElement(tree, (element) => textContent(element).includes('Ativos')),
-    ).toBeTruthy();
+    expect(screen.getByText(/John Analytics/)).toBeTruthy();
+    expect(screen.getAllByText(/Visualizações/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Ativo/).length).toBeGreaterThan(0);
   });
 });

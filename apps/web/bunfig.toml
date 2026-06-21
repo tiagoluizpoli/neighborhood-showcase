@@ -1,0 +1,6 @@
+[test]
+# Web unit tests render real React into a happy-dom document and use React
+# Testing Library. The preload registers the DOM and resets it between tests so
+# module mocks and rendered output do not leak across files (the failure mode of
+# the old shallow-renderer + global mock.module approach).
+preload = ["./test-setup.ts"]
