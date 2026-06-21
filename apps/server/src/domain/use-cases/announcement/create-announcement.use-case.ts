@@ -1,5 +1,6 @@
 import type { Announcement } from '../../entities/announcement.entity';
 import type { AnnouncementContactSettings } from '../../entities/contact';
+import type { AnnouncementCta } from '../../entities/cta';
 
 export interface CreateAnnouncementInput {
   providerId: string;
@@ -12,6 +13,7 @@ export interface CreateAnnouncementInput {
   categoryId: string;
   tags: string[];
   contact: AnnouncementContactSettings;
+  cta: AnnouncementCta;
   showVerifiedBadge: boolean;
 }
 

@@ -13,6 +13,7 @@ describe('getPublic Announcement Router Procedure', () => {
   const providerId = 'public-test-provider-id';
   const condoId = 'public-test-condo-id';
   const testAnnId = 'public-test-ann-id';
+  const ctaAnnId = 'public-test-ann-cta-id';
 
   beforeAll(async () => {
     // Clear tables
@@ -52,16 +53,32 @@ describe('getPublic Announcement Router Procedure', () => {
     });
 
     // Insert active announcement
-    await db.insert(announcement).values({
-      id: testAnnId,
-      providerId,
-      condominiumId: condoId,
-      title: 'Delicious Pizza',
-      description: 'Warm and tasty pizza delivered right to your apartment',
-      imageUrl: 'http://localhost:9000/showcase/pizza.jpg',
-      categoryId: 'cat-alimentacao',
-      status: 'ACTIVE',
-    });
+    await db.insert(announcement).values([
+      {
+        id: testAnnId,
+        providerId,
+        condominiumId: condoId,
+        title: 'Delicious Pizza',
+        description: 'Warm and tasty pizza delivered right to your apartment',
+        imageUrl: 'http://localhost:9000/showcase/pizza.jpg',
+        categoryId: 'cat-alimentacao',
+        status: 'ACTIVE',
+      },
+      {
+        id: ctaAnnId,
+        providerId,
+        condominiumId: condoId,
+        title: 'Pizza with CTA',
+        description: 'Warm pizza with a provider-profile CTA destination',
+        imageUrl: 'http://localhost:9000/showcase/pizza-cta.jpg',
+        categoryId: 'cat-alimentacao',
+        cta: {
+          primary: { type: 'provider_profile', value: null },
+          secondary: [{ type: 'website', value: 'https://pizza.example.com' }],
+        },
+        status: 'ACTIVE',
+      },
+    ]);
   });
 
   test('successfully retrieves announcement with provider details', async () => {
@@ -76,5 +93,22 @@ describe('getPublic Announcement Router Procedure', () => {
     expect(res.title).toBe('Delicious Pizza');
     expect(res.providerName).toBe('Router Profile Provider');
     expect(res.providerAvatarUrl).toBe('http://localhost/profile-avatar.jpg');
+  });
+
+  test('exposes the bounded CTA payload distinct from contact links', async () => {
+    const caller = appRouter.createCaller({
+      auth: null,
+      session: null,
+    });
+
+    const res = await caller.announcement.getPublic({ id: ctaAnnId });
+
+    expect(res.cta.primary).toEqual({
+      type: 'provider_profile',
+      value: null,
+    });
+    expect(res.cta.secondary).toEqual([
+      { type: 'website', value: 'https://pizza.example.com' },
+    ]);
   });
 });

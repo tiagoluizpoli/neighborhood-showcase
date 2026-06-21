@@ -1,4 +1,5 @@
 import type { AnnouncementContactSettings } from '../../../domain/entities/contact';
+import type { AnnouncementCta } from '../../../domain/entities/cta';
 import type { AnalyticsRepository } from '../../../domain/repositories/analytics.repository';
 import type { AnnouncementRepository } from '../../../domain/repositories/announcement.repository';
 
@@ -17,6 +18,7 @@ export interface DashboardAnnouncementItem {
   categoryId: string;
   tags: string[];
   contact: AnnouncementContactSettings;
+  cta: AnnouncementCta;
   contactLinks: {
     whatsapp?: string;
     phone?: string;
@@ -101,6 +103,7 @@ export class GetProviderDashboardData {
         categoryId: raw.categoryId,
         tags: raw.tags,
         contact: raw.contact,
+        cta: raw.cta,
         contactLinks:
           raw.contactLinks as DashboardAnnouncementItem['contactLinks'],
         showVerifiedBadge: raw.showVerifiedBadge,

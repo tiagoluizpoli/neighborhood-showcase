@@ -89,6 +89,7 @@ describe('Create Announcement Integration Test', () => {
         mode: 'custom',
         custom: { primaryPhone: '5511999999999', callEnabled: false },
       },
+      cta: { primary: null, secondary: [] },
       showVerifiedBadge: true,
     });
 
@@ -129,6 +130,7 @@ describe('Create Announcement Integration Test', () => {
           mode: 'custom',
           custom: { primaryPhone: '5511999999999', callEnabled: false },
         },
+        cta: { primary: null, secondary: [] },
         showVerifiedBadge: false,
       }),
     ).rejects.toThrow(
@@ -161,6 +163,7 @@ describe('Create Announcement Integration Test', () => {
           mode: 'custom',
           custom: { primaryPhone: '5511999999999', callEnabled: false },
         },
+        cta: { primary: null, secondary: [] },
         showVerifiedBadge: false,
       }),
     ).rejects.toThrow(
@@ -194,6 +197,7 @@ describe('Create Announcement Integration Test', () => {
           mode: 'custom',
           custom: { primaryPhone: '5511999999999', callEnabled: false },
         },
+        cta: { primary: null, secondary: [] },
         showVerifiedBadge: false,
       }),
     ).rejects.toThrow('O título do anúncio deve ter pelo menos 3 caracteres.');
@@ -309,6 +313,68 @@ describe('Create Announcement Integration Test', () => {
       ).rejects.toThrow(
         'Um número de WhatsApp é obrigatório para o contato do anúncio.',
       );
+    });
+
+    test('persists a bounded CTA with primary and secondary targets', async () => {
+      const caller = buildCaller();
+      const res = await caller.announcement.create({
+        ...baseInput,
+        contact: { mode: 'inherit', custom: null },
+        cta: {
+          primary: { type: 'website', value: 'https://menu.example.com' },
+          secondary: [
+            { type: 'provider_profile', value: null },
+            { type: 'whatsapp', value: '+55 (11) 98888-7777' },
+          ],
+        },
+      });
+
+      const [dbAnn] = await db
+        .select()
+        .from(announcement)
+        .where(eq(announcement.id, res.id))
+        .limit(1);
+
+      expect(dbAnn?.cta).toEqual({
+        primary: { type: 'website', value: 'https://menu.example.com' },
+        secondary: [
+          { type: 'provider_profile', value: null },
+          { type: 'whatsapp', value: '+5511988887777' },
+        ],
+      });
+    });
+
+    test('rejects a CTA target outside the supported value rules', async () => {
+      const caller = buildCaller();
+      expect(
+        caller.announcement.create({
+          ...baseInput,
+          contact: { mode: 'inherit', custom: null },
+          cta: {
+            primary: { type: 'website', value: 'not-a-real-url' },
+            secondary: [],
+          },
+        }),
+      ).rejects.toThrow('Destino de CTA inválido para o conjunto suportado.');
+    });
+
+    test('rejects a CTA exceeding the secondary cap', async () => {
+      const caller = buildCaller();
+      expect(
+        caller.announcement.create({
+          ...baseInput,
+          contact: { mode: 'inherit', custom: null },
+          cta: {
+            primary: { type: 'provider_profile', value: null },
+            secondary: [
+              { type: 'provider_profile', value: null },
+              { type: 'provider_profile', value: null },
+              { type: 'provider_profile', value: null },
+              { type: 'provider_profile', value: null },
+            ],
+          },
+        }),
+      ).rejects.toThrow('no máximo');
     });
   });
 

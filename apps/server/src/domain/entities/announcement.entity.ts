@@ -5,6 +5,7 @@ import {
   hasWhatsappBaseline,
   WhatsappBaselineRequiredError,
 } from './contact';
+import { type AnnouncementCta, validateCta } from './cta';
 
 export type AnnouncementStatus =
   | 'DRAFT'
@@ -41,6 +42,7 @@ export interface AnnouncementProps extends AuditableProps {
   categoryId: string;
   tags: string[];
   contact: AnnouncementContactSettings;
+  cta: AnnouncementCta;
   showVerifiedBadge: boolean;
   flaggedForReview: boolean;
   status: AnnouncementStatus;
@@ -63,6 +65,7 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
       categoryId: this.props.categoryId,
       imageUrl: this.props.imageUrl,
       contact: this.props.contact,
+      cta: this.props.cta,
     });
   }
 
@@ -72,6 +75,7 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
     categoryId: string;
     imageUrl: string;
     contact: AnnouncementContactSettings;
+    cta: AnnouncementCta;
   }): void {
     if (!input.title || input.title.trim().length < 3) {
       throw new InvalidAnnouncementTitleError(
@@ -101,6 +105,7 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
     }
 
     Announcement.validateContact(input.contact);
+    validateCta(input.cta);
   }
 
   // WhatsApp is the locked publishable baseline. A custom announcement must
@@ -156,6 +161,10 @@ export class Announcement extends AuditableEntity<AnnouncementProps> {
 
   get contact(): AnnouncementContactSettings {
     return this.props.contact;
+  }
+
+  get cta(): AnnouncementCta {
+    return this.props.cta;
   }
 
   get showVerifiedBadge(): boolean {

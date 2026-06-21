@@ -109,6 +109,7 @@ describe('UpdateAnnouncement use case', () => {
         mode: 'custom',
         custom: { primaryPhone: '5511988887777', callEnabled: false },
       },
+      cta: { primary: null, secondary: [] },
       showVerifiedBadge: true,
     });
 
@@ -144,6 +145,7 @@ describe('UpdateAnnouncement use case', () => {
         mode: 'inherit',
         custom: null,
       },
+      cta: { primary: null, secondary: [] },
       showVerifiedBadge: false,
     });
 
@@ -173,6 +175,7 @@ describe('UpdateAnnouncement use case', () => {
           mode: 'custom',
           custom: { primaryPhone: '5511999999999', callEnabled: false },
         },
+        cta: { primary: null, secondary: [] },
         showVerifiedBadge: false,
       }),
     ).rejects.toBeInstanceOf(AnnouncementUpdateAccessDeniedError);
@@ -199,6 +202,7 @@ describe('UpdateAnnouncement use case', () => {
           mode: 'custom',
           custom: { primaryPhone: '5511999999999', callEnabled: false },
         },
+        cta: { primary: null, secondary: [] },
         showVerifiedBadge: true,
       }),
     ).rejects.toBeInstanceOf(VerifiedBadgeEligibilityError);

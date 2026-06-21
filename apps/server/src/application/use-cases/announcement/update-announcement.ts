@@ -1,5 +1,9 @@
 import type { Announcement } from '../../../domain/entities/announcement.entity';
 import type { AnnouncementContactSettings } from '../../../domain/entities/contact';
+import {
+  type AnnouncementCta,
+  validateCta,
+} from '../../../domain/entities/cta';
 import type { AnnouncementRepository } from '../../../domain/repositories/announcement.repository';
 import type { AssignmentRepository } from '../../../domain/repositories/assignment.repository';
 import { DomainError } from '../../../shared/domain-error';
@@ -29,6 +33,7 @@ export interface UpdateAnnouncementInput {
   categoryId: string;
   tags: string[];
   contact: AnnouncementContactSettings;
+  cta: AnnouncementCta;
   showVerifiedBadge: boolean;
 }
 
@@ -46,6 +51,10 @@ export class UpdateAnnouncement {
     if (!announcement || announcement.providerId !== input.actorId) {
       throw new AnnouncementUpdateAccessDeniedError();
     }
+
+    // The update path persists directly through the repository rather than the
+    // entity constructor, so enforce the bounded CTA contract explicitly here.
+    validateCta(input.cta);
 
     if (input.showVerifiedBadge) {
       if (!announcement.providerAssignmentId) {
@@ -70,6 +79,7 @@ export class UpdateAnnouncement {
       categoryId: input.categoryId,
       tags: input.tags,
       contact: input.contact,
+      cta: input.cta,
       showVerifiedBadge: input.showVerifiedBadge,
       status:
         announcement.status === 'SUSPENDED' ? 'ACTIVE' : announcement.status,

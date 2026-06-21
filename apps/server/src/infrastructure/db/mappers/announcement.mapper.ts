@@ -3,6 +3,7 @@ import { Announcement } from '../../../domain/entities/announcement.entity';
 import type { AnnouncementContactSettings } from '../../../domain/entities/contact';
 import type { EntityMapper } from '../../../domain/mapper';
 import { rowToContactSettings } from './announcement-contact';
+import { ctaToRow, rowToCta } from './announcement-cta';
 
 type AnnouncementSchemaSelect = typeof announcementSchema.$inferSelect;
 type AnnouncementSchemaInsert = typeof announcementSchema.$inferInsert;
@@ -32,6 +33,7 @@ export class AnnouncementMapper
           mode: raw.contactMode,
           custom: raw.contactCustom ?? null,
         }),
+        cta: rowToCta(raw.cta),
         showVerifiedBadge: raw.showVerifiedBadge,
         flaggedForReview: raw.flaggedForReview,
         status: raw.status,
@@ -61,6 +63,7 @@ export class AnnouncementMapper
       tags: entity.tags,
       contactMode: contact.mode,
       contactCustom: contact.mode === 'custom' ? contact.custom : null,
+      cta: ctaToRow(entity.cta),
       showVerifiedBadge: entity.showVerifiedBadge,
       flaggedForReview: entity.flaggedForReview,
       status: entity.status,

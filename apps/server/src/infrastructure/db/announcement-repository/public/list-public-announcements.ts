@@ -11,6 +11,7 @@ import {
 import { env } from '@neighborhood-showcase/env/server';
 import { and, desc, eq, ilike, isNull, or, type SQL, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
+import { sanitizeCta } from '../../../../domain/entities/cta';
 import type {
   ListPublicAnnouncementsInput,
   PublicAnnouncementDTO,
@@ -19,6 +20,7 @@ import {
   contactSettingsToLinks,
   rowToContactSettings,
 } from '../../mappers/announcement-contact';
+import { rowToCta } from '../../mappers/announcement-cta';
 
 const condoAddress = alias(addressSchema, 'condo_address');
 
@@ -162,6 +164,12 @@ export async function listPublicAnnouncements(
       primaryPhone: row.providerProfile?.primaryPhone ?? '',
       callEnabled: row.providerProfile?.callEnabled ?? false,
     };
+    const contactLinks = contactSettingsToLinks(contact, providerDefaults);
+    const cta = sanitizeCta({
+      cta: rowToCta(row.announcement.cta),
+      providerId: row.announcement.providerId,
+      effectiveWhatsappPhone: contactLinks.whatsapp ?? '',
+    });
 
     return {
       id: row.announcement.id,
@@ -176,7 +184,8 @@ export async function listPublicAnnouncements(
       categoryId: row.announcement.categoryId,
       tags: row.announcement.tags ?? [],
       contact,
-      contactLinks: contactSettingsToLinks(contact, providerDefaults),
+      cta,
+      contactLinks,
       showVerifiedBadge: row.announcement.showVerifiedBadge,
       status: row.announcement.status,
       createdAt: row.announcement.createdAt,

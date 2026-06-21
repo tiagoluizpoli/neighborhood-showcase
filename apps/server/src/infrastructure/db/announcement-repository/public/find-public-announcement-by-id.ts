@@ -9,11 +9,13 @@ import {
   providerProfile as providerProfileSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
+import { sanitizeCta } from '../../../../domain/entities/cta';
 import type { PublicAnnouncementDTO } from '../../../../domain/repositories/announcement.repository';
 import {
   contactSettingsToLinks,
   rowToContactSettings,
 } from '../../mappers/announcement-contact';
+import { rowToCta } from '../../mappers/announcement-cta';
 
 export async function findPublicAnnouncementById(
   id: string,
@@ -90,6 +92,12 @@ export async function findPublicAnnouncementById(
     primaryPhone: provider?.primaryPhone ?? '',
     callEnabled: provider?.callEnabled ?? false,
   };
+  const contactLinks = contactSettingsToLinks(contact, providerDefaults);
+  const cta = sanitizeCta({
+    cta: rowToCta(found.cta),
+    providerId: found.providerId,
+    effectiveWhatsappPhone: contactLinks.whatsapp ?? '',
+  });
 
   return {
     id: found.id,
@@ -104,7 +112,8 @@ export async function findPublicAnnouncementById(
     categoryId: found.categoryId,
     tags: found.tags,
     contact,
-    contactLinks: contactSettingsToLinks(contact, providerDefaults),
+    cta,
+    contactLinks,
     showVerifiedBadge: found.showVerifiedBadge,
     status: found.status,
     createdAt: found.createdAt,

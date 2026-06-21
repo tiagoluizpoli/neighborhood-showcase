@@ -45,6 +45,7 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
       categoryId: input.categoryId,
       tags: input.tags,
       contact: input.contact,
+      cta: input.cta,
       showVerifiedBadge: input.showVerifiedBadge,
       flaggedForReview: false,
       status: 'DRAFT',
@@ -77,6 +78,7 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
       categoryId: input.categoryId,
       tags: input.tags,
       contact: input.contact,
+      cta: input.cta,
       showVerifiedBadge: input.showVerifiedBadge,
       status: 'DRAFT',
     });

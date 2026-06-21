@@ -16,6 +16,13 @@ import {
   type AnnouncementContactSettings,
   normalizePhone,
 } from '../../../domain/entities/contact';
+import {
+  type AnnouncementCta,
+  type CtaTarget,
+  EMPTY_CTA,
+  InvalidCtaTargetError,
+  TooManyCtaTargetsError,
+} from '../../../domain/entities/cta';
 import type { AnnouncementRouterDependencies } from '../../../main/di/announcement-router';
 import { protectedProcedure } from '../../trpc';
 
@@ -41,6 +48,62 @@ const announcementContactInputSchema = z.object({
     })
     .nullable(),
 });
+
+// Bounded CTA input (T-17-04). Targets are announcement-level only and limited
+// to the locked v1 set; the domain layer enforces value validity and the
+// secondary cap.
+const ctaTargetInputSchema = z.object({
+  type: z.enum([
+    'provider_profile',
+    'website',
+    'instagram',
+    'tiktok',
+    'whatsapp',
+  ]),
+  value: z.string().nullable(),
+});
+
+const announcementCtaInputSchema = z.object({
+  primary: ctaTargetInputSchema.nullable(),
+  secondary: z.array(ctaTargetInputSchema),
+});
+
+function toCtaTarget(target: z.infer<typeof ctaTargetInputSchema>): CtaTarget {
+  const raw = target.value?.trim() ?? '';
+  if (raw.length === 0) {
+    return { type: target.type, value: null };
+  }
+  const value = target.type === 'whatsapp' ? normalizePhone(raw) : raw;
+  return { type: target.type, value };
+}
+
+function toCta(
+  cta: z.infer<typeof announcementCtaInputSchema> | undefined,
+): AnnouncementCta {
+  if (!cta) {
+    return EMPTY_CTA;
+  }
+  return {
+    primary: cta.primary ? toCtaTarget(cta.primary) : null,
+    secondary: cta.secondary.map(toCtaTarget),
+  };
+}
+
+// Translate the bounded-CTA domain errors into transport errors. Returns other
+// errors untouched so existing tRPC/domain handling keeps its behavior.
+function toCtaAwareTRPCError(error: unknown): unknown {
+  if (
+    error instanceof InvalidCtaTargetError ||
+    error instanceof TooManyCtaTargetsError
+  ) {
+    return new TRPCError({
+      code: 'BAD_REQUEST',
+      message: error.message,
+      cause: error,
+    });
+  }
+  return error;
+}
 
 function toContactSettings(
   contact: z.infer<typeof announcementContactInputSchema>,
@@ -100,6 +163,7 @@ export function createProviderAnnouncementRouter(
           tags: z.array(z.string()),
           contact: announcementContactInputSchema.optional(),
           contactLinks: providerContactLinksSchema.optional(),
+          cta: announcementCtaInputSchema.optional(),
           showVerifiedBadge: z.boolean(),
         }),
       )
@@ -108,21 +172,26 @@ export function createProviderAnnouncementRouter(
           ? toContactSettings(input.contact)
           : flatLinksToContactSettings(input.contactLinks ?? {});
 
-        const ann = await createAnnouncementUseCase.execute({
-          providerId: ctx.session.user.id,
-          providerAssignmentId: input.providerAssignmentId,
-          title: input.title,
-          subtitle: input.subtitle,
-          description: input.description,
-          priceCents: input.priceCents,
-          imageUrl: input.imageUrl,
-          categoryId: input.categoryId,
-          tags: input.tags,
-          contact,
-          showVerifiedBadge: input.showVerifiedBadge,
-        });
+        try {
+          const ann = await createAnnouncementUseCase.execute({
+            providerId: ctx.session.user.id,
+            providerAssignmentId: input.providerAssignmentId,
+            title: input.title,
+            subtitle: input.subtitle,
+            description: input.description,
+            priceCents: input.priceCents,
+            imageUrl: input.imageUrl,
+            categoryId: input.categoryId,
+            tags: input.tags,
+            contact,
+            cta: toCta(input.cta),
+            showVerifiedBadge: input.showVerifiedBadge,
+          });
 
-        return ann.toDTO();
+          return ann.toDTO();
+        } catch (error) {
+          throw toCtaAwareTRPCError(error);
+        }
       }),
 
     getPaymentDetails: protectedProcedure
@@ -227,6 +296,7 @@ export function createProviderAnnouncementRouter(
           tags: z.array(z.string()),
           contact: announcementContactInputSchema.optional(),
           contactLinks: providerContactLinksSchema.optional(),
+          cta: announcementCtaInputSchema.optional(),
           showVerifiedBadge: z.boolean(),
         }),
       )
@@ -249,6 +319,7 @@ export function createProviderAnnouncementRouter(
             categoryId: input.categoryId,
             tags: input.tags,
             contact,
+            cta: toCta(input.cta),
             showVerifiedBadge: input.showVerifiedBadge,
           });
 
@@ -270,7 +341,7 @@ export function createProviderAnnouncementRouter(
             });
           }
 
-          throw error;
+          throw toCtaAwareTRPCError(error);
         }
       }),
   };

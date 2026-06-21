@@ -48,6 +48,7 @@ describe('user.getPublicProfile Router Procedure', () => {
               mode: 'custom' as const,
               custom: { primaryPhone: '5511999999999', callEnabled: false },
             },
+            cta: { primary: null, secondary: [] },
             contactLinks: {
               whatsapp: '5511999999999',
             },

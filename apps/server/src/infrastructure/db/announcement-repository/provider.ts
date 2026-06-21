@@ -23,6 +23,7 @@ import {
   contactSettingsToLinks,
   rowToContactSettings,
 } from '../mappers/announcement-contact';
+import { ctaToRow, rowToCta } from '../mappers/announcement-cta';
 
 interface ProviderContactDefaultsRow {
   callEnabled: boolean;
@@ -59,6 +60,7 @@ export async function createAnnouncement(
       contactMode: input.contact.mode,
       contactCustom:
         input.contact.mode === 'custom' ? input.contact.custom : null,
+      cta: ctaToRow(input.cta),
       showVerifiedBadge: input.showVerifiedBadge,
       flaggedForReview: false,
       status: input.status || 'DRAFT',
@@ -108,7 +110,7 @@ export async function updateAnnouncement(
   id: string,
   input: UpdateAnnouncementRepositoryInput,
 ): Promise<Announcement> {
-  const { contact, ...rest } = input;
+  const { contact, cta, ...rest } = input;
   const contactSet =
     contact === undefined
       ? {}
@@ -116,10 +118,11 @@ export async function updateAnnouncement(
           contactMode: contact.mode,
           contactCustom: contact.mode === 'custom' ? contact.custom : null,
         };
+  const ctaSet = cta === undefined ? {} : { cta: ctaToRow(cta) };
 
   const [updated] = await db
     .update(announcementSchema)
-    .set({ ...rest, ...contactSet })
+    .set({ ...rest, ...contactSet, ...ctaSet })
     .where(eq(announcementSchema.id, id))
     .returning();
 
@@ -150,6 +153,7 @@ export async function findActiveAnnouncementsByProviderId(
       tags: announcementSchema.tags,
       contactMode: announcementSchema.contactMode,
       contactCustom: announcementSchema.contactCustom,
+      cta: announcementSchema.cta,
       providerPrimaryPhone: providerProfileSchema.primaryPhone,
       providerCallEnabled: providerProfileSchema.callEnabled,
       showVerifiedBadge: announcementSchema.showVerifiedBadge,
@@ -212,6 +216,7 @@ export async function findActiveAnnouncementsByProviderId(
       category: row.category,
       tags: row.tags ?? [],
       contact,
+      cta: rowToCta(row.cta),
       contactLinks: contactSettingsToLinks(contact, providerDefaults),
       showVerifiedBadge: row.showVerifiedBadge,
       status: row.status,
@@ -257,6 +262,7 @@ export async function findDashboardAnnouncementsByProviderId(
       tags: announcementSchema.tags,
       contactMode: announcementSchema.contactMode,
       contactCustom: announcementSchema.contactCustom,
+      cta: announcementSchema.cta,
       providerPrimaryPhone: providerProfileSchema.primaryPhone,
       providerCallEnabled: providerProfileSchema.callEnabled,
       showVerifiedBadge: announcementSchema.showVerifiedBadge,
@@ -309,6 +315,7 @@ export async function findDashboardAnnouncementsByProviderId(
       categoryId: row.categoryId,
       tags: row.tags ?? [],
       contact,
+      cta: rowToCta(row.cta),
       contactLinks: contactSettingsToLinks(contact, providerDefaults),
       showVerifiedBadge: row.showVerifiedBadge,
       flaggedForReview: row.flaggedForReview,

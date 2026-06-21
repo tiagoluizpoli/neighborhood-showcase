@@ -3,6 +3,7 @@ import type {
   AnnouncementStatus,
 } from '../entities/announcement.entity';
 import type { AnnouncementContactSettings } from '../entities/contact';
+import type { AnnouncementCta } from '../entities/cta';
 
 export interface ProviderAnnouncementDTO {
   id: string;
@@ -17,7 +18,8 @@ export interface ProviderAnnouncementDTO {
   category: string;
   tags: string[];
   contact: AnnouncementContactSettings;
-  // Transitional flat view derived from `contact`; removed in T-17-04.
+  cta: AnnouncementCta;
+  // Transitional flat view derived from `contact`; kept as the CTA fallback path.
   contactLinks: Record<string, string | undefined>;
   showVerifiedBadge: boolean;
   status: string;
@@ -42,7 +44,8 @@ export interface PublicAnnouncementDTO {
   categoryId: string;
   tags: string[];
   contact: AnnouncementContactSettings;
-  // Transitional flat view derived from `contact`; removed in T-17-04.
+  cta: AnnouncementCta;
+  // Transitional flat view derived from `contact`; kept as the CTA fallback path.
   contactLinks: Record<string, string | undefined>;
   showVerifiedBadge: boolean;
   status: string;
@@ -90,7 +93,8 @@ export interface DashboardAnnouncementDTO {
   categoryId: string;
   tags: string[];
   contact: AnnouncementContactSettings;
-  // Transitional flat view derived from `contact`; removed in T-17-04.
+  cta: AnnouncementCta;
+  // Transitional flat view derived from `contact`; kept as the CTA fallback path.
   contactLinks: Record<string, string | undefined>;
   showVerifiedBadge: boolean;
   flaggedForReview: boolean;
@@ -148,6 +152,7 @@ export interface CreateAnnouncementRepositoryInput {
   categoryId: string;
   tags: string[];
   contact: AnnouncementContactSettings;
+  cta: AnnouncementCta;
   showVerifiedBadge: boolean;
   status?: AnnouncementStatus;
 }
@@ -161,6 +166,7 @@ export interface UpdateAnnouncementRepositoryInput {
   categoryId?: string;
   tags?: string[];
   contact?: AnnouncementContactSettings;
+  cta?: AnnouncementCta;
   showVerifiedBadge?: boolean;
   flaggedForReview?: boolean;
   status?: AnnouncementStatus;
