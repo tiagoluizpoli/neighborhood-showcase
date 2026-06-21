@@ -9,6 +9,7 @@ let mockQueryData: any = null;
 let mockError = false;
 
 mock.module('@/utils/trpc', () => ({
+  trpcClient: {},
   trpc: {
     user: {
       getPublicProfile: {

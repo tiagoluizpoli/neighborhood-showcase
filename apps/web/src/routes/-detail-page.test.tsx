@@ -40,6 +40,7 @@ mock.module('@/lib/auth-client', () => ({
 }));
 
 mock.module('@/utils/trpc', () => ({
+  trpcClient: {},
   trpc: {
     announcement: {
       getPublic: {

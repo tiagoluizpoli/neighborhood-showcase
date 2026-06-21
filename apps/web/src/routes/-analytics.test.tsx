@@ -24,9 +24,20 @@ mock.module('@tanstack/react-router', () => ({
   // biome-ignore lint/suspicious/noExplicitAny: test boundary stub
   Link: (props: any) => {
     const { to, hash, search, params, children, ...rest } = props;
-    return createElement('a', { ...rest, 'data-to': to }, children);
+    return createElement(
+      'a',
+      {
+        ...rest,
+        'data-to': to,
+        'data-hash': hash,
+        'data-params': params ? JSON.stringify(params) : undefined,
+        'data-search': search ? JSON.stringify(search) : undefined,
+      },
+      children,
+    );
   },
   useNavigate: () => navigate,
+  Outlet: () => null,
 }));
 
 // biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
@@ -61,6 +72,7 @@ mock.module('@/lib/auth-client', () => ({
 }));
 
 mock.module('@/utils/trpc', () => ({
+  trpcClient: {},
   trpc: {
     announcement: {
       getPublic: {

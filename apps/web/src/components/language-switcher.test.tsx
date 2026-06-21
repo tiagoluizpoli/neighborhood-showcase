@@ -12,6 +12,7 @@ import i18n from '@/i18n';
 
 const mutateAsync = mock(async () => ({}));
 mock.module('@/utils/trpc', () => ({
+  trpcClient: {},
   trpc: {
     user: { update: { mutationOptions: () => ({ mutationFn: mutateAsync }) } },
   },

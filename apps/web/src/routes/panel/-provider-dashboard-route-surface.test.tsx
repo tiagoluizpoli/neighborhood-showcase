@@ -75,13 +75,7 @@ mock.module('@neighborhood-showcase/ui/components/chart', () => ({
   ChartTooltip: () => null,
   ChartTooltipContent: () => null,
 }));
-mock.module('recharts', () => ({
-  CartesianGrid: () => null,
-  Line: () => null,
-  LineChart: () => null,
-  XAxis: () => null,
-  YAxis: () => null,
-}));
+// recharts is stubbed globally in test-setup.ts.
 
 const { ProviderDashboardRouteSurface } = await import(
   './-provider-dashboard-route-surface'

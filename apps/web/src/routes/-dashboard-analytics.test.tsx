@@ -14,6 +14,31 @@ mock.module('sonner', () => ({
   toast: { success: () => {}, error: () => {} },
 }));
 
+// The edit form fields render AnnouncementTagsInput, which queries tag
+// suggestions; provide the trpc paths it (and the category combobox) touch.
+mock.module('@/utils/trpc', () => ({
+  trpcClient: {},
+  trpc: {
+    announcement: {
+      listTagSuggestions: {
+        // biome-ignore lint/suspicious/noExplicitAny: test boundary mock
+        queryOptions: (input?: any) => ({
+          queryKey: ['listTagSuggestions', input ?? null],
+          queryFn: async () => [],
+          initialData: [],
+        }),
+      },
+      listCategories: {
+        queryOptions: () => ({
+          queryKey: ['listCategories'],
+          queryFn: async () => [],
+          initialData: [],
+        }),
+      },
+    },
+  },
+}));
+
 const { Route: DashboardIndexRoute } = await import('./panel.dashboard.index');
 const { ProviderDashboardEditImageField } = await import(
   './panel/-provider-dashboard-edit-image-field'

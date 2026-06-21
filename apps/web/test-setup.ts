@@ -2,6 +2,7 @@ import { afterEach, mock } from 'bun:test';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import * as RealRouter from '@tanstack/react-router';
 import { createElement } from 'react';
+import * as RealRecharts from 'recharts';
 
 // Register a happy-dom document FIRST so components render against a real DOM
 // and React hooks behave normally (the shallow-renderer hack could not run
@@ -37,6 +38,27 @@ mock.module('@tanstack/react-router', () => ({
     );
   },
   useNavigate: () => () => {},
+  // Route layouts render <Outlet/>; the real one needs a RouterProvider that
+  // unit tests do not mount.
+  Outlet: () => null,
+}));
+
+// Stub recharts ONCE, globally, for the same process-global mock.module reason
+// as the router: partial per-file recharts mocks drop named exports other files
+// import. Spreading the real module keeps every chart export present; only
+// ResponsiveContainer is replaced (it needs a ResizeObserver happy-dom lacks)
+// with a fixed-size passthrough so charts render without measuring.
+mock.module('recharts', () => ({
+  ...RealRecharts,
+  // biome-ignore lint/suspicious/noExplicitAny: shared test boundary stub
+  ResponsiveContainer: ({ children }: any) =>
+    createElement(
+      'div',
+      { style: { width: 300, height: 200 } },
+      typeof children === 'function'
+        ? children({ width: 300, height: 200 })
+        : children,
+    ),
 }));
 
 const { cleanup } = await import('@testing-library/react');

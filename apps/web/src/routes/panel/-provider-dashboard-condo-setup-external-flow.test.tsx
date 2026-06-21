@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render } from '@testing-library/react';
 
 mock.module('@/utils/trpc', () => ({
+  trpcClient: {},
   trpc: {
     assignment: {
       registerExternal: {

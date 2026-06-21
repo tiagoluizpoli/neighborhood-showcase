@@ -6,6 +6,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 const mutateCalls: any[] = [];
 
 mock.module('@/utils/trpc', () => ({
+  trpcClient: {},
   trpc: {
     announcement: {
       getPaymentDetails: {

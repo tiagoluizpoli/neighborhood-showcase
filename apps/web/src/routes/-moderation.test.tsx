@@ -8,6 +8,7 @@ import i18n from '@/i18n';
 let reportedData: any[] = [];
 
 mock.module('@/utils/trpc', () => ({
+  trpcClient: {},
   trpc: {
     announcement: {
       listReported: {

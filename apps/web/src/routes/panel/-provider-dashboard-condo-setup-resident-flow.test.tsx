@@ -13,6 +13,7 @@ const approvedCondos = [
 ];
 
 mock.module('@/utils/trpc', () => ({
+  trpcClient: {},
   trpc: {
     condominium: {
       listApproved: {
