@@ -1,379 +1,240 @@
-// biome-ignore-all lint/suspicious/noExplicitAny: Mocking React internals and browser APIs requires explicit any
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
-import * as RealQuery from '@tanstack/react-query';
-import * as RealReact from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import * as RealRouter from '@tanstack/react-router';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { createElement, StrictMode } from 'react';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '@/i18n';
 
-// Define window and history mocks for browser APIs in Node/Bun environment
-global.window = {
-  addEventListener: (_event: string, _callback: any) => {},
-  removeEventListener: (_event: string, _callback: any) => {},
-  location: {
-    pathname: '/',
-  },
-  history: {
-    pushState: (_state: any, _title: string, url: string) => {
-      global.window.location.pathname = url;
-    },
-  },
-} as any;
-
-global.localStorage = {
-  getItem: (_key: string) => null,
-  setItem: (_key: string, _value: string) => {},
-  removeItem: (_key: string) => {},
-  clear: () => {},
-  length: 0,
-  key: (_index: number) => null,
-};
-
-// Hook simulator state
-let hookIndex = 0;
-const hookState: any[] = [];
-const activeEffects: (() => void)[] = [];
-
-const resetHookState = () => {
-  hookIndex = 0;
-  hookState.length = 0;
-  activeEffects.length = 0;
-};
-
-const renderComponent = (Component: () => any) => {
-  hookIndex = 0;
-  activeEffects.length = 0;
-  const result = Component();
-  // Run all registered effects
-  for (const effect of activeEffects) {
-    effect();
-  }
-  return result;
-};
-
-const findElement = (node: any, predicate: (el: any) => boolean): any => {
-  if (!node) return null;
-  if (typeof node.type === 'function') {
-    try {
-      const rendered = node.type(node.props);
-      return findElement(rendered, predicate);
-    } catch (err) {
-      console.error(
-        'Rendering failed for type:',
-        node.type.name || node.type,
-        err,
-      );
-      return null;
-    }
-  }
-  if (predicate(node)) return node;
-  if (node.props?.children) {
-    const children = Array.isArray(node.props.children)
-      ? node.props.children
-      : [node.props.children];
-    for (const child of children) {
-      const found = findElement(child, predicate);
-      if (found) return found;
-    }
-  }
-  return null;
-};
-
-mock.module('react', () => ({
-  ...RealReact,
-  useCallback: (fn: any, _deps: any[]) => fn,
-  useEffect: (callback: () => void, _deps: any[]) => {
-    activeEffects.push(callback);
-  },
-  useLayoutEffect: (callback: () => void, _deps: any[]) => {
-    activeEffects.push(callback);
-  },
-  useMemo: (fn: any, _deps: any[]) => fn(),
-  useId: () => 'mock-id',
-  useDebugValue: () => {},
-  useTransition: () => [false, (cb: any) => cb()],
-  useDeferredValue: (value: any) => value,
-  useSyncExternalStore: (_subscribe: any, getSnapshot: any) => getSnapshot(),
-  useInsertionEffect: (callback: () => void, _deps: any[]) => {
-    callback();
-  },
-  useImperativeHandle: (ref: any, create: any) => {
-    if (ref) {
-      if (typeof ref === 'function') ref(create());
-      else ref.current = create();
-    }
-  },
-  useActionState: (action: any, initialState: any) => [
-    initialState,
-    action,
-    false,
-  ],
-  useOptimistic: (passthrough: any) => [passthrough, () => {}],
-  useRef: (initialValue: any) => {
-    const idx = hookIndex++;
-    if (hookState[idx] === undefined) {
-      hookState[idx] = { current: initialValue };
-    }
-    return hookState[idx];
-  },
-  useState: (initialValue: any) => {
-    const idx = hookIndex++;
-    if (hookState[idx] === undefined) {
-      const stateContainer = {
-        value: initialValue,
-        setValue: (newVal: any) => {
-          if (typeof newVal === 'function') {
-            stateContainer.value = newVal(stateContainer.value);
-          } else {
-            stateContainer.value = newVal;
-          }
-        },
-      };
-      hookState[idx] = [stateContainer.value, stateContainer.setValue];
-    }
-    return hookState[idx];
-  },
-  useContext: (context: any) => {
-    return context?._currentValue;
-  },
-}));
-
-// Mock react-i18next
-mock.module('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, options?: any) => {
-      const translations: Record<string, string> = {
-        'location.ip_fallback': 'Região aproximada',
-        'location.selected_condo': 'Condomínio selecionado',
-        'location.fresh_gps': 'Localização atual (GPS)',
-      };
-      let val = translations[key] ?? key;
-      if (options?.name) {
-        val = val.replace('{{name}}', options.name);
-      }
-      return val;
-    },
-  }),
-}));
-
-// Mock @/lib/auth-client
-mock.module('@/lib/auth-client', () => ({
-  authClient: {
-    useSession: () => ({ data: null, isPending: false }),
-  },
-}));
-
-const mockNavigate = mock(() => {});
-mock.module('@tanstack/react-router', () => ({
-  createFileRoute: (_path: string) => (options: any) => ({
-    options,
-    useRouteContext: () => ({}),
-    useSearch: () => ({}),
-    useParams: () => ({}),
-  }),
-  Link: (props: any) => {
-    const { to, params, children, ...rest } = props;
-    return (
-      <a {...rest} data-to={to} data-params={JSON.stringify(params)}>
-        {children}
-      </a>
-    );
-  },
-  useNavigate: () => mockNavigate,
-}));
-
+// biome-ignore lint/suspicious/noExplicitAny: captured trackEvent payloads
+const trackCalls: any[] = [];
 let currentId = 'ann-123';
-const mockMutate = mock(() => {});
-const mockTrackEventMutation = {
-  mutate: mockMutate,
-  isPending: false,
-};
 
-// Mock @tanstack/react-query while spreading real exports to prevent breaking other tests
-mock.module('@tanstack/react-query', () => ({
-  ...RealQuery,
-  useQuery: (options: any) => {
-    // Differentiate queries by queryKey (safely extracted from options)
-    const queryKey = options?.queryKey || [];
-    const queryHash = options?.queryKeyHash || '';
-
-    // Check if query is listCategories
-    if (
-      queryHash.includes('listCategories') ||
-      JSON.stringify(queryKey).includes('listCategories')
-    ) {
-      return {
-        data: [
-          {
-            id: 'cat-alimentacao',
-            slug: 'alimentacao',
-            name: 'Alimentação',
-            displayOrder: 1,
-            isActive: true,
-          },
-          {
-            id: 'cat-servicos',
-            slug: 'servicos',
-            name: 'Serviços',
-            displayOrder: 2,
-            isActive: true,
-          },
-        ],
-        isLoading: false,
-      };
-    }
-
-    // Check if query is listPublic (public announcements list)
-    if (
-      queryHash.includes('listPublic') ||
-      JSON.stringify(queryKey).includes('listPublic')
-    ) {
-      return {
-        data: [
-          {
-            id: currentId,
-            title: 'Test Ad',
-            description: 'Test Description',
-            imageUrl: 'test.jpg',
-            category: 'Serviços',
-            contactLinks: {},
-          },
-        ],
-        isLoading: false,
-      };
-    }
-
-    // Default to public ad details
-    return {
-      data: {
-        id: currentId,
-        title: 'Test Ad',
-        description: 'Test Description',
-        imageUrl: 'test.jpg',
-        category: 'Serviços',
-        contactLinks: {},
-      },
-      isLoading: false,
-    };
+// Complete router mock (spreads the real module so no named export is dropped
+// for other files) with a navigate spy so card-click navigation is assertable.
+const navigate = mock(() => {});
+mock.module('@tanstack/react-router', () => ({
+  ...RealRouter,
+  // biome-ignore lint/suspicious/noExplicitAny: test boundary stub
+  Link: (props: any) => {
+    const { to, hash, search, params, children, ...rest } = props;
+    return createElement('a', { ...rest, 'data-to': to }, children);
   },
-  useMutation: () => mockTrackEventMutation,
+  useNavigate: () => navigate,
 }));
 
-// Use dynamic imports to prevent ES module hoisting from importing original modules before mocks are set up
+// biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
+const detailAd = (id: string): any => ({
+  id,
+  title: 'Test Ad',
+  subtitle: 'Sub',
+  description: 'Test Description',
+  imageUrl: 'test.jpg',
+  category: 'Serviços',
+  tags: [],
+  priceCents: null,
+  contactLinks: {},
+  providerId: 'provider-1',
+  providerName: 'Test Provider',
+  providerAvatarUrl: null,
+  showVerifiedBadge: false,
+  cta: { primary: null, secondary: [] },
+});
+
+const listAd = {
+  ...detailAd('ann-123'),
+  condoCity: 'Florianópolis',
+  condoNeighborhood: null,
+  condominiumId: null,
+  latitude: null,
+  longitude: null,
+};
+
+mock.module('@/lib/auth-client', () => ({
+  authClient: { useSession: () => ({ data: null, isPending: false }) },
+}));
+
+mock.module('@/utils/trpc', () => ({
+  trpc: {
+    announcement: {
+      getPublic: {
+        // biome-ignore lint/suspicious/noExplicitAny: test boundary mock
+        queryOptions: (input: any) => ({
+          queryKey: ['getPublic', input],
+          queryFn: async () => detailAd(currentId),
+        }),
+      },
+      trackEvent: {
+        mutationOptions: () => ({
+          // biome-ignore lint/suspicious/noExplicitAny: test boundary mock
+          mutationFn: async (payload: any) => {
+            trackCalls.push(payload);
+            return {};
+          },
+        }),
+      },
+      listPublic: {
+        // biome-ignore lint/suspicious/noExplicitAny: test boundary mock
+        queryOptions: (input: any) => ({
+          queryKey: ['listPublic', input],
+          queryFn: async () => [listAd],
+        }),
+      },
+      listCategories: {
+        queryOptions: () => ({
+          queryKey: ['listCategories'],
+          queryFn: async () => [
+            {
+              id: 'cat-servicos',
+              slug: 'servicos',
+              name: 'Serviços',
+              displayOrder: 1,
+              isActive: true,
+            },
+          ],
+        }),
+      },
+    },
+    condominium: {
+      listApproved: {
+        // biome-ignore lint/suspicious/noExplicitAny: test boundary mock
+        queryOptions: (input: any) => ({
+          queryKey: ['listApproved', input],
+          queryFn: async () => [],
+        }),
+      },
+      listNearby: {
+        // biome-ignore lint/suspicious/noExplicitAny: test boundary mock
+        queryOptions: (input: any) => ({
+          queryKey: ['listNearby', input],
+          queryFn: async () => [],
+        }),
+      },
+    },
+  },
+}));
+
+mock.module('sonner', () => ({
+  toast: { success: () => {}, error: () => {} },
+}));
+
 const { Route: DetailsRoute } = await import('./_portal.anuncios.$id');
 const { Route: IndexRoute } = await import('./_portal.index');
+DetailsRoute.useParams = (() => ({
+  id: currentId,
+})) as typeof DetailsRoute.useParams;
 
-// Monkeypatch Route.useParams to bypass React Router context calls in testing environment
-DetailsRoute.useParams = () => ({ id: currentId });
-IndexRoute.useParams = () => ({});
+function makeClient() {
+  return new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+}
+
+function renderDetail(strict = false) {
+  const Component = DetailsRoute.options.component as () => JSX.Element;
+  const tree = (
+    <QueryClientProvider client={makeClient()}>
+      <I18nextProvider i18n={i18n}>
+        <Component />
+      </I18nextProvider>
+    </QueryClientProvider>
+  );
+  return render(strict ? <StrictMode>{tree}</StrictMode> : tree);
+}
+
+function renderIndex() {
+  const Component = IndexRoute.options.component as () => JSX.Element;
+  return render(
+    <QueryClientProvider client={makeClient()}>
+      <I18nextProvider i18n={i18n}>
+        <Component />
+      </I18nextProvider>
+    </QueryClientProvider>,
+  );
+}
+
+const impressionCalls = () =>
+  trackCalls.filter((c) => c?.eventType === 'IMPRESSION');
 
 describe('Analytics Impression Tracking tests', () => {
   beforeEach(() => {
-    resetHookState();
-    mockMutate.mockClear();
+    trackCalls.length = 0;
     currentId = 'ann-123';
-    global.window.location.pathname = '/';
+    navigate.mockClear();
   });
 
-  test('Detail component tracks impression exactly once on initial load', () => {
-    const component = DetailsRoute.options.component;
-    renderComponent(component);
-
-    expect(mockMutate).toHaveBeenCalledTimes(1);
-    expect(mockMutate.mock.calls[0][0]).toEqual({
+  test('Detail component tracks impression exactly once on initial load', async () => {
+    renderDetail();
+    await waitFor(() => expect(impressionCalls().length).toBe(1));
+    expect(impressionCalls()[0]).toEqual({
       announcementId: 'ann-123',
       eventType: 'IMPRESSION',
     });
   });
 
-  test('useRef guard prevents double-counting due to StrictMode in development', () => {
-    const component = DetailsRoute.options.component;
-
-    // Simulate first mount
-    renderComponent(component);
-    expect(mockMutate).toHaveBeenCalledTimes(1);
-
-    // Simulate StrictMode double-render (rerun component render with existing hook states)
-    renderComponent(component);
-
-    // Should still only be called once
-    expect(mockMutate).toHaveBeenCalledTimes(1);
+  test('useRef guard prevents double-counting under StrictMode', async () => {
+    renderDetail(true);
+    await waitFor(() => expect(impressionCalls().length).toBe(1));
+    // Give any double-invoked effect a chance to (incorrectly) fire again.
+    await Promise.resolve();
+    expect(impressionCalls().length).toBe(1);
   });
 
-  test('Navigating away and back (re-visit) counts as a new impression', () => {
-    const component = DetailsRoute.options.component;
+  test('Navigating away and back (re-visit) counts as a new impression', async () => {
+    renderDetail();
+    await waitFor(() => expect(impressionCalls().length).toBe(1));
 
-    // First visit
-    renderComponent(component);
-    expect(mockMutate).toHaveBeenCalledTimes(1);
+    cleanup();
 
-    // Navigate away/back (unmount & fresh mount - resets hookState)
-    resetHookState();
-    renderComponent(component);
-
-    expect(mockMutate).toHaveBeenCalledTimes(2);
+    renderDetail();
+    await waitFor(() => expect(impressionCalls().length).toBe(2));
   });
 
-  test('Changing parameters (navigating to another announcement) tracks new impression', () => {
-    const component = DetailsRoute.options.component;
+  test('Changing the announcement id tracks a new impression', async () => {
+    const { rerender } = renderDetail();
+    await waitFor(() => expect(impressionCalls().length).toBe(1));
 
-    // Visit first ad
-    renderComponent(component);
-    expect(mockMutate).toHaveBeenCalledTimes(1);
-
-    // Update current ID (parameter change)
     currentId = 'ann-456';
+    const Component = DetailsRoute.options.component as () => JSX.Element;
+    rerender(
+      <QueryClientProvider client={makeClient()}>
+        <I18nextProvider i18n={i18n}>
+          <Component />
+        </I18nextProvider>
+      </QueryClientProvider>,
+    );
 
-    // Rerender with new ID param
-    renderComponent(component);
-
-    expect(mockMutate).toHaveBeenCalledTimes(2);
-    expect(mockMutate.mock.calls[1][0]).toEqual({
+    await waitFor(() => expect(impressionCalls().length).toBe(2));
+    expect(impressionCalls()[1]).toEqual({
       announcementId: 'ann-456',
       eventType: 'IMPRESSION',
     });
   });
 
-  test('Vitrine grid card click does not track IMPRESSION event directly', () => {
-    const vitrineComponent = IndexRoute.options.component;
+  test('Vitrine grid card click does not track an IMPRESSION event', async () => {
+    renderIndex();
+    const card = await screen.findByRole('button', { name: /Test Ad/ });
 
-    // Render vitrine
-    const tree = renderComponent(vitrineComponent);
+    fireEvent.click(card);
 
-    // Find the Card in the vitrine tree (identify it by its specific class names or type name)
-    const card = findElement(tree, (el) => {
-      const classes = el.props?.className?.split(' ') || [];
-      return classes.includes('group') && el.props?.role === 'button';
-    });
-    expect(card).toBeDefined();
-    expect(card.props.onClick).toBeDefined();
-
-    // Call click handler on vitrine card
-    card.props.onClick();
-
-    // Verify it did not invoke mutate for impression
-    const impressionCalls = mockMutate.mock.calls.filter(
-      (call) => call[0]?.eventType === 'IMPRESSION',
-    );
-    expect(impressionCalls.length).toBe(0);
+    expect(impressionCalls().length).toBe(0);
   });
 
-  test('Vitrine grid card click navigates to details route using router navigation', () => {
-    const vitrineComponent = IndexRoute.options.component;
-    const tree = renderComponent(vitrineComponent);
+  test('Vitrine grid card click navigates to the details route', async () => {
+    renderIndex();
+    const card = await screen.findByRole('button', { name: /Test Ad/ });
 
-    const card = findElement(tree, (el) => {
-      const classes = el.props?.className?.split(' ') || [];
-      return classes.includes('group') && el.props?.role === 'button';
-    });
-    expect(card).toBeDefined();
+    navigate.mockClear();
+    fireEvent.click(card);
 
-    // Reset mockNavigate history
-    mockNavigate.mockClear();
-
-    // Click card
-    card.props.onClick();
-
-    // Expect navigate to have been called with correct path and params
-    expect(mockNavigate).toHaveBeenCalledTimes(1);
-    expect(mockNavigate.mock.calls[0][0]).toEqual({
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate.mock.calls[0][0]).toEqual({
       to: '/anuncios/$id',
       params: { id: 'ann-123' },
     });
