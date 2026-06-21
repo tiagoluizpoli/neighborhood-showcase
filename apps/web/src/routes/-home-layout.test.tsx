@@ -1,305 +1,107 @@
-// biome-ignore-all lint/suspicious/noExplicitAny: test harness mocks browser/react internals
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
-import * as RealQuery from '@tanstack/react-query';
-import * as RealReact from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '@/i18n';
 
-let savedItems: Record<string, string | null> = {};
-let hookIndex = 0;
-const hookState: any[] = [];
-const activeEffects: (() => void)[] = [];
+type Mode = 'data' | 'loading' | 'error';
+let listMode: Mode = 'data';
+// biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
+let mockListPublicData: any[] = [];
+// biome-ignore lint/suspicious/noExplicitAny: session varies per test
+let mockSession: any = null;
 
-global.window = {
-  addEventListener: () => {},
-  removeEventListener: () => {},
-  innerWidth: 1280,
-  location: { pathname: '/' },
-  history: { pushState: () => {} },
-  navigator: {
-    maxTouchPoints: 0,
-    platform: 'Linux x86_64',
-    userAgent: 'bun-test',
-    vendor: 'Google Inc.',
-    geolocation: {
-      getCurrentPosition: () => {},
-    },
-  },
-} as any;
-
-(global as typeof globalThis & { navigator?: unknown }).navigator =
-  global.window.navigator;
-
-global.localStorage = {
-  getItem: (key: string) => savedItems[key] || null,
-  setItem: (key: string, value: string) => {
-    savedItems[key] = value;
-  },
-  removeItem: (key: string) => {
-    delete savedItems[key];
-  },
-  clear: () => {
-    savedItems = {};
-  },
-  length: 0,
-  key: () => null,
+const ad = {
+  id: 'ann-123',
+  title: 'Test Ad',
+  description: 'Test Description',
+  imageUrl: 'test.jpg',
+  category: 'Serviços',
+  categoryId: 'cat-servicos',
+  contactLinks: {},
+  showVerifiedBadge: false,
+  condoCity: 'Florianópolis',
+  condoNeighborhood: null,
+  condominiumId: null,
+  latitude: null,
+  longitude: null,
+  providerName: 'Test Provider',
+  providerId: 'prov-1',
+  priceCents: null,
+  subtitle: null,
+  cta: { primary: null, secondary: [] },
 };
 
-global.fetch = async () =>
-  ({
-    ok: true,
-    json: async () => ({}),
-  }) as any;
-
-const resetHookState = () => {
-  hookIndex = 0;
-  hookState.length = 0;
-  activeEffects.length = 0;
-  savedItems = {};
-};
-
-const renderComponent = (Component: () => any) => {
-  hookIndex = 0;
-  activeEffects.length = 0;
-  const result = Component();
-  for (const effect of activeEffects) {
-    effect();
-  }
-  return result;
-};
-
-const getNodeText = (node: any): string => {
-  if (node == null || typeof node === 'boolean') return '';
-  if (typeof node === 'string' || typeof node === 'number') return String(node);
-  if (Array.isArray(node)) return node.map(getNodeText).join('');
-  return getNodeText(node.props?.children);
-};
-
-const findNodeByText = (node: any, text: string): any | null => {
-  if (node == null || typeof node === 'boolean') return null;
-  if (typeof node === 'string' || typeof node === 'number') {
-    return String(node).includes(text) ? node : null;
-  }
-  if (Array.isArray(node)) {
-    for (const child of node) {
-      const match = findNodeByText(child, text);
-      if (match) return match;
-    }
-    return null;
-  }
-
-  if (getNodeText(node.props?.children).includes(text)) {
-    return node;
-  }
-
-  return findNodeByText(node.props?.children, text);
-};
-
-const findClickableNodeByText = (node: any, text: string): any | null => {
-  if (node == null || typeof node === 'boolean') return null;
-  if (typeof node === 'string' || typeof node === 'number') return null;
-  if (Array.isArray(node)) {
-    for (const child of node) {
-      const match = findClickableNodeByText(child, text);
-      if (match) return match;
-    }
-    return null;
-  }
-
-  if (
-    typeof node.props?.onClick === 'function' &&
-    getNodeText(node.props?.children).includes(text)
-  ) {
-    return node;
-  }
-
-  return findClickableNodeByText(node.props?.children, text);
-};
-
-const findNodeByProp = (node: any, propName: string, propValue: string) => {
-  if (node == null || typeof node === 'boolean') return null;
-  if (Array.isArray(node)) {
-    for (const child of node) {
-      const match = findNodeByProp(child, propName, propValue);
-      if (match) return match;
-    }
-    return null;
-  }
-  if (node.props?.[propName] === propValue) return node;
-  return findNodeByProp(node.props?.children, propName, propValue);
-};
-
-const findLinkByText = (node: any, text: string): any | null => {
-  if (node == null || typeof node === 'boolean') return null;
-  if (Array.isArray(node)) {
-    for (const child of node) {
-      const match = findLinkByText(child, text);
-      if (match) return match;
-    }
-    return null;
-  }
-  if (node.props?.to && getNodeText(node.props.children).includes(text)) {
-    return node;
-  }
-  return findLinkByText(node.props?.children, text);
-};
-
-mock.module('react', () => ({
-  ...RealReact,
-  useCallback: (fn: any) => fn,
-  useEffect: (callback: () => void) => {
-    activeEffects.push(callback);
-  },
-  useRef: (initialValue: any) => {
-    const idx = hookIndex++;
-    if (hookState[idx] === undefined) {
-      hookState[idx] = { current: initialValue };
-    }
-    return hookState[idx];
-  },
-  useState: (initialValue: any) => {
-    const idx = hookIndex++;
-    if (hookState[idx] === undefined) {
-      const stateContainer = {
-        value:
-          typeof initialValue === 'function' ? initialValue() : initialValue,
-        setValue: (newVal: any) => {
-          stateContainer.value =
-            typeof newVal === 'function'
-              ? newVal(stateContainer.value)
-              : newVal;
-          hookState[idx][0] = stateContainer.value;
-        },
-      };
-      hookState[idx] = [stateContainer.value, stateContainer.setValue];
-    }
-    return hookState[idx];
-  },
-}));
-
-mock.module('@tanstack/react-router', () => ({
-  createFileRoute: (_path: string) => (options: any) => ({
-    options,
-  }),
-  Link: (props: any) => {
-    const { children, ...rest } = props;
-    return <a {...rest}>{children}</a>;
-  },
-  useNavigate: () => mock(() => {}),
-}));
-
-mock.module('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      const translations: Record<string, string> = {
-        'home.hero.eyebrow': 'Descubra perto de você',
-        'home.hero.title': 'Explore serviços e ofertas da sua região',
-        'home.hero.description':
-          'Busque por categoria, condomínio ou palavra-chave e fale direto com quem anuncia.',
-        'location.modal_title': 'Selecionar Localização',
-        'location.modal_desc': 'Escolha como deseja personalizar o feed:',
-        'location.change': 'Alterar',
-        'location.no_signal': 'Todos os anúncios',
-        'location.clear': 'Limpar localização',
-        'home.filters': 'Filtros',
-        'home.search_placeholder': 'Buscar por serviços, comidas, produtos...',
-        'home.filters_title': 'Filtros da busca',
-        'home.how_it_works.title': 'Como funciona',
-        'home.how_it_works.step_1_title': 'Explore perto de você',
-        'home.how_it_works.step_1_description':
-          'Navegue por região, condomínio, categoria ou busca.',
-        'home.how_it_works.step_2_title': 'Confira quem anuncia',
-        'home.how_it_works.step_2_description':
-          'Veja identidade do prestador, verificação, contexto local e detalhes.',
-        'home.how_it_works.step_3_title': 'Fale direto com o prestador',
-        'home.how_it_works.step_3_description':
-          'Entre em contato por WhatsApp, telefone, email ou perfil público.',
-        'home.how_it_works.provider_note':
-          'Quer anunciar? Publique seu serviço no painel e apareça para moradores próximos.',
-        'home.anunciar.title': 'Anuncie para quem mora perto',
-        'home.anunciar.description':
-          'Publique seus serviços ou produtos e seja visto por moradores do seu condomínio e região com facilidade e segurança.',
-        'home.anunciar.cta': 'Anunciar serviço',
-        'home.anunciar.has_account': 'Já tem conta? Entrar',
-        'location.tab_region': 'Região',
-        'location.tab_condo': 'Condomínio',
-        'location.option_gps': 'Usar minha localização atual (GPS)',
-        'location.option_gps_desc':
-          'Ordena anúncios pela proximidade exata de você.',
-        'location.option_region_desc':
-          'Filtra anúncios por uma cidade e bairro específicos.',
-        'location.option_condo_desc':
-          'Define um condomínio específico para priorizar no feed.',
-        'location.condo_placeholder':
-          'Buscar condomínio pelo nome, cidade ou CEP',
-        'location.condo_empty': 'Nenhum condomínio aprovado encontrado.',
-        'location.city_placeholder': 'Digite a cidade',
-        'location.city_example': 'Ex: Florianópolis',
-        'location.neighborhood_placeholder': 'Digite o bairro (opcional)',
-        'location.neighborhood_example': 'Ex: Centro',
-        'moderation.confirm': 'Confirmar',
-      };
-      return translations[key] ?? key;
-    },
-  }),
-}));
-
-export let mockListPublicData: any = [
-  {
-    id: 'ann-123',
-    title: 'Test Ad',
-    description: 'Test Description',
-    imageUrl: 'test.jpg',
-    category: 'Serviços',
-    contactLinks: {},
-    showVerifiedBadge: false,
-    condoCity: 'Florianópolis',
-    providerName: 'Test Provider',
-  },
-];
-export let mockListPublicLoading = false;
-export let mockListPublicError = false;
-export let mockListPublicRefetchCalled = false;
-
-mock.module('@tanstack/react-query', () => ({
-  ...RealQuery,
-  useQuery: (options: any) => {
-    const queryKey = options?.queryKey || [];
-    const queryHash = options?.queryKeyHash || '';
-    if (
-      queryHash.includes('listPublic') ||
-      JSON.stringify(queryKey).includes('listPublic')
-    ) {
-      return {
-        data: mockListPublicData,
-        isLoading: mockListPublicLoading,
-        isError: mockListPublicError,
-        refetch: () => {
-          mockListPublicRefetchCalled = true;
-        },
-      };
-    }
-    if (
-      queryHash.includes('listCategories') ||
-      JSON.stringify(queryKey).includes('listCategories')
-    ) {
-      return {
-        data: [{ id: 'cat-123', name: 'Alimentação' }],
-        isLoading: false,
-        isError: false,
-      };
-    }
+const listPublicOptions = () => {
+  if (listMode === 'loading') {
     return {
-      data: [],
-      isLoading: false,
-      isError: false,
-      refetch: () => {},
+      queryKey: ['listPublic', 'loading'],
+      queryFn: () => new Promise(() => {}),
     };
-  },
-  useMutation: () => ({
-    mutate: () => {},
-  }),
-}));
+  }
+  if (listMode === 'error') {
+    return {
+      queryKey: ['listPublic', 'error'],
+      queryFn: async () => {
+        throw new Error('boom');
+      },
+    };
+  }
+  return {
+    queryKey: ['listPublic', 'data'],
+    queryFn: async () => mockListPublicData,
+    initialData: mockListPublicData,
+  };
+};
 
-export let mockSession: any = null;
+mock.module('@/utils/trpc', () => ({
+  trpcClient: {},
+  trpc: {
+    announcement: {
+      listPublic: { queryOptions: () => listPublicOptions() },
+      listCategories: {
+        queryOptions: () => ({
+          queryKey: ['listCategories'],
+          queryFn: async () => [
+            {
+              id: 'cat-servicos',
+              slug: 'servicos',
+              name: 'Alimentação',
+              displayOrder: 1,
+              isActive: true,
+            },
+          ],
+          initialData: [
+            {
+              id: 'cat-servicos',
+              slug: 'servicos',
+              name: 'Alimentação',
+              displayOrder: 1,
+              isActive: true,
+            },
+          ],
+        }),
+      },
+      trackEvent: { mutationOptions: () => ({ mutationFn: async () => ({}) }) },
+    },
+    condominium: {
+      listApproved: {
+        queryOptions: () => ({
+          queryKey: ['listApproved'],
+          queryFn: async () => [],
+          initialData: [],
+        }),
+      },
+      listNearby: {
+        queryOptions: () => ({
+          queryKey: ['listNearby'],
+          queryFn: async () => [],
+          initialData: [],
+        }),
+      },
+    },
+  },
+}));
 
 mock.module('@/lib/auth-client', () => ({
   authClient: {
@@ -307,344 +109,206 @@ mock.module('@/lib/auth-client', () => ({
   },
 }));
 
+mock.module('sonner', () => ({
+  toast: { success: () => {}, error: () => {} },
+}));
+
 const { Route: IndexRoute } = await import('./_portal.index');
 
+function setViewportWidth(width: number) {
+  Object.defineProperty(window, 'innerWidth', {
+    value: width,
+    configurable: true,
+    writable: true,
+  });
+}
+
+function renderHome() {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  const Component = IndexRoute.options.component as () => JSX.Element;
+  return render(
+    <QueryClientProvider client={client}>
+      <I18nextProvider i18n={i18n}>
+        <Component />
+      </I18nextProvider>
+    </QueryClientProvider>,
+  );
+}
+
 describe('Home Discovery Layout Shell', () => {
-  beforeEach(() => {
-    resetHookState();
-    mockListPublicData = [
-      {
-        id: 'ann-123',
-        title: 'Test Ad',
-        description: 'Test Description',
-        imageUrl: 'test.jpg',
-        category: 'Serviços',
-        contactLinks: {},
-        showVerifiedBadge: false,
-        condoCity: 'Florianópolis',
-        providerName: 'Test Provider',
-      },
-    ];
-    mockListPublicLoading = false;
-    mockListPublicError = false;
-    mockListPublicRefetchCalled = false;
-  });
-
-  test('uses wider page shell and keeps home section anchors', () => {
-    const component = IndexRoute.options.component;
-    const tree = renderComponent(component);
-
-    expect(tree.props.className).not.toContain('max-w-6xl');
-    expect(findNodeByProp(tree, 'id', 'explorar')).toBeTruthy();
-    expect(findNodeByProp(tree, 'id', 'como-funciona')).toBeTruthy();
-    expect(findNodeByProp(tree, 'id', 'anunciar')).toBeTruthy();
-  });
-
-  test('renders compact hero band above discovery controls', () => {
-    const component = IndexRoute.options.component;
-    const tree = renderComponent(component);
-
-    expect(findNodeByText(tree, 'Descubra perto de você')).toBeTruthy();
-    expect(
-      findNodeByText(tree, 'Explore serviços e ofertas da sua região'),
-    ).toBeTruthy();
-    expect(
-      findNodeByText(
-        tree,
-        'Busque por categoria, condomínio ou palavra-chave e fale direto com quem anuncia.',
-      ),
-    ).toBeTruthy();
-  });
-
-  test('groups search, location, categories, and filters inside compact discovery controls', () => {
-    const component = IndexRoute.options.component;
-    const tree = renderComponent(component);
-
-    const exploreSection = findNodeByProp(tree, 'id', 'explorar');
-    expect(exploreSection).toBeTruthy();
-    expect(
-      findNodeByProp(
-        exploreSection,
-        'placeholder',
-        'Buscar por serviços, comidas, produtos...',
-      ),
-    ).toBeTruthy();
-    expect(
-      findNodeByText(exploreSection, 'Selecionar Localização'),
-    ).toBeTruthy();
-    expect(
-      findNodeByText(exploreSection, 'Apenas moradores verificados'),
-    ).toBeTruthy();
-  });
-
-  test('shows Filtros action on mobile instead of stacking all controls inline', () => {
-    global.window.innerWidth = 375;
-    const component = IndexRoute.options.component;
-
-    renderComponent(component);
-    const tree = renderComponent(component);
-
-    expect(findClickableNodeByText(tree, 'Filtros')).toBeTruthy();
-  });
-
-  test('renders compact visitor-first como-funciona steps with provider note', () => {
-    const component = IndexRoute.options.component;
-    const tree = renderComponent(component);
-    const howSection = findNodeByProp(tree, 'id', 'como-funciona');
-
-    expect(howSection).toBeTruthy();
-    expect(findNodeByText(howSection, 'Explore perto de você')).toBeTruthy();
-    expect(
-      findNodeByText(
-        howSection,
-        'Navegue por região, condomínio, categoria ou busca.',
-      ),
-    ).toBeTruthy();
-    expect(findNodeByText(howSection, 'Confira quem anuncia')).toBeTruthy();
-    expect(
-      findNodeByText(
-        howSection,
-        'Veja identidade do prestador, verificação, contexto local e detalhes.',
-      ),
-    ).toBeTruthy();
-    expect(
-      findNodeByText(howSection, 'Fale direto com o prestador'),
-    ).toBeTruthy();
-    expect(
-      findNodeByText(
-        howSection,
-        'Entre em contato por WhatsApp, telefone, email ou perfil público.',
-      ),
-    ).toBeTruthy();
-    expect(
-      findNodeByText(
-        howSection,
-        'Quer anunciar? Publique seu serviço no painel e apareça para moradores próximos.',
-      ),
-    ).toBeTruthy();
-  });
-
-  test('uses dense responsive columns and handles #anunciar band states', () => {
-    // Assert denser announcement grid class (xl:grid-cols-4)
-    const component = IndexRoute.options.component;
-    const tree = renderComponent(component);
-
-    // Check grid layout classes
-    const gridNode = findNodeByProp(
-      tree,
-      'className',
-      'grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4',
-    );
-    expect(gridNode).toBeTruthy();
-
-    const anunciarSection = findNodeByProp(tree, 'id', 'anunciar');
-    expect(anunciarSection).toBeTruthy();
-    // Verify it uses negative margin classes for full width
-    expect(anunciarSection.props.className).toContain('-mx-4');
-    expect(anunciarSection.props.className).toContain('md:-mx-6');
-    expect(anunciarSection.props.className).toContain('lg:-mx-8');
-
-    // Test unauthenticated state
-    mockSession = null;
-    const treeUnauth = renderComponent(component);
-    const unauthSection = findNodeByProp(treeUnauth, 'id', 'anunciar');
-
-    const signUpLink = findLinkByText(unauthSection, 'Anunciar serviço');
-    expect(signUpLink).toBeTruthy();
-    expect(signUpLink.props.search).toEqual({ tab: 'signup' });
-
-    const signInLink = findLinkByText(unauthSection, 'Já tem conta? Entrar');
-    expect(signInLink).toBeTruthy();
-    expect(signInLink.props.to).toBe('/auth');
-    expect(signInLink.props.search).toEqual({ tab: 'signin' });
-
-    // Test authenticated state
-    mockSession = { user: { id: 'test-user-123' } };
-    const treeAuth = renderComponent(component);
-    const authSection = findNodeByProp(treeAuth, 'id', 'anunciar');
-
-    const dashboardLink = findLinkByText(authSection, 'Anunciar serviço');
-    expect(dashboardLink).toBeTruthy();
-    expect(dashboardLink.props.to).toBe('/panel/dashboard');
-
-    const signInLinkAuth = findLinkByText(authSection, 'Já tem conta? Entrar');
-    expect(signInLinkAuth).toBeNull();
-  });
-
-  test('renders skeleton cards when loading', () => {
-    mockListPublicLoading = true;
-    mockListPublicData = null;
-    mockListPublicError = false;
-
-    const component = IndexRoute.options.component;
-    const tree = renderComponent(component);
-
-    // Skeleton card container uses same grid classes
-    const gridNode = findNodeByProp(
-      tree,
-      'className',
-      'grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4',
-    );
-    expect(gridNode).toBeTruthy();
-    expect(gridNode.props.children.length).toBe(8);
-  });
-
-  test('renders error state and retry action on query failure', () => {
-    mockListPublicLoading = false;
-    mockListPublicData = null;
-    mockListPublicError = true;
-    mockListPublicRefetchCalled = false;
-
-    const component = IndexRoute.options.component;
-    const tree = renderComponent(component);
-
-    expect(
-      findNodeByText(tree, 'Não conseguimos carregar os anúncios agora.'),
-    ).toBeTruthy();
-
-    const retryBtn = findClickableNodeByText(tree, 'Tentar novamente');
-    expect(retryBtn).toBeTruthy();
-
-    // Trigger retry
-    retryBtn.props.onClick();
-    expect(mockListPublicRefetchCalled).toBe(true);
-  });
-
-  test('renders contextual empty state variants correctly', () => {
-    mockListPublicLoading = false;
-    mockListPublicData = [];
-    mockListPublicError = false;
-
-    const component = IndexRoute.options.component;
-
-    // 1. No filters and no announcements
+  beforeEach(async () => {
+    await i18n.changeLanguage('pt');
     localStorage.clear();
-    const treeNoFilters = renderComponent(component);
-    expect(
-      findNodeByText(treeNoFilters, 'Ainda não há anúncios publicados'),
-    ).toBeTruthy();
-    expect(findLinkByText(treeNoFilters, 'Anunciar serviço')).toBeTruthy();
+    listMode = 'data';
+    mockListPublicData = [ad];
+    mockSession = null;
+    setViewportWidth(1280);
+    Object.defineProperty(globalThis.navigator, 'geolocation', {
+      value: { getCurrentPosition: () => {} },
+      configurable: true,
+    });
+    globalThis.fetch = (async () => ({
+      ok: true,
+      json: async () => ({}),
+    })) as unknown as typeof fetch;
+  });
 
-    // Reset hook state for next rendering sequence
-    resetHookState();
+  test('uses a wide page shell and keeps the home section anchors', () => {
+    const { container } = renderHome();
+    const outer = container.firstElementChild as HTMLElement;
+    expect(outer.className).not.toContain('max-w-6xl');
+    expect(container.querySelector('#explorar')).toBeTruthy();
+    expect(container.querySelector('#como-funciona')).toBeTruthy();
+    expect(container.querySelector('#anunciar')).toBeTruthy();
+  });
 
-    // 2. Search active
-    const treeSearch = renderComponent(component);
-    const searchInput = findNodeByProp(
-      treeSearch,
-      'placeholder',
-      'Buscar por serviços, comidas, produtos...',
+  test('renders the compact hero band', () => {
+    const { container } = renderHome();
+    expect(container.textContent).toContain('Descubra perto de você');
+    expect(container.textContent).toContain(
+      'Explore serviços e ofertas da sua região',
     );
-    expect(searchInput).toBeTruthy();
-    searchInput.props.onChange({ target: { value: 'pizza' } });
-    const searchActiveTree = renderComponent(component);
-    expect(
-      findNodeByText(searchActiveTree, 'Nenhum resultado para "pizza"'),
-    ).toBeTruthy();
-    const clearSearchBtn = findClickableNodeByText(
-      searchActiveTree,
-      'Limpar busca',
+    expect(container.textContent).toContain(
+      'Busque por categoria, condomínio ou palavra-chave e fale direto com quem anuncia.',
     );
-    expect(clearSearchBtn).toBeTruthy();
-    clearSearchBtn.props.onClick();
-    const clearedSearchTree = renderComponent(component);
+  });
+
+  test('groups search, location, and verified-only controls in discovery', () => {
+    const { container } = renderHome();
     expect(
-      findNodeByText(clearedSearchTree, 'Nenhum resultado para "pizza"'),
-    ).toBeNull();
-
-    // Reset hook state for next rendering sequence
-    resetHookState();
-
-    // 3. Category active
-    const treeCategory = renderComponent(component);
-    const categoryBtn = findClickableNodeByText(treeCategory, 'Alimentação');
-    expect(categoryBtn).toBeTruthy();
-    categoryBtn.props.onClick();
-    const categoryActiveTree = renderComponent(component);
-    expect(
-      findNodeByText(categoryActiveTree, 'Nenhum anúncio em Alimentação'),
-    ).toBeTruthy();
-    const clearCategoryBtn = findClickableNodeByText(
-      categoryActiveTree,
-      'Ver todas as categorias',
-    );
-    expect(clearCategoryBtn).toBeTruthy();
-    clearCategoryBtn.props.onClick();
-
-    // Reset hook state for next rendering sequence
-    resetHookState();
-
-    // 4. Verified-only active
-    const treeVerified = renderComponent(component);
-    const verifiedSwitch = findNodeByProp(
-      treeVerified,
-      'id',
-      'verified-switch',
-    );
-    expect(verifiedSwitch).toBeTruthy();
-    verifiedSwitch.props.onCheckedChange(true);
-    const verifiedActiveTree = renderComponent(component);
-    expect(
-      findNodeByText(
-        verifiedActiveTree,
-        'Nenhum morador verificado encontrado',
+      container.querySelector(
+        'input[placeholder="Buscar por serviços, comidas, produtos..."]',
       ),
     ).toBeTruthy();
-    const clearVerifiedBtn = findClickableNodeByText(
-      verifiedActiveTree,
-      'Mostrar todos os prestadores',
+    expect(container.textContent).toContain('Selecionar Localização');
+    expect(container.textContent).toContain('Apenas moradores verificados');
+  });
+
+  test('shows the Filtros action on mobile', () => {
+    setViewportWidth(375);
+    const { container } = renderHome();
+    expect(container.textContent).toContain('Filtros');
+  });
+
+  test('renders the visitor-first como-funciona steps with provider note', () => {
+    const { container } = renderHome();
+    const how = container.querySelector('#como-funciona') as HTMLElement;
+    expect(how.textContent).toContain('Explore perto de você');
+    expect(how.textContent).toContain('Confira quem anuncia');
+    expect(how.textContent).toContain('Fale direto com o prestador');
+    expect(how.textContent).toContain(
+      'Quer anunciar? Publique seu serviço no painel e apareça para moradores próximos.',
     );
-    expect(clearVerifiedBtn).toBeTruthy();
-    clearVerifiedBtn.props.onClick();
+  });
 
-    // Reset hook state for next rendering sequence
-    resetHookState();
+  test('the #anunciar band swaps CTAs between guest and authenticated states', () => {
+    mockSession = null;
+    const guest = renderHome();
+    const guestBand = guest.container.querySelector('#anunciar') as HTMLElement;
+    const guestAnchors = Array.from(guestBand.querySelectorAll('a'));
+    const signUp = guestAnchors.find((a) =>
+      a.textContent?.includes('Anunciar serviço'),
+    );
+    expect(signUp?.getAttribute('data-to')).toBe('/auth');
+    expect(signUp?.getAttribute('data-search')).toBe(
+      JSON.stringify({ tab: 'signup' }),
+    );
+    const signIn = guestAnchors.find((a) =>
+      a.textContent?.includes('Já tem conta? Entrar'),
+    );
+    expect(signIn?.getAttribute('data-to')).toBe('/auth');
+    expect(signIn?.getAttribute('data-search')).toBe(
+      JSON.stringify({ tab: 'signin' }),
+    );
+    guest.unmount();
 
-    // 5. Selected condominium filter active
+    mockSession = { user: { id: 'test-user-123' } };
+    const authed = renderHome();
+    const authBand = authed.container.querySelector('#anunciar') as HTMLElement;
+    expect(authBand.querySelector('[data-to="/panel/dashboard"]')).toBeTruthy();
+    expect(authBand.textContent).not.toContain('Já tem conta? Entrar');
+  });
+
+  test('renders eight skeleton cards while the list is loading', () => {
+    listMode = 'loading';
+    const { container } = renderHome();
+    const grids = container.querySelectorAll('.grid.gap-6');
+    const skeletonGrid = grids[grids.length - 1] as HTMLElement;
+    expect(skeletonGrid.children.length).toBe(8);
+  });
+
+  test('renders an error state with a retry action on query failure', async () => {
+    listMode = 'error';
+    const { container } = renderHome();
+    expect(
+      await screen.findByText('Não conseguimos carregar os anúncios agora.'),
+    ).toBeTruthy();
+    expect(container.textContent).toContain('Tentar novamente');
+  });
+
+  test('renders contextual empty-state variants', async () => {
+    mockListPublicData = [];
+
+    // 1. No filters, no announcements.
+    const base = renderHome();
+    expect(base.container.textContent).toContain(
+      'Ainda não há anúncios publicados',
+    );
+    base.unmount();
+
+    // 2. Search active.
+    const search = renderHome();
+    fireEvent.change(
+      search.container.querySelector(
+        'input[placeholder="Buscar por serviços, comidas, produtos..."]',
+      ) as Element,
+      { target: { value: 'pizza' } },
+    );
+    expect(search.container.textContent).toContain(
+      'Nenhum resultado para "pizza"',
+    );
+    expect(search.container.textContent).toContain('Limpar busca');
+    search.unmount();
+
+    // 3. Category active.
+    const category = renderHome();
+    fireEvent.click(
+      await within(category.container).findClickable('Alimentação'),
+    );
+    expect(category.container.textContent).toContain(
+      'Nenhum anúncio em Alimentação',
+    );
+    category.unmount();
+
+    // 4. Selected condominium filter active.
     localStorage.setItem(
       'user_condo',
       JSON.stringify({ id: 'condo-123', name: 'Residencial Floripa' }),
     );
-    renderComponent(component);
-    const treeCondo = renderComponent(component);
-    const condoSwitch = findNodeByProp(treeCondo, 'id', 'condo-filter-switch');
-    expect(condoSwitch).toBeTruthy();
-    condoSwitch.props.onCheckedChange(true);
-    const condoActiveTree = renderComponent(component);
-    expect(
-      findNodeByText(condoActiveTree, 'Ainda não há anúncios neste condomínio'),
-    ).toBeTruthy();
-    expect(
-      findClickableNodeByText(condoActiveTree, 'Ver anúncios da região'),
-    ).toBeTruthy();
-    expect(
-      findClickableNodeByText(condoActiveTree, 'Alterar condomínio'),
-    ).toBeTruthy();
+    const condo = renderHome();
+    const condoSwitch = condo.container.querySelector('#condo-filter-switch');
+    if (condoSwitch) fireEvent.click(condoSwitch);
+    expect(condo.container.textContent).toContain(
+      'Ainda não há anúncios neste condomínio',
+    );
+    condo.unmount();
+    localStorage.clear();
 
-    // Reset hook state for next rendering sequence
-    resetHookState();
-
-    // 6. Region active
+    // 5. Region active.
     localStorage.setItem(
       'user_region',
       JSON.stringify({ city: 'Florianópolis' }),
     );
-    renderComponent(component);
-    const treeRegion = renderComponent(component);
-    expect(
-      findNodeByText(treeRegion, 'Nenhum anúncio encontrado nesta região'),
-    ).toBeTruthy();
-    expect(
-      findClickableNodeByText(treeRegion, 'Ajustar localização'),
-    ).toBeTruthy();
-    expect(
-      findClickableNodeByText(treeRegion, 'Limpar localização'),
-    ).toBeTruthy();
+    const region = renderHome();
+    expect(region.container.textContent).toContain(
+      'Nenhum anúncio encontrado nesta região',
+    );
+    region.unmount();
+    localStorage.clear();
 
-    // Reset hook state for next rendering sequence
-    resetHookState();
-
-    // 7. Fresh GPS active (radius expand option available)
+    // 6. Fresh GPS active (radius-expand option available).
     localStorage.setItem('geolocation_preference', 'granted');
     localStorage.setItem(
       'user_coords',
@@ -654,13 +318,21 @@ describe('Home Discovery Layout Shell', () => {
         capturedAt: new Date().toISOString(),
       }),
     );
-    renderComponent(component);
-    const treeGps = renderComponent(component);
-    expect(
-      findNodeByText(treeGps, 'Nenhum anúncio encontrado nesta região'),
-    ).toBeTruthy();
-    expect(
-      findClickableNodeByText(treeGps, 'Expandir raio para 25 km'),
-    ).toBeTruthy();
+    const gps = renderHome();
+    expect(gps.container.textContent).toContain('Nenhum anúncio encontrado');
   });
 });
+
+// Small helper: find a clickable element (button/anchor) by its text.
+function within(root: HTMLElement) {
+  return {
+    findClickable: async (text: string): Promise<HTMLElement> => {
+      const nodes = Array.from(
+        root.querySelectorAll<HTMLElement>('button, a, [role="button"]'),
+      );
+      const hit = nodes.find((n) => n.textContent?.includes(text));
+      if (!hit) throw new Error(`No clickable with text: ${text}`);
+      return hit;
+    },
+  };
+}

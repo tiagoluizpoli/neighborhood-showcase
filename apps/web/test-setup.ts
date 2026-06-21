@@ -33,6 +33,7 @@ mock.module('@tanstack/react-router', () => ({
         'data-to': to,
         'data-hash': hash,
         'data-params': params ? JSON.stringify(params) : undefined,
+        'data-search': search ? JSON.stringify(search) : undefined,
       },
       children,
     );
