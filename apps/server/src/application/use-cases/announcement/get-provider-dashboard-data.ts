@@ -1,3 +1,4 @@
+import type { AnnouncementContactSettings } from '../../../domain/entities/contact';
 import type { AnalyticsRepository } from '../../../domain/repositories/analytics.repository';
 import type { AnnouncementRepository } from '../../../domain/repositories/announcement.repository';
 
@@ -15,8 +16,10 @@ export interface DashboardAnnouncementItem {
   category: string;
   categoryId: string;
   tags: string[];
+  contact: AnnouncementContactSettings;
   contactLinks: {
     whatsapp?: string;
+    phone?: string;
     instagram?: string;
     website?: string;
   };
@@ -97,6 +100,7 @@ export class GetProviderDashboardData {
         category: raw.category,
         categoryId: raw.categoryId,
         tags: raw.tags,
+        contact: raw.contact,
         contactLinks:
           raw.contactLinks as DashboardAnnouncementItem['contactLinks'],
         showVerifiedBadge: raw.showVerifiedBadge,

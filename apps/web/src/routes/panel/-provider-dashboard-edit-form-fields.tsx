@@ -9,6 +9,11 @@ import {
 } from '@neighborhood-showcase/ui/components/tooltip';
 import { useTranslation } from 'react-i18next';
 import { ProviderDashboardEditImageField } from './-provider-dashboard-edit-image-field';
+import {
+  type AnnouncementContactMode,
+  AnnouncementContactSection,
+  type ProviderContactDefaultsView,
+} from './provider/-announcement-contact-section';
 
 interface ProviderDashboardEditFormFieldsProps {
   backendCategories:
@@ -19,54 +24,60 @@ interface ProviderDashboardEditFormFieldsProps {
     | undefined;
   canVerify: boolean;
   categoryId: string;
+  contactMode: AnnouncementContactMode;
+  customCallEnabled: boolean;
+  customPhone: string;
   description: string;
   imageUrl: string;
-  instagram: string;
+  isLoadingProviderDefaults: boolean;
   isUploading: boolean;
   price: number | '';
+  providerDefaults: ProviderContactDefaultsView | null;
   showVerifiedBadge: boolean;
   subtitle: string;
   title: string;
-  website: string;
-  whatsapp: string;
   onCategoryIdChange: (value: string) => void;
+  onConfigureContact: () => void;
+  onContactModeChange: (value: AnnouncementContactMode) => void;
+  onCustomCallEnabledChange: (value: boolean) => void;
+  onCustomPhoneChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
   onImageUrlChange: (imageUrl: string) => void;
-  onInstagramChange: (value: string) => void;
   onPriceChange: (value: number | '') => void;
   onShowVerifiedBadgeChange: (value: boolean) => void;
   onSubtitleChange: (value: string) => void;
   onTitleChange: (value: string) => void;
   onUploadingChange: (isUploading: boolean) => void;
-  onWebsiteChange: (value: string) => void;
-  onWhatsappChange: (value: string) => void;
 }
 
 export function ProviderDashboardEditFormFields({
   backendCategories,
   canVerify,
   categoryId,
+  contactMode,
+  customCallEnabled,
+  customPhone,
   description,
   imageUrl,
-  instagram,
+  isLoadingProviderDefaults,
   onCategoryIdChange,
+  onConfigureContact,
+  onContactModeChange,
+  onCustomCallEnabledChange,
+  onCustomPhoneChange,
   onDescriptionChange,
   onImageUrlChange,
-  onInstagramChange,
   onPriceChange,
   onShowVerifiedBadgeChange,
   onSubtitleChange,
   onTitleChange,
   onUploadingChange,
-  onWebsiteChange,
-  onWhatsappChange,
   isUploading,
   price,
+  providerDefaults,
   showVerifiedBadge,
   subtitle,
   title,
-  website,
-  whatsapp,
 }: ProviderDashboardEditFormFieldsProps) {
   const { t } = useTranslation();
 
@@ -143,49 +154,17 @@ export function ProviderDashboardEditFormFields({
         />
       </Field>
 
-      <div className="space-y-3">
-        <h4 className="font-semibold text-foreground text-sm">
-          {t('meus_anuncios.detail.form.contact_title')}
-        </h4>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Field
-            label={t('meus_anuncios.detail.contact_labels.whatsapp')}
-            subtle
-          >
-            <Input
-              type="text"
-              aria-label={t('meus_anuncios.detail.contact_labels.whatsapp')}
-              value={whatsapp}
-              onChange={(e) => onWhatsappChange(e.target.value)}
-              placeholder={t('meus_anuncios.detail.form.whatsapp_placeholder')}
-            />
-          </Field>
-          <Field
-            label={t('meus_anuncios.detail.contact_labels.instagram')}
-            subtle
-          >
-            <Input
-              type="text"
-              aria-label={t('meus_anuncios.detail.contact_labels.instagram')}
-              value={instagram}
-              onChange={(e) => onInstagramChange(e.target.value)}
-              placeholder={t('meus_anuncios.detail.form.instagram_placeholder')}
-            />
-          </Field>
-          <Field
-            label={t('meus_anuncios.detail.contact_labels.website')}
-            subtle
-          >
-            <Input
-              type="url"
-              aria-label={t('meus_anuncios.detail.contact_labels.website')}
-              value={website}
-              onChange={(e) => onWebsiteChange(e.target.value)}
-              placeholder={t('meus_anuncios.detail.form.website_placeholder')}
-            />
-          </Field>
-        </div>
-      </div>
+      <AnnouncementContactSection
+        mode={contactMode}
+        onModeChange={onContactModeChange}
+        customPhone={customPhone}
+        onCustomPhoneChange={onCustomPhoneChange}
+        customCallEnabled={customCallEnabled}
+        onCustomCallEnabledChange={onCustomCallEnabledChange}
+        providerDefaults={providerDefaults}
+        isLoadingDefaults={isLoadingProviderDefaults}
+        onConfigureContact={onConfigureContact}
+      />
 
       <div className="space-y-2">
         <div className="flex items-center justify-between rounded-xl border border-border bg-muted/40 p-4">

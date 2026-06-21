@@ -129,6 +129,34 @@ describe('UpdateAnnouncement use case', () => {
     expect(stored?.suspensionReason).toBeNull();
   });
 
+  test('persists inherit mode without a custom payload', async () => {
+    await updateAnnouncement.execute({
+      actorId: ownerId,
+      announcementId,
+      title: 'Inherited Contact Title',
+      subtitle: null,
+      description: 'Inherited contact description with enough length.',
+      priceCents: 2400,
+      imageUrl: 'https://example.com/inherit.png',
+      categoryId: 'cat-alimentacao',
+      tags: ['inherit'],
+      contact: {
+        mode: 'inherit',
+        custom: null,
+      },
+      showVerifiedBadge: false,
+    });
+
+    const [stored] = await db
+      .select()
+      .from(announcement)
+      .where(eq(announcement.id, announcementId))
+      .limit(1);
+
+    expect(stored?.contactMode).toBe('inherit');
+    expect(stored?.contactCustom).toBeNull();
+  });
+
   test('throws AnnouncementUpdateAccessDeniedError for non-owner', async () => {
     await expect(
       updateAnnouncement.execute({

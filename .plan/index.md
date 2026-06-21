@@ -70,7 +70,7 @@
 | T-16-06 | E-16 | Shell-adjacent localization | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/06-shell-adjacent-localization.md` |
 | T-17-01 | E-17 | Provider contact defaults and WhatsApp baseline | ready | — | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/01-provider-contact-defaults-and-whatsapp-baseline.md` |
 | T-17-02 | E-17 | Create flow inherited contact authoring | done | T-17-01 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/02-create-flow-inherited-contact-authoring.md` |
-| T-17-03 | E-17 | Edit flow contact parity and live inheritance | ready | T-17-02 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/03-edit-flow-contact-parity-and-live-inheritance.md` |
+| T-17-03 | E-17 | Edit flow contact parity and live inheritance | done | T-17-02 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/03-edit-flow-contact-parity-and-live-inheritance.md` |
 | T-17-04 | E-17 | Bounded CTA authoring and public fallback | ready | T-17-02, T-17-03 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/04-bounded-cta-authoring-and-public-fallback.md` |
 | T-17-05 | E-17 | Structured category, tags, and money primitives | ready | T-17-03 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/05-structured-category-tags-and-money-primitives.md` |
 | T-17-06 | E-17 | Authoring surface regression and seeded Playwright matrix | ready | T-17-04, T-17-05 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/06-authoring-surface-regression-and-seeded-playwright-matrix.md` |

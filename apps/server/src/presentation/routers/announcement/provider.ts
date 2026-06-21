@@ -225,12 +225,19 @@ export function createProviderAnnouncementRouter(
           imageUrl: z.string().min(1),
           categoryId: z.string().min(1),
           tags: z.array(z.string()),
-          contactLinks: providerContactLinksSchema,
+          contact: announcementContactInputSchema.optional(),
+          contactLinks: providerContactLinksSchema.optional(),
           showVerifiedBadge: z.boolean(),
         }),
       )
       .mutation(async ({ input, ctx }) => {
         try {
+          const contact = input.contact
+            ? toContactSettings(input.contact)
+            : flatLinksToContactSettings({
+                whatsapp: input.contactLinks?.whatsapp,
+                phone: input.contactLinks?.phone,
+              });
           const updatedAnn = await updateAnnouncementUseCase.execute({
             actorId: ctx.session.user.id,
             announcementId: input.id,
@@ -241,7 +248,7 @@ export function createProviderAnnouncementRouter(
             imageUrl: input.imageUrl,
             categoryId: input.categoryId,
             tags: input.tags,
-            contact: flatLinksToContactSettings(input.contactLinks),
+            contact,
             showVerifiedBadge: input.showVerifiedBadge,
           });
 

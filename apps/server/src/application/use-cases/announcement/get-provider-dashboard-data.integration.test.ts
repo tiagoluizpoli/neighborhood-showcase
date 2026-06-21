@@ -6,7 +6,9 @@ import {
   announcement,
   providerAssignment as assignment,
   condominium,
+  providerProfile,
 } from '@neighborhood-showcase/db/schema/showcase';
+import { eq } from 'drizzle-orm';
 import { DrizzleAnalyticsRepository } from '../../../infrastructure/db/analytics-repository';
 import { DrizzleAnnouncementRepository } from '../../../infrastructure/db/announcement-repository';
 import { GetProviderDashboardData } from './get-provider-dashboard-data';
@@ -24,6 +26,7 @@ describe('Get Provider Dashboard Data Integration Test', () => {
     // Clear tables
     await db.delete(analyticsEvent);
     await db.delete(announcement);
+    await db.delete(providerProfile);
     await db.delete(assignment);
     await db.delete(condominium);
     await db.delete(user);
@@ -36,6 +39,15 @@ describe('Get Provider Dashboard Data Integration Test', () => {
       emailVerified: true,
       role: 'USER',
       status: 'ACTIVE',
+    });
+
+    await db.insert(providerProfile).values({
+      providerId,
+      displayName: 'Dash Provider',
+      primaryPhone: '+5511999999999',
+      callEnabled: true,
+      contactMetadata: {},
+      isProviderVisible: true,
     });
 
     // Insert condo
@@ -167,6 +179,9 @@ describe('Get Provider Dashboard Data Integration Test', () => {
     if (!activeAd) throw new Error('Expected active ad');
     expect(activeAd.id).toBe('ann-active');
     expect(activeAd.condoName).toBe('Residencial Dashboard');
+    expect(activeAd.contact.mode).toBe('inherit');
+    expect(activeAd.contactLinks.whatsapp).toContain('9999');
+    expect(activeAd.contactLinks.phone).toBe(activeAd.contactLinks.whatsapp);
 
     // Draft
     expect(result.announcements.draft).toHaveLength(2);
@@ -190,5 +205,46 @@ describe('Get Provider Dashboard Data Integration Test', () => {
     expect(suspendedAd.suspensionReason).toBe(
       'Violou diretrizes da comunidade.',
     );
+  });
+
+  test('resolves inherited announcements from live provider defaults and keeps custom announcements isolated', async () => {
+    await db
+      .update(announcement)
+      .set({
+        contactMode: 'custom',
+        contactCustom: {
+          primaryPhone: '551188887777',
+          callEnabled: false,
+        },
+      })
+      .where(eq(announcement.id, 'ann-draft'));
+
+    await db
+      .update(providerProfile)
+      .set({
+        primaryPhone: '551177776666',
+        callEnabled: false,
+      })
+      .where(eq(providerProfile.providerId, providerId));
+
+    const result = await useCase.execute({ providerId });
+
+    const inheritedActive = result.announcements.active.find(
+      (item) => item.id === 'ann-active',
+    );
+    expect(inheritedActive).toBeDefined();
+    if (!inheritedActive) throw new Error('Expected inherited active ad');
+    expect(inheritedActive.contact.mode).toBe('inherit');
+    expect(inheritedActive.contactLinks.whatsapp).toBe('551177776666');
+    expect(inheritedActive.contactLinks.phone).toBeUndefined();
+
+    const customDraft = result.announcements.draft.find(
+      (item) => item.id === 'ann-draft',
+    );
+    expect(customDraft).toBeDefined();
+    if (!customDraft) throw new Error('Expected custom draft ad');
+    expect(customDraft.contact.mode).toBe('custom');
+    expect(customDraft.contactLinks.whatsapp).toBe('551188887777');
+    expect(customDraft.contactLinks.phone).toBeUndefined();
   });
 });

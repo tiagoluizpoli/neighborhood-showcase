@@ -8,8 +8,16 @@ export interface ProviderDashboardAnnouncementItem {
   category: string;
   categoryId: string;
   tags: string[];
+  contact: {
+    mode: 'inherit' | 'custom';
+    custom: {
+      primaryPhone: string;
+      callEnabled: boolean;
+    } | null;
+  };
   contactLinks: {
     whatsapp?: string;
+    phone?: string;
     instagram?: string;
     website?: string;
   };

@@ -5,6 +5,7 @@ import {
   category as categorySchema,
   condominium as condominiumSchema,
   providerAssignment as providerAssignmentSchema,
+  providerProfile as providerProfileSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { and, eq, isNull } from 'drizzle-orm';
 import type {
@@ -22,6 +23,20 @@ import {
   contactSettingsToLinks,
   rowToContactSettings,
 } from '../mappers/announcement-contact';
+
+interface ProviderContactDefaultsRow {
+  callEnabled: boolean;
+  primaryPhone: string;
+}
+
+function toProviderContactDefaults(
+  row: ProviderContactDefaultsRow | null,
+): ProviderContactDefaultsRow {
+  return {
+    primaryPhone: row?.primaryPhone ?? '',
+    callEnabled: row?.callEnabled ?? false,
+  };
+}
 
 export async function createAnnouncement(
   mapper: AnnouncementMapper,
@@ -135,6 +150,8 @@ export async function findActiveAnnouncementsByProviderId(
       tags: announcementSchema.tags,
       contactMode: announcementSchema.contactMode,
       contactCustom: announcementSchema.contactCustom,
+      providerPrimaryPhone: providerProfileSchema.primaryPhone,
+      providerCallEnabled: providerProfileSchema.callEnabled,
       showVerifiedBadge: announcementSchema.showVerifiedBadge,
       status: announcementSchema.status,
       createdAt: announcementSchema.createdAt,
@@ -161,6 +178,10 @@ export async function findActiveAnnouncementsByProviderId(
       addressSchema,
       eq(providerAssignmentSchema.addressId, addressSchema.id),
     )
+    .leftJoin(
+      providerProfileSchema,
+      eq(announcementSchema.providerId, providerProfileSchema.providerId),
+    )
     .where(
       and(
         eq(announcementSchema.providerId, providerId),
@@ -173,6 +194,10 @@ export async function findActiveAnnouncementsByProviderId(
     const contact = rowToContactSettings({
       mode: row.contactMode,
       custom: row.contactCustom ?? null,
+    });
+    const providerDefaults = toProviderContactDefaults({
+      primaryPhone: row.providerPrimaryPhone ?? '',
+      callEnabled: row.providerCallEnabled ?? false,
     });
     return {
       id: row.id,
@@ -187,7 +212,7 @@ export async function findActiveAnnouncementsByProviderId(
       category: row.category,
       tags: row.tags ?? [],
       contact,
-      contactLinks: contactSettingsToLinks(contact),
+      contactLinks: contactSettingsToLinks(contact, providerDefaults),
       showVerifiedBadge: row.showVerifiedBadge,
       status: row.status,
       createdAt: row.createdAt,
@@ -232,6 +257,8 @@ export async function findDashboardAnnouncementsByProviderId(
       tags: announcementSchema.tags,
       contactMode: announcementSchema.contactMode,
       contactCustom: announcementSchema.contactCustom,
+      providerPrimaryPhone: providerProfileSchema.primaryPhone,
+      providerCallEnabled: providerProfileSchema.callEnabled,
       showVerifiedBadge: announcementSchema.showVerifiedBadge,
       flaggedForReview: announcementSchema.flaggedForReview,
       status: announcementSchema.status,
@@ -251,6 +278,10 @@ export async function findDashboardAnnouncementsByProviderId(
       categorySchema,
       eq(announcementSchema.categoryId, categorySchema.id),
     )
+    .leftJoin(
+      providerProfileSchema,
+      eq(announcementSchema.providerId, providerProfileSchema.providerId),
+    )
     .where(
       and(
         eq(announcementSchema.providerId, providerId),
@@ -263,6 +294,10 @@ export async function findDashboardAnnouncementsByProviderId(
       mode: row.contactMode,
       custom: row.contactCustom ?? null,
     });
+    const providerDefaults = toProviderContactDefaults({
+      primaryPhone: row.providerPrimaryPhone ?? '',
+      callEnabled: row.providerCallEnabled ?? false,
+    });
     return {
       id: row.id,
       title: row.title,
@@ -274,7 +309,7 @@ export async function findDashboardAnnouncementsByProviderId(
       categoryId: row.categoryId,
       tags: row.tags ?? [],
       contact,
-      contactLinks: contactSettingsToLinks(contact),
+      contactLinks: contactSettingsToLinks(contact, providerDefaults),
       showVerifiedBadge: row.showVerifiedBadge,
       flaggedForReview: row.flaggedForReview,
       status: row.status,

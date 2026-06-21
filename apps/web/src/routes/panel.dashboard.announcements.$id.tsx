@@ -9,13 +9,18 @@ import {
 } from '@neighborhood-showcase/ui/components/card';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Loader2, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Loader2, Phone, ShieldCheck, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { ProviderDashboardAnalyticsPanel } from './panel/-provider-dashboard-analytics-panel';
 import { ProviderDashboardEditFormFields } from './panel/-provider-dashboard-edit-form-fields';
 import type { ProviderDashboardAnnouncementItem } from './panel/-provider-dashboard-types';
+import {
+  type AnnouncementContactMode,
+  hasBaseline,
+  type ProviderContactDefaultsView,
+} from './panel/provider/-announcement-contact-section';
 import { authClient } from '@/lib/auth-client';
 import { useUserAccessProfile } from '@/routes/panel/-user-access-profile';
 import { trpc } from '@/utils/trpc';
@@ -40,6 +45,9 @@ export function ProviderAnnouncementDetailPage() {
   const categoriesQuery = useQuery(
     trpc.announcement.listCategories.queryOptions(),
   );
+  const providerProfileQuery = useQuery(
+    trpc.providerProfile.get.queryOptions(),
+  );
   const accessProfileQuery = useUserAccessProfile();
   const assignmentsQuery = useQuery(
     trpc.assignment.getMyAssignments.queryOptions(),
@@ -53,18 +61,15 @@ export function ProviderAnnouncementDetailPage() {
     [dashboardQuery.data, id],
   );
 
-  console.log('DEBUG ANNOUNCEMENT DETAIL:', {
-    id,
-    announcement,
-    announcements: dashboardQuery.data?.announcements,
-  });
-
   const selectedAssignment = assignmentsQuery.data?.find(
     (assignment) => assignment.id === announcement?.providerAssignmentId,
   );
   const canVerify =
     selectedAssignment?.type === 'RESIDENT' &&
     selectedAssignment?.status === 'APPROVED';
+  const providerDefaults = toProviderContactDefaults(
+    providerProfileQuery.data?.contactDefaults,
+  );
 
   const { data: session } = authClient.useSession();
 
@@ -139,22 +144,31 @@ export function ProviderAnnouncementDetailPage() {
       return;
     }
 
+    if (form.contactMode === 'inherit' && !hasBaseline(providerDefaults)) {
+      toast.error(t('new_announcement.toast.inherit_no_baseline'));
+      return;
+    }
+
     if (
-      !form.whatsapp.trim() &&
-      !form.instagram.trim() &&
-      !form.website.trim()
+      form.contactMode === 'custom' &&
+      form.customPhone.replace(/\D/g, '').length < 10
     ) {
-      toast.error(t('meus_anuncios.detail.validation.contact'));
+      toast.error(t('new_announcement.toast.custom_phone_invalid'));
       return;
     }
 
     updateMutation.mutate({
       categoryId: form.categoryId,
-      contactLinks: {
-        instagram: form.instagram || undefined,
-        website: form.website || undefined,
-        whatsapp: form.whatsapp || undefined,
-      },
+      contact:
+        form.contactMode === 'inherit'
+          ? { mode: 'inherit', custom: null }
+          : {
+              mode: 'custom',
+              custom: {
+                primaryPhone: form.customPhone,
+                callEnabled: form.customCallEnabled,
+              },
+            },
       description: form.description,
       id: announcement.id,
       imageUrl: form.imageUrl,
@@ -278,7 +292,10 @@ export function ProviderAnnouncementDetailPage() {
                   {announcement.description}
                 </p>
               </div>
-              <ContactLinks links={announcement.contactLinks} />
+              <AnnouncementContactCard
+                announcement={announcement}
+                providerDefaults={providerDefaults}
+              />
               {announcement.tags.length > 0 && (
                 <div className="space-y-2">
                   <h2 className="font-semibold text-foreground text-lg">
@@ -342,43 +359,52 @@ export function ProviderAnnouncementDetailPage() {
                 backendCategories={categoriesQuery.data}
                 canVerify={canVerify}
                 categoryId={form.categoryId}
+                contactMode={form.contactMode}
+                customCallEnabled={form.customCallEnabled}
+                customPhone={form.customPhone}
                 description={form.description}
                 imageUrl={form.imageUrl}
-                instagram={form.instagram}
+                isLoadingProviderDefaults={providerProfileQuery.isLoading}
                 isUploading={false}
                 price={form.price}
+                providerDefaults={providerDefaults}
                 showVerifiedBadge={form.showVerifiedBadge}
                 subtitle={form.subtitle}
                 title={form.title}
-                website={form.website}
-                whatsapp={form.whatsapp}
-                onCategoryIdChange={(value) =>
+                onCategoryIdChange={(value: string) =>
                   setForm({ ...form, categoryId: value })
                 }
-                onDescriptionChange={(value) =>
+                onConfigureContact={() =>
+                  void navigate({ to: '/panel/provider/configuration' })
+                }
+                onContactModeChange={(value: AnnouncementContactMode) =>
+                  setForm({ ...form, contactMode: value })
+                }
+                onCustomCallEnabledChange={(value: boolean) =>
+                  setForm({ ...form, customCallEnabled: value })
+                }
+                onCustomPhoneChange={(value: string) =>
+                  setForm({ ...form, customPhone: value })
+                }
+                onDescriptionChange={(value: string) =>
                   setForm({ ...form, description: value })
                 }
-                onImageUrlChange={(value) =>
+                onImageUrlChange={(value: string) =>
                   setForm({ ...form, imageUrl: value })
                 }
-                onInstagramChange={(value) =>
-                  setForm({ ...form, instagram: value })
+                onPriceChange={(value: number | '') =>
+                  setForm({ ...form, price: value })
                 }
-                onPriceChange={(value) => setForm({ ...form, price: value })}
-                onShowVerifiedBadgeChange={(value) =>
+                onShowVerifiedBadgeChange={(value: boolean) =>
                   setForm({ ...form, showVerifiedBadge: value })
                 }
-                onSubtitleChange={(value) =>
+                onSubtitleChange={(value: string) =>
                   setForm({ ...form, subtitle: value })
                 }
-                onTitleChange={(value) => setForm({ ...form, title: value })}
+                onTitleChange={(value: string) =>
+                  setForm({ ...form, title: value })
+                }
                 onUploadingChange={() => {}}
-                onWebsiteChange={(value) =>
-                  setForm({ ...form, website: value })
-                }
-                onWhatsappChange={(value) =>
-                  setForm({ ...form, whatsapp: value })
-                }
               />
             </CardContent>
           </Card>
@@ -397,15 +423,15 @@ export function ProviderAnnouncementDetailPage() {
 
 interface ProviderAnnouncementFormState {
   categoryId: string;
+  contactMode: AnnouncementContactMode;
+  customCallEnabled: boolean;
+  customPhone: string;
   description: string;
   imageUrl: string;
-  instagram: string;
   price: number | '';
   showVerifiedBadge: boolean;
   subtitle: string;
   title: string;
-  website: string;
-  whatsapp: string;
 }
 
 function createInitialFormState(
@@ -413,15 +439,15 @@ function createInitialFormState(
 ): ProviderAnnouncementFormState {
   return {
     categoryId: announcement.categoryId,
+    contactMode: announcement.contact.mode,
+    customCallEnabled: announcement.contact.custom?.callEnabled ?? false,
+    customPhone: announcement.contact.custom?.primaryPhone ?? '',
     description: announcement.description,
     imageUrl: announcement.imageUrl,
-    instagram: announcement.contactLinks.instagram || '',
     price: announcement.priceCents ? announcement.priceCents / 100 : '',
     showVerifiedBadge: announcement.showVerifiedBadge,
     subtitle: announcement.subtitle || '',
     title: announcement.title,
-    website: announcement.contactLinks.website || '',
-    whatsapp: announcement.contactLinks.whatsapp || '',
   };
 }
 
@@ -479,32 +505,74 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ContactLinks({
-  links,
+function AnnouncementContactCard({
+  announcement,
+  providerDefaults,
 }: {
-  links: ProviderDashboardAnnouncementItem['contactLinks'];
+  announcement: ProviderDashboardAnnouncementItem;
+  providerDefaults: ProviderContactDefaultsView | null;
 }) {
   const { t } = useTranslation();
-  const entries = Object.entries(links).filter(([, value]) => Boolean(value));
-
-  if (entries.length === 0) {
-    return null;
-  }
+  const isInherited = announcement.contact.mode === 'inherit';
+  const effectivePhone = isInherited
+    ? hasBaseline(providerDefaults)
+      ? providerDefaults.primaryPhone
+      : announcement.contactLinks.whatsapp
+    : announcement.contact.custom?.primaryPhone;
+  const callEnabled = isInherited
+    ? hasBaseline(providerDefaults)
+      ? providerDefaults.callEnabled
+      : false
+    : (announcement.contact.custom?.callEnabled ?? false);
 
   return (
     <div className="space-y-2">
       <h2 className="font-semibold text-foreground text-lg">
         {t('meus_anuncios.detail.contact_title')}
       </h2>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {entries.map(([key, value]) => (
-          <div key={key} className="rounded-2xl border bg-background px-4 py-3">
+      <div className="space-y-3 rounded-2xl border bg-background px-4 py-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge
+            variant={isInherited ? 'secondary' : 'outline'}
+            className="gap-1"
+          >
+            {isInherited && <Sparkles className="h-3 w-3" />}
+            {t(
+              isInherited
+                ? 'new_announcement.contact_card.mode_inherit_badge'
+                : 'new_announcement.contact_card.mode_custom_badge',
+            )}
+          </Badge>
+        </div>
+        <p className="text-muted-foreground text-sm">
+          {t(
+            isInherited
+              ? 'new_announcement.contact_card.inherit_description'
+              : 'new_announcement.contact_card.custom_description',
+          )}
+        </p>
+        {effectivePhone ? (
+          <div className="rounded-xl border bg-muted/20 px-4 py-3">
             <p className="text-muted-foreground text-xs uppercase tracking-wide">
-              {t(`meus_anuncios.detail.contact_labels.${key}`)}
+              {t('meus_anuncios.detail.contact_labels.whatsapp')}
             </p>
-            <p className="mt-1 font-medium text-foreground text-sm">{value}</p>
+            <div className="mt-1 flex items-center gap-2 font-medium text-foreground text-sm">
+              <Phone className="h-4 w-4 text-primary" />
+              {effectivePhone}
+            </div>
+            <p className="mt-1 text-muted-foreground text-xs">
+              {t(
+                callEnabled
+                  ? 'new_announcement.contact_card.calls_on'
+                  : 'new_announcement.contact_card.calls_off',
+              )}
+            </p>
           </div>
-        ))}
+        ) : (
+          <div className="rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
+            {t('new_announcement.contact_card.no_baseline_warning')}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -560,4 +628,22 @@ function countContactLinks(
   links: ProviderDashboardAnnouncementItem['contactLinks'],
 ) {
   return Object.values(links).filter(Boolean).length;
+}
+
+function toProviderContactDefaults(
+  defaults:
+    | {
+        primaryPhone?: string | null;
+        callEnabled?: boolean | null;
+      }
+    | undefined,
+): ProviderContactDefaultsView | null {
+  if (!defaults) {
+    return null;
+  }
+
+  return {
+    primaryPhone: defaults.primaryPhone ?? '',
+    callEnabled: defaults.callEnabled ?? false,
+  };
 }

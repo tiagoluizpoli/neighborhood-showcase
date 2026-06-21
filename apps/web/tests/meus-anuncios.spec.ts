@@ -4,6 +4,7 @@ const PROVIDER_EMAIL = 'provider@test.com';
 const PROVIDER_PASSWORD = 'Test@1234';
 const ACTIVE_ID = 'seed-announcement-active';
 const OTHER_PROVIDER_ID = 'seed-announcement-other-provider';
+const CUSTOM_PHONE = '551199998888';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -106,6 +107,28 @@ test.describe('Meus Anúncios', () => {
     });
   });
 
+  test('detail page shows inherited contact mode with the live provider baseline', async ({
+    page,
+  }) => {
+    await openAnnouncementDetail(page);
+
+    await expect(
+      page.getByText(/usando padrões do perfil|using profile defaults/i),
+    ).toBeVisible();
+    await expect(page.getByText(/9999/)).toBeVisible();
+    await expect(
+      page.getByText(/chamadas diretas ativadas|direct calls enabled/i),
+    ).toBeVisible();
+
+    await expect(page).toHaveScreenshot(
+      'meus-anuncios-detail-contact-inherit.png',
+      {
+        fullPage: true,
+        maxDiffPixels: 1500,
+      },
+    );
+  });
+
   test('redirects to the list when the announcement id does not exist', async ({
     page,
   }) => {
@@ -163,5 +186,48 @@ test.describe('Meus Anúncios', () => {
       fullPage: true,
       maxDiffPixels: 1500,
     });
+  });
+
+  test('edit mode can switch to custom contact and persists after reload', async ({
+    page,
+  }) => {
+    await openAnnouncementDetail(page);
+
+    await page
+      .getByRole('button', { name: /editar anúncio|edit announcement/i })
+      .click();
+    await expect(page.getByTestId('contact-mode-inherit-badge')).toBeVisible();
+
+    await page.getByTestId('contact-customize-button').click();
+    await expect(page.getByTestId('contact-mode-custom-badge')).toBeVisible();
+
+    await page.getByTestId('contact-custom-phone').fill(CUSTOM_PHONE);
+    await page
+      .getByRole('button', { name: /salvar alterações|save changes/i })
+      .click();
+
+    await expect(
+      page.getByText(
+        /anúncio atualizado com sucesso|announcement updated successfully/i,
+      ),
+    ).toBeVisible();
+
+    await page.reload();
+    await page.waitForLoadState('networkidle', { timeout: 15_000 });
+
+    await expect(
+      page.getByText(
+        /personalizado para este anúncio|custom for this announcement/i,
+      ),
+    ).toBeVisible();
+    await expect(page.getByText(CUSTOM_PHONE)).toBeVisible();
+
+    await expect(page).toHaveScreenshot(
+      'meus-anuncios-detail-contact-custom.png',
+      {
+        fullPage: true,
+        maxDiffPixels: 1500,
+      },
+    );
   });
 });

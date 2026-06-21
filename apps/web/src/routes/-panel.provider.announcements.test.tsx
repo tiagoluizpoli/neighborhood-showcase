@@ -63,6 +63,12 @@ mock.module('react', () => ({
 
 // ─── Mutable mock state ─────────────────────────────────────────────────────
 let mockDashboardData: any = null;
+const mockProviderProfileData: any = {
+  contactDefaults: {
+    primaryPhone: '+5511999999999',
+    callEnabled: true,
+  },
+};
 
 // ─── @tanstack/react-router mock ─────────────────────────────────────────────
 mock.module('@tanstack/react-router', () => {
@@ -110,6 +116,14 @@ mock.module('@tanstack/react-query', () => ({
         data: mockDashboardData,
         isLoading: false,
         isError: mockDashboardData === null,
+        refetch: () => {},
+      };
+    }
+    if (key.includes('providerProfile') && key.includes('get')) {
+      return {
+        data: mockProviderProfileData,
+        isLoading: false,
+        isError: false,
         refetch: () => {},
       };
     }
@@ -253,7 +267,11 @@ const mockAnnouncement = {
   category: 'Test Category',
   categoryId: 'cat-1',
   condoName: 'Test Condo',
-  contactLinks: { instagram: '', website: '', whatsapp: '' },
+  contact: {
+    mode: 'inherit',
+    custom: null,
+  },
+  contactLinks: { phone: '+5511999999999', whatsapp: '+5511999999999' },
   createdAt: '2024-01-01T00:00:00.000Z',
   description: 'Test description',
   expiresAt: null,
@@ -272,15 +290,15 @@ const mockAnnouncement = {
 
 const mockForm = {
   categoryId: 'cat-1',
+  contactMode: 'inherit' as const,
+  customCallEnabled: false,
+  customPhone: '',
   description: 'description',
   imageUrl: 'http://example.com/img.jpg',
-  instagram: '',
   price: '' as const,
   showVerifiedBadge: false,
   subtitle: '',
   title: 'Test Announcement',
-  website: '',
-  whatsapp: '',
 };
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -359,5 +377,66 @@ describe('Provider route migration — no per-route padding overrides', () => {
     const tree = renderComponent(Route.component);
     const primEl = findByProp(tree, 'variant', 'detail-header');
     expect(primEl).not.toBeNull();
+  });
+
+  test('announcements $id edit: inherited contact props are wired into the shared authoring section', async () => {
+    mockDashboardData = {
+      announcements: {
+        active: [mockAnnouncement],
+        draft: [],
+        expired: [],
+        suspended: [],
+      },
+    };
+    hookState[0] = [true, () => {}];
+    hookState[1] = ['7d', () => {}];
+    hookState[2] = [mockForm, () => {}];
+
+    const { Route } = await import('@/routes/panel.provider.announcements.$id');
+    const tree = renderComponent(Route.component);
+
+    expect(findByProp(tree, 'contactMode', 'inherit')).not.toBeNull();
+    expect(findByProp(tree, 'customPhone', '')).not.toBeNull();
+  });
+
+  test('announcements $id edit: custom contact props are wired into the shared authoring section', async () => {
+    mockDashboardData = {
+      announcements: {
+        active: [
+          {
+            ...mockAnnouncement,
+            contact: {
+              mode: 'custom',
+              custom: {
+                primaryPhone: '+5511888888888',
+                callEnabled: false,
+              },
+            },
+            contactLinks: { whatsapp: '+5511888888888' },
+          },
+        ],
+        draft: [],
+        expired: [],
+        suspended: [],
+      },
+    };
+    hookState[0] = [true, () => {}];
+    hookState[1] = ['7d', () => {}];
+    hookState[2] = [
+      {
+        ...mockForm,
+        contactMode: 'custom',
+        customPhone: '+5511888888888',
+      },
+      () => {},
+    ];
+
+    const { Route } = await import('@/routes/panel.provider.announcements.$id');
+    const tree = renderComponent(Route.component);
+    const serialized = JSON.stringify(tree);
+
+    expect(findByProp(tree, 'contactMode', 'custom')).not.toBeNull();
+    expect(findByProp(tree, 'customPhone', '+5511888888888')).not.toBeNull();
+    expect(serialized).toContain('"customCallEnabled":false');
   });
 });

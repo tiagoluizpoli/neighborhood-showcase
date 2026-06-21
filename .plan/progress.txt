@@ -160,3 +160,10 @@ Completion update (attempt 4, 2026-06-19 — T-16-05/ST-01):
 - ST-03: web unit (contact-section 4 + route 6, fixed stale centered-form->default), server integration (3 caller create tests), e2e announcement-create-contact.spec.ts (2 + screenshots).
 - Gates: check-types, check, web unit, server integration (test DB), e2e all green. Dev DB rebuilt to new schema + reseeded for e2e.
 - Note: T-17-01 committed as a8723dc before this task.
+
+[2026-06-20T21:09:19-03:00] T-17-03 DONE
+- ST-01: provider announcement detail/edit now reuses the canonical inherited/custom contact authoring semantics from create; detail read view and dashboard alias explain mode, live baseline, and direct-call state instead of raw link dumps.
+- ST-02: provider dashboard data resolves inherited announcements from live provider defaults while preserving customized announcement overrides; router/update tests now lock switching back to inherit with no lingering custom payload.
+- ST-03: added route, integration, and Playwright coverage for inherited detail presentation, persisted custom-contact editing, and inherited-follow vs custom-isolated provider-default changes.
+- Gates: bun run check-types, bun run check, bun test apps/server/src/application/use-cases/announcement/get-provider-dashboard-data.integration.test.ts apps/server/src/application/use-cases/announcement/update-announcement.integration.test.ts, bun test apps/web/src/routes/-panel.provider.announcements.test.tsx, bun run test:e2e -- tests/meus-anuncios.spec.ts --workers=1 (from apps/web) all green.
+- Known baseline blocker unchanged: root `bun run test` still fails outside this task because the repo mixes Playwright specs into Bun's unit runner and has unrelated pre-existing suite failures.

@@ -2,7 +2,7 @@
 type: task
 id: T-17-03
 epic: E-17
-status: ready
+status: done
 blocked-by: [T-17-02]
 default-model: medium
 ---
@@ -17,17 +17,17 @@ Bring the provider announcement detail/edit flow up to the same contact-model ca
 
 ## Acceptance Criteria
 
-- [ ] The detail/edit route exposes the same contact concepts available in create: inherited mode, custom mode, primary WhatsApp baseline, and optional same-number direct call.
-- [ ] Announcements still marked as inheriting follow provider-default changes live when reloaded/read back from the canonical contract.
-- [ ] Customized announcements remain isolated from later provider-default changes.
-- [ ] The detail read view communicates inherited-versus-custom contact state clearly enough for providers/support to understand behavior.
-- [ ] Tests prove create/edit capability parity and the inheritance-follow versus custom-isolated scenarios.
+- [x] The detail/edit route exposes the same contact concepts available in create: inherited mode, custom mode, primary WhatsApp baseline, and optional same-number direct call.
+- [x] Announcements still marked as inheriting follow provider-default changes live when reloaded/read back from the canonical contract.
+- [x] Customized announcements remain isolated from later provider-default changes.
+- [x] The detail read view communicates inherited-versus-custom contact state clearly enough for providers/support to understand behavior.
+- [x] Tests prove create/edit capability parity and the inheritance-follow versus custom-isolated scenarios.
 
 ## Sub-Tasks
 
 ### ST-01 - Refactor the detail/edit surface to the canonical contact model
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The current detail-page structure cannot represent inherited-versus-custom contact state without a UI change outside the locked scope.
@@ -53,11 +53,12 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- Reused the create-side contact authoring semantics in the provider edit flow so inherited/custom mode, WhatsApp baseline, and same-number direct-call toggling stay aligned instead of drifting into a second bespoke form contract.
+- Upgraded the provider detail read view, plus the dashboard alias detail route, to explain inherited-versus-custom behavior directly in the contact card instead of dumping raw contact-link fields.
 
 ### ST-02 - Implement live inheritance and custom-isolation semantics end to end
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - Persisted legacy announcement rows require a migration or compatibility path beyond straightforward read-time resolution.
@@ -84,11 +85,12 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- Read-time resolution now pulls current provider defaults for inherited announcements while preserving explicit `contactCustom` payloads for customized announcements.
+- Router/update coverage now locks the canonical structured contact input in both directions, including switching an edited announcement back to `inherit` with no lingering custom payload.
 
 ### ST-03 - Lock parity and inheritance behavior with focused tests
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by:
@@ -112,7 +114,8 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- Added backend integration coverage proving inherited announcements follow live provider-default changes while customized announcements remain isolated.
+- Extended edit/detail coverage across route tests and Playwright snapshots, including inherited detail presentation and a persisted switch to custom contact mode.
 
 ---
 
