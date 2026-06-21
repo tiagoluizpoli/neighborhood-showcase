@@ -1,185 +1,57 @@
-// biome-ignore-all lint/suspicious/noExplicitAny: Mocking React internals and browser APIs requires explicit any
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
-import * as RealQuery from '@tanstack/react-query';
-import * as RealReact from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, screen } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '@/i18n';
 
-// Define window and history mocks for browser APIs in Node/Bun environment
-global.window = {
-  addEventListener: (_event: string, _callback: any) => {},
-  removeEventListener: (_event: string, _callback: any) => {},
-  location: {
-    pathname: '/',
-  },
-  history: {
-    pushState: (_state: any, _title: string, url: string) => {
-      global.window.location.pathname = url;
+// biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
+let mockQueryData: any = null;
+let mockError = false;
+
+mock.module('@/utils/trpc', () => ({
+  trpc: {
+    user: {
+      getPublicProfile: {
+        // biome-ignore lint/suspicious/noExplicitAny: test boundary mock
+        queryOptions: (input: any) => ({
+          queryKey: ['getPublicProfile', input],
+          queryFn: async () => {
+            if (mockError) throw new Error('Not found');
+            return mockQueryData;
+          },
+        }),
+      },
     },
   },
-} as any;
-
-global.document = {
-  title: '',
-  querySelector: (_selector: string) => ({
-    setAttribute: (_name: string, _value: string) => {},
-  }),
-  getElementsByTagName: (_name: string) => [],
-  head: {
-    appendChild: () => {},
-  },
-  createElement: (_name: string) => ({
-    setAttribute: (_name: string, _value: string) => {},
-    appendChild: () => {},
-  }),
-  createTextNode: (_text: string) => ({}),
-} as any;
-
-global.localStorage = {
-  getItem: (_key: string) => null,
-  setItem: (_key: string, _value: string) => {},
-  removeItem: (_key: string) => {},
-  clear: () => {},
-  length: 0,
-  key: (_index: number) => null,
-};
-
-// Hook simulator state
-let hookIndex = 0;
-const hookState: any[] = [];
-const activeEffects: (() => void)[] = [];
-
-const resetHookState = () => {
-  hookIndex = 0;
-  hookState.length = 0;
-  activeEffects.length = 0;
-};
-
-const renderComponent = (Component: () => any) => {
-  hookIndex = 0;
-  activeEffects.length = 0;
-  const result = Component();
-  // Run all registered effects
-  for (const effect of activeEffects) {
-    effect();
-  }
-  return result;
-};
-
-// Mock react while preserving its internals and JSX runtime dependencies
-mock.module('react', () => ({
-  ...RealReact,
-  useCallback: (fn: any, _deps: any[]) => fn,
-  useEffect: (callback: () => void, _deps: any[]) => {
-    activeEffects.push(callback);
-  },
-  useRef: (initialValue: any) => {
-    const idx = hookIndex++;
-    if (hookState[idx] === undefined) {
-      hookState[idx] = { current: initialValue };
-    }
-    return hookState[idx];
-  },
-  useState: (initialValue: any) => {
-    const idx = hookIndex++;
-    if (hookState[idx] === undefined) {
-      const stateContainer = {
-        value: initialValue,
-        setValue: (newVal: any) => {
-          if (typeof newVal === 'function') {
-            stateContainer.value = newVal(stateContainer.value);
-          } else {
-            stateContainer.value = newVal;
-          }
-        },
-      };
-      hookState[idx] = [stateContainer.value, stateContainer.setValue];
-    }
-    return hookState[idx];
-  },
 }));
 
-let mockQueryData: any = null;
-let mockIsLoading = false;
-let mockError: any = null;
-
-// Mock @tanstack/react-query
-mock.module('@tanstack/react-query', () => ({
-  ...RealQuery,
-  useQuery: () => {
-    return {
-      data: mockQueryData,
-      isLoading: mockIsLoading,
-      error: mockError,
-    };
-  },
+mock.module('sonner', () => ({
+  toast: { success: () => {}, error: () => {} },
 }));
 
-// Mock lucide-react — Bun CJS bundle omits named exports not in its snapshot
-mock.module('lucide-react', () => {
-  const icon = () => null;
-  return {
-    CheckCircle2: icon,
-    ChevronLeft: icon,
-    Facebook: icon,
-    Globe: icon,
-    Instagram: icon,
-    Loader2: icon,
-    Mail: icon,
-    MessageCircle: icon,
-    Phone: icon,
-  };
-});
-
-// Mock react-i18next — t returns the key so assertions confirm i18n resolution
-mock.module('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-    i18n: { language: 'en' },
-  }),
-}));
-
-// Dynamic import for component
 const { Route: ProfileRoute } = await import('./_portal.providers.$id');
-ProfileRoute.useParams = () => ({ id: 'provider-123' });
+ProfileRoute.useParams = (() => ({
+  id: 'provider-123',
+})) as typeof ProfileRoute.useParams;
 
-const findElementByText = (node: any, text: string): any => {
-  if (!node) return null;
-  if (typeof node === 'string' && node.includes(text)) return node;
-  if (node.props?.children) {
-    const children = Array.isArray(node.props.children)
-      ? node.props.children
-      : [node.props.children];
-    for (const child of children) {
-      const found = findElementByText(child, text);
-      if (found) return found;
-    }
-  }
-  return null;
-};
-
-const findElementsByProp = (
-  node: any,
-  propName: string,
-  propValue: any,
-  results: any[] = [],
-): any[] => {
-  if (!node) return results;
-  if (node.props?.[propName] === propValue) {
-    results.push(node);
-  }
-  if (node.props?.children) {
-    const children = Array.isArray(node.props.children)
-      ? node.props.children
-      : [node.props.children];
-    for (const child of children) {
-      findElementsByProp(child, propName, propValue, results);
-    }
-  }
-  return results;
-};
+function renderProfile() {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  const Component = ProfileRoute.options.component as () => JSX.Element;
+  return render(
+    <QueryClientProvider client={client}>
+      <I18nextProvider i18n={i18n}>
+        <Component />
+      </I18nextProvider>
+    </QueryClientProvider>,
+  );
+}
 
 describe('Provider Public Profile Component Visuals', () => {
-  beforeEach(() => {
-    resetHookState();
+  beforeEach(async () => {
+    await i18n.changeLanguage('pt');
+    mockError = false;
     mockQueryData = {
       provider: {
         id: 'provider-123',
@@ -209,6 +81,7 @@ describe('Provider Public Profile Component Visuals', () => {
           condoName: 'Residencial Aurora',
           condoCity: 'São Paulo',
           condoState: 'SP',
+          condoNeighborhood: 'Centro',
           title: 'Aulas de Violão',
           subtitle: 'Aprenda violão do zero',
           description: 'Aulas particulares para todas as idades.',
@@ -216,106 +89,76 @@ describe('Provider Public Profile Component Visuals', () => {
           imageUrl: 'http://localhost/guitar.jpg',
           category: 'Serviços',
           tags: ['música', 'violão'],
-          contactLinks: {
-            whatsapp: '5511988888888',
-          },
+          contactLinks: { whatsapp: '5511988888888' },
           showVerifiedBadge: true,
           status: 'ACTIVE',
           createdAt: new Date(),
           providerName: 'Maria Silva',
           providerAvatarUrl: 'http://localhost/maria.jpg',
+          cta: { primary: null, secondary: [] },
         },
       ],
     };
-    mockIsLoading = false;
-    mockError = null;
   });
 
   test('renders loading state correctly — resolves through i18n', () => {
-    mockIsLoading = true;
+    // The query is pending on first render, so the loading label shows.
+    renderProfile();
+    expect(screen.getByText('Carregando perfil do prestador...')).toBeTruthy();
+  });
+
+  test('back-to-showcase link resolves through i18n', async () => {
+    renderProfile();
+    expect(await screen.findByText('Voltar para a vitrine')).toBeTruthy();
+  });
+
+  test('renders 404/error state correctly', async () => {
+    mockError = true;
     mockQueryData = null;
-
-    const component = ProfileRoute.options.component;
-    const tree = renderComponent(component);
-
-    expect(findElementByText(tree, 'provider_profile.loading')).not.toBeNull();
+    renderProfile();
+    expect(await screen.findByText('Prestador não encontrado')).toBeTruthy();
   });
 
-  test('back-to-showcase link resolves through i18n', () => {
-    const component = ProfileRoute.options.component;
-    const tree = renderComponent(component);
-
-    expect(
-      findElementByText(tree, 'provider_profile.back_to_showcase'),
-    ).not.toBeNull();
+  test('renders provider display name, avatar, and verified badge', async () => {
+    renderProfile();
+    expect(await screen.findByText('Maria Silva')).toBeTruthy();
+    expect(screen.getByText('Morador verificado')).toBeTruthy();
   });
 
-  test('renders 404/error state correctly', () => {
-    mockIsLoading = false;
-    mockError = new Error('Not found');
-    mockQueryData = null;
+  test('renders all 7 configured contact channels on profile sidebar', async () => {
+    const { container } = renderProfile();
+    await screen.findByText('Maria Silva');
 
-    const component = ProfileRoute.options.component;
-    const tree = renderComponent(component);
+    const hrefs = Array.from(
+      container.querySelectorAll<HTMLAnchorElement>('a[target="_blank"]'),
+    ).map((l) => l.getAttribute('href') ?? '');
 
-    expect(findElementByText(tree, 'Prestador não encontrado')).not.toBeNull();
-  });
-
-  test('renders provider display name, avatar, and verified badge', () => {
-    const component = ProfileRoute.options.component;
-    const tree = renderComponent(component);
-
-    // Verify name
-    expect(findElementByText(tree, 'Maria Silva')).not.toBeNull();
-
-    // Verify verified badge text
-    expect(findElementByText(tree, 'Morador verificado')).not.toBeNull();
-  });
-
-  test('renders all 7 configured contact channels on profile sidebar', () => {
-    const component = ProfileRoute.options.component;
-    const tree = renderComponent(component);
-
-    // Find links
-    const links = findElementsByProp(tree, 'target', '_blank');
-    const hrefs = links.map((l) => l.props.href);
-
-    expect(hrefs.some((h) => h?.includes('wa.me/5511988888888'))).toBe(true);
-    expect(hrefs.some((h) => h?.includes('tel:5511777777777'))).toBe(true);
-    expect(hrefs.some((h) => h?.includes('mailto:maria@example.com'))).toBe(
+    expect(hrefs.some((h) => h.includes('wa.me/5511988888888'))).toBe(true);
+    expect(hrefs.some((h) => h.includes('tel:5511777777777'))).toBe(true);
+    expect(hrefs.some((h) => h.includes('mailto:maria@example.com'))).toBe(
       true,
     );
-    expect(hrefs.some((h) => h?.includes('instagram.com/maria.silva'))).toBe(
+    expect(hrefs.some((h) => h.includes('instagram.com/maria.silva'))).toBe(
       true,
     );
-    expect(hrefs.some((h) => h?.includes('tiktok.com/@mariatiktok'))).toBe(
-      true,
-    );
-    expect(hrefs.some((h) => h?.includes('facebook.com/mariafb'))).toBe(true);
-    expect(hrefs.some((h) => h?.includes('http://maria.com'))).toBe(true);
+    expect(hrefs.some((h) => h.includes('tiktok.com/@mariatiktok'))).toBe(true);
+    expect(hrefs.some((h) => h.includes('facebook.com/mariafb'))).toBe(true);
+    expect(hrefs.some((h) => h.includes('http://maria.com'))).toBe(true);
   });
 
-  test('renders grid list of announcements', () => {
-    const component = ProfileRoute.options.component;
-    const tree = renderComponent(component);
-
-    expect(findElementByText(tree, 'Aulas de Violão')).not.toBeNull();
-    expect(
-      findElementByText(tree, 'Residencial Aurora • São Paulo'),
-    ).not.toBeNull();
+  test('renders grid list of announcements', async () => {
+    const { container } = renderProfile();
+    expect(await screen.findByText('Aulas de Violão')).toBeTruthy();
+    expect(container.textContent).toContain('Residencial Aurora');
+    expect(container.textContent).toContain('São Paulo');
   });
 
-  test('renders empty state correctly', () => {
+  test('renders empty state correctly', async () => {
     mockQueryData.announcements = [];
-
-    const component = ProfileRoute.options.component;
-    const tree = renderComponent(component);
-
-    expect(
-      findElementByText(
-        tree,
-        'Este prestador não possui anúncios ativos no momento.',
-      ),
-    ).not.toBeNull();
+    const { container } = renderProfile();
+    await screen.findByText('Maria Silva');
+    expect(container.textContent).toContain(
+      'Este prestador não possui anúncios ativos no momento.',
+    );
   });
 });
