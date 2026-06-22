@@ -107,3 +107,18 @@
   warning + broken-symlink info only).
 - Next: T-18-02/ST-03 — delete panel.dashboard.announcements.new.tsx and
   -provider-dashboard-edit-form-fields.tsx; stop routing $id through old inline-edit (medium).
+
+---
+2026-06-22 T-18-03/ST-01 + ST-02 DONE (both done in single iteration)
+- Rebuilt panel.provider.announcements.$id.tsx as facts-first read-only detail
+- Removed AnnouncementPresentationPrimitive (full-width 4:3 hero)
+- New primary block: flex-col lg:flex-row — left: status badge + title/subtitle + DetailList + AnnouncementContactCard; right: constrained 4:3 image cover (~300px on desktop, full-width on mobile)
+- Removed summary mini-card (dashed Card with status/contact-count/tags SummaryRow)
+- Removed SummaryRow, countContactLinks private helpers
+- Secondary block below primary: description + tags + suspension reason
+- Analytics panel stays full-width below (resize is T-18-04)
+- Edit button correctly navigates to $id/edit (was already correct)
+- No inline edit state (removed by T-18-02)
+- All strings use existing i18next keys — no new translation keys needed
+- Gates: bun run check-types 4/4 clean; bun run check clean (pre-existing biome warning + broken symlink only)
+- T-18-03 FULLY DONE. Next: T-18-04 Analytics placement and chart shrink.

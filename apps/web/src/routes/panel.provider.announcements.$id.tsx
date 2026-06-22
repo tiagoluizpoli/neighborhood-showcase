@@ -1,32 +1,17 @@
 import { Badge } from '@neighborhood-showcase/ui/components/badge';
 import { Button } from '@neighborhood-showcase/ui/components/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@neighborhood-showcase/ui/components/card';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Loader2, Phone, Sparkles } from 'lucide-react';
+import { ArrowLeft, Loader2, Phone, ShieldCheck, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { ProviderDashboardAnalyticsPanel } from './panel/-provider-dashboard-analytics-panel';
-import { ProviderDashboardEditFormFields } from './panel/-provider-dashboard-edit-form-fields';
 import type { ProviderDashboardAnnouncementItem } from './panel/-provider-dashboard-types';
 import {
-  type AnnouncementContactMode,
   hasBaseline,
   type ProviderContactDefaultsView,
 } from './panel/provider/-announcement-contact-section';
-import {
-  type AnnouncementCtaView,
-  ctaHasIncompleteTarget,
-  withCtaIds,
-} from './panel/provider/-announcement-cta-section';
-import { AnnouncementPresentationPrimitive } from '@/components/announcement-presentation-primitive';
 import { PanelContentContainer } from '@/components/panel-content-container';
 import { trpc } from '@/utils/trpc';
 
@@ -40,21 +25,12 @@ export function ProviderAnnouncementDetailPage() {
   const { id } = Route.useParams();
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [isEditing, setIsEditing] = useState(false);
   const [period, setPeriod] = useState<AnalyticsPeriod>('7d');
-  const [form, setForm] = useState<ProviderAnnouncementFormState | null>(null);
   const dashboardQuery = useQuery(
     trpc.announcement.getDashboardData.queryOptions(),
   );
-  const categoriesQuery = useQuery(
-    trpc.announcement.listCategories.queryOptions(),
-  );
   const providerProfileQuery = useQuery(
     trpc.providerProfile.get.queryOptions(),
-  );
-  const assignmentsQuery = useQuery(
-    trpc.assignment.getMyAssignments.queryOptions(),
   );
 
   const announcement = useMemo(
@@ -65,21 +41,9 @@ export function ProviderAnnouncementDetailPage() {
     [dashboardQuery.data, id],
   );
 
-  const selectedAssignment = assignmentsQuery.data?.find(
-    (assignment) => assignment.id === announcement?.providerAssignmentId,
-  );
-  const canVerify =
-    selectedAssignment?.type === 'RESIDENT' &&
-    selectedAssignment?.status === 'APPROVED';
   const providerDefaults = toProviderContactDefaults(
     providerProfileQuery.data?.contactDefaults,
   );
-
-  useEffect(() => {
-    if (announcement) {
-      setForm(createInitialFormState(announcement));
-    }
-  }, [announcement]);
 
   useEffect(() => {
     if (!dashboardQuery.isLoading && dashboardQuery.data && !announcement) {
@@ -94,22 +58,7 @@ export function ProviderAnnouncementDetailPage() {
     t,
   ]);
 
-  const updateMutation = useMutation(
-    trpc.announcement.update.mutationOptions({
-      onError: (error) => {
-        toast.error(error.message || t('meus_anuncios.detail.update_error'));
-      },
-      onSuccess: () => {
-        toast.success(t('meus_anuncios.detail.update_success'));
-        setIsEditing(false);
-        void queryClient.invalidateQueries({
-          queryKey: trpc.announcement.getDashboardData.queryKey(),
-        });
-      },
-    }),
-  );
-
-  if (assignmentsQuery.isLoading || dashboardQuery.isLoading || !form) {
+  if (dashboardQuery.isLoading) {
     return (
       <CenteredState message={t('meus_anuncios.detail.loading')} spinning />
     );
@@ -118,59 +67,6 @@ export function ProviderAnnouncementDetailPage() {
   if (!announcement) {
     return null;
   }
-
-  const handleSave = () => {
-    if (form.title.trim().length < 3) {
-      toast.error(t('meus_anuncios.detail.validation.title'));
-      return;
-    }
-
-    if (form.description.trim().length < 10) {
-      toast.error(t('meus_anuncios.detail.validation.description'));
-      return;
-    }
-
-    if (form.contactMode === 'inherit' && !hasBaseline(providerDefaults)) {
-      toast.error(t('new_announcement.toast.inherit_no_baseline'));
-      return;
-    }
-
-    if (
-      form.contactMode === 'custom' &&
-      form.customPhone.replace(/\D/g, '').length < 10
-    ) {
-      toast.error(t('new_announcement.toast.custom_phone_invalid'));
-      return;
-    }
-
-    if (ctaHasIncompleteTarget(form.cta)) {
-      toast.error(t('new_announcement.toast.cta_incomplete'));
-      return;
-    }
-
-    updateMutation.mutate({
-      categoryId: form.categoryId,
-      contact:
-        form.contactMode === 'inherit'
-          ? { mode: 'inherit', custom: null }
-          : {
-              mode: 'custom',
-              custom: {
-                primaryPhone: form.customPhone,
-                callEnabled: form.customCallEnabled,
-              },
-            },
-      cta: form.cta,
-      description: form.description,
-      id: announcement.id,
-      imageUrl: form.imageUrl,
-      priceCents: form.priceCents,
-      showVerifiedBadge: form.showVerifiedBadge && canVerify,
-      subtitle: form.subtitle || null,
-      tags: form.tags,
-      title: form.title,
-    });
-  };
 
   const locale = i18n.language === 'en' ? 'en-US' : 'pt-BR';
 
@@ -186,265 +82,136 @@ export function ProviderAnnouncementDetailPage() {
             {t('meus_anuncios.detail.back')}
           </Link>
 
-          <div className="flex gap-2">
-            {isEditing ? (
-              <>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => {
-                    setForm(createInitialFormState(announcement));
-                    setIsEditing(false);
-                  }}
-                >
-                  {t('meus_anuncios.detail.cancel')}
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={updateMutation.isPending}
-                >
-                  {updateMutation.isPending && (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  )}
-                  {t('meus_anuncios.detail.save')}
-                </Button>
-              </>
-            ) : (
-              <Button type="button" onClick={() => setIsEditing(true)}>
-                {t('meus_anuncios.detail.edit')}
-              </Button>
-            )}
+          <Button
+            type="button"
+            onClick={() =>
+              navigate({
+                to: '/panel/provider/announcements/$id/edit',
+                params: { id },
+              })
+            }
+          >
+            {t('meus_anuncios.detail.edit')}
+          </Button>
+        </div>
+
+        {/* Primary block: title + key facts + contact | constrained image */}
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+          <div className="min-w-0 flex-1 space-y-6">
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline">
+                  {t(statusKeyForAnnouncement(announcement))}
+                </Badge>
+                {announcement.showVerifiedBadge && (
+                  <Badge className="gap-1" variant="secondary">
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                    {t('meus_anuncios.detail.verified_badge')}
+                  </Badge>
+                )}
+              </div>
+              <div className="space-y-1">
+                <h1 className="font-semibold text-3xl">{announcement.title}</h1>
+                {announcement.subtitle && (
+                  <p className="text-base text-muted-foreground">
+                    {announcement.subtitle}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <DetailList
+              items={[
+                [
+                  t('meus_anuncios.detail.fields.category'),
+                  announcement.category,
+                ],
+                [
+                  t('meus_anuncios.detail.fields.price'),
+                  formatPrice(announcement.priceCents, locale, t),
+                ],
+                [
+                  t('meus_anuncios.detail.fields.condo'),
+                  announcement.condoName,
+                ],
+                [
+                  t('meus_anuncios.detail.fields.created_at'),
+                  formatDate(announcement.createdAt, locale),
+                ],
+                [
+                  t('meus_anuncios.detail.fields.paid_at'),
+                  formatDate(announcement.paidAt, locale),
+                ],
+                [
+                  t('meus_anuncios.detail.fields.expires_at'),
+                  formatDate(announcement.expiresAt, locale),
+                ],
+              ]}
+            />
+
+            <AnnouncementContactCard
+              announcement={announcement}
+              providerDefaults={providerDefaults}
+            />
+          </div>
+
+          {/* Constrained 4:3 cover (~300px on desktop) */}
+          <div className="w-full shrink-0 overflow-hidden rounded-2xl border lg:w-[300px]">
+            <div className="aspect-[4/3] w-full">
+              <img
+                src={announcement.imageUrl}
+                alt={announcement.title}
+                className="h-full w-full object-cover"
+              />
+            </div>
           </div>
         </div>
 
-        <section className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
-          <div className="flex flex-col gap-6">
-            <AnnouncementPresentationPrimitive
-              variant="detail-header"
-              announcement={{
-                flaggedForReview: announcement.flaggedForReview,
-                imageUrl: isEditing ? form.imageUrl : announcement.imageUrl,
-                showVerifiedBadge: announcement.showVerifiedBadge,
-                status: announcement.status,
-                subtitle: announcement.subtitle,
-                title: announcement.title,
-              }}
-            />
-            <Card>
-              <CardContent className="grid gap-6 pt-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-                <div className="space-y-5">
-                  <DetailList
-                    items={[
-                      [
-                        t('meus_anuncios.detail.fields.category'),
-                        announcement.category,
-                      ],
-                      [
-                        t('meus_anuncios.detail.fields.price'),
-                        formatPrice(announcement.priceCents, locale, t),
-                      ],
-                      [
-                        t('meus_anuncios.detail.fields.condo'),
-                        announcement.condoName,
-                      ],
-                      [
-                        t('meus_anuncios.detail.fields.created_at'),
-                        formatDate(announcement.createdAt, locale),
-                      ],
-                      [
-                        t('meus_anuncios.detail.fields.paid_at'),
-                        formatDate(announcement.paidAt, locale),
-                      ],
-                      [
-                        t('meus_anuncios.detail.fields.expires_at'),
-                        formatDate(announcement.expiresAt, locale),
-                      ],
-                    ]}
-                  />
-                  <div className="space-y-2">
-                    <h2 className="font-semibold text-foreground text-lg">
-                      {t('meus_anuncios.detail.description_title')}
-                    </h2>
-                    <p className="whitespace-pre-wrap text-muted-foreground text-sm leading-6">
-                      {announcement.description}
-                    </p>
-                  </div>
-                  <AnnouncementContactCard
-                    announcement={announcement}
-                    providerDefaults={providerDefaults}
-                  />
-                  {announcement.tags.length > 0 && (
-                    <div className="space-y-2">
-                      <h2 className="font-semibold text-foreground text-lg">
-                        {t('meus_anuncios.detail.tags_title')}
-                      </h2>
-                      <div className="flex flex-wrap gap-2">
-                        {announcement.tags.map((tag) => (
-                          <Badge key={tag} variant="outline">
-                            #{tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {announcement.suspensionReason && (
-                    <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4">
-                      <h2 className="font-semibold text-destructive">
-                        {t('meus_anuncios.detail.suspension_title')}
-                      </h2>
-                      <p className="mt-2 text-destructive/90 text-sm">
-                        {announcement.suspensionReason}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <Card className="h-fit border-dashed bg-muted/10">
-                  <CardHeader>
-                    <CardTitle>
-                      {t('meus_anuncios.detail.summary_title')}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3 text-sm">
-                    <SummaryRow
-                      label={t('meus_anuncios.detail.summary.status')}
-                      value={t(statusKeyForAnnouncement(announcement))}
-                    />
-                    <SummaryRow
-                      label={t('meus_anuncios.detail.summary.contact_channels')}
-                      value={String(
-                        countContactLinks(announcement.contactLinks),
-                      )}
-                    />
-                    <SummaryRow
-                      label={t('meus_anuncios.detail.summary.tags')}
-                      value={String(announcement.tags.length)}
-                    />
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </Card>
+        {/* Secondary: description, tags, suspension reason */}
+        <div className="space-y-5">
+          <div className="space-y-2">
+            <h2 className="font-semibold text-foreground text-lg">
+              {t('meus_anuncios.detail.description_title')}
+            </h2>
+            <p className="whitespace-pre-wrap text-muted-foreground text-sm leading-6">
+              {announcement.description}
+            </p>
           </div>
-
-          {isEditing ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  {t('meus_anuncios.detail.edit_panel_title')}
-                </CardTitle>
-                <CardDescription>
-                  {t('meus_anuncios.detail.edit_panel_subtitle')}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-5">
-                <ProviderDashboardEditFormFields
-                  backendCategories={categoriesQuery.data}
-                  canVerify={canVerify}
-                  categoryId={form.categoryId}
-                  contactMode={form.contactMode}
-                  cta={form.cta}
-                  customCallEnabled={form.customCallEnabled}
-                  customPhone={form.customPhone}
-                  description={form.description}
-                  imageUrl={form.imageUrl}
-                  isLoadingProviderDefaults={providerProfileQuery.isLoading}
-                  isUploading={false}
-                  priceCents={form.priceCents}
-                  providerDefaults={providerDefaults}
-                  showVerifiedBadge={form.showVerifiedBadge}
-                  subtitle={form.subtitle}
-                  tags={form.tags}
-                  title={form.title}
-                  onCategoryIdChange={(value: string) =>
-                    setForm({ ...form, categoryId: value })
-                  }
-                  onConfigureContact={() =>
-                    void navigate({ to: '/panel/provider/configuration' })
-                  }
-                  onContactModeChange={(value: AnnouncementContactMode) =>
-                    setForm({ ...form, contactMode: value })
-                  }
-                  onCtaChange={(value: AnnouncementCtaView) =>
-                    setForm({ ...form, cta: value })
-                  }
-                  onCustomCallEnabledChange={(value: boolean) =>
-                    setForm({ ...form, customCallEnabled: value })
-                  }
-                  onCustomPhoneChange={(value: string) =>
-                    setForm({ ...form, customPhone: value })
-                  }
-                  onDescriptionChange={(value: string) =>
-                    setForm({ ...form, description: value })
-                  }
-                  onImageUrlChange={(value: string) =>
-                    setForm({ ...form, imageUrl: value })
-                  }
-                  onPriceCentsChange={(value: number | null) =>
-                    setForm({ ...form, priceCents: value })
-                  }
-                  onShowVerifiedBadgeChange={(value: boolean) =>
-                    setForm({ ...form, showVerifiedBadge: value })
-                  }
-                  onSubtitleChange={(value: string) =>
-                    setForm({ ...form, subtitle: value })
-                  }
-                  onTagsChange={(value: string[]) =>
-                    setForm({ ...form, tags: value })
-                  }
-                  onTitleChange={(value: string) =>
-                    setForm({ ...form, title: value })
-                  }
-                  onUploadingChange={() => {}}
-                />
-              </CardContent>
-            </Card>
-          ) : (
-            <ProviderDashboardAnalyticsPanel
-              announcementId={announcement.id}
-              period={period}
-              title={announcement.title}
-              onPeriodChange={setPeriod}
-            />
+          {announcement.tags.length > 0 && (
+            <div className="space-y-2">
+              <h2 className="font-semibold text-foreground text-lg">
+                {t('meus_anuncios.detail.tags_title')}
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {announcement.tags.map((tag) => (
+                  <Badge key={tag} variant="outline">
+                    #{tag}
+                  </Badge>
+                ))}
+              </div>
+            </div>
           )}
-        </section>
+          {announcement.suspensionReason && (
+            <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4">
+              <h2 className="font-semibold text-destructive">
+                {t('meus_anuncios.detail.suspension_title')}
+              </h2>
+              <p className="mt-2 text-destructive/90 text-sm">
+                {announcement.suspensionReason}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <ProviderDashboardAnalyticsPanel
+          announcementId={announcement.id}
+          period={period}
+          title={announcement.title}
+          onPeriodChange={setPeriod}
+        />
       </div>
     </PanelContentContainer>
   );
-}
-
-interface ProviderAnnouncementFormState {
-  categoryId: string;
-  contactMode: AnnouncementContactMode;
-  cta: AnnouncementCtaView;
-  customCallEnabled: boolean;
-  customPhone: string;
-  description: string;
-  imageUrl: string;
-  priceCents: number | null;
-  showVerifiedBadge: boolean;
-  subtitle: string;
-  tags: string[];
-  title: string;
-}
-
-function createInitialFormState(
-  announcement: ProviderDashboardAnnouncementItem,
-): ProviderAnnouncementFormState {
-  return {
-    categoryId: announcement.categoryId,
-    contactMode: announcement.contact.mode,
-    cta: withCtaIds(announcement.cta),
-    customCallEnabled: announcement.contact.custom?.callEnabled ?? false,
-    customPhone: announcement.contact.custom?.primaryPhone ?? '',
-    description: announcement.description,
-    imageUrl: announcement.imageUrl,
-    priceCents: announcement.priceCents ?? null,
-    showVerifiedBadge: announcement.showVerifiedBadge,
-    subtitle: announcement.subtitle || '',
-    tags: announcement.tags,
-    title: announcement.title,
-  };
 }
 
 function flattenAnnouncements(announcements?: {
@@ -488,15 +255,6 @@ function DetailList({ items }: { items: Array<[string, string]> }) {
           <p className="mt-1 font-medium text-foreground text-sm">{value}</p>
         </div>
       ))}
-    </div>
-  );
-}
-
-function SummaryRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium text-foreground">{value}</span>
     </div>
   );
 }
@@ -624,10 +382,4 @@ function formatPrice(
     currency: 'BRL',
     style: 'currency',
   }).format(value / 100);
-}
-
-function countContactLinks(
-  links: ProviderDashboardAnnouncementItem['contactLinks'],
-) {
-  return Object.values(links).filter(Boolean).length;
 }

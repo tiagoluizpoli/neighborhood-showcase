@@ -2,7 +2,7 @@
 type: task
 id: T-18-03
 epic: E-18
-status: ready
+status: done
 blocked-by: [T-18-02]
 default-model: medium
 ---
@@ -28,7 +28,7 @@ After T-18-02 the edit flow lives on its own route, so `$id` no longer needs inl
 
 ### ST-01 - Rebuild the facts-first read-only layout
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The existing detail data cannot present category/price/status/condo/contact above the fold without a data change outside scope.
@@ -50,9 +50,21 @@ verification:
 - `bun run check-types`
 - detail route renders facts-first, read-only, with working Edit navigation
 
+#### Execution Notes
+
+Removed `AnnouncementPresentationPrimitive` (detail-header hero) and the full old
+two-column grid. New primary block uses `flex flex-col gap-6 lg:flex-row lg:items-start`:
+left flex-1 holds status badge + verified badge + h1 title + subtitle, then `DetailList`
+(category/price/condo/dates), then `AnnouncementContactCard`; right side holds the
+constrained 4:3 image cover (ST-02, done together). Secondary block below holds
+description / tags / suspension reason. Analytics panel stays full-width below.
+Edit button already correctly navigates to `$id/edit`. Route is read-only
+(no `isEditing` state — was removed by T-18-02). All strings via existing i18next keys.
+Gates: check-types 4/4 clean; check clean (pre-existing biome warning + broken symlink only).
+
 ### ST-02 - Demote the image and remove the summary mini-card
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - Keeping the 4:3 aspect at the constrained size requires re-cropping or a new image pipeline.
@@ -74,7 +86,14 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+Done together with ST-01 (same file, single coherent redesign). Image is now a
+`div.w-full.shrink-0.overflow-hidden.rounded-2xl.border.lg:w-[300px]` wrapping
+`div.aspect-[4/3].w-full > img.h-full.w-full.object-cover`. The `aspect-[4/3]` CSS
+maintains the 4:3 ratio without any re-cropping. Summary mini-card (dashed Card with
+status/contact-count/tags SummaryRow entries) fully removed. `SummaryRow` and
+`countContactLinks` private helpers removed. Card/CardContent/CardHeader/CardTitle and
+`AnnouncementPresentationPrimitive` imports removed. `ShieldCheck` added to lucide imports
+(was previously inside the removed primitive). Gates: check-types 4/4 clean; check clean.
 
 ---
 

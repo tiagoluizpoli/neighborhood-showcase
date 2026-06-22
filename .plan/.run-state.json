@@ -1,23 +1,17 @@
 {
-  "currentRunId": "e-18-t-18-02-st-03",
+  "currentRunId": "e-18-t-18-04-st-01",
   "currentPrdId": "PRD-v11-announcement-detail-edit-and-analytics",
   "currentEpicId": "E-18",
-  "currentTaskId": "T-18-02",
-  "currentSubTaskId": "ST-03",
+  "currentTaskId": "T-18-04",
+  "currentSubTaskId": "ST-01",
   "attemptCount": 1,
   "retrievalRound": 1,
   "lastModel": "sonnet",
   "escalated": false,
   "requiredModel": "medium",
   "runnerName": "claude",
-  "escalateIf": [
-    "A deleted file is still imported by a surface outside this epic's scope."
-  ],
-  "filesToTouch": [
-    "apps/web/src/routes/panel.dashboard.announcements.new.tsx",
-    "apps/web/src/routes/panel/-provider-dashboard-edit-form-fields.tsx",
-    "apps/web/src/routes/panel.provider.announcements.$id.tsx"
-  ],
+  "escalateIf": [],
+  "filesToTouch": [],
   "lastCommitChanged": false,
   "lastFailureReason": null
 }
