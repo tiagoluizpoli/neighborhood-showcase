@@ -94,15 +94,17 @@ const EDITABLE_FIELD: AnnouncementFieldPolicy = { editable: true };
 const LOCKED_FIELD: AnnouncementFieldPolicy = { editable: false };
 
 /**
- * Default per-field policy for a given authoring mode. Identity is always
- * locked; all other fields are editable in both create and edit for MVP.
- * Freezing one more field later is a single-entry change in this map.
+ * Default per-field policy for a given authoring mode. Identity (`id`) is
+ * non-editable in edit mode — the only enforced lock for MVP. In create mode
+ * there is no id to author, so that entry is vacuously editable. All other
+ * fields are editable in both modes. Freezing one more field later is a
+ * single-entry change in this map.
  */
 export function resolveAnnouncementFieldPolicy(
-  _mode: AnnouncementFormMode,
+  mode: AnnouncementFormMode,
 ): AnnouncementFieldPolicyMap {
   return {
-    id: LOCKED_FIELD,
+    id: mode === 'edit' ? LOCKED_FIELD : EDITABLE_FIELD,
     location: EDITABLE_FIELD,
     category: EDITABLE_FIELD,
     title: EDITABLE_FIELD,

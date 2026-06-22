@@ -96,3 +96,14 @@
 - Gates: bun run check-types clean (4/4); bun run check clean (pre-existing biome-config
   warning + broken-symlink info only); -panel.provider.announcements.test.tsx 6/6 pass.
 - Next: T-18-02/ST-02 — exercise identity-lock policy in edit mode (medium).
+
+---
+2026-06-22 T-18-02/ST-02 DONE
+- resolveAnnouncementFieldPolicy: renamed _mode → mode (now actively used).
+- id policy now mode-conditional: LOCKED_FIELD in edit, EDITABLE_FIELD in create.
+  (id has no authoring concept in create; this formalizes the seam and removes the placeholder.)
+- All other fields remain EDITABLE_FIELD for MVP. No UI element for id so behavior unchanged.
+- Gates: bun run check-types clean (4/4); bun run check clean (pre-existing biome-config
+  warning + broken-symlink info only).
+- Next: T-18-02/ST-03 — delete panel.dashboard.announcements.new.tsx and
+  -provider-dashboard-edit-form-fields.tsx; stop routing $id through old inline-edit (medium).

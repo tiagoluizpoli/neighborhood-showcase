@@ -53,7 +53,7 @@ verification:
 
 ### ST-02 - Exercise the identity-lock policy in edit mode
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - Identity-lock cannot be enforced through the existing field-policy seam without a structural change.
@@ -98,6 +98,16 @@ verification:
 - no dangling imports to deleted files
 
 #### Execution Notes
+
+- ST-02 (done): exercised the identity-lock policy in edit mode.
+  - `resolveAnnouncementFieldPolicy` renamed `_mode` → `mode` (now actively used).
+  - `id` policy made explicitly mode-conditional: `mode === 'edit' ? LOCKED_FIELD : EDITABLE_FIELD`.
+    In edit mode identity is locked (the enforced case); in create mode `id` doesn't exist as an
+    authorable field (vacuously editable). All other fields remain `EDITABLE_FIELD` for MVP.
+  - No rendered UI element for `id`, so behavior is unchanged — this change formalizes the seam
+    and removes the `_mode` placeholder, making the function meaningful.
+  - Gates: `bun run check-types` clean (4/4); `bun run check` clean (pre-existing biome-config
+    deprecation warning + broken-symlink info only).
 
 - ST-01 (done): wired edit mode into the shared `AnnouncementForm` and added the
   dedicated `$id/edit` route — no input/validation divergence from create, so no
