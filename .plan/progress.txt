@@ -155,3 +155,10 @@
 - Gates: check-types 4/4 clean; check clean (pre-existing broken-symlink + warnings only).
   11/11 per-file; 12/12 co-run with crop-image.test.ts (no leakage).
 - Next: T-18-05/ST-02 — view-page facts-first + analytics assertions (medium).
+
+2026-06-22 T-18-05/ST-02 DONE: View-page facts-first + analytics assertions.
+- 5 new tests + importDetailRoute helper in -panel.provider.announcements.test.tsx.
+- h1 before analytics section (compareDocumentPosition); constrained 4:3 image;
+  no border-dashed (absent mini-card); 3 metric card labels; h-[210px] / not h-[320px].
+- Gates: check-types 4/4; check clean; 16/16 per-file; 17/17 co-run (no leak).
+- Next: T-18-05/ST-03 (create regression guard + public-boundary guard).

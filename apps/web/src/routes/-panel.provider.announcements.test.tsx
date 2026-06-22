@@ -203,6 +203,12 @@ async function importEditRoute() {
   return Route;
 }
 
+async function importDetailRoute() {
+  const { Route } = await import('@/routes/panel.provider.announcements.$id');
+  Route.useParams = (() => ({ id: 'ann-1' })) as typeof Route.useParams;
+  return Route;
+}
+
 describe('Provider announcements routes', () => {
   beforeEach(async () => {
     await i18n.changeLanguage('pt');
@@ -461,6 +467,79 @@ describe('Provider announcements routes', () => {
       expect(edited.container.querySelector(sel)).toBeTruthy();
     }
   });
+
+  // --- T-18-05 / ST-02: view-page facts-first + analytics assertions ----------
+
+  test('$id: announcement title renders in h1 before the analytics section', async () => {
+    mockDashboardData = withAnnouncement();
+    const Route = await importDetailRoute();
+    const { container } = renderRoute(Route.options.component);
+
+    const h1 = await waitFor(() => {
+      const el = container.querySelector('h1');
+      expect(el).toBeTruthy();
+      return el!;
+    });
+    expect(h1.textContent).toContain('Test Announcement');
+
+    const section = container.querySelector('section');
+    expect(section).toBeTruthy();
+    // 4 = DOCUMENT_POSITION_FOLLOWING: section comes after h1 in document order
+    expect(h1.compareDocumentPosition(section!) & 4).toBe(4);
+  });
+
+  test('$id: cover image is a constrained 4:3 block, not a full-width hero', async () => {
+    mockDashboardData = withAnnouncement();
+    const Route = await importDetailRoute();
+    const { container } = renderRoute(Route.options.component);
+
+    await waitFor(() => expect(container.querySelector('h1')).toBeTruthy());
+
+    const img = container.querySelector('img');
+    expect(img?.className).toContain('object-cover');
+    // Constrained wrapper carries aspect-[4/3] + lg:w-[300px], not a full-width hero
+    expect(container.innerHTML).toContain('aspect-[4/3]');
+    expect(container.innerHTML).toContain('lg:w-[300px]');
+  });
+
+  test('$id: summary mini-card is absent (no dashed-border block in output)', async () => {
+    mockDashboardData = withAnnouncement();
+    const Route = await importDetailRoute();
+    const { container } = renderRoute(Route.options.component);
+
+    await waitFor(() => expect(container.querySelector('h1')).toBeTruthy());
+
+    // The removed mini-card used border-dashed on a Card element.
+    // Analytics loading/error states also use border-dashed, but those do not
+    // render when getAnalytics has initialData (chart path renders instead).
+    expect(container.querySelector('[class*="border-dashed"]')).toBeNull();
+  });
+
+  test('$id analytics: three metric cards are always visible', async () => {
+    mockDashboardData = withAnnouncement();
+    const Route = await importDetailRoute();
+    const { container } = renderRoute(Route.options.component);
+
+    await waitFor(() => expect(container.querySelector('h1')).toBeTruthy());
+
+    const text = container.textContent ?? '';
+    expect(text).toContain('Visualizações');
+    expect(text).toContain('Interações');
+    expect(text).toContain('Conversão');
+  });
+
+  test('$id analytics: chart container uses 210px height band, not the old 320px', async () => {
+    mockDashboardData = withAnnouncement();
+    const Route = await importDetailRoute();
+    const { container } = renderRoute(Route.options.component);
+
+    await waitFor(() => expect(container.querySelector('h1')).toBeTruthy());
+
+    expect(container.innerHTML).toContain('h-[210px]');
+    expect(container.innerHTML).not.toContain('h-[320px]');
+  });
+
+  // --- T-18-05 / ST-01: shared-form parity + field-policy lock --------------
 
   test('field-policy seam locks identity and a representative frozen field', async () => {
     const { AnnouncementForm, resolveAnnouncementFieldPolicy } = await import(

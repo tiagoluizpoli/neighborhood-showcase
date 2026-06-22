@@ -1,21 +1,21 @@
 {
-  "currentRunId": "e-18-t-18-05-st-02",
+  "currentRunId": "e-18-t-18-05-st-03",
   "currentPrdId": "PRD-v11-announcement-detail-edit-and-analytics",
   "currentEpicId": "E-18",
   "currentTaskId": "T-18-05",
-  "currentSubTaskId": "ST-02",
+  "currentSubTaskId": "ST-03",
   "attemptCount": 1,
   "retrievalRound": 1,
-  "lastModel": "opus",
+  "lastModel": "sonnet",
   "escalated": false,
   "requiredModel": "medium",
   "runnerName": "claude",
   "escalateIf": [
-    "The view layout cannot be asserted at the route seam without reaching into widget internals."
+    "The public surface cannot be asserted free of analytics/edit affordance without restructuring its route."
   ],
   "filesToTouch": [
     "apps/web/src/routes/-panel.provider.announcements.test.tsx"
   ],
-  "lastCommitChanged": true,
+  "lastCommitChanged": false,
   "lastFailureReason": null
 }

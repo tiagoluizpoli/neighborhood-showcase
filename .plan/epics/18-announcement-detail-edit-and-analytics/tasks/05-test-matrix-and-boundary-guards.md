@@ -52,7 +52,7 @@ verification:
 
 ### ST-02 - View-page facts-first and analytics assertions
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The view layout cannot be asserted at the route seam without reaching into widget internals.
@@ -157,6 +157,17 @@ verification:
   Suite green 11/11 per-file; co-run with `crop-image.test.ts` 12/12 confirms no
   cross-file `mock.module` leakage.
 - ST-02/ST-03/ST-04 remain open.
+- ST-02 done. Added 5 tests + `importDetailRoute` helper to
+  `apps/web/src/routes/-panel.provider.announcements.test.tsx`.
+  (1) Title renders in `h1` before the analytics `<section>` (compareDocumentPosition bit 4).
+  (2) Cover image has `object-cover` + `aspect-[4/3]` + `lg:w-[300px]` wrapper (not full-width hero).
+  (3) No `border-dashed` element in output — absent summary mini-card; analytics
+      chart path renders (not loading/error states) because `initialData: null`
+      from the proxy puts `analyticsQuery.isLoading = false`, `isError = false`.
+  (4) Metric labels "Visualizações", "Interações", "Conversão" all present (unconditional render).
+  (5) `h-[210px]` in innerHTML, `h-[320px]` absent.
+  Gates: check-types 4/4 clean; check clean (pre-existing biome info+warnings).
+  16/16 per-file; 17/17 co-run with crop-image.test.ts confirms no leakage.
 
 ---
 
