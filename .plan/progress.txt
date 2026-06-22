@@ -68,3 +68,13 @@
   broken symlink only); -panel.provider.announcements.test.tsx 6/6 pass.
 - Next: T-18-01/ST-03 — explicit create-route migration/parity closure (already
   satisfied by ST-01 thin wrapper), then T-18-02 edit route split.
+
+---
+2026-06-22 T-18-01/ST-03 DONE
+- Create route confirmed as clean 10-line thin wrapper (<AnnouncementForm mode="create" />)
+  from ST-01 — zero dead inline form code remaining.
+- Gates: bun run check-types clean (4/4 cached); bun run check clean (pre-existing
+  biome-config warning + broken symlink info only; no new issues).
+- T-18-01 (Extract shared AnnouncementForm and field-policy seam) FULLY DONE.
+  All 3 STs complete: extract (ST-01), field-policy seam (ST-02), create parity (ST-03).
+- Next: T-18-02 Edit route split onto shared form and delete duplicates.

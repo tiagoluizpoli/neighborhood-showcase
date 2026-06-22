@@ -2,7 +2,7 @@
 type: task
 id: T-18-01
 epic: E-18
-status: in-progress
+status: done
 blocked-by: []
 default-model: high
 ---
@@ -73,7 +73,7 @@ verification:
 
 ### ST-03 - Migrate the create route and lock parity
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - Create-flow behavior cannot be preserved after migration without a visible change.
@@ -144,9 +144,11 @@ verification:
 - Gates: `bun run check-types` clean; `bun run check` clean (same pre-existing
   biome-config warning + broken-symlink info only). `-panel.provider.announcements.test.tsx`
   6/6 pass.
-- ST-03 (migrate create route + lock parity) is already satisfied by ST-01 (the
-  create route is a thin `<AnnouncementForm mode="create" />` wrapper with no
-  dead inline form) and remains marked ready for explicit closure.
+- ST-03 (2026-06-22): Confirmed create route is a clean 10-line thin wrapper
+  (`<AnnouncementForm mode="create" />`). No dead inline form code exists —
+  ST-01 already completed the migration. Ran `bun run check-types` (4/4 cached
+  clean) and `bun run check` (pre-existing biome-config warning + broken symlink
+  only, zero new issues). T-18-01 fully done; T-18-02 is unblocked.
 
 ---
 

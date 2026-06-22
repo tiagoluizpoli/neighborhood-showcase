@@ -22,7 +22,7 @@ Current state: `apps/web/src/routes/panel.provider.announcements.$id.tsx` entang
 
 | Task ID | Task | Status | Blocked By | File |
 | --- | --- | --- | --- | --- |
-| T-18-01 | Extract shared AnnouncementForm and field-policy seam | in-progress | — | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/01-extract-shared-announcement-form-and-field-policy-seam.md` |
+| T-18-01 | Extract shared AnnouncementForm and field-policy seam | done | — | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/01-extract-shared-announcement-form-and-field-policy-seam.md` |
 | T-18-02 | Edit route split onto shared form and delete duplicates | ready | T-18-01 | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/02-edit-route-split-and-delete-duplicates.md` |
 | T-18-03 | Facts-first read-only detail rebuild | ready | T-18-02 | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/03-facts-first-read-only-detail-rebuild.md` |
 | T-18-04 | Analytics placement and chart shrink | ready | T-18-03 | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/04-analytics-placement-and-chart-shrink.md` |
