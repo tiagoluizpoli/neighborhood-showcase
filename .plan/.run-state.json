@@ -1,22 +1,17 @@
 {
-  "currentRunId": "e-17-t-17-06-st-01",
+  "currentRunId": "e-17-t-17-06-st-03",
   "currentPrdId": "PRD-v11-announcement-detail-edit-and-analytics",
   "currentEpicId": "E-17",
   "currentTaskId": "T-17-06",
-  "currentSubTaskId": "ST-01",
+  "currentSubTaskId": "ST-03",
   "attemptCount": 1,
   "retrievalRound": 1,
   "lastModel": "sonnet",
   "escalated": false,
   "requiredModel": "medium",
   "runnerName": "claude",
-  "escalateIf": [
-    "Existing seed/test bootstrapping cannot represent the required announcement/provider scenarios without broader fixture or migration work."
-  ],
-  "filesToTouch": [
-    "apps/server/src/infrastructure/db/seed.ts",
-    "apps/web/tests/"
-  ],
-  "lastCommitChanged": true,
+  "escalateIf": [],
+  "filesToTouch": ["apps/web/tests/meus-anuncios.spec.ts", "apps/web/tests/"],
+  "lastCommitChanged": false,
   "lastFailureReason": null
 }

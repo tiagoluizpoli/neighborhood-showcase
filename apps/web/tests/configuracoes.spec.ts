@@ -147,3 +147,68 @@ test.describe('Configurações page', () => {
     expect(jsonPayload.isProviderVisible).toBe(!isCurrentlyVisible);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Configurações page — contact defaults for the authoring matrix provider
+// These tests use authoring@test.com (seed: primaryPhone=+5511966667777,
+// callEnabled=true) and run serially so the restore step is deterministic.
+// ---------------------------------------------------------------------------
+test.describe('Provider contact defaults — authoring matrix provider', () => {
+  const AUTHORING_EMAIL = 'authoring@test.com';
+  const AUTHORING_PASSWORD = 'Test@1234';
+  const SEEDED_PHONE = '+5511966667777';
+
+  test.describe.configure({ mode: 'serial' });
+
+  test.beforeEach(async ({ page }) => {
+    page.on('console', (msg) => console.log('BROWSER:', msg.text()));
+    await signInViaUI(page, AUTHORING_EMAIL, AUTHORING_PASSWORD);
+    await page.waitForSelector('[data-sidebar]', { timeout: 10_000 });
+    await page.goto('/panel/provider/configuration');
+    await page.waitForLoadState('networkidle', { timeout: 10_000 });
+  });
+
+  test('primaryPhone field shows seeded baseline and callEnabled is checked', async ({
+    page,
+  }) => {
+    const phoneInput = page.locator('#primaryPhone');
+    await expect(phoneInput).toBeVisible();
+    await expect(phoneInput).toHaveValue(SEEDED_PHONE);
+
+    const callEnabledCheckbox = page.locator('#callEnabled');
+    await expect(callEnabledCheckbox).toBeVisible();
+    await expect(callEnabledCheckbox).toBeChecked();
+  });
+
+  test('edit primaryPhone → save → reload → assert → restore to seeded value', async ({
+    page,
+  }) => {
+    const alternatePhone = '+5511966660099';
+    const phoneInput = page.locator('#primaryPhone');
+
+    await phoneInput.clear();
+    await phoneInput.fill(alternatePhone);
+
+    // Contact channels section is the second submit button on the page.
+    const saveButtons = page.locator('button[type="submit"]');
+    await saveButtons.nth(1).click();
+    await page.waitForSelector(
+      'text=/salvo|salvo com sucesso|success|atualizado|updated/i',
+      { timeout: 5_000 },
+    );
+
+    await page.reload();
+    await page.waitForLoadState('networkidle', { timeout: 10_000 });
+    await expect(page.locator('#primaryPhone')).toHaveValue(alternatePhone);
+
+    // Restore: write the seeded phone back so the authoring matrix tests are
+    // unaffected regardless of execution order.
+    await page.locator('#primaryPhone').clear();
+    await page.locator('#primaryPhone').fill(SEEDED_PHONE);
+    await page.locator('button[type="submit"]').nth(1).click();
+    await page.waitForSelector(
+      'text=/salvo|salvo com sucesso|success|atualizado|updated/i',
+      { timeout: 5_000 },
+    );
+  });
+});

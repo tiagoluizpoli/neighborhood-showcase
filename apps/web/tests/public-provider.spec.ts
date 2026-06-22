@@ -197,3 +197,45 @@ test.describe('Public provider page — non-existent provider', () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// Public announcement detail — CTA present vs fallback (T-17-06 matrix)
+// seed-announcement-auth-cta-present: inherit contact + provider_profile CTA
+//   → sanitizeCta keeps the primary; public page shows cta-primary-action
+// seed-announcement-auth-cta-fallback: inherit contact + website/null CTA
+//   → sanitizeCta drops null-valued website; public page falls back to WhatsApp
+// ---------------------------------------------------------------------------
+test.describe('Public announcement detail — CTA matrix', () => {
+  const AUTHORING_PROVIDER_ID = 'seed-authoring-id';
+
+  test('CTA-present announcement shows cta-primary-action linking to provider profile', async ({
+    page,
+  }) => {
+    await page.setViewportSize(VIEWPORT);
+    await page.goto('/anuncios/seed-announcement-auth-cta-present');
+    await page.waitForLoadState('networkidle', { timeout: 20_000 });
+
+    const ctaAction = page.getByTestId('cta-primary-action');
+    await expect(ctaAction).toBeVisible({ timeout: 15_000 });
+    await expect(ctaAction).toHaveAttribute(
+      'href',
+      `/providers/${AUTHORING_PROVIDER_ID}`,
+    );
+  });
+
+  test('CTA-fallback announcement shows no cta-actions block and falls back to WhatsApp', async ({
+    page,
+  }) => {
+    await page.setViewportSize(VIEWPORT);
+    await page.goto('/anuncios/seed-announcement-auth-cta-fallback');
+    await page.waitForLoadState('networkidle', { timeout: 20_000 });
+
+    // The invalid website CTA was sanitized server-side → no CTA block rendered.
+    await expect(page.getByTestId('cta-actions')).toHaveCount(0);
+
+    // Contact fallback: provider's inherited WhatsApp link (+5511966667777)
+    // must be visible as the primary contact action.
+    const whatsappLink = page.locator('a[href*="wa.me"]');
+    await expect(whatsappLink).toBeVisible({ timeout: 10_000 });
+  });
+});

@@ -57,7 +57,7 @@ verification:
 
 ### ST-02 - Add Playwright coverage for provider config, create/edit, and public fallback flows
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by:

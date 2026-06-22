@@ -6,6 +6,9 @@ const ACTIVE_ID = 'seed-announcement-active';
 const OTHER_PROVIDER_ID = 'seed-announcement-other-provider';
 const CUSTOM_PHONE = '551199998888';
 
+const AUTHORING_EMAIL = 'authoring@test.com';
+const AUTHORING_PASSWORD = 'Test@1234';
+
 test.describe.configure({ mode: 'serial' });
 
 async function signInViaUI(page: Page) {
@@ -18,6 +21,15 @@ async function signInViaUI(page: Page) {
   }
   await page.getByLabel(/e-mail/i).fill(PROVIDER_EMAIL);
   await page.getByLabel(/senha/i).fill(PROVIDER_PASSWORD);
+  await page.getByRole('button', { name: /entrar/i }).click();
+  await page.waitForURL(/\/panel/, { timeout: 15_000 });
+  await page.waitForLoadState('networkidle');
+}
+
+async function signInAsAuthoring(page: Page) {
+  await page.goto('/auth');
+  await page.getByLabel(/e-mail/i).fill(AUTHORING_EMAIL);
+  await page.getByLabel(/senha/i).fill(AUTHORING_PASSWORD);
   await page.getByRole('button', { name: /entrar/i }).click();
   await page.waitForURL(/\/panel/, { timeout: 15_000 });
   await page.waitForLoadState('networkidle');
@@ -229,5 +241,86 @@ test.describe('Meus Anúncios', () => {
         maxDiffPixels: 1500,
       },
     );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Authoring model matrix — seeded announcements for authoring@test.com
+// ST-01 seeded 4 announcements covering the full inherit/custom x CTA matrix.
+// These tests verify the provider-panel contract for each quadrant without
+// mutating announcements owned by provider@test.com (keeps tab counts stable).
+// ---------------------------------------------------------------------------
+test.describe('Authoring model matrix (authoring@test.com)', () => {
+  async function openAuthoringDetail(page: Page, id: string) {
+    await signInAsAuthoring(page);
+    await page.goto(`/panel/provider/announcements/${id}`);
+    await page.waitForLoadState('networkidle', { timeout: 15_000 });
+  }
+
+  test('auth-inherit detail shows inherited mode badge and calls-on status', async ({
+    page,
+  }) => {
+    await openAuthoringDetail(page, 'seed-announcement-auth-inherit');
+
+    await expect(
+      page.getByText(/usando padrões do perfil|using profile defaults/i),
+    ).toBeVisible();
+    await expect(
+      page.getByText(/chamadas diretas ativadas|direct calls enabled/i),
+    ).toBeVisible();
+  });
+
+  test('auth-custom detail shows custom mode badge, custom phone, and calls-off', async ({
+    page,
+  }) => {
+    await openAuthoringDetail(page, 'seed-announcement-auth-custom');
+
+    await expect(
+      page.getByText(
+        /personalizado para este anúncio|custom for this announcement/i,
+      ),
+    ).toBeVisible();
+    await expect(page.getByText('+5511955554444')).toBeVisible();
+    await expect(
+      page.getByText(
+        /apenas whatsapp|chamadas diretas desativadas|calls.*off/i,
+      ),
+    ).toBeVisible();
+  });
+
+  test('auth-cta-present edit mode shows CTA primary editor with provider_profile type', async ({
+    page,
+  }) => {
+    await openAuthoringDetail(page, 'seed-announcement-auth-cta-present');
+
+    await page
+      .getByRole('button', { name: /editar anúncio|edit announcement/i })
+      .click();
+
+    await expect(page.getByTestId('cta-section')).toBeVisible();
+    await expect(page.getByTestId('cta-primary-editor')).toBeVisible();
+    // Type selector should reflect the seeded provider_profile target.
+    await expect(page.getByTestId('cta-primary-type')).toContainText(
+      /meu perfil|prestador|provider_profile/i,
+    );
+  });
+
+  test('auth-cta-fallback edit mode shows CTA primary editor with website type and blank value', async ({
+    page,
+  }) => {
+    await openAuthoringDetail(page, 'seed-announcement-auth-cta-fallback');
+
+    await page
+      .getByRole('button', { name: /editar anúncio|edit announcement/i })
+      .click();
+
+    await expect(page.getByTestId('cta-section')).toBeVisible();
+    await expect(page.getByTestId('cta-primary-editor')).toBeVisible();
+    // Type selector must show website (the seeded type that sanitizeCta drops on public reads).
+    await expect(page.getByTestId('cta-primary-type')).toContainText(
+      /site|cardápio|website/i,
+    );
+    // Value input exists for the URL-typed target and has no seeded value.
+    await expect(page.getByTestId('cta-primary-value')).toHaveValue('');
   });
 });
