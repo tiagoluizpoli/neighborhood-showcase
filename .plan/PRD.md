@@ -15,7 +15,8 @@ Use this file as the thin index of versioned PRDs stored under `.plan/prds/`.
 | SUPERSEDED | v7 | Provider section reorg | `.plan/prds/PRD-v7-provider-section-reorg.md` | `.plan/prds/PRD-v7-provider-section-reorg.md` | 2026-06-10 |
 | SUPERSEDED | v8 | Role access and route architecture | `.plan/prds/PRD-v8-role-access-and-route-architecture.md` | `.plan/prds/PRD-v8-role-access-and-route-architecture.md` | 2026-06-18 |
 | SUPERSEDED | v9 | Panel shell, layout, and navigation | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | 2026-06-19 |
-| CURRENT | v10 | Announcement creation and authoring model | `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md` | `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md` | 2026-06-20 |
+| SUPERSEDED | v10 | Announcement creation and authoring model | `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md` | `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md` | 2026-06-20 |
+| CURRENT | v11 | Announcement detail, edit split, and analytics | `.plan/prds/PRD-v11-announcement-detail-edit-and-analytics.md` | `.plan/prds/PRD-v11-announcement-detail-edit-and-analytics.md` | 2026-06-22 |
 
 ## Rules
 

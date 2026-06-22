@@ -1,7 +1,7 @@
 ---
 type: future-grilling-session
 date: 2026-06-18
-status: queued
+status: completed
 group: announcement-detail-edit-and-analytics
 source_session: ./00-umbrella-intake-and-audit.md
 ---
@@ -252,3 +252,16 @@ Why these excerpts matter:
 - Above-the-fold hierarchy for image, primary facts, and analytics.
 - Minimum complete editable field set.
 - How analytics should coexist with editing.
+
+## Grilling completion
+- Completed on: 2026-06-22
+- Live grilling file: `.plan/grilling/2026-06-21-05-announcement-detail-edit-and-analytics-grilling.md`
+- Handoff file: `.plan/handoffs/grill-to-prd-announcement-detail-edit-and-analytics.md`
+- Already-fixed before grilling (commit d42373d): issue 6 debug log removed; issue 4 tags now fully editable.
+- Outcome summary:
+  - Split view from edit: `$id` = read-only view, `$id/edit` = edit, `new` = create (provider namespace).
+  - One shared `AnnouncementForm` for create + edit, branching on `id`; consolidate onto `panel.provider.*`, delete the `panel.dashboard.*` duplicate and the narrow `ProviderDashboardEditFormFields`.
+  - All fields editable in MVP except identity; field-lockability built as a pattern for cheap future freezing (category deferred, stays editable now).
+  - View page is facts-first: key facts above the fold, announcement image demoted to a 4:3 cover capped ~280–320px, redundant summary mini-card removed.
+  - Analytics below the fold; keep 3 metric cards, shrink chart from 320px to ~200–220px.
+  - Provider management view vs public `_portal.anuncios.$id` confirmed separate; public page out of scope.
