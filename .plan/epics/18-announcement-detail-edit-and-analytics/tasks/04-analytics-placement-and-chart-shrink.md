@@ -2,7 +2,7 @@
 type: task
 id: T-18-04
 epic: E-18
-status: ready
+status: done
 blocked-by: [T-18-03]
 default-model: medium
 ---
@@ -26,7 +26,7 @@ The analytics panel is `apps/web/src/routes/panel/-provider-dashboard-analytics-
 
 ### ST-01 - Reposition and resize the analytics block
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The chart height cannot be reduced without breaking the chart library's layout or the metric cards.
@@ -50,7 +50,10 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- Analytics was already positioned below the facts block after T-18-03 (no detail page changes needed).
+- Changed `h-[320px]` → `h-[210px]` in all three spots in `-provider-dashboard-analytics-panel.tsx` (loading state, error state, chart container).
+- Metric cards are in the `grid gap-4 md:grid-cols-3` block rendered unconditionally before the chart — always visible.
+- Gates: `bun run check-types` 4/4 clean; `bun run check` clean (pre-existing biome-config warning + broken symlink only).
 
 ---
 

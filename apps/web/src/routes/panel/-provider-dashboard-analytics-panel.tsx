@@ -84,21 +84,21 @@ export function ProviderDashboardAnalyticsPanel({
       </div>
 
       {analyticsQuery.isLoading ? (
-        <div className="flex h-[320px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed bg-muted/20">
+        <div className="flex h-[210px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed bg-muted/20">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-muted-foreground text-sm">
             {t('meus_anuncios.detail.analytics.loading')}
           </p>
         </div>
       ) : analyticsQuery.isError ? (
-        <div className="flex h-[320px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed bg-destructive/5 text-center">
+        <div className="flex h-[210px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed bg-destructive/5 text-center">
           <AlertTriangle className="h-8 w-8 text-destructive" />
           <p className="text-muted-foreground text-sm">
             {t('meus_anuncios.detail.analytics.error')}
           </p>
         </div>
       ) : (
-        <div className="h-[320px] w-full">
+        <div className="h-[210px] w-full">
           <ChartContainer
             config={{
               impressions: {
