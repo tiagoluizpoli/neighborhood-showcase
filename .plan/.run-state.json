@@ -1,17 +1,21 @@
 {
-  "currentRunId": "e-18-t-18-05-st-01",
+  "currentRunId": "e-18-t-18-05-st-02",
   "currentPrdId": "PRD-v11-announcement-detail-edit-and-analytics",
   "currentEpicId": "E-18",
   "currentTaskId": "T-18-05",
-  "currentSubTaskId": "ST-01",
+  "currentSubTaskId": "ST-02",
   "attemptCount": 1,
   "retrievalRound": 1,
-  "lastModel": "sonnet",
+  "lastModel": "opus",
   "escalated": false,
   "requiredModel": "medium",
   "runnerName": "claude",
-  "escalateIf": [],
-  "filesToTouch": [],
-  "lastCommitChanged": false,
+  "escalateIf": [
+    "The view layout cannot be asserted at the route seam without reaching into widget internals."
+  ],
+  "filesToTouch": [
+    "apps/web/src/routes/-panel.provider.announcements.test.tsx"
+  ],
+  "lastCommitChanged": true,
   "lastFailureReason": null
 }

@@ -134,3 +134,24 @@
 - Gates: bun run check-types clean (4/4); bun run check clean (pre-existing
   biome-config warning + broken-symlink info only).
 - T-18-04 FULLY DONE. Next: T-18-05 Test matrix and boundary guards.
+
+---
+2026-06-22 T-18-05/ST-01 DONE
+- Rewrote apps/web/src/routes/-panel.provider.announcements.test.tsx for shared-form
+  parity + field-policy lock at the route boundary.
+- Fixed attempt-1 RED baseline: 2 stale tests clicked "Editar anúncio" expecting $id
+  inline-edit swap — obsolete since T-18-02/T-18-03 made $id read-only with Edit ->
+  $id/edit. Replaced with edit-route tests rendering <AnnouncementForm mode=edit>.
+- Parity: edit prefill (title/subtitle/description + inherited badge + custom phone);
+  edit submit -> announcement.update with id, no providerAssignmentId, never create;
+  create submit -> announcement.create with providerAssignmentId, no id, never update;
+  same-input-surface across modes.
+- Field-policy: resolveAnnouncementFieldPolicy edit.id.editable=false / create.id=true;
+  no #id input; frozen title via fieldPolicy prop -> disabled; subtitle stays enabled.
+- Seam: trpc mock mutationFn records {method,variables} into mutationCalls (reset/test).
+- happy-dom: category combobox stubbed (no other suite imports it -> leak-safe);
+  react-easy-crop stub fires onCropComplete; crop-image NOT module-mocked (would red
+  crop-image.test.ts) — create test patches Image/canvas/fetch locally, restores in finally.
+- Gates: check-types 4/4 clean; check clean (pre-existing broken-symlink + warnings only).
+  11/11 per-file; 12/12 co-run with crop-image.test.ts (no leakage).
+- Next: T-18-05/ST-02 — view-page facts-first + analytics assertions (medium).

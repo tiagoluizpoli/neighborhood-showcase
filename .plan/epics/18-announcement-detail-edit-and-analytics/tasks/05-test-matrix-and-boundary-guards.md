@@ -2,7 +2,7 @@
 type: task
 id: T-18-05
 epic: E-18
-status: ready
+status: in-progress
 blocked-by: [T-18-01, T-18-02, T-18-03, T-18-04]
 default-model: high
 ---
@@ -29,7 +29,7 @@ Prefer route-level/component integration tests (RTL) over unit tests of form int
 
 ### ST-01 - Shared-form parity and field-policy lock tests
 
-status: ready
+status: done
 model: high
 escalate-if:
 - The shared form lacks a seam that makes parity or the field-policy lock assertable without test-only abstractions.
@@ -124,7 +124,39 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- ST-01 done. Rewrote `apps/web/src/routes/-panel.provider.announcements.test.tsx`.
+  Two stale tests that clicked "Editar anúncio" to swap `$id` into an inline edit
+  form were obsolete after T-18-02/T-18-03 (the `$id` detail page is now read-only
+  and the Edit button navigates to `$id/edit`). They are replaced by edit-route
+  tests that render `panel.provider.announcements.$id.edit` → `<AnnouncementForm
+  mode="edit">`. This was the attempt-1 red baseline.
+- Parity coverage: edit-mode prefill (title/subtitle/description + inherited
+  contact badge + custom-phone), edit submit → `announcement.update` carrying
+  `id` and no `providerAssignmentId` (location-fixed) and never `create`; create
+  submit → `announcement.create` with `providerAssignmentId` and no `id`, never
+  `update`; a "same authoring input surface" test renders both modes and asserts
+  identical input set.
+- Mutation seam: the existing trpc mock's `mutationFn` now records
+  `{ method, variables }` into a module-level `mutationCalls` array (reset in
+  `beforeEach`), so which procedure fires and with what payload is assertable at
+  the route boundary without test-only production abstractions.
+- Field-policy lock: asserts `resolveAnnouncementFieldPolicy('edit').id.editable
+  === false` and `('create') === true`, that no `#id` input renders, and that a
+  representative frozen field (title) passed via the `fieldPolicy` prop renders
+  `disabled` while a non-frozen field (subtitle) stays enabled.
+- happy-dom seams: the real category combobox (Base UI popover + cmdk) never
+  mounts its options without layout, so it is stubbed to a controlled button at
+  the test boundary (no other suite imports it → no leak). The `react-easy-crop`
+  stub now fires `onCropComplete` so an uploaded image yields a non-null
+  `croppedAreaPixels`. `@/utils/crop-image` is deliberately NOT module-mocked
+  (that would leak and red `crop-image.test.ts`); instead the create test patches
+  `Image`/`document.createElement('canvas')`/`fetch` locally and restores them in
+  `finally`, matching the technique in `crop-image.test.ts`.
+- Gates: `bun run check-types` clean (4/4); `bun run check` clean (pre-existing
+  broken-symlink info + 6 warnings only; biome auto-formatted the test file).
+  Suite green 11/11 per-file; co-run with `crop-image.test.ts` 12/12 confirms no
+  cross-file `mock.module` leakage.
+- ST-02/ST-03/ST-04 remain open.
 
 ---
 

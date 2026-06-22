@@ -1,14 +1,28 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useEffect } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
 
 // biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
 let mockDashboardData: any = null;
+// biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
+let mockAssignments: any = [];
 const mockProviderProfileData = {
   contactDefaults: { primaryPhone: '+5511999999999', callEnabled: true },
 };
+
+// Captures every mutation fired through the trpc proxy so parity tests can
+// assert which procedure (create vs update) the shared form submits to and with
+// what variables — the route-boundary seam for "create submits via create,
+// edit submits via update carrying id".
+// biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
+const mutationCalls: Array<{ method: string; variables: any }> = [];
+
+// Test-only crop area handed to the react-easy-crop stub below so an uploaded
+// image yields a non-null croppedAreaPixels (the create-flow image guard).
+const stubCropArea = { x: 0, y: 0, width: 400, height: 300 };
 
 // biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
 function trpcData(method: string): any {
@@ -28,7 +42,7 @@ function trpcData(method: string): any {
     case 'listTagSuggestions':
       return [];
     case 'getMyAssignments':
-      return [];
+      return mockAssignments;
     case 'get':
       return mockProviderProfileData;
     default:
@@ -45,8 +59,14 @@ const makeMethod = (method: string) => ({
     ...(opts || {}),
   }),
   // biome-ignore lint/suspicious/noExplicitAny: test boundary mock
+  queryKey: (input?: any) => [method, input ?? null],
+  // biome-ignore lint/suspicious/noExplicitAny: test boundary mock
   mutationOptions: (opts?: any) => ({
-    mutationFn: async () => ({}),
+    // biome-ignore lint/suspicious/noExplicitAny: test boundary mock
+    mutationFn: async (variables: any) => {
+      mutationCalls.push({ method, variables });
+      return {};
+    },
     ...(opts || {}),
   }),
 });
@@ -90,7 +110,34 @@ mock.module('@/lib/auth-client', () => ({
 mock.module('sonner', () => ({
   toast: { error: () => {}, success: () => {} },
 }));
-mock.module('react-easy-crop', () => ({ default: () => null }));
+// react-easy-crop stub fires onCropComplete on mount so an uploaded image
+// produces a non-null croppedAreaPixels without a real (unmeasurable) cropper.
+mock.module('react-easy-crop', () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test boundary stub
+  default: ({ onCropComplete }: any) => {
+    useEffect(() => {
+      onCropComplete?.({ x: 0, y: 0, width: 400, height: 300 }, stubCropArea);
+    }, [onCropComplete]);
+    return null;
+  },
+}));
+// The real category combobox is a Base UI popover + cmdk list that never mounts
+// its options in happy-dom (no layout/positioning). Stub it to a controlled
+// button so categoryId is settable at the route seam. No other test imports
+// this component, so the process-global mock does not leak into another suite.
+mock.module('@/components/announcement-category-combobox', () => ({
+  // biome-ignore lint/suspicious/noExplicitAny: test boundary stub
+  AnnouncementCategoryCombobox: ({ value, onChange }: any) => (
+    <button
+      type="button"
+      data-testid="category-stub"
+      data-category-value={value}
+      onClick={() => onChange('cat-1')}
+    >
+      category
+    </button>
+  ),
+}));
 mock.module('@neighborhood-showcase/ui/components/chart', () => ({
   // biome-ignore lint/suspicious/noExplicitAny: test boundary stub
   ChartContainer: ({ children }: any) => <div>{children}</div>,
@@ -148,10 +195,20 @@ function renderRoute(Component: any) {
   );
 }
 
+async function importEditRoute() {
+  const { Route } = await import(
+    '@/routes/panel.provider.announcements.$id.edit'
+  );
+  Route.useParams = (() => ({ id: 'ann-1' })) as typeof Route.useParams;
+  return Route;
+}
+
 describe('Provider announcements routes', () => {
   beforeEach(async () => {
     await i18n.changeLanguage('pt');
     mockDashboardData = null;
+    mockAssignments = [];
+    mutationCalls.length = 0;
   });
 
   test('announcements index error state: outer wrapper has no px-6 or py-8', async () => {
@@ -194,20 +251,47 @@ describe('Provider announcements routes', () => {
     expect(outer.getAttribute('data-container-variant')).toBe('default');
   });
 
-  test('announcements $id edit: inherited contact mode is wired into the authoring section', async () => {
+  // --- T-18-05 / ST-01: shared-form parity + field-policy lock --------------
+
+  test('edit mode renders the shared form in edit mode for the routed id', async () => {
     mockDashboardData = withAnnouncement();
-    const { Route } = await import('@/routes/panel.provider.announcements.$id');
-    Route.useParams = (() => ({ id: 'ann-1' })) as typeof Route.useParams;
+    const Route = await importEditRoute();
     const { container } = renderRoute(Route.options.component);
 
-    fireEvent.click(await screen.findByText('Editar anúncio'));
+    const form = await waitFor(() =>
+      container.querySelector('[data-testid="announcement-form-edit"]'),
+    );
+    expect(form).toBeTruthy();
+    expect(form?.getAttribute('data-announcement-id')).toBe('ann-1');
+  });
 
+  test('edit mode prefills every authored field from the fetched announcement', async () => {
+    mockDashboardData = withAnnouncement({
+      ...mockAnnouncement,
+      subtitle: 'A subtitle',
+      description: 'A long enough description',
+      title: 'Prefilled Title',
+    });
+    const Route = await importEditRoute();
+    const { container } = renderRoute(Route.options.component);
+
+    await waitFor(() => {
+      const title = container.querySelector<HTMLInputElement>('#title');
+      expect(title?.value).toBe('Prefilled Title');
+    });
+    expect(container.querySelector<HTMLInputElement>('#subtitle')?.value).toBe(
+      'A subtitle',
+    );
+    expect(
+      container.querySelector<HTMLTextAreaElement>('#description')?.value,
+    ).toBe('A long enough description');
+    // Inherited contact authoring is wired through the shared section.
     expect(
       container.querySelector('[data-testid="contact-mode-inherit-badge"]'),
     ).toBeTruthy();
   });
 
-  test('announcements $id edit: custom contact phone is wired into the authoring section', async () => {
+  test('edit mode prefills a custom contact phone into the authoring section', async () => {
     mockDashboardData = withAnnouncement({
       ...mockAnnouncement,
       contact: {
@@ -216,15 +300,195 @@ describe('Provider announcements routes', () => {
       },
       contactLinks: { whatsapp: '+5511888888888' },
     });
-    const { Route } = await import('@/routes/panel.provider.announcements.$id');
-    Route.useParams = (() => ({ id: 'ann-1' })) as typeof Route.useParams;
+    const Route = await importEditRoute();
     const { container } = renderRoute(Route.options.component);
 
-    fireEvent.click(await screen.findByText('Editar anúncio'));
+    await waitFor(() => {
+      const phone = container.querySelector<HTMLInputElement>(
+        '#custom-contact-phone',
+      );
+      expect(phone?.value).toBe('+5511888888888');
+    });
+  });
 
-    const phone = container.querySelector<HTMLInputElement>(
-      '#custom-contact-phone',
+  test('edit mode submits via announcement.update carrying the routed id', async () => {
+    mockDashboardData = withAnnouncement();
+    const Route = await importEditRoute();
+    const { container } = renderRoute(Route.options.component);
+
+    const form = (await waitFor(() =>
+      container.querySelector('[data-testid="announcement-form-edit"]'),
+    )) as HTMLFormElement;
+    // Prefill provides category, location, and existing image — all guards pass.
+    fireEvent.submit(form);
+
+    await waitFor(() => expect(mutationCalls.length).toBeGreaterThan(0));
+    const update = mutationCalls.find((c) => c.method === 'update');
+    expect(update).toBeTruthy();
+    expect(update?.variables.id).toBe('ann-1');
+    // Update is location-fixed: it never carries a providerAssignmentId.
+    expect(update?.variables.providerAssignmentId).toBeUndefined();
+    expect(mutationCalls.some((c) => c.method === 'create')).toBe(false);
+  });
+
+  test('create mode submits via announcement.create with no id', async () => {
+    mockAssignments = [
+      {
+        id: 'assign-1',
+        status: 'APPROVED',
+        type: 'EXTERNAL',
+        number: '10',
+        unitInfo: null,
+        condominium: null,
+      },
+    ];
+    const { AnnouncementForm } = await import(
+      '@/routes/panel/provider/-announcement-form'
     );
-    expect(phone?.value).toBe('+5511888888888');
+    const { container } = renderRoute(() => <AnnouncementForm mode="create" />);
+
+    // Patch the canvas + Image globals the real getCroppedImg relies on (the
+    // same technique crop-image.test.ts uses) plus fetch, so the create flow's
+    // upload path resolves. Restore everything afterwards — no module mock, so
+    // nothing leaks into other suites.
+    const originalCreateElement = document.createElement.bind(document);
+    const originalImage = globalThis.Image;
+    const originalFetch = globalThis.fetch;
+    // biome-ignore lint/suspicious/noExplicitAny: minimal canvas stub
+    const canvasStub: any = {
+      width: 0,
+      height: 0,
+      getContext: () => ({ drawImage: () => {} }),
+      // biome-ignore lint/suspicious/noExplicitAny: blob callback
+      toBlob: (cb: any) => cb(new Blob(['img'], { type: 'image/webp' })),
+    };
+    document.createElement = ((tag: string) =>
+      tag === 'canvas'
+        ? canvasStub
+        : originalCreateElement(tag)) as typeof document.createElement;
+    globalThis.Image = class {
+      onload: (() => void) | null = null;
+      // biome-ignore lint/suspicious/noExplicitAny: error handler
+      onerror: ((err: any) => void) | null = null;
+      src = '';
+      crossOrigin = '';
+      constructor() {
+        queueMicrotask(() => this.onload?.());
+      }
+      // biome-ignore lint/suspicious/noExplicitAny: addEventListener stub
+      addEventListener(event: string, cb: any) {
+        if (event === 'load') this.onload = cb;
+        if (event === 'error') this.onerror = cb;
+      }
+      // biome-ignore lint/suspicious/noExplicitAny: Image global cast
+    } as any;
+    globalThis.fetch = (async () => ({
+      ok: true,
+      json: async () => ({ url: 'http://example.com/uploaded.webp' }),
+      // biome-ignore lint/suspicious/noExplicitAny: fetch global cast
+    })) as any;
+
+    try {
+      // Single approved location auto-selects; pick a category via the stub.
+      fireEvent.click(screen.getByTestId('category-stub'));
+      const titleInput = container.querySelector<HTMLInputElement>('#title');
+      const descriptionInput =
+        container.querySelector<HTMLTextAreaElement>('#description');
+      const fileInput =
+        container.querySelector<HTMLInputElement>('input[type="file"]');
+      if (!(titleInput && descriptionInput && fileInput)) {
+        throw new Error('create-form inputs missing');
+      }
+      fireEvent.change(titleInput, { target: { value: 'A valid title' } });
+      fireEvent.change(descriptionInput, {
+        target: { value: 'A long enough description here' },
+      });
+
+      const file = new File(['imgbytes'], 'cover.png', { type: 'image/png' });
+      fireEvent.change(fileInput, { target: { files: [file] } });
+
+      const form = container.querySelector(
+        '[data-testid="announcement-form-create"]',
+      ) as HTMLFormElement;
+      // Wait for the file reader + cropper stub to populate the crop area.
+      await waitFor(() => {
+        fireEvent.submit(form);
+        expect(mutationCalls.length).toBeGreaterThan(0);
+      });
+
+      const create = mutationCalls.find((c) => c.method === 'create');
+      expect(create).toBeTruthy();
+      expect(create?.variables.providerAssignmentId).toBe('assign-1');
+      expect(create?.variables.id).toBeUndefined();
+      expect(mutationCalls.some((c) => c.method === 'update')).toBe(false);
+    } finally {
+      document.createElement = originalCreateElement;
+      globalThis.Image = originalImage;
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test('create and edit expose the same authoring input surface', async () => {
+    // Create surface.
+    const { AnnouncementForm } = await import(
+      '@/routes/panel/provider/-announcement-form'
+    );
+    const created = renderRoute(() => <AnnouncementForm mode="create" />);
+    const createSelectors = [
+      '#title',
+      '#subtitle',
+      '#description',
+      '[data-testid="category-stub"]',
+      'input[type="file"]',
+    ];
+    for (const sel of createSelectors) {
+      expect(created.container.querySelector(sel)).toBeTruthy();
+    }
+    created.unmount();
+
+    // Edit surface — same inputs must be present.
+    mockDashboardData = withAnnouncement();
+    const Route = await importEditRoute();
+    const edited = renderRoute(Route.options.component);
+    await waitFor(() =>
+      expect(
+        edited.container.querySelector(
+          '[data-testid="announcement-form-edit"]',
+        ),
+      ).toBeTruthy(),
+    );
+    for (const sel of createSelectors) {
+      expect(edited.container.querySelector(sel)).toBeTruthy();
+    }
+  });
+
+  test('field-policy seam locks identity and a representative frozen field', async () => {
+    const { AnnouncementForm, resolveAnnouncementFieldPolicy } = await import(
+      '@/routes/panel/provider/-announcement-form'
+    );
+
+    // Identity is non-editable in edit and vacuously editable in create; the
+    // id is never rendered as an input.
+    expect(resolveAnnouncementFieldPolicy('edit').id.editable).toBe(false);
+    expect(resolveAnnouncementFieldPolicy('create').id.editable).toBe(true);
+
+    // Freeze a representative field (title) through the policy override — no
+    // structural change, just one flipped entry — and assert it renders
+    // disabled.
+    const frozen = {
+      ...resolveAnnouncementFieldPolicy('create'),
+      title: { editable: false },
+    };
+    const { container } = renderRoute(() => (
+      <AnnouncementForm mode="create" fieldPolicy={frozen} />
+    ));
+    expect(container.querySelector('#id')).toBeNull();
+    expect(container.querySelector<HTMLInputElement>('#title')?.disabled).toBe(
+      true,
+    );
+    // A non-frozen field remains editable under the same policy.
+    expect(
+      container.querySelector<HTMLInputElement>('#subtitle')?.disabled,
+    ).toBe(false);
   });
 });
