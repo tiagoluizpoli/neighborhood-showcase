@@ -45,3 +45,26 @@
 - Gates: check-types clean; check clean (pre-existing biome-config warning + broken
   symlink only); -panel.provider.announcements.test.tsx 6/6 pass.
 - Next: T-18-01/ST-02 build the per-field lockability seam in AnnouncementForm.
+
+---
+2026-06-22 T-18-01/ST-02 DONE
+- Added per-field lockability seam to apps/web/src/routes/panel/provider/-announcement-form.tsx.
+- New exports: AnnouncementFieldKey (id|location|category|title|subtitle|description|
+  price|tags|contact|cta|image|verifiedBadge), AnnouncementFieldPolicy
+  ({ editable: boolean }), AnnouncementFieldPolicyMap (Record keyed by field).
+- resolveAnnouncementFieldPolicy(mode): default map — id LOCKED, all others
+  (incl. category) EDITABLE for create+edit (MVP). AnnouncementForm gained an
+  optional fieldPolicy prop; component resolves
+  policy = fieldPolicy ?? resolveAnnouncementFieldPolicy(mode).
+- Wired disabled={!policy.<field>.editable} on native controls: location Select,
+  title/subtitle Input, description Textarea, image upload + change buttons,
+  verified-badge Checkbox (!canVerify || !policy.verifiedBadge.editable).
+  Composed sections (category/price/tags/contact/cta) carry policy entries but
+  aren't disabled-wired yet (no disabled prop, out-of-scope files); freezing one
+  later = add a single disabled prop to that one component.
+- Default policy = all editable except non-rendered id → create behavior
+  unchanged in MVP. Freezing a native field later = flip one map entry.
+- Gates: check-types clean; check clean (pre-existing biome-config warning +
+  broken symlink only); -panel.provider.announcements.test.tsx 6/6 pass.
+- Next: T-18-01/ST-03 — explicit create-route migration/parity closure (already
+  satisfied by ST-01 thin wrapper), then T-18-02 edit route split.

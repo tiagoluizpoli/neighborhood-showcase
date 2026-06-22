@@ -57,6 +57,64 @@ import { trpc } from '@/utils/trpc';
  */
 export type AnnouncementFormMode = 'create' | 'edit';
 
+/**
+ * Per-field lockability seam (T-18-01 / ST-02). Every authorable field maps to a
+ * policy so a specific field can be frozen later by flipping a single entry,
+ * with no structural change to how fields render. Identity fields (`id`) are
+ * non-editable; for MVP every other field — including `category` — stays
+ * editable.
+ */
+export type AnnouncementFieldKey =
+  | 'id'
+  | 'location'
+  | 'category'
+  | 'title'
+  | 'subtitle'
+  | 'description'
+  | 'price'
+  | 'tags'
+  | 'contact'
+  | 'cta'
+  | 'image'
+  | 'verifiedBadge';
+
+export interface AnnouncementFieldPolicy {
+  /** When false, the field renders disabled / non-editable in the form. */
+  editable: boolean;
+}
+
+export type AnnouncementFieldPolicyMap = Record<
+  AnnouncementFieldKey,
+  AnnouncementFieldPolicy
+>;
+
+const EDITABLE_FIELD: AnnouncementFieldPolicy = { editable: true };
+const LOCKED_FIELD: AnnouncementFieldPolicy = { editable: false };
+
+/**
+ * Default per-field policy for a given authoring mode. Identity is always
+ * locked; all other fields are editable in both create and edit for MVP.
+ * Freezing one more field later is a single-entry change in this map.
+ */
+export function resolveAnnouncementFieldPolicy(
+  _mode: AnnouncementFormMode,
+): AnnouncementFieldPolicyMap {
+  return {
+    id: LOCKED_FIELD,
+    location: EDITABLE_FIELD,
+    category: EDITABLE_FIELD,
+    title: EDITABLE_FIELD,
+    subtitle: EDITABLE_FIELD,
+    description: EDITABLE_FIELD,
+    price: EDITABLE_FIELD,
+    tags: EDITABLE_FIELD,
+    contact: EDITABLE_FIELD,
+    cta: EDITABLE_FIELD,
+    image: EDITABLE_FIELD,
+    verifiedBadge: EDITABLE_FIELD,
+  };
+}
+
 export interface AnnouncementFormProps {
   /** Branches create vs edit. Defaults to `create`; edit is wired in T-18-02. */
   mode?: AnnouncementFormMode;
@@ -65,15 +123,23 @@ export interface AnnouncementFormProps {
    * through to the edit wiring in T-18-02.
    */
   announcementId?: string;
+  /**
+   * Optional override of the per-field lockability policy. Defaults to
+   * `resolveAnnouncementFieldPolicy(mode)`. Frozen fields render disabled.
+   */
+  fieldPolicy?: AnnouncementFieldPolicyMap;
 }
 
 export function AnnouncementForm({
   mode = 'create',
   announcementId,
+  fieldPolicy,
 }: AnnouncementFormProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const policy = fieldPolicy ?? resolveAnnouncementFieldPolicy(mode);
 
   const [selectedLocationId, setSelectedLocationId] = useState<string>('');
   const [categoryId, setCategoryId] = useState<string>('');
@@ -318,6 +384,7 @@ export function AnnouncementForm({
                         onValueChange={(value) =>
                           setSelectedLocationId(value ?? '')
                         }
+                        disabled={!policy.location.editable}
                       >
                         <SelectTrigger id="location-select" className="w-full">
                           <SelectValue
@@ -367,6 +434,7 @@ export function AnnouncementForm({
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       required
+                      disabled={!policy.title.editable}
                     />
                     <div className="flex justify-end text-[10px] text-muted-foreground">
                       {t('new_announcement.details_card.form.chars_count', {
@@ -389,6 +457,7 @@ export function AnnouncementForm({
                       )}
                       value={subtitle}
                       onChange={(e) => setSubtitle(e.target.value)}
+                      disabled={!policy.subtitle.editable}
                     />
                   </div>
                 </div>
@@ -408,6 +477,7 @@ export function AnnouncementForm({
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     required
+                    disabled={!policy.description.editable}
                     className="min-h-[100px]"
                   />
                   <div className="flex justify-between text-[10px] text-muted-foreground">
@@ -480,6 +550,7 @@ export function AnnouncementForm({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
+                    disabled={!policy.image.editable}
                     className="group mx-auto flex aspect-[4/3] w-full max-w-[220px] cursor-pointer flex-col items-center justify-center rounded-lg border border-2 border-dashed bg-background p-6 hover:bg-card"
                   >
                     <UploadCloud className="mb-3 h-10 w-10 text-muted-foreground transition-colors group-hover:text-primary" />
@@ -526,6 +597,7 @@ export function AnnouncementForm({
                     <Button
                       type="button"
                       variant="outline"
+                      disabled={!policy.image.editable}
                       onClick={() => {
                         setImageSrc('');
                         setCroppedAreaPixels(null);
@@ -573,7 +645,9 @@ export function AnnouncementForm({
                             <span className="inline-block">
                               <Checkbox
                                 id="verified-badge-toggle"
-                                disabled={!canVerify}
+                                disabled={
+                                  !canVerify || !policy.verifiedBadge.editable
+                                }
                                 checked={showVerifiedBadge}
                                 onCheckedChange={(checked) =>
                                   setShowVerifiedBadge(checked === true)

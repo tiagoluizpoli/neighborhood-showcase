@@ -51,7 +51,7 @@ verification:
 
 ### ST-02 - Build the per-field lockability seam
 
-status: ready
+status: done
 model: high
 escalate-if:
 - A per-field policy map cannot represent identity-lock without restructuring how fields render.
@@ -116,6 +116,37 @@ verification:
 - Gates: `bun run check-types` clean; `bun run check` clean (only pre-existing
   biome-config migration warning + broken-symlink info, unrelated to this change).
   `-panel.provider.announcements.test.tsx` 6/6 pass.
+- ST-02 (2026-06-22): Added the per-field lockability seam to
+  `apps/web/src/routes/panel/provider/-announcement-form.tsx`. New exported
+  types: `AnnouncementFieldKey` (id, location, category, title, subtitle,
+  description, price, tags, contact, cta, image, verifiedBadge),
+  `AnnouncementFieldPolicy` (`{ editable: boolean }`), and
+  `AnnouncementFieldPolicyMap` (`Record<AnnouncementFieldKey, …>`). New
+  `resolveAnnouncementFieldPolicy(mode)` returns the default map: identity (`id`)
+  LOCKED, everything else (incl. `category`) EDITABLE for both create and edit
+  (MVP). `AnnouncementForm` gained an optional `fieldPolicy` prop overriding the
+  default; the component resolves `policy = fieldPolicy ??
+  resolveAnnouncementFieldPolicy(mode)`.
+- Wiring: `disabled={!policy.<field>.editable}` is applied to the native form
+  controls — location `Select`, title/subtitle `Input`, description `Textarea`,
+  image upload + change buttons, and the verified-badge `Checkbox` (combined as
+  `!canVerify || !policy.verifiedBadge.editable`). Composed sections
+  (`AnnouncementCategoryCombobox`, `AnnouncementPriceInput`,
+  `AnnouncementTagsInput`, `AnnouncementContactSection`,
+  `AnnouncementCtaSection`) carry policy entries but are not yet disabled-wired,
+  because they expose no `disabled` prop and wiring them would touch
+  out-of-scope files; freezing one of those later adds a single `disabled` prop
+  to that one component (still localized, per the ST-02 escalate-if which only
+  bars restructuring how fields render).
+- Default policy = all editable except non-rendered `id`, so create behavior is
+  byte-for-byte unchanged in MVP. Freezing a native field later = flip one map
+  entry in `resolveAnnouncementFieldPolicy`.
+- Gates: `bun run check-types` clean; `bun run check` clean (same pre-existing
+  biome-config warning + broken-symlink info only). `-panel.provider.announcements.test.tsx`
+  6/6 pass.
+- ST-03 (migrate create route + lock parity) is already satisfied by ST-01 (the
+  create route is a thin `<AnnouncementForm mode="create" />` wrapper with no
+  dead inline form) and remains marked ready for explicit closure.
 
 ---
 

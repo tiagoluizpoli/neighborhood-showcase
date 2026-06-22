@@ -1,17 +1,17 @@
 {
-  "currentRunId": "e-18-t-18-01-st-02",
+  "currentRunId": "e-18-t-18-01-st-03",
   "currentPrdId": "PRD-v11-announcement-detail-edit-and-analytics",
   "currentEpicId": "E-18",
   "currentTaskId": "T-18-01",
-  "currentSubTaskId": "ST-02",
+  "currentSubTaskId": "ST-03",
   "attemptCount": 0,
-  "retrievalRound": 0,
+  "retrievalRound": 1,
   "lastModel": "opus",
   "escalated": false,
-  "requiredModel": "high",
+  "requiredModel": "medium",
   "runnerName": "claude",
   "escalateIf": [],
-  "filesToTouch": ["apps/web/src/routes/panel/provider/-announcement-form.tsx"],
+  "filesToTouch": ["apps/web/src/routes/panel.provider.announcements.new.tsx"],
   "lastCommitChanged": true,
   "lastFailureReason": null
 }
