@@ -27,7 +27,7 @@ The PRD explicitly requires Playwright for this UI work, seeded provider/default
 
 ### ST-01 - Add durable seed states for the full authoring-model matrix
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - Existing seed/test bootstrapping cannot represent the required announcement/provider scenarios without broader fixture or migration work.

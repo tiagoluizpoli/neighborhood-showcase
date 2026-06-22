@@ -2,7 +2,7 @@
 type: task
 id: T-17-01
 epic: E-17
-status: ready
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -27,7 +27,7 @@ The current provider configuration route `apps/web/src/routes/panel/provider/-co
 
 ### ST-01 - Define the canonical contact contract in domain, DTO, and persistence seams
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - Existing database shape or repository assumptions make inherited-versus-custom contact state impossible to represent without a migration strategy broader than this packet.
@@ -59,7 +59,7 @@ verification:
 
 ### ST-02 - Expose provider default contact settings through the existing configuration surface
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The existing provider configuration page cannot host the new default-contact controls without a UI change that exceeds the PRD scope.
@@ -89,7 +89,7 @@ verification:
 
 ### ST-03 - Lock the contract with domain, router, and integration tests
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by:

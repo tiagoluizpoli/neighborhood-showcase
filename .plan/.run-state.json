@@ -1,17 +1,22 @@
 {
-  "currentRunId": null,
-  "currentPrdId": "PRD-v9-panel-shell-layout-and-navigation",
-  "currentEpicId": null,
-  "currentTaskId": null,
-  "currentSubTaskId": null,
-  "attemptCount": 0,
-  "retrievalRound": 0,
-  "lastModel": "opus",
+  "currentRunId": "e-17-t-17-06-st-01",
+  "currentPrdId": "PRD-v11-announcement-detail-edit-and-analytics",
+  "currentEpicId": "E-17",
+  "currentTaskId": "T-17-06",
+  "currentSubTaskId": "ST-01",
+  "attemptCount": 1,
+  "retrievalRound": 1,
+  "lastModel": "sonnet",
   "escalated": false,
-  "requiredModel": null,
+  "requiredModel": "medium",
   "runnerName": "claude",
-  "escalateIf": [],
-  "filesToTouch": [],
-  "lastCommitChanged": false,
+  "escalateIf": [
+    "Existing seed/test bootstrapping cannot represent the required announcement/provider scenarios without broader fixture or migration work."
+  ],
+  "filesToTouch": [
+    "apps/server/src/infrastructure/db/seed.ts",
+    "apps/web/tests/"
+  ],
+  "lastCommitChanged": true,
   "lastFailureReason": null
 }

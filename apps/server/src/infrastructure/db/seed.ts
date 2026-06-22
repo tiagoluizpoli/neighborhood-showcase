@@ -220,6 +220,27 @@ async function seed() {
     })
     .returning()) as [typeof user.$inferInsert];
 
+  // Authoring model test matrix provider — used by T-17-06 Playwright specs to
+  // cover inherited vs. custom contact, CTA-present, and CTA-fallback scenarios
+  // without touching the count-sensitive providerUser announcements.
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const [authoringUser] = (await db
+    .insert(user)
+    .values({
+      id: 'seed-authoring-id',
+      name: 'Authoring Test',
+      email: 'authoring@test.com',
+      emailVerified: true,
+      image: null,
+      role: 'USER',
+      status: 'ACTIVE',
+      cpfHash: 'cpf-hash-authoring',
+      language: 'pt-BR',
+      phone: '+551****9989',
+      theme: 'light',
+    })
+    .returning()) as [typeof user.$inferInsert];
+
   // Insert account records — schema has extra columns (providerAccountId, idToken)
   // that don't exist in the live DB. Cast to any to bypass the type mismatch.
   const providerPw = await hashPassword('Test@1234');
@@ -341,6 +362,17 @@ async function seed() {
     providerId: 'credential',
     providerAccountId: 'banned@test.com',
     password: bannedPw,
+  });
+
+  const authoringPw = await hashPassword('Test@1234');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db.insert(account).values as any)({
+    id: 'seed-account-authoring',
+    accountId: 'authoring@test.com',
+    userId: authoringUser.id,
+    providerId: 'credential',
+    providerAccountId: 'authoring@test.com',
+    password: authoringPw,
   });
 
   // Create test condos
@@ -470,6 +502,14 @@ async function seed() {
       status: 'APPROVED',
       unitInfo: 'Branding HQ',
     },
+    {
+      id: 'provider-assignment-authoring',
+      providerId: authoringUser.id,
+      condominiumId: condo1.id,
+      type: 'RESIDENT',
+      status: 'APPROVED',
+      unitInfo: 'Authoring HQ',
+    },
   ]);
 
   // Create provider_profile rows for seeded providers
@@ -546,6 +586,22 @@ async function seed() {
       publicDescription: null,
       primaryPhone: '',
       callEnabled: false,
+      contactMetadata: {},
+      isProviderVisible: true,
+    },
+    {
+      // Authoring matrix provider: real WhatsApp baseline + call enabled.
+      // Its announcements cover inherit/custom contact and CTA variants for T-17-06.
+      providerId: authoringUser.id,
+      displayName: 'Authoring Test',
+      avatarUrl: null,
+      companyName: null,
+      tradeName: null,
+      logoUrl: null,
+      bannerUrl: null,
+      publicDescription: 'Prestador para testes da matrix de criação.',
+      primaryPhone: '+5511966667777',
+      callEnabled: true,
       contactMetadata: {},
       isProviderVisible: true,
     },
@@ -642,10 +698,92 @@ async function seed() {
       status: 'ACTIVE',
       expiresAt: new Date('2026-07-20T12:00:00.000Z'),
     },
+    // --- Authoring model matrix (T-17-06) ---
+    // These four announcements cover the full inherit/custom x CTA-present/absent matrix
+    // for the authoring@test.com provider without affecting providerUser's tab counts.
+    {
+      id: 'seed-announcement-auth-inherit',
+      providerId: authoringUser.id,
+      providerAssignmentId: 'provider-assignment-authoring',
+      condominiumId: condo1.id,
+      title: 'Pintura Residencial',
+      description: 'Serviço de pintura para apartamentos e áreas comuns.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80',
+      categoryId: 'cat-servicos',
+      tags: ['pintura'],
+      contactMode: 'inherit' as const,
+      contactCustom: null,
+      showVerifiedBadge: false,
+      status: 'ACTIVE',
+      expiresAt: new Date('2026-07-31T12:00:00.000Z'),
+    },
+    {
+      id: 'seed-announcement-auth-custom',
+      providerId: authoringUser.id,
+      providerAssignmentId: 'provider-assignment-authoring',
+      condominiumId: condo1.id,
+      title: 'Limpeza Especializada',
+      description: 'Higienização profunda de carpetes, sofás e estofados.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=80',
+      categoryId: 'cat-servicos',
+      tags: ['limpeza'],
+      contactMode: 'custom' as const,
+      contactCustom: {
+        primaryPhone: '+5511955554444',
+        callEnabled: false,
+      },
+      showVerifiedBadge: false,
+      status: 'ACTIVE',
+      expiresAt: new Date('2026-07-31T12:00:00.000Z'),
+    },
+    {
+      id: 'seed-announcement-auth-cta-present',
+      providerId: authoringUser.id,
+      providerAssignmentId: 'provider-assignment-authoring',
+      condominiumId: condo1.id,
+      title: 'Encanamento e Hidráulica',
+      description: 'Reparos rápidos em vazamentos, torneiras e registros.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1200&q=80',
+      categoryId: 'cat-servicos',
+      tags: ['hidráulica'],
+      contactMode: 'inherit' as const,
+      contactCustom: null,
+      cta: {
+        primary: { type: 'provider_profile', value: null },
+        secondary: [],
+      },
+      showVerifiedBadge: false,
+      status: 'ACTIVE',
+      expiresAt: new Date('2026-07-31T12:00:00.000Z'),
+    },
+    {
+      id: 'seed-announcement-auth-cta-fallback',
+      providerId: authoringUser.id,
+      providerAssignmentId: 'provider-assignment-authoring',
+      condominiumId: condo1.id,
+      title: 'Elétrica e Iluminação',
+      description: 'Instalação e manutenção de quadros, tomadas e luminárias.',
+      imageUrl:
+        'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=1200&q=80',
+      categoryId: 'cat-servicos',
+      tags: ['elétrica'],
+      contactMode: 'inherit' as const,
+      contactCustom: null,
+      cta: {
+        primary: { type: 'website', value: null },
+        secondary: [],
+      },
+      showVerifiedBadge: false,
+      status: 'ACTIVE',
+      expiresAt: new Date('2026-07-31T12:00:00.000Z'),
+    },
   ]);
 
   console.log(
-    '✅ Seed complete: provider@test.com, nonprovider@test.com, moderator@test.com, admin@test.com, system.manager@test.com, branding@test.com, banned@test.com (password: Test@1234)',
+    '✅ Seed complete: provider@test.com, nonprovider@test.com, moderator@test.com, admin@test.com, system.manager@test.com, branding@test.com, banned@test.com, authoring@test.com (password: Test@1234)',
   );
   console.log(
     '   Capability states: provider@test.com = Provider-enabled, nonprovider@test.com = Provider-disabled, moderator@test.com = Moderator-only.',
@@ -661,6 +799,9 @@ async function seed() {
   );
   console.log(
     '   banned@test.com: BANNED user for public-provider not-found test.',
+  );
+  console.log(
+    '   authoring@test.com: T-17-06 matrix provider — 4 announcements covering inherit/custom contact and CTA-present/fallback.',
   );
 }
 

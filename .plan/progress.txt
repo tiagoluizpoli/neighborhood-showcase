@@ -1,0 +1,2 @@
+2026-06-22 T-17-01 sync fix: task file showed "ready" but contract was already implemented in earlier work. Marked all 3 STs and task status as done.
+2026-06-22 T-17-06/ST-01 DONE: Extended seed.ts with authoring model test matrix — new provider user (authoring@test.com), 4 announcements covering inherit contact, custom contact (callEnabled: false), CTA-present (provider_profile primary), and CTA-fallback (website with null value that sanitizes server-side). Does not affect providerUser tab counts or existing visual snapshots.
