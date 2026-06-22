@@ -30,3 +30,18 @@
 - bun run check and check-types clean
 - T-17-06 fully done; E-17 Announcement Creation and Authoring Model COMPLETE
 - Next: E-18 Announcement Detail, Edit Split, and Analytics
+
+---
+2026-06-22 T-18-01/ST-01 DONE
+- Extracted the all-inline create form from panel.provider.announcements.new.tsx
+  into new apps/web/src/routes/panel/provider/-announcement-form.tsx exporting
+  AnnouncementForm (named). Sections composed unchanged: cropper, contact, CTA,
+  category, price, tags. Section imports rewritten to sibling ./-* paths only.
+- Forward-looking props for edit (T-18-02): mode?: 'create'|'edit' (default
+  create), announcementId?. Consumed today only as data-testid/data-announcement-id
+  on the form — zero create behavior change, edit not wired.
+- Create route now a thin wrapper: <AnnouncementForm mode="create" />.
+- Field-policy seam is ST-02, NOT in this slice.
+- Gates: check-types clean; check clean (pre-existing biome-config warning + broken
+  symlink only); -panel.provider.announcements.test.tsx 6/6 pass.
+- Next: T-18-01/ST-02 build the per-field lockability seam in AnnouncementForm.

@@ -2,7 +2,7 @@
 type: task
 id: T-18-01
 epic: E-18
-status: ready
+status: in-progress
 blocked-by: []
 default-model: high
 ---
@@ -27,7 +27,7 @@ Lift the all-inline create form in `panel.provider.announcements.new.tsx` into o
 
 ### ST-01 - Extract the shared AnnouncementForm from the create route
 
-status: ready
+status: done
 model: high
 escalate-if:
 - The create form's state shape cannot be lifted without changing inputs, positions, or validation rules visible to the user.
@@ -97,7 +97,25 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- ST-01 (2026-06-22): Lifted the full inline create-form body from
+  `panel.provider.announcements.new.tsx` into a new
+  `apps/web/src/routes/panel/provider/-announcement-form.tsx` exporting
+  `AnnouncementForm` (named export). All authoring sections kept composed
+  exactly as before: cropper, `AnnouncementContactSection`,
+  `AnnouncementCtaSection`, `AnnouncementCategoryCombobox`,
+  `AnnouncementPriceInput`, `AnnouncementTagsInput`. Section imports were
+  rewritten from `./panel/provider/-*` to sibling `./-*` paths (import wiring
+  only — no section component changed, per escalate-if).
+- Props contract is forward-looking for edit (T-18-02): `mode?: 'create' |
+  'edit'` (default `create`) and `announcementId?: string`. Both are consumed
+  today only as `data-testid={announcement-form-${mode}}` and
+  `data-announcement-id` on the `<form>` element — zero create behavior change,
+  edit path not yet wired.
+- Create route is now a thin wrapper rendering `<AnnouncementForm mode="create" />`.
+- Field-policy/lockability seam (ST-02) NOT added in this slice.
+- Gates: `bun run check-types` clean; `bun run check` clean (only pre-existing
+  biome-config migration warning + broken-symlink info, unrelated to this change).
+  `-panel.provider.announcements.test.tsx` 6/6 pass.
 
 ---
 

@@ -1,21 +1,17 @@
 {
-  "currentRunId": "e-17-t-17-06-st-03",
+  "currentRunId": "e-18-t-18-01-st-02",
   "currentPrdId": "PRD-v11-announcement-detail-edit-and-analytics",
-  "currentEpicId": "E-17",
-  "currentTaskId": "T-17-06",
-  "currentSubTaskId": "ST-03",
-  "attemptCount": 2,
-  "retrievalRound": 2,
+  "currentEpicId": "E-18",
+  "currentTaskId": "T-18-01",
+  "currentSubTaskId": "ST-02",
+  "attemptCount": 0,
+  "retrievalRound": 0,
   "lastModel": "opus",
   "escalated": false,
-  "requiredModel": "medium",
+  "requiredModel": "high",
   "runnerName": "claude",
   "escalateIf": [],
-  "filesToTouch": [
-    "apps/web/tests/meus-anuncios.spec.ts",
-    "apps/web/tests/meus-anuncios.spec.ts-snapshots/",
-    ".plan/epics/17-announcement-creation-and-authoring-model/tasks/06-authoring-surface-regression-and-seeded-playwright-matrix.md"
-  ],
+  "filesToTouch": ["apps/web/src/routes/panel/provider/-announcement-form.tsx"],
   "lastCommitChanged": true,
   "lastFailureReason": null
 }
