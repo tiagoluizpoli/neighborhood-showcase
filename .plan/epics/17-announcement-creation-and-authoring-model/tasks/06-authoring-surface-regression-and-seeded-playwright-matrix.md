@@ -2,7 +2,7 @@
 type: task
 id: T-17-06
 epic: E-17
-status: ready
+status: done
 blocked-by: [T-17-04, T-17-05]
 default-model: medium
 ---
@@ -84,7 +84,7 @@ verification:
 
 ### ST-03 - Lock visual and regression expectations for the authoring surface
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by:

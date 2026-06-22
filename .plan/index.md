@@ -41,7 +41,7 @@
 | E-14 | Role Access and Route Architecture | done | — | `.plan/epics/14-role-access-and-route-architecture/epic.md` |
 | E-15 | Functional Testing | ready | — | `.plan/epics/15-functional-testing/epic.md` |
 | E-16 | Panel Shell, Layout, and Navigation | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/epic.md` |
-| E-17 | Announcement Creation and Authoring Model | in-progress | — | `.plan/epics/17-announcement-creation-and-authoring-model/epic.md` |
+| E-17 | Announcement Creation and Authoring Model | done | — | `.plan/epics/17-announcement-creation-and-authoring-model/epic.md` |
 | E-18 | Announcement Detail, Edit Split, and Analytics | ready | — | `.plan/epics/18-announcement-detail-edit-and-analytics/epic.md` |
 
 ## Tasks
@@ -75,7 +75,7 @@
 | T-17-03 | E-17 | Edit flow contact parity and live inheritance | done | T-17-02 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/03-edit-flow-contact-parity-and-live-inheritance.md` |
 | T-17-04 | E-17 | Bounded CTA authoring and public fallback | done | T-17-02, T-17-03 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/04-bounded-cta-authoring-and-public-fallback.md` |
 | T-17-05 | E-17 | Structured category, tags, and money primitives | done | T-17-03 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/05-structured-category-tags-and-money-primitives.md` |
-| T-17-06 | E-17 | Authoring surface regression and seeded Playwright matrix | ready | T-17-04, T-17-05 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/06-authoring-surface-regression-and-seeded-playwright-matrix.md` |
+| T-17-06 | E-17 | Authoring surface regression and seeded Playwright matrix | done | T-17-04, T-17-05 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/06-authoring-surface-regression-and-seeded-playwright-matrix.md` |
 | T-18-01 | E-18 | Extract shared AnnouncementForm and field-policy seam | ready | — | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/01-extract-shared-announcement-form-and-field-policy-seam.md` |
 | T-18-02 | E-18 | Edit route split onto shared form and delete duplicates | ready | T-18-01 | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/02-edit-route-split-and-delete-duplicates.md` |
 | T-18-03 | E-18 | Facts-first read-only detail rebuild | ready | T-18-02 | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/03-facts-first-read-only-detail-rebuild.md` |

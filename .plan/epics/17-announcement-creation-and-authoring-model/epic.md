@@ -2,7 +2,7 @@
 type: epic
 id: E-17
 name: "Announcement Creation and Authoring Model"
-status: in-progress
+status: done
 blocked-by: []
 ---
 
@@ -27,7 +27,7 @@ Current implementation still mixes two mismatched models: provider configuration
 | T-17-03 | Edit flow contact parity and live inheritance | done | T-17-02 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/03-edit-flow-contact-parity-and-live-inheritance.md` |
 | T-17-04 | Bounded CTA authoring and public fallback | done | T-17-02, T-17-03 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/04-bounded-cta-authoring-and-public-fallback.md` |
 | T-17-05 | Structured category, tags, and money primitives | done | T-17-03 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/05-structured-category-tags-and-money-primitives.md` |
-| T-17-06 | Authoring surface regression and seeded Playwright matrix | ready | T-17-04, T-17-05 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/06-authoring-surface-regression-and-seeded-playwright-matrix.md` |
+| T-17-06 | Authoring surface regression and seeded Playwright matrix | done | T-17-04, T-17-05 | `.plan/epics/17-announcement-creation-and-authoring-model/tasks/06-authoring-surface-regression-and-seeded-playwright-matrix.md` |
 
 ---
 

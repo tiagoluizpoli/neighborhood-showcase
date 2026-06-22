@@ -268,6 +268,14 @@ test.describe('Authoring model matrix (authoring@test.com)', () => {
     await expect(
       page.getByText(/chamadas diretas ativadas|direct calls enabled/i),
     ).toBeVisible();
+
+    await expect(page).toHaveScreenshot(
+      'meus-anuncios-auth-inherit-detail.png',
+      {
+        fullPage: true,
+        maxDiffPixels: 1500,
+      },
+    );
   });
 
   test('auth-custom detail shows custom mode badge, custom phone, and calls-off', async ({
@@ -286,6 +294,14 @@ test.describe('Authoring model matrix (authoring@test.com)', () => {
         /apenas whatsapp|chamadas diretas desativadas|calls.*off/i,
       ),
     ).toBeVisible();
+
+    await expect(page).toHaveScreenshot(
+      'meus-anuncios-auth-custom-detail.png',
+      {
+        fullPage: true,
+        maxDiffPixels: 1500,
+      },
+    );
   });
 
   test('auth-cta-present edit mode shows CTA primary editor with provider_profile type', async ({
@@ -302,6 +318,14 @@ test.describe('Authoring model matrix (authoring@test.com)', () => {
     // Type selector should reflect the seeded provider_profile target.
     await expect(page.getByTestId('cta-primary-type')).toContainText(
       /meu perfil|prestador|provider_profile/i,
+    );
+
+    await expect(page).toHaveScreenshot(
+      'meus-anuncios-auth-cta-present-edit.png',
+      {
+        fullPage: true,
+        maxDiffPixels: 1500,
+      },
     );
   });
 
@@ -322,5 +346,13 @@ test.describe('Authoring model matrix (authoring@test.com)', () => {
     );
     // Value input exists for the URL-typed target and has no seeded value.
     await expect(page.getByTestId('cta-primary-value')).toHaveValue('');
+
+    await expect(page).toHaveScreenshot(
+      'meus-anuncios-auth-cta-fallback-edit.png',
+      {
+        fullPage: true,
+        maxDiffPixels: 1500,
+      },
+    );
   });
 });

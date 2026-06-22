@@ -4,14 +4,18 @@
   "currentEpicId": "E-17",
   "currentTaskId": "T-17-06",
   "currentSubTaskId": "ST-03",
-  "attemptCount": 1,
-  "retrievalRound": 1,
-  "lastModel": "sonnet",
+  "attemptCount": 2,
+  "retrievalRound": 2,
+  "lastModel": "opus",
   "escalated": false,
   "requiredModel": "medium",
   "runnerName": "claude",
   "escalateIf": [],
-  "filesToTouch": ["apps/web/tests/meus-anuncios.spec.ts", "apps/web/tests/"],
-  "lastCommitChanged": false,
+  "filesToTouch": [
+    "apps/web/tests/meus-anuncios.spec.ts",
+    "apps/web/tests/meus-anuncios.spec.ts-snapshots/",
+    ".plan/epics/17-announcement-creation-and-authoring-model/tasks/06-authoring-surface-regression-and-seeded-playwright-matrix.md"
+  ],
+  "lastCommitChanged": true,
   "lastFailureReason": null
 }

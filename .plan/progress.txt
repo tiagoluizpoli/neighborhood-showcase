@@ -17,3 +17,16 @@
   - CTA-fallback: /anuncios/seed-announcement-auth-cta-fallback shows no cta-actions, WhatsApp link present
 - All 39 targeted tests pass (bun run db:seed + npx playwright test)
 - ST-03 is next: add screenshot assertions for create/edit authoring surfaces
+
+---
+2026-06-22 T-17-06/ST-03 DONE
+- Added toHaveScreenshot assertions to all 4 authoring-matrix tests in meus-anuncios.spec.ts
+  - auth-inherit-detail: meus-anuncios-auth-inherit-detail-chromium-linux.png
+  - auth-custom-detail: meus-anuncios-auth-custom-detail-chromium-linux.png
+  - auth-cta-present-edit: meus-anuncios-auth-cta-present-edit-chromium-linux.png
+  - auth-cta-fallback-edit: meus-anuncios-auth-cta-fallback-edit-chromium-linux.png
+- 4 new baselines written to meus-anuncios.spec.ts-snapshots/
+- 13/13 meus-anuncios.spec.ts tests pass (after db:seed to restore mutated data)
+- bun run check and check-types clean
+- T-17-06 fully done; E-17 Announcement Creation and Authoring Model COMPLETE
+- Next: E-18 Announcement Detail, Edit Split, and Analytics
