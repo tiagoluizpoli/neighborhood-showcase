@@ -489,6 +489,8 @@
   "new_announcement": {
     "title": "New Announcement",
     "subtitle": "Create a draft of your offer and publish it to your neighbors.",
+    "edit_title": "Edit Announcement",
+    "edit_subtitle": "Update your offer and save the changes.",
     "toast": {
       "invalid_image": "Please select a valid image.",
       "draft_created": "Announcement draft created successfully!",
@@ -599,6 +601,8 @@
       "processing": "Processing Image...",
       "saving": "Saving Draft...",
       "save": "Save Draft",
+      "updating": "Saving Changes...",
+      "update": "Save Changes",
       "cancel": "Cancel"
     }
   },

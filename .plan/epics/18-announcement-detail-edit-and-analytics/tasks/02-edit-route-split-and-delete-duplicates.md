@@ -2,7 +2,7 @@
 type: task
 id: T-18-02
 epic: E-18
-status: ready
+status: in-progress
 blocked-by: [T-18-01]
 default-model: high
 ---
@@ -28,7 +28,7 @@ Introduce the dedicated edit route `/panel/provider/announcements/$id/edit` and 
 
 ### ST-01 - Add the dedicated edit route in edit mode
 
-status: ready
+status: done
 model: high
 escalate-if:
 - Edit-mode fetch/prefill cannot reuse the shared form without diverging inputs or validation from create.
@@ -99,7 +99,39 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- ST-01 (done): wired edit mode into the shared `AnnouncementForm` and added the
+  dedicated `$id/edit` route — no input/validation divergence from create, so no
+  escalation needed.
+  - `apps/web/src/routes/panel.provider.announcements.$id.edit.tsx` (new): thin
+    route rendering `<AnnouncementForm mode="edit" announcementId={id} />`.
+    TanStack route tree auto-regenerated (`/panel/provider/announcements/$id/edit`).
+  - `-announcement-form.tsx`: edit mode fetches via
+    `announcement.getDashboardData` (`enabled: isEditMode`), flattens + finds by
+    id, and prefills every field once (guarded by `prefilledRef`): location,
+    category, title, subtitle, description, price, tags, contact mode +
+    custom phone/call, cta (`withCtaIds`), verified badge, and existing image
+    URL. Not-found after load → toast + redirect to the list (mirrors detail).
+  - Submit branches on mode: edit calls `announcement.update` carrying `id`
+    (no `providerAssignmentId` — location is fixed on update), create still calls
+    `announcement.create`. Shared validation (title/description/contact/cta).
+  - Image: new `existingImageUrl` state. Edit shows the saved cover with a
+    "Change" button (no forced re-crop); submit reuses the existing URL unless a
+    new image was cropped, in which case it uploads as before. Image-required
+    guard now passes in edit when an existing URL is present. Create behavior
+    byte-for-byte unchanged.
+  - Header/submit copy is mode-aware: new keys `new_announcement.edit_title`,
+    `edit_subtitle`, `submit.update`, `submit.updating` added to both en + pt;
+    update toasts reuse `meus_anuncios.detail.update_success/update_error`.
+  - On update success: invalidate `getDashboardData` and navigate to the detail
+    page (`$id`).
+  - Detail-page Edit button is NOT yet repointed to the route and the old inline
+    edit / narrow component are NOT deleted — that is ST-03 (touches
+    `panel.provider.announcements.$id.tsx`). Identity-lock is ST-02 (the seam
+    already locks `id`, which is non-rendered, so behavior is already correct;
+    ST-02 will formalize/verify).
+  - Gates: `bun run check-types` clean (4/4); `bun run check` clean (pre-existing
+    biome-config deprecation warning + broken-symlink info only);
+    `-panel.provider.announcements.test.tsx` 6/6 pass (create flow unchanged).
 
 ---
 

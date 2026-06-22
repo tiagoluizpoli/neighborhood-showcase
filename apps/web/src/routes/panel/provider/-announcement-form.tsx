@@ -25,13 +25,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@neighborhood-showcase/ui/components/tooltip';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Check, Loader2, Sparkles, UploadCloud } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Cropper, { type Area } from 'react-easy-crop';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import type { ProviderDashboardAnnouncementItem } from '../-provider-dashboard-types';
 import {
   type AnnouncementContactMode,
   AnnouncementContactSection,
@@ -42,6 +43,7 @@ import {
   type AnnouncementCtaView,
   ctaHasIncompleteTarget,
   EMPTY_CTA_VIEW,
+  withCtaIds,
 } from './-announcement-cta-section';
 import { AnnouncementCategoryCombobox } from '@/components/announcement-category-combobox';
 import { AnnouncementPriceInput } from '@/components/announcement-price-input';
@@ -51,9 +53,9 @@ import { getCroppedImg } from '@/utils/crop-image';
 import { trpc } from '@/utils/trpc';
 
 /**
- * Authoring mode for the shared announcement form. `create` is the only path
- * wired in this slice (T-18-01 / ST-01); `edit` is reserved for the edit-route
- * split landed in T-18-02.
+ * Authoring mode for the shared announcement form. `create` submits via
+ * `announcement.create`; `edit` fetches the announcement by id, prefills every
+ * field, and submits via `announcement.update` carrying the id (T-18-02).
  */
 export type AnnouncementFormMode = 'create' | 'edit';
 
@@ -116,11 +118,11 @@ export function resolveAnnouncementFieldPolicy(
 }
 
 export interface AnnouncementFormProps {
-  /** Branches create vs edit. Defaults to `create`; edit is wired in T-18-02. */
+  /** Branches create vs edit. Defaults to `create`. */
   mode?: AnnouncementFormMode;
   /**
-   * Identity of the announcement being edited. Absent in create mode; carried
-   * through to the edit wiring in T-18-02.
+   * Identity of the announcement being edited. Required in edit mode (used to
+   * fetch/prefill and to carry the id on `update`); absent in create mode.
    */
   announcementId?: string;
   /**
@@ -137,8 +139,10 @@ export function AnnouncementForm({
 }: AnnouncementFormProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const isEditMode = mode === 'edit';
   const policy = fieldPolicy ?? resolveAnnouncementFieldPolicy(mode);
 
   const [selectedLocationId, setSelectedLocationId] = useState<string>('');
@@ -156,6 +160,7 @@ export function AnnouncementForm({
   const [showVerifiedBadge, setShowVerifiedBadge] = useState<boolean>(false);
 
   const [imageSrc, setImageSrc] = useState<string>('');
+  const [existingImageUrl, setExistingImageUrl] = useState<string>('');
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState<number>(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -179,6 +184,62 @@ export function AnnouncementForm({
   );
   const assignments = assignmentsQuery.data;
   const isLoadingAssignments = assignmentsQuery.isLoading;
+
+  const dashboardQuery = useQuery(
+    trpc.announcement.getDashboardData.queryOptions(undefined, {
+      enabled: isEditMode,
+    }),
+  );
+
+  const editingAnnouncement =
+    useMemo<ProviderDashboardAnnouncementItem | null>(() => {
+      if (!isEditMode || !announcementId) return null;
+      return (
+        flattenDashboardAnnouncements(dashboardQuery.data?.announcements).find(
+          (item) => item.id === announcementId,
+        ) ?? null
+      );
+    }, [isEditMode, announcementId, dashboardQuery.data]);
+
+  const prefilledRef = useRef<boolean>(false);
+  useEffect(() => {
+    if (!editingAnnouncement || prefilledRef.current) return;
+    prefilledRef.current = true;
+    setSelectedLocationId(editingAnnouncement.providerAssignmentId ?? '');
+    setCategoryId(editingAnnouncement.categoryId);
+    setTitle(editingAnnouncement.title);
+    setSubtitle(editingAnnouncement.subtitle ?? '');
+    setDescription(editingAnnouncement.description);
+    setPriceCents(editingAnnouncement.priceCents ?? null);
+    setTags(editingAnnouncement.tags);
+    setContactMode(editingAnnouncement.contact.mode);
+    setCustomPhone(editingAnnouncement.contact.custom?.primaryPhone ?? '');
+    setCustomCallEnabled(
+      editingAnnouncement.contact.custom?.callEnabled ?? false,
+    );
+    setCta(withCtaIds(editingAnnouncement.cta));
+    setShowVerifiedBadge(editingAnnouncement.showVerifiedBadge);
+    setExistingImageUrl(editingAnnouncement.imageUrl);
+  }, [editingAnnouncement]);
+
+  useEffect(() => {
+    if (
+      isEditMode &&
+      !dashboardQuery.isLoading &&
+      dashboardQuery.data &&
+      !editingAnnouncement
+    ) {
+      toast.error(t('meus_anuncios.detail.not_found_toast'));
+      void navigate({ to: '/panel/provider/announcements' });
+    }
+  }, [
+    isEditMode,
+    dashboardQuery.isLoading,
+    dashboardQuery.data,
+    editingAnnouncement,
+    navigate,
+    t,
+  ]);
 
   const approvedLocations =
     assignments?.filter((a) => a.status === 'APPROVED') || [];
@@ -225,10 +286,33 @@ export function AnnouncementForm({
     }),
   );
 
+  const updateMutation = useMutation(
+    trpc.announcement.update.mutationOptions({
+      onSuccess: () => {
+        toast.success(t('meus_anuncios.detail.update_success'));
+        void queryClient.invalidateQueries({
+          queryKey: trpc.announcement.getDashboardData.queryKey(),
+        });
+        if (announcementId) {
+          navigate({
+            to: '/panel/provider/announcements/$id',
+            params: { id: announcementId },
+          });
+        }
+      },
+      onError: (err) => {
+        toast.error(err.message || t('meus_anuncios.detail.update_error'));
+      },
+    }),
+  );
+
+  const isSubmitting =
+    isUploading || createMutation.isPending || updateMutation.isPending;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedLocationId) {
+    if (!isEditMode && !selectedLocationId) {
       toast.error(t('new_announcement.toast.select_location'));
       return;
     }
@@ -253,7 +337,8 @@ export function AnnouncementForm({
       toast.error(t('new_announcement.toast.inherit_no_baseline'));
       return;
     }
-    if (!imageSrc || !croppedAreaPixels) {
+    const hasNewImage = Boolean(imageSrc && croppedAreaPixels);
+    if (!hasNewImage && !(isEditMode && existingImageUrl)) {
       toast.error(t('new_announcement.toast.image_required'));
       return;
     }
@@ -264,47 +349,69 @@ export function AnnouncementForm({
 
     try {
       setIsUploading(true);
-      const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
 
-      const formData = new FormData();
-      formData.append('file', croppedBlob, 'cover-image.webp');
-      formData.append('type', 'image');
+      let imageUrl = existingImageUrl;
+      if (hasNewImage && croppedAreaPixels) {
+        const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
 
-      const uploadRes = await fetch(`${env.VITE_SERVER_URL}/api/upload`, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
+        const formData = new FormData();
+        formData.append('file', croppedBlob, 'cover-image.webp');
+        formData.append('type', 'image');
 
-      if (!uploadRes.ok) {
-        throw new Error(t('new_announcement.toast.upload_failed'));
+        const uploadRes = await fetch(`${env.VITE_SERVER_URL}/api/upload`, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include',
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error(t('new_announcement.toast.upload_failed'));
+        }
+
+        const uploadData = await uploadRes.json();
+        imageUrl = uploadData.url;
       }
 
-      const uploadData = await uploadRes.json();
-      const imageUrl = uploadData.url;
+      const contact =
+        contactMode === 'custom'
+          ? {
+              mode: 'custom' as const,
+              custom: {
+                primaryPhone: customPhone.trim(),
+                callEnabled: customCallEnabled,
+              },
+            }
+          : { mode: 'inherit' as const, custom: null };
 
-      createMutation.mutate({
-        providerAssignmentId: selectedLocationId,
-        title,
-        subtitle: subtitle || null,
-        description,
-        priceCents,
-        imageUrl,
-        categoryId,
-        tags,
-        contact:
-          contactMode === 'custom'
-            ? {
-                mode: 'custom' as const,
-                custom: {
-                  primaryPhone: customPhone.trim(),
-                  callEnabled: customCallEnabled,
-                },
-              }
-            : { mode: 'inherit' as const, custom: null },
-        cta,
-        showVerifiedBadge: showVerifiedBadge && canVerify,
-      });
+      if (isEditMode && announcementId) {
+        updateMutation.mutate({
+          id: announcementId,
+          title,
+          subtitle: subtitle || null,
+          description,
+          priceCents,
+          imageUrl,
+          categoryId,
+          tags,
+          contact,
+          cta,
+          showVerifiedBadge: showVerifiedBadge && canVerify,
+        });
+      } else {
+        createMutation.mutate({
+          providerAssignmentId: selectedLocationId,
+          title,
+          subtitle: subtitle || null,
+          description,
+          priceCents,
+          imageUrl,
+          categoryId,
+          tags,
+          contact,
+          cta,
+          showVerifiedBadge: showVerifiedBadge && canVerify,
+        });
+      }
     } catch (error) {
       const errMessage =
         error instanceof Error
@@ -315,6 +422,19 @@ export function AnnouncementForm({
       setIsUploading(false);
     }
   };
+
+  if (isEditMode && (dashboardQuery.isLoading || !editingAnnouncement)) {
+    return (
+      <PanelContentContainer variant="default">
+        <div className="flex min-h-[50vh] items-center justify-center gap-3">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <p className="text-muted-foreground text-sm">
+            {t('meus_anuncios.detail.loading')}
+          </p>
+        </div>
+      </PanelContentContainer>
+    );
+  }
 
   return (
     <PanelContentContainer variant="default">
@@ -329,11 +449,19 @@ export function AnnouncementForm({
           </Button>
           <div>
             <h1 className="flex items-center gap-2 font-bold text-2xl text-foreground tracking-tight">
-              {t('new_announcement.title')}{' '}
+              {t(
+                isEditMode
+                  ? 'new_announcement.edit_title'
+                  : 'new_announcement.title',
+              )}{' '}
               <Sparkles className="h-5 w-5 text-warning" />
             </h1>
             <p className="text-muted-foreground text-sm">
-              {t('new_announcement.subtitle')}
+              {t(
+                isEditMode
+                  ? 'new_announcement.edit_subtitle'
+                  : 'new_announcement.subtitle',
+              )}
             </p>
           </div>
         </div>
@@ -547,20 +675,41 @@ export function AnnouncementForm({
               </CardHeader>
               <CardContent className="space-y-4">
                 {!imageSrc ? (
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={!policy.image.editable}
-                    className="group mx-auto flex aspect-[4/3] w-full max-w-[220px] cursor-pointer flex-col items-center justify-center rounded-lg border border-2 border-dashed bg-background p-6 hover:bg-card"
-                  >
-                    <UploadCloud className="mb-3 h-10 w-10 text-muted-foreground transition-colors group-hover:text-primary" />
-                    <p className="font-semibold text-foreground text-xs">
-                      {t('new_announcement.image_card.choose')}
-                    </p>
-                    <p className="mt-1 text-[10px] text-muted-foreground">
-                      {t('new_announcement.image_card.format_hint')}
-                    </p>
-                  </button>
+                  existingImageUrl ? (
+                    <div className="space-y-4">
+                      <div className="relative mx-auto aspect-[4/3] w-full max-w-[220px] overflow-hidden rounded-lg border bg-background">
+                        <img
+                          src={existingImageUrl}
+                          alt={t('new_announcement.image_card.title')}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={!policy.image.editable}
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full"
+                      >
+                        {t('new_announcement.image_card.change')}
+                      </Button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={!policy.image.editable}
+                      className="group mx-auto flex aspect-[4/3] w-full max-w-[220px] cursor-pointer flex-col items-center justify-center rounded-lg border border-2 border-dashed bg-background p-6 hover:bg-card"
+                    >
+                      <UploadCloud className="mb-3 h-10 w-10 text-muted-foreground transition-colors group-hover:text-primary" />
+                      <p className="font-semibold text-foreground text-xs">
+                        {t('new_announcement.image_card.choose')}
+                      </p>
+                      <p className="mt-1 text-[10px] text-muted-foreground">
+                        {t('new_announcement.image_card.format_hint')}
+                      </p>
+                    </button>
+                  )
                 ) : (
                   <div className="space-y-4">
                     <div className="relative mx-auto aspect-[4/3] w-full max-w-[220px] overflow-hidden rounded-lg border bg-background">
@@ -682,25 +831,29 @@ export function AnnouncementForm({
             </Card>
 
             <div className="flex gap-2">
-              <Button
-                type="submit"
-                disabled={isUploading || createMutation.isPending}
-                className="flex-1"
-              >
+              <Button type="submit" disabled={isSubmitting} className="flex-1">
                 {isUploading ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />{' '}
                     {t('new_announcement.submit.processing')}
                   </span>
-                ) : createMutation.isPending ? (
+                ) : createMutation.isPending || updateMutation.isPending ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />{' '}
-                    {t('new_announcement.submit.saving')}
+                    {t(
+                      isEditMode
+                        ? 'new_announcement.submit.updating'
+                        : 'new_announcement.submit.saving',
+                    )}
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
                     <Check className="h-4 w-4" />{' '}
-                    {t('new_announcement.submit.save')}
+                    {t(
+                      isEditMode
+                        ? 'new_announcement.submit.update'
+                        : 'new_announcement.submit.save',
+                    )}
                   </span>
                 )}
               </Button>
@@ -718,4 +871,23 @@ export function AnnouncementForm({
       </div>
     </PanelContentContainer>
   );
+}
+
+interface DashboardAnnouncementGroups {
+  active: ProviderDashboardAnnouncementItem[];
+  draft: ProviderDashboardAnnouncementItem[];
+  expired: ProviderDashboardAnnouncementItem[];
+  suspended: ProviderDashboardAnnouncementItem[];
+}
+
+function flattenDashboardAnnouncements(
+  announcements?: DashboardAnnouncementGroups,
+): ProviderDashboardAnnouncementItem[] {
+  if (!announcements) return [];
+  return [
+    ...announcements.active,
+    ...announcements.draft,
+    ...announcements.expired,
+    ...announcements.suspended,
+  ];
 }

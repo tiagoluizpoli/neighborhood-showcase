@@ -78,3 +78,21 @@
 - T-18-01 (Extract shared AnnouncementForm and field-policy seam) FULLY DONE.
   All 3 STs complete: extract (ST-01), field-policy seam (ST-02), create parity (ST-03).
 - Next: T-18-02 Edit route split onto shared form and delete duplicates.
+
+---
+2026-06-22 T-18-02/ST-01 DONE
+- Added dedicated edit route apps/web/src/routes/panel.provider.announcements.$id.edit.tsx
+  rendering <AnnouncementForm mode="edit" announcementId={id} />. Route tree auto-regenerated.
+- Edit mode in -announcement-form.tsx: fetch via getDashboardData (enabled in edit),
+  flatten+find by id, prefill all fields once (prefilledRef). Submit branches: edit →
+  announcement.update carrying id; create → announcement.create (unchanged).
+- Image: existingImageUrl shows saved cover + Change button; submit reuses existing URL
+  unless a new image is cropped. image_required guard passes in edit when URL present.
+- i18n: new_announcement.edit_title/edit_subtitle + submit.update/updating in en+pt;
+  update toasts reuse meus_anuncios.detail.update_success/update_error.
+- NOT in this slice: repointing the detail-page Edit button + deleting the dashboard
+  duplicate / narrow edit-fields component (ST-03); identity-lock formalization (ST-02,
+  already correct since id is non-rendered).
+- Gates: bun run check-types clean (4/4); bun run check clean (pre-existing biome-config
+  warning + broken-symlink info only); -panel.provider.announcements.test.tsx 6/6 pass.
+- Next: T-18-02/ST-02 — exercise identity-lock policy in edit mode (medium).

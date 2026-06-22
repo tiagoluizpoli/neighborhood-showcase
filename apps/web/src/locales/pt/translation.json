@@ -489,6 +489,8 @@
   "new_announcement": {
     "title": "Novo Anúncio",
     "subtitle": "Crie um rascunho da sua oferta e publique para seus vizinhos.",
+    "edit_title": "Editar Anúncio",
+    "edit_subtitle": "Atualize sua oferta e salve as alterações.",
     "toast": {
       "invalid_image": "Por favor, selecione uma imagem válida.",
       "draft_created": "Rascunho do anúncio criado com sucesso!",
@@ -599,6 +601,8 @@
       "processing": "Processando Imagem...",
       "saving": "Salvando Rascunho...",
       "save": "Salvar Rascunho",
+      "updating": "Salvando Alterações...",
+      "update": "Salvar Alterações",
       "cancel": "Cancelar"
     }
   },
