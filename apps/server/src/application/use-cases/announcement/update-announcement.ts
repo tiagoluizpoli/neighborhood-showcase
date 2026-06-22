@@ -4,6 +4,8 @@ import {
   type AnnouncementCta,
   validateCta,
 } from '../../../domain/entities/cta';
+import { normalizePriceCents } from '../../../domain/entities/money';
+import { normalizeTags } from '../../../domain/entities/tags';
 import type { AnnouncementRepository } from '../../../domain/repositories/announcement.repository';
 import type { AssignmentRepository } from '../../../domain/repositories/assignment.repository';
 import { DomainError } from '../../../shared/domain-error';
@@ -74,10 +76,10 @@ export class UpdateAnnouncement {
       title: input.title,
       subtitle: input.subtitle,
       description: input.description,
-      priceCents: input.priceCents,
+      priceCents: normalizePriceCents(input.priceCents),
       imageUrl: input.imageUrl,
       categoryId: input.categoryId,
-      tags: input.tags,
+      tags: normalizeTags(input.tags),
       contact: input.contact,
       cta: input.cta,
       showVerifiedBadge: input.showVerifiedBadge,

@@ -1,65 +1,73 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { trpc } from '@/utils/trpc';
 
-// Mutable state read by mocks
+// Real router (global test-setup stub spreads it, so `redirect` throws a real
+// RedirectError → target at `err.to || err.options?.to`). Provider access flows
+// through the trpc mock rather than partial-mocking `-user-access-profile`,
+// because bun's process-global `mock.module` would otherwise drop named exports
+// that other files in the run import.
+
 let mockProviderEnabled = false;
-let mockSessionData: { user: { role: string } } | null = null;
 
-const mockRedirect = (opts: {
-  to: string;
-  search?: Record<string, string>;
-}) => {
-  const err = Object.assign(new Error('REDIRECT'), {
-    isRedirect: true,
-    ...opts,
-  });
-  throw err;
+const trpcMockModule = {
+  trpcClient: {
+    user: {
+      getAccessProfile: {
+        query: async () => ({ providerEnabled: mockProviderEnabled }),
+      },
+    },
+  },
+  trpc,
 };
+mock.module('@/utils/trpc', () => trpcMockModule);
+mock.module('../utils/trpc', () => trpcMockModule);
 
-mock.module('@tanstack/react-router', () => ({
-  createFileRoute: (_path: string) => (config: unknown) => config,
-  Outlet: () => null,
-  redirect: mockRedirect,
-}));
+interface RedirectError {
+  to?: string;
+  options?: { to?: string };
+}
 
-mock.module('@/routes/panel/-user-access-profile', () => ({
-  getUserAccessProfile: async () => ({ providerEnabled: mockProviderEnabled }),
-}));
+type GuardBeforeLoad = (ctx: {
+  context: { session: unknown };
+}) => Promise<void>;
 
-// Import route after mocks
-let routeConfig: {
-  beforeLoad?: (ctx: { context: { session: unknown } }) => Promise<void>;
-};
+let beforeLoad: GuardBeforeLoad | undefined;
+const session = { user: { role: 'USER' } };
 
 describe('Provider route-group guard — beforeLoad', () => {
   beforeEach(async () => {
     mockProviderEnabled = false;
-    mockSessionData = { user: { role: 'USER' } };
     const mod = await import('@/routes/panel.provider');
-    routeConfig = mod.Route as typeof routeConfig;
+    beforeLoad = mod.Route.options.beforeLoad as unknown as GuardBeforeLoad;
   });
 
   test('provider-enabled user passes through without redirect', async () => {
     mockProviderEnabled = true;
-    const context = { session: { data: mockSessionData } };
     await expect(
-      routeConfig.beforeLoad?.({ context }),
+      beforeLoad?.({ context: { session: { data: session } } }),
     ).resolves.toBeUndefined();
   });
 
   test('non-provider user is redirected', async () => {
     mockProviderEnabled = false;
-    const context = { session: { data: mockSessionData } };
-    await expect(routeConfig.beforeLoad?.({ context })).rejects.toMatchObject({
-      isRedirect: true,
-      to: '/panel/dashboard',
-    });
+    try {
+      await beforeLoad?.({ context: { session: { data: session } } });
+      expect.unreachable();
+    } catch (err: unknown) {
+      const redirectErr = err as RedirectError;
+      expect(redirectErr.to || redirectErr.options?.to).toBe(
+        '/panel/dashboard',
+      );
+    }
   });
 
   test('unauthenticated user is redirected to root', async () => {
-    const context = { session: null };
-    await expect(routeConfig.beforeLoad?.({ context })).rejects.toMatchObject({
-      isRedirect: true,
-      to: '/',
-    });
+    try {
+      await beforeLoad?.({ context: { session: null } });
+      expect.unreachable();
+    } catch (err: unknown) {
+      const redirectErr = err as RedirectError;
+      expect(redirectErr.to || redirectErr.options?.to).toBe('/');
+    }
   });
 });

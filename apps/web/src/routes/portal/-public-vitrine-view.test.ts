@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import type { AnnouncementCardProps } from '@/components/announcement-card';
 import {
   PublicVitrineAnnouncementGrid,
   resolvePublicVitrineAnnouncementGridState,
@@ -7,6 +8,19 @@ import {
   PublicVitrineEmptyState,
   resolvePublicVitrineEmptyState,
 } from '@/routes/portal/-public-vitrine-empty-state';
+
+// These seams only read `id`/length off each announcement; build a typed partial
+// instead of duplicating the full card payload.
+const partialAd = (id: string) => ({ id }) as AnnouncementCardProps['ad'];
+
+// The view seams return React elements; these tests walk the element tree by
+// hand, so describe the shape they read instead of fighting ReactNode unions.
+type EmptyStateEl = {
+  props: { children: Array<{ props: { to: string; search: unknown } }> };
+};
+type GridEl = {
+  props: { children: Array<{ props: { ad: { id: string } } }> };
+};
 
 describe('public vitrine view seams', () => {
   test('resolves category empty state with backend category label', () => {
@@ -53,7 +67,7 @@ describe('public vitrine view seams', () => {
   test('resolves grid state by error, loading, results, then empty', () => {
     expect(
       resolvePublicVitrineAnnouncementGridState({
-        announcements: [{ id: 'ann-1' }],
+        announcements: [partialAd('ann-1')],
         isError: true,
         isLoading: true,
       }),
@@ -61,7 +75,7 @@ describe('public vitrine view seams', () => {
 
     expect(
       resolvePublicVitrineAnnouncementGridState({
-        announcements: [{ id: 'ann-1' }],
+        announcements: [partialAd('ann-1')],
         isError: false,
         isLoading: true,
       }),
@@ -69,12 +83,12 @@ describe('public vitrine view seams', () => {
 
     expect(
       resolvePublicVitrineAnnouncementGridState({
-        announcements: [{ id: 'ann-1' }],
+        announcements: [partialAd('ann-1')],
         isError: false,
         isLoading: false,
       }),
     ).toEqual({
-      announcements: [{ id: 'ann-1' }],
+      announcements: [partialAd('ann-1')],
       kind: 'results',
     });
 
@@ -108,7 +122,7 @@ describe('public vitrine view seams', () => {
       selectedRegion: null,
       verifiedOnly: false,
       visitorCoords: null,
-    });
+    }) as unknown as EmptyStateEl;
 
     expect(view.props.children[3].props.to).toBe('/auth');
     expect(view.props.children[3].props.search).toEqual({ tab: 'signup' });
@@ -116,7 +130,7 @@ describe('public vitrine view seams', () => {
 
   test('renders grid results through announcement cards', () => {
     const view = PublicVitrineAnnouncementGrid({
-      announcements: [{ id: 'ann-1' }],
+      announcements: [partialAd('ann-1')],
       emptyState: 'empty',
       hasIpFallback: false,
       isError: false,
@@ -126,7 +140,7 @@ describe('public vitrine view seams', () => {
       onRetry: () => {},
       selectedCondo: null,
       visitorCoords: null,
-    });
+    }) as unknown as GridEl;
 
     expect(view.props.children).toHaveLength(1);
     expect(view.props.children[0].props.ad.id).toBe('ann-1');

@@ -1,83 +1,90 @@
-// biome-ignore-all lint/suspicious/noExplicitAny: test harness stubs module dependencies
-import { describe, expect, mock, test } from 'bun:test';
-
-mock.module('@/components/announcement-presentation-primitive', () => ({
-  AnnouncementPresentationPrimitive: (props: any) => ({
-    type: 'div',
-    props: { 'data-variant': props.variant, variant: props.variant },
-  }),
-}));
-
-mock.module('@/components/announcement-card-skeleton', () => ({
-  AnnouncementCardSkeleton: () => ({ type: 'div', props: {} }),
-}));
-
-mock.module('@neighborhood-showcase/ui/components/button', () => ({
-  Button: (props: any) => ({ type: 'button', props }),
-}));
-
+import { beforeEach, describe, expect, test } from 'bun:test';
+import { render, screen } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
 import {
   PublicVitrineAnnouncementGrid,
   resolvePublicVitrineAnnouncementGridState,
 } from './-public-vitrine-announcement-grid';
+import i18n from '@/i18n';
 
-const findByProp = (node: any, key: string, value: string): any => {
-  if (node == null || typeof node !== 'object') return null;
-  if (Array.isArray(node)) {
-    for (const child of node) {
-      const hit = findByProp(child, key, value);
-      if (hit) return hit;
-    }
-    return null;
-  }
-  if (node.props?.[key] === value) return node;
-  return findByProp(node.props?.children, key, value);
-};
+// Render the real grid against happy-dom with the real i18n + router (global
+// test-setup stub). The previous version partial-mocked shared modules (`Button`,
+// the presentation primitive, the skeleton) to return PLAIN `{type, props}`
+// objects; under bun's process-global `mock.module` that poisoned every other
+// file that rendered a real `<Button>`/card. Use real components instead.
 
-const mockAnnouncement = {
-  id: 'ann-public-1',
-  title: 'Public Announcement',
+const mockPublicAd = {
+  id: 'pub-1',
+  providerId: 'prov-1',
+  condominiumId: 'condo-1',
+  condoName: 'Condo Public',
+  condoCity: 'City',
+  condoState: 'SC',
+  condoNeighborhood: 'Bairro',
+  title: 'Public Ad Title',
+  subtitle: null,
+  description: 'Public desc.',
+  priceCents: null,
+  imageUrl: 'pub.jpg',
+  category: 'Services',
+  categoryId: 'cat-1',
+  tags: [],
+  contactLinks: { whatsapp: '', phone: '', email: '' },
+  showVerifiedBadge: false,
+  status: 'ACTIVE',
+  createdAt: new Date(),
+  providerName: 'Provider A',
+  providerAvatarUrl: null,
+  // biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
 } as any;
 
 const baseGridProps = {
   isError: false,
   isLoading: false,
+  // biome-ignore lint/suspicious/noExplicitAny: test slot
   emptyState: null as any,
   hasIpFallback: false,
   isGpsFresh: false,
+  // biome-ignore lint/suspicious/noExplicitAny: optional handler
   onContactClick: undefined as any,
   onRetry: () => {},
   selectedCondo: null,
   visitorCoords: null,
 };
 
+// biome-ignore lint/suspicious/noExplicitAny: test feeds partial props
+function renderGrid(overrides: any) {
+  return render(
+    <I18nextProvider i18n={i18n}>
+      <PublicVitrineAnnouncementGrid {...baseGridProps} {...overrides} />
+    </I18nextProvider>,
+  );
+}
+
 describe('PublicVitrineAnnouncementGrid', () => {
-  test('results state renders each announcement with public-card variant', () => {
-    const tree = PublicVitrineAnnouncementGrid({
-      ...baseGridProps,
-      announcements: [mockAnnouncement],
-    });
-    const primEl = findByProp(tree, 'variant', 'public-card');
-    expect(primEl).not.toBeNull();
+  beforeEach(async () => {
+    await i18n.changeLanguage('pt');
   });
 
-  test('results state does not use dashboard-card or detail-header variant', () => {
-    const tree = PublicVitrineAnnouncementGrid({
-      ...baseGridProps,
-      announcements: [mockAnnouncement],
-    });
-    expect(findByProp(tree, 'variant', 'dashboard-card')).toBeNull();
-    expect(findByProp(tree, 'variant', 'detail-header')).toBeNull();
+  test('results state renders each announcement as a public card', () => {
+    renderGrid({ announcements: [mockPublicAd] });
+    expect(screen.getByText('Public Ad Title')).toBeTruthy();
+  });
+
+  test('loading state renders skeleton placeholders', () => {
+    const { container } = renderGrid({ isLoading: true });
+    expect(
+      container.querySelectorAll('[data-slot="skeleton"]').length,
+    ).toBeGreaterThan(0);
+    expect(screen.queryByText('Public Ad Title')).toBeNull();
   });
 
   test('empty state renders the emptyState slot when no announcements', () => {
-    const emptySlot = { type: 'p', props: { children: 'Nenhum anúncio' } };
-    const tree = PublicVitrineAnnouncementGrid({
-      ...baseGridProps,
-      emptyState: emptySlot,
+    renderGrid({
+      emptyState: <p>Nenhum anúncio</p>,
       announcements: [],
     });
-    expect(tree).toBe(emptySlot);
+    expect(screen.getByText('Nenhum anúncio')).toBeTruthy();
   });
 });
 
@@ -103,7 +110,7 @@ describe('resolvePublicVitrineAnnouncementGridState', () => {
   });
 
   test('returns results when announcements are present', () => {
-    const announcements = [mockAnnouncement];
+    const announcements = [mockPublicAd];
     const result = resolvePublicVitrineAnnouncementGridState({
       isError: false,
       isLoading: false,

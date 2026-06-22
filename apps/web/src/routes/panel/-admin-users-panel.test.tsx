@@ -295,8 +295,12 @@ describe('AdminUsersPanel', () => {
     });
 
     expect(
-      findElement(tree, (element) =>
-        element.props?.className?.includes('animate-spin'),
+      findElement(
+        tree,
+        (element) =>
+          (element.props?.className as string | undefined)?.includes(
+            'animate-spin',
+          ) ?? false,
       ),
     ).toBeTruthy();
   });
@@ -641,8 +645,8 @@ describe('AdminUsersPanel', () => {
 
     const visibilityBtn = findElement(tree, hasTitle('Ocultar do diretório'));
     expect(visibilityBtn).toBeTruthy();
-    visibilityBtn?.props?.onClick();
-    expect(toggledId).toBe('1');
+    (visibilityBtn?.props?.onClick as unknown as () => void)();
+    expect(toggledId === '1').toBe(true);
   });
 
   test('onSearchChange is called when search input changes', () => {
@@ -680,7 +684,11 @@ describe('AdminUsersPanel', () => {
       hasPlaceholder('Buscar por nome ou e-mail...'),
     );
     expect(searchInput).toBeTruthy();
-    searchInput?.props?.onChange({
+    (
+      searchInput?.props?.onChange as unknown as (
+        e: React.ChangeEvent<HTMLInputElement>,
+      ) => void
+    )({
       target: { value: 'Alice' },
     } as unknown as React.ChangeEvent<HTMLInputElement>);
     expect(searchValue).toBe('Alice');

@@ -11,6 +11,7 @@ export function createPublicAnnouncementRouter(
     getPublicAnnouncementUseCase,
     listActiveCategoriesUseCase,
     listPublicAnnouncementsUseCase,
+    listTagSuggestionsUseCase,
     trackAnalyticsEventUseCase,
   } = dependencies;
 
@@ -94,6 +95,10 @@ export function createPublicAnnouncementRouter(
 
     listCategories: publicProcedure.query(async () => {
       return listActiveCategoriesUseCase.execute();
+    }),
+
+    listTagSuggestions: publicProcedure.query(async () => {
+      return listTagSuggestionsUseCase.execute();
     }),
   };
 }

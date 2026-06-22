@@ -1,161 +1,106 @@
-import { describe, expect, mock, test } from 'bun:test';
-
-mock.module('@tanstack/react-router', () => ({
-  Link: (props: { children?: unknown; [key: string]: unknown }) => ({
-    type: 'a',
-    props,
-  }),
-  useNavigate: () => () => {},
-}));
-
+import { beforeEach, describe, expect, test } from 'bun:test';
+import { render, screen } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
+import {
+  ProviderDashboardAnnouncementCard,
+  ProviderDashboardAnnouncementEmptyState,
+} from './-provider-dashboard-announcement-card';
 import type { ProviderDashboardAnnouncementItem } from './-provider-dashboard-types';
+import i18n from '@/i18n';
+
+// Real router (global test-setup stub renders Link as a real <a data-to>) + real
+// i18n. The previous partial `@tanstack/react-router` mock returned plain
+// `{type, props}` objects which, under bun's process-global `mock.module`,
+// poisoned every other file rendering a real <Link>.
 
 const baseAd: ProviderDashboardAnnouncementItem = {
   id: 'ad-1',
   title: 'Bolos caseiros',
+  subtitle: null,
   description: 'Bolos sob encomenda para festas e aniversários.',
+  priceCents: 4500,
   imageUrl: 'https://example.com/image.jpg',
   category: 'Doces',
-  condoName: 'Residencial Aurora',
-  status: 'ACTIVE',
-  flaggedForReview: false,
+  categoryId: 'cat-1',
+  tags: [],
+  contact: { mode: 'inherit', custom: null },
+  cta: { primary: null, secondary: [] },
+  contactLinks: {},
   showVerifiedBadge: true,
-  priceCents: 4500,
+  flaggedForReview: false,
+  status: 'ACTIVE',
+  paidAt: null,
   expiresAt: '2026-06-30T12:00:00.000Z',
+  createdAt: '2026-06-01T12:00:00.000Z',
   suspensionReason: null,
+  condoName: 'Residencial Aurora',
+  providerAssignmentId: null,
 };
 
-type TestNode = {
-  props?: {
-    children?: unknown;
-    [key: string]: unknown;
-  };
-  type?: unknown;
-};
-
-const findElement = (
-  node: unknown,
-  predicate: (el: TestNode) => boolean,
-): TestNode | null => {
-  if (!node) return null;
-  if (predicate(node as TestNode)) return node as TestNode;
-  if (
-    typeof node === 'object' &&
-    node !== null &&
-    'type' in node &&
-    typeof (node as TestNode).type === 'function'
-  ) {
-    try {
-      const evaluated = (node as TestNode).type?.((node as TestNode).props);
-      const found = findElement(evaluated, predicate);
-      if (found) return found;
-    } catch (_error) {}
-  }
-  const children =
-    typeof node === 'object' && node !== null
-      ? (node as TestNode).props?.children
-      : null;
-  if (children) {
-    const items = Array.isArray(children) ? children : [children];
-    for (const child of items) {
-      const found = findElement(child, predicate);
-      if (found) return found;
-    }
-  }
-  return null;
-};
-
-const textContent = (node: unknown): string => {
-  if (!node) return '';
-  if (typeof node === 'string' || typeof node === 'number') {
-    return String(node);
-  }
-  if (typeof node !== 'object' || node === null) return '';
-  const children = (node as TestNode).props?.children;
-  if (!children) return '';
-  if (Array.isArray(children)) {
-    return children.map((child) => textContent(child)).join('');
-  }
-  return textContent(children);
-};
-
-const {
-  ProviderDashboardAnnouncementCard,
-  ProviderDashboardAnnouncementEmptyState,
-} = await import('./-provider-dashboard-announcement-card');
+// biome-ignore lint/suspicious/noExplicitAny: test feeds partial props
+function renderCard(props: any) {
+  return render(
+    <I18nextProvider i18n={i18n}>
+      <ProviderDashboardAnnouncementCard {...props} />
+    </I18nextProvider>,
+  );
+}
 
 describe('ProviderDashboardAnnouncementCard', () => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('pt');
+  });
+
   test('renders public detail, analytics, and edit actions', () => {
-    const tree = ProviderDashboardAnnouncementCard({
+    const { container } = renderCard({
       ad: baseAd,
-      formatDate: (date) => date ?? '-',
-      formatPrice: (value) => (value ? 'R$ 45,00' : 'A combinar'),
+      formatDate: (date: string | null) => date ?? '-',
+      formatPrice: (value: number | null) =>
+        value ? 'R$ 45,00' : 'A combinar',
       onEdit: () => {},
       onViewAnalytics: () => {},
     });
 
-    expect(
-      findElement(tree, (element) => element.props?.title === 'Editar Anúncio'),
-    ).toBeTruthy();
-    expect(
-      findElement(
-        tree,
-        (element) =>
-          element.props?.to === '/anuncios/$id' &&
-          textContent(element).includes('Ver Detalhes'),
-      ),
-    ).toBeTruthy();
-    expect(
-      findElement(tree, (element) =>
-        textContent(element).includes('Ver Métricas'),
-      ),
-    ).toBeTruthy();
+    expect(screen.getByTitle('Editar Anúncio')).toBeTruthy();
+    const detailLink = container.querySelector('a[data-to="/anuncios/$id"]');
+    expect(detailLink).toBeTruthy();
+    expect(detailLink?.textContent).toContain('Ver Detalhes');
+    expect(screen.getByText('Ver Métricas')).toBeTruthy();
   });
 
   test('renders the publish CTA for draft ads', () => {
-    const tree = ProviderDashboardAnnouncementCard({
+    renderCard({
       ad: { ...baseAd, status: 'DRAFT', showVerifiedBadge: false },
-      formatDate: (date) => date ?? '-',
+      formatDate: (date: string | null) => date ?? '-',
       formatPrice: () => 'A combinar',
       onEdit: () => {},
       onPay: () => {},
     });
 
-    expect(
-      findElement(tree, (element) =>
-        textContent(element).includes('Publicar Anúncio'),
-      ),
-    ).toBeTruthy();
+    expect(screen.getByText('Publicar Anúncio')).toBeTruthy();
   });
 
-  test('uses AnnouncementPresentationPrimitive with dashboard-card variant', () => {
-    const tree = ProviderDashboardAnnouncementCard({
+  test('renders the ad as a dashboard card', () => {
+    renderCard({
       ad: baseAd,
-      formatDate: (date) => date ?? '-',
+      formatDate: (date: string | null) => date ?? '-',
       formatPrice: () => 'R$ 0,00',
       onEdit: () => {},
     });
-    expect(tree.props?.variant).toBe('dashboard-card');
+    expect(screen.getByText('Bolos caseiros')).toBeTruthy();
   });
 
   test('renders the empty state link when available', () => {
-    const tree = ProviderDashboardAnnouncementEmptyState({
-      text: 'Nenhum anúncio ativo no momento.',
-      link: '/panel/dashboard/announcements/new',
-      buttonText: 'Criar Anúncio',
-    });
-
-    expect(
-      findElement(
-        tree,
-        (element) =>
-          element.props?.children === 'Nenhum anúncio ativo no momento.',
-      ),
-    ).toBeTruthy();
-    expect(
-      findElement(tree, (element) =>
-        textContent(element).includes('Criar Anúncio'),
-      ),
-    ).toBeTruthy();
+    render(
+      <I18nextProvider i18n={i18n}>
+        <ProviderDashboardAnnouncementEmptyState
+          text="Nenhum anúncio ativo no momento."
+          link="/panel/dashboard/announcements/new"
+          buttonText="Criar Anúncio"
+        />
+      </I18nextProvider>,
+    );
+    expect(screen.getByText('Nenhum anúncio ativo no momento.')).toBeTruthy();
+    expect(screen.getByText('Criar Anúncio')).toBeTruthy();
   });
 });

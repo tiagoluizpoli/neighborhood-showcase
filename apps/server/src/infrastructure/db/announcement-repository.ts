@@ -28,6 +28,7 @@ import {
   listAnnouncementsForModeration,
   listPublicAnnouncements,
   listReportedAnnouncements,
+  listTagSuggestions,
   reinstateAnnouncement,
   suspendAnnouncement,
   updateAnnouncement,
@@ -130,5 +131,9 @@ export class DrizzleAnnouncementRepository implements AnnouncementRepository {
 
   async countPendingByCondo(condominiumId: string): Promise<number> {
     return countPendingAnnouncementsByCondo(condominiumId);
+  }
+
+  async listTagSuggestions(limit?: number): Promise<string[]> {
+    return listTagSuggestions(limit);
   }
 }

@@ -1,12 +1,5 @@
 import { Checkbox } from '@neighborhood-showcase/ui/components/checkbox';
 import { Input } from '@neighborhood-showcase/ui/components/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@neighborhood-showcase/ui/components/select';
 import { Textarea } from '@neighborhood-showcase/ui/components/textarea';
 import {
   Tooltip,
@@ -14,6 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@neighborhood-showcase/ui/components/tooltip';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ProviderDashboardEditImageField } from './-provider-dashboard-edit-image-field';
 import {
@@ -25,6 +19,10 @@ import {
   AnnouncementCtaSection,
   type AnnouncementCtaView,
 } from './provider/-announcement-cta-section';
+import { AnnouncementCategoryCombobox } from '@/components/announcement-category-combobox';
+import { AnnouncementPriceInput } from '@/components/announcement-price-input';
+import { AnnouncementTagsInput } from '@/components/announcement-tags-input';
+import { trpc } from '@/utils/trpc';
 
 interface ProviderDashboardEditFormFieldsProps {
   backendCategories:
@@ -43,10 +41,11 @@ interface ProviderDashboardEditFormFieldsProps {
   imageUrl: string;
   isLoadingProviderDefaults: boolean;
   isUploading: boolean;
-  price: number | '';
+  priceCents: number | null;
   providerDefaults: ProviderContactDefaultsView | null;
   showVerifiedBadge: boolean;
   subtitle: string;
+  tags: string[];
   title: string;
   onCategoryIdChange: (value: string) => void;
   onConfigureContact: () => void;
@@ -56,9 +55,10 @@ interface ProviderDashboardEditFormFieldsProps {
   onCustomPhoneChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
   onImageUrlChange: (imageUrl: string) => void;
-  onPriceChange: (value: number | '') => void;
+  onPriceCentsChange: (value: number | null) => void;
   onShowVerifiedBadgeChange: (value: boolean) => void;
   onSubtitleChange: (value: string) => void;
+  onTagsChange: (value: string[]) => void;
   onTitleChange: (value: string) => void;
   onUploadingChange: (isUploading: boolean) => void;
 }
@@ -82,19 +82,24 @@ export function ProviderDashboardEditFormFields({
   onCustomPhoneChange,
   onDescriptionChange,
   onImageUrlChange,
-  onPriceChange,
+  onPriceCentsChange,
   onShowVerifiedBadgeChange,
   onSubtitleChange,
+  onTagsChange,
   onTitleChange,
   onUploadingChange,
   isUploading,
-  price,
+  priceCents,
   providerDefaults,
   showVerifiedBadge,
   subtitle,
+  tags,
   title,
 }: ProviderDashboardEditFormFieldsProps) {
   const { t } = useTranslation();
+  const { data: tagSuggestions } = useQuery(
+    trpc.announcement.listTagSuggestions.queryOptions(),
+  );
 
   return (
     <>
@@ -128,41 +133,27 @@ export function ProviderDashboardEditFormFields({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label={t('meus_anuncios.detail.form.category')}>
-          <Select
+          <AnnouncementCategoryCombobox
+            categories={backendCategories}
             value={categoryId}
-            onValueChange={(value) => onCategoryIdChange(value ?? '')}
-          >
-            <SelectTrigger
-              className="w-full"
-              aria-label={t('meus_anuncios.detail.form.category')}
-            >
-              <SelectValue
-                placeholder={t('meus_anuncios.detail.form.category')}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {backendCategories?.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            onChange={onCategoryIdChange}
+          />
         </Field>
         <Field label={t('meus_anuncios.detail.form.price')}>
-          <Input
-            type="number"
-            step="0.01"
-            min="0"
-            aria-label={t('meus_anuncios.detail.form.price')}
-            value={price}
-            onChange={(e) =>
-              onPriceChange(e.target.value === '' ? '' : Number(e.target.value))
-            }
-            placeholder={t('meus_anuncios.detail.form.price_placeholder')}
+          <AnnouncementPriceInput
+            valueCents={priceCents}
+            onChange={onPriceCentsChange}
           />
         </Field>
       </div>
+
+      <Field label={t('meus_anuncios.detail.form.tags')}>
+        <AnnouncementTagsInput
+          value={tags}
+          onChange={onTagsChange}
+          suggestions={tagSuggestions}
+        />
+      </Field>
 
       <Field label={t('meus_anuncios.detail.form.description')}>
         <Textarea

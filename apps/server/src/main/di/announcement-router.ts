@@ -8,6 +8,7 @@ import { ListActiveCategories } from '../../application/use-cases/announcement/l
 import { ListAnnouncementsForModeration } from '../../application/use-cases/announcement/list-announcements-for-moderation';
 import { ListPublicAnnouncements } from '../../application/use-cases/announcement/list-public-announcements';
 import { ListReportedAnnouncements } from '../../application/use-cases/announcement/list-reported-announcements';
+import { ListTagSuggestions } from '../../application/use-cases/announcement/list-tag-suggestions';
 import { ReinstateAnnouncement } from '../../application/use-cases/announcement/reinstate-announcement';
 import { ReportAnnouncement } from '../../application/use-cases/announcement/report-announcement';
 import { SuspendAnnouncement } from '../../application/use-cases/announcement/suspend-announcement';
@@ -34,6 +35,7 @@ export interface AnnouncementRouterDependencies {
   updateAnnouncementUseCase: UpdateAnnouncement;
   listPublicAnnouncementsUseCase: ListPublicAnnouncements;
   listActiveCategoriesUseCase: ListActiveCategories;
+  listTagSuggestionsUseCase: ListTagSuggestions;
   trackAnalyticsEventUseCase: TrackAnalyticsEvent;
   getProviderDashboardDataUseCase: GetProviderDashboardData;
   getAnnouncementAnalyticsUseCase: GetAnnouncementAnalytics;
@@ -84,6 +86,7 @@ export function createAnnouncementRouterDependencies(): AnnouncementRouterDepend
       announcementRepo,
     ),
     listActiveCategoriesUseCase: new ListActiveCategories(categoryRepo),
+    listTagSuggestionsUseCase: new ListTagSuggestions(announcementRepo),
     trackAnalyticsEventUseCase: new TrackAnalyticsEvent(analyticsRepo),
     getProviderDashboardDataUseCase: new GetProviderDashboardData(
       announcementRepo,

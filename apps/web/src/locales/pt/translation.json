@@ -464,7 +464,8 @@
         "crop_subtitle": "Arraste para ajustar o enquadramento 4:3.",
         "zoom": "Zoom",
         "image_save": "Recortar e salvar",
-        "image_saving": "Salvando..."
+        "image_saving": "Salvando...",
+        "tags": "Tags"
       }
     }
   },
@@ -610,6 +611,22 @@
       "instagram": "Ver Instagram",
       "tiktok": "Ver TikTok",
       "whatsapp": "WhatsApp"
+    }
+  },
+  "announcement_authoring": {
+    "category": {
+      "placeholder": "Selecione uma categoria",
+      "search_placeholder": "Buscar categorias...",
+      "empty": "Nenhuma categoria encontrada."
+    },
+    "tags": {
+      "placeholder": "Digite uma tag e pressione Enter",
+      "hint": "Pressione Enter ou vírgula para adicionar. Clique em um chip para remover.",
+      "remove": "Remover tag {{tag}}",
+      "create": "Adicionar \"{{tag}}\""
+    },
+    "price": {
+      "placeholder": "0,00"
     }
   }
 }

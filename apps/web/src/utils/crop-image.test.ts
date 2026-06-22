@@ -7,6 +7,12 @@ describe('crop-image helper', () => {
   let mockToBlob: ReturnType<typeof mock>;
   let mockCanvasContext: any;
   let mockCanvasElement: any;
+  // Preserve happy-dom's globals. bun runs every web test file in one process
+  // and test-setup registers happy-dom ONCE, so deleting `global.document`/
+  // `global.Image` here would leave every later RTL file with no DOM. Patch the
+  // single method under test and restore it afterwards instead.
+  let originalCreateElement: typeof document.createElement | undefined;
+  let originalImage: typeof global.Image | undefined;
 
   beforeEach(() => {
     mockDrawImage = mock(() => {});
@@ -26,17 +32,17 @@ describe('crop-image helper', () => {
       height: 0,
     };
 
-    // Mock document.createElement
-    global.document = {
-      createElement: mock((tagName: string) => {
-        if (tagName === 'canvas') {
-          return mockCanvasElement;
-        }
-        return {};
-      }),
-    } as any;
+    // Patch document.createElement on the existing happy-dom document.
+    originalCreateElement = global.document?.createElement;
+    global.document.createElement = mock((tagName: string) => {
+      if (tagName === 'canvas') {
+        return mockCanvasElement;
+      }
+      return {};
+    }) as any;
 
     // Mock Image constructor
+    originalImage = global.Image;
     global.Image = class {
       onload: (() => void) | null = null;
       onerror: ((err: any) => void) | null = null;
@@ -58,8 +64,10 @@ describe('crop-image helper', () => {
   });
 
   afterAll(() => {
-    delete (global as any).document;
-    delete (global as any).Image;
+    if (originalCreateElement) {
+      global.document.createElement = originalCreateElement;
+    }
+    global.Image = originalImage as typeof global.Image;
   });
 
   test('successfully crops image and returns a blob', async () => {

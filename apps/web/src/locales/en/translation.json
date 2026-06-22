@@ -464,7 +464,8 @@
         "crop_subtitle": "Drag to fit the 4:3 frame.",
         "zoom": "Zoom",
         "image_save": "Crop and save",
-        "image_saving": "Saving..."
+        "image_saving": "Saving...",
+        "tags": "Tags"
       }
     }
   },
@@ -610,6 +611,22 @@
       "instagram": "View Instagram",
       "tiktok": "View TikTok",
       "whatsapp": "WhatsApp"
+    }
+  },
+  "announcement_authoring": {
+    "category": {
+      "placeholder": "Select a category",
+      "search_placeholder": "Search categories...",
+      "empty": "No category found."
+    },
+    "tags": {
+      "placeholder": "Type a tag and press Enter",
+      "hint": "Press Enter or comma to add. Click a chip to remove it.",
+      "remove": "Remove tag {{tag}}",
+      "create": "Add \"{{tag}}\""
+    },
+    "price": {
+      "placeholder": "0.00"
     }
   }
 }

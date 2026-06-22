@@ -116,6 +116,48 @@ describe('Create Announcement Integration Test', () => {
     await db.delete(assignment);
   });
 
+  test('normalizes tags and price before persisting', async () => {
+    const assignId = 'approved-assign-id-6-norm';
+    await db.insert(assignment).values({
+      id: assignId,
+      providerId: testUserId,
+      condominiumId: testCondoId,
+      type: 'RESIDENT',
+      status: 'APPROVED',
+      unitInfo: 'Block B, Apt 302',
+    });
+
+    const res = await useCase.execute({
+      providerId: testUserId,
+      providerAssignmentId: assignId,
+      title: 'Delicious Homemade Cakes',
+      description: 'Order delicious cakes baked fresh daily in block B.',
+      // fractional cents must round; messy tags must trim/lowercase/dedupe
+      priceCents: 4599.6,
+      imageUrl: 'http://localhost:9000/showcase/cake.jpg',
+      categoryId: 'cat-alimentacao',
+      tags: ['  Bolo ', 'BOLO', 'Café', 'cafe', ''],
+      contact: {
+        mode: 'custom',
+        custom: { primaryPhone: '5511999999999', callEnabled: false },
+      },
+      cta: { primary: null, secondary: [] },
+      showVerifiedBadge: false,
+    });
+
+    const [dbAnn] = await db
+      .select()
+      .from(announcement)
+      .where(eq(announcement.id, res.id))
+      .limit(1);
+
+    if (!dbAnn) throw new Error('dbAnn must be defined');
+    expect(dbAnn.tags).toEqual(['bolo', 'café']);
+    expect(dbAnn.priceCents).toBe(4600);
+
+    await db.delete(assignment);
+  });
+
   test('fails if provider has no assignment for the condominium', async () => {
     expect(
       useCase.execute({

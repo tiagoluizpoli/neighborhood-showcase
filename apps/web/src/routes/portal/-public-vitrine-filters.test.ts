@@ -20,7 +20,13 @@ describe('public vitrine filters', () => {
         ipLocation: { city: 'Florianopolis', state: 'SC' },
         isGpsFresh: true,
         radiusKm: 25,
-        selectedCondo: { id: 'condo-1', name: 'Residencial Azul' },
+        selectedCondo: {
+          id: 'condo-1',
+          name: 'Residencial Azul',
+          city: 'Florianopolis',
+          state: 'SC',
+          cep: '88000-000',
+        },
         selectedRegion: { city: 'Florianopolis', neighborhood: 'Centro' },
       }),
     ).toEqual({
@@ -53,7 +59,13 @@ describe('public vitrine filters', () => {
         ipLocation: null,
         isGpsFresh: false,
         radiusKm: 10,
-        selectedCondo: { id: 'condo-1', name: 'Residencial Azul' },
+        selectedCondo: {
+          id: 'condo-1',
+          name: 'Residencial Azul',
+          city: 'Florianopolis',
+          state: 'SC',
+          cep: '88000-000',
+        },
         selectedRegion: { city: 'Florianopolis' },
       }),
     ).toEqual({

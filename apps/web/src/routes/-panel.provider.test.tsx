@@ -1,86 +1,36 @@
-// biome-ignore-all lint/suspicious/noExplicitAny: test harness walks React virtual DOM
 import { describe, expect, mock, test } from 'bun:test';
+import { render } from '@testing-library/react';
+import type { ComponentType } from 'react';
+import { trpc } from '@/utils/trpc';
 
-mock.module('@tanstack/react-router', () => {
-  const routeConfig: any = {};
-  const routeFn = (config: any) => {
-    if (config.component) {
-      Object.defineProperty(routeConfig, 'component', {
-        get: () => config.component,
-        configurable: true,
-        enumerable: true,
-      });
-    }
-    return routeFn;
-  };
-  Object.defineProperty(routeFn, 'component', {
-    get: () => routeConfig.component,
-    enumerable: true,
-  });
-  routeFn.useParams = () => ({ id: 'ann-1' });
-  routeFn.useSearch = () => ({});
-  routeFn.useRouteContext = () => ({});
-  return {
-    createFileRoute: (_path: string) => routeFn,
-    Link: ({ children, to, ...rest }: any) => ({
-      type: 'a',
-      props: { href: to, ...rest, children },
-    }),
-    Outlet: () => 'Outlet',
-    useNavigate: () => () => {},
-    useParams: () => ({ id: 'ann-1' }),
-    useSearch: () => ({}),
-    useRouteContext: () => ({}),
-    redirect: () => {
-      throw new Error('REDIRECT');
+// Real router (global test-setup stub) + RTL. The layout component renders a
+// <PanelContentContainer> around <Outlet/> (stubbed to null globally). Only trpc
+// is mocked, full surface, to avoid bun's process-global partial-mock leak.
+
+const trpcMockModule = {
+  trpcClient: {
+    user: {
+      getAccessProfile: {
+        query: async () => ({ providerEnabled: true }),
+      },
     },
-  };
-});
-
-mock.module('@/routes/panel/-user-access-profile', () => ({
-  getUserAccessProfile: async () => ({ providerEnabled: true }),
-}));
+  },
+  trpc,
+};
+mock.module('@/utils/trpc', () => trpcMockModule);
+mock.module('../utils/trpc', () => trpcMockModule);
 
 const { Route } = await import('@/routes/panel.provider');
 
-// Walk the React virtual DOM, evaluating functional components to reach DOM nodes.
-const findByProp = (node: any, key: string, value: string): any => {
-  if (node == null || typeof node !== 'object') return null;
-  if (Array.isArray(node)) {
-    for (const child of node) {
-      const hit = findByProp(child, key, value);
-      if (hit) return hit;
-    }
-    return null;
-  }
-  if (node.props?.[key] === value) return node;
-  if (typeof node.type === 'function') {
-    try {
-      return findByProp(node.type(node.props), key, value);
-    } catch {
-      return null;
-    }
-  }
-  return findByProp(node.props?.children, key, value);
-};
-
 describe('ProviderGroupLayout container seam', () => {
   test('container present with default variant at layout boundary', () => {
-    const tree = Route.component();
-    const container = findByProp(tree, 'data-container-variant', 'default');
-    expect(container).not.toBeNull();
+    const Layout = Route.options.component as ComponentType;
+    const { container } = render(<Layout />);
+    const node = container.querySelector('[data-container-variant="default"]');
+    expect(node).not.toBeNull();
   });
 
-  test('Outlet is inside the content container', () => {
-    const tree = Route.component();
-    const container = findByProp(tree, 'data-container-variant', 'default');
-    expect(container).not.toBeNull();
-    expect(container.props.children).toBeTruthy();
-  });
-
-  test('centered-form variant exists as a selectable option', () => {
-    const el = Route.component;
-    // Verify variant type is exported and accepted (smoke-check the import chain)
-    expect(typeof el).toBe('function');
+  test('layout component is exported as a function', () => {
+    expect(typeof Route.options.component).toBe('function');
   });
 });

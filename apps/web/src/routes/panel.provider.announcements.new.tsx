@@ -43,6 +43,9 @@ import {
   ctaHasIncompleteTarget,
   EMPTY_CTA_VIEW,
 } from './panel/provider/-announcement-cta-section';
+import { AnnouncementCategoryCombobox } from '@/components/announcement-category-combobox';
+import { AnnouncementPriceInput } from '@/components/announcement-price-input';
+import { AnnouncementTagsInput } from '@/components/announcement-tags-input';
 import { PanelContentContainer } from '@/components/panel-content-container';
 import { getCroppedImg } from '@/utils/crop-image';
 import { trpc } from '@/utils/trpc';
@@ -61,8 +64,8 @@ function NewAnnouncementComponent() {
   const [title, setTitle] = useState<string>('');
   const [subtitle, setSubtitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  const [priceStr, setPriceStr] = useState<string>('');
-  const [tagsStr, setTagsStr] = useState<string>('');
+  const [priceCents, setPriceCents] = useState<number | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
   const [contactMode, setContactMode] =
     useState<AnnouncementContactMode>('inherit');
   const [customPhone, setCustomPhone] = useState<string>('');
@@ -78,6 +81,10 @@ function NewAnnouncementComponent() {
 
   const { data: backendCategories } = useQuery(
     trpc.announcement.listCategories.queryOptions(),
+  );
+
+  const { data: tagSuggestions } = useQuery(
+    trpc.announcement.listTagSuggestions.queryOptions(),
   );
 
   const providerProfileQuery = useQuery(
@@ -193,19 +200,6 @@ function NewAnnouncementComponent() {
 
       const uploadData = await uploadRes.json();
       const imageUrl = uploadData.url;
-
-      const tags = tagsStr
-        .split(/[,\s]+/)
-        .map((tag) => tag.trim().toLowerCase())
-        .filter((tag) => tag.length > 0);
-
-      let priceCents: number | null = null;
-      if (priceStr.trim()) {
-        const cleanPrice = priceStr.replace(/[^\d]/g, '');
-        if (cleanPrice) {
-          priceCents = Number.parseInt(cleanPrice, 10);
-        }
-      }
 
       createMutation.mutate({
         providerAssignmentId: selectedLocationId,
@@ -332,19 +326,11 @@ function NewAnnouncementComponent() {
                   <Label>
                     {t('new_announcement.details_card.category.label')}
                   </Label>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                    {backendCategories?.map((cat) => (
-                      <Button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => setCategoryId(cat.id)}
-                        variant={categoryId === cat.id ? 'default' : 'outline'}
-                        size="sm"
-                      >
-                        {cat.name}
-                      </Button>
-                    ))}
-                  </div>
+                  <AnnouncementCategoryCombobox
+                    categories={backendCategories}
+                    value={categoryId}
+                    onChange={setCategoryId}
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -423,36 +409,24 @@ function NewAnnouncementComponent() {
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="price">
+                    <Label htmlFor="price-input">
                       {t('new_announcement.details_card.form.price_label')}
                     </Label>
-                    <Input
-                      id="price"
-                      type="text"
-                      placeholder={t(
-                        'new_announcement.details_card.form.price_placeholder',
-                      )}
-                      value={priceStr}
-                      onChange={(e) => setPriceStr(e.target.value)}
+                    <AnnouncementPriceInput
+                      valueCents={priceCents}
+                      onChange={setPriceCents}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="tags">
+                    <Label htmlFor="tags-input">
                       {t('new_announcement.details_card.form.tags_label')}
                     </Label>
-                    <Input
-                      id="tags"
-                      type="text"
-                      placeholder={t(
-                        'new_announcement.details_card.form.tags_placeholder',
-                      )}
-                      value={tagsStr}
-                      onChange={(e) => setTagsStr(e.target.value)}
+                    <AnnouncementTagsInput
+                      value={tags}
+                      onChange={setTags}
+                      suggestions={tagSuggestions}
                     />
-                    <p className="text-[10px] text-muted-foreground">
-                      {t('new_announcement.details_card.form.tags_hint')}
-                    </p>
                   </div>
                 </div>
               </CardContent>

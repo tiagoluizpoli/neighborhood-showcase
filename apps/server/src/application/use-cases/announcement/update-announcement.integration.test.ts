@@ -130,6 +130,35 @@ describe('UpdateAnnouncement use case', () => {
     expect(stored?.suspensionReason).toBeNull();
   });
 
+  test('normalizes tags and price on update (parity with create)', async () => {
+    await updateAnnouncement.execute({
+      actorId: ownerId,
+      announcementId,
+      title: 'Normalized Title',
+      subtitle: null,
+      description: 'Normalized description with enough length.',
+      priceCents: 1999.4,
+      imageUrl: 'https://example.com/norm.png',
+      categoryId: 'cat-alimentacao',
+      tags: ['  Novo ', 'NOVO', 'Pão', 'pao', ''],
+      contact: {
+        mode: 'custom',
+        custom: { primaryPhone: '5511988887777', callEnabled: false },
+      },
+      cta: { primary: null, secondary: [] },
+      showVerifiedBadge: false,
+    });
+
+    const [stored] = await db
+      .select()
+      .from(announcement)
+      .where(eq(announcement.id, announcementId))
+      .limit(1);
+
+    expect(stored?.tags).toEqual(['novo', 'pão']);
+    expect(stored?.priceCents).toBe(1999);
+  });
+
   test('persists inherit mode without a custom payload', async () => {
     await updateAnnouncement.execute({
       actorId: ownerId,

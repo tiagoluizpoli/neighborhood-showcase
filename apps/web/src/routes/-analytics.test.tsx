@@ -8,6 +8,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
+import type { ReactElement } from 'react';
 import { createElement, StrictMode } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
@@ -18,7 +19,9 @@ let currentId = 'ann-123';
 
 // Complete router mock (spreads the real module so no named export is dropped
 // for other files) with a navigate spy so card-click navigation is assertable.
-const navigate = mock(() => {});
+const navigate = mock(
+  (_opts: { to: string; params?: Record<string, unknown> }) => {},
+);
 mock.module('@tanstack/react-router', () => ({
   ...RealRouter,
   // biome-ignore lint/suspicious/noExplicitAny: test boundary stub
@@ -149,7 +152,7 @@ function makeClient() {
 }
 
 function renderDetail(strict = false) {
-  const Component = DetailsRoute.options.component as () => JSX.Element;
+  const Component = DetailsRoute.options.component as () => ReactElement;
   const tree = (
     <QueryClientProvider client={makeClient()}>
       <I18nextProvider i18n={i18n}>
@@ -161,7 +164,7 @@ function renderDetail(strict = false) {
 }
 
 function renderIndex() {
-  const Component = IndexRoute.options.component as () => JSX.Element;
+  const Component = IndexRoute.options.component as () => ReactElement;
   return render(
     <QueryClientProvider client={makeClient()}>
       <I18nextProvider i18n={i18n}>
@@ -213,7 +216,7 @@ describe('Analytics Impression Tracking tests', () => {
     await waitFor(() => expect(impressionCalls().length).toBe(1));
 
     currentId = 'ann-456';
-    const Component = DetailsRoute.options.component as () => JSX.Element;
+    const Component = DetailsRoute.options.component as () => ReactElement;
     rerender(
       <QueryClientProvider client={makeClient()}>
         <I18nextProvider i18n={i18n}>

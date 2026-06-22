@@ -8,7 +8,7 @@
     "moduleResolution": "Bundler",
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
-    "types": ["vite/client"],
+    "types": ["vite/client", "bun"],
     "rootDirs": ["."],
     "baseUrl": ".",
     "paths": {
@@ -16,5 +16,5 @@
       "@neighborhood-showcase/ui/*": ["../../packages/ui/src/*"]
     }
   },
-  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
+  "exclude": ["dist"]
 }

@@ -183,11 +183,10 @@ export function ProviderAnnouncementDetailPage() {
       description: form.description,
       id: announcement.id,
       imageUrl: form.imageUrl,
-      priceCents:
-        form.price === '' ? null : Math.round(Number(form.price) * 100),
+      priceCents: form.priceCents,
       showVerifiedBadge: form.showVerifiedBadge && canVerify,
       subtitle: form.subtitle || null,
-      tags: announcement.tags,
+      tags: form.tags,
       title: form.title,
     });
   };
@@ -378,10 +377,11 @@ export function ProviderAnnouncementDetailPage() {
                 imageUrl={form.imageUrl}
                 isLoadingProviderDefaults={providerProfileQuery.isLoading}
                 isUploading={false}
-                price={form.price}
+                priceCents={form.priceCents}
                 providerDefaults={providerDefaults}
                 showVerifiedBadge={form.showVerifiedBadge}
                 subtitle={form.subtitle}
+                tags={form.tags}
                 title={form.title}
                 onCategoryIdChange={(value: string) =>
                   setForm({ ...form, categoryId: value })
@@ -407,14 +407,17 @@ export function ProviderAnnouncementDetailPage() {
                 onImageUrlChange={(value: string) =>
                   setForm({ ...form, imageUrl: value })
                 }
-                onPriceChange={(value: number | '') =>
-                  setForm({ ...form, price: value })
+                onPriceCentsChange={(value: number | null) =>
+                  setForm({ ...form, priceCents: value })
                 }
                 onShowVerifiedBadgeChange={(value: boolean) =>
                   setForm({ ...form, showVerifiedBadge: value })
                 }
                 onSubtitleChange={(value: string) =>
                   setForm({ ...form, subtitle: value })
+                }
+                onTagsChange={(value: string[]) =>
+                  setForm({ ...form, tags: value })
                 }
                 onTitleChange={(value: string) =>
                   setForm({ ...form, title: value })
@@ -444,9 +447,10 @@ interface ProviderAnnouncementFormState {
   customPhone: string;
   description: string;
   imageUrl: string;
-  price: number | '';
+  priceCents: number | null;
   showVerifiedBadge: boolean;
   subtitle: string;
+  tags: string[];
   title: string;
 }
 
@@ -461,9 +465,10 @@ function createInitialFormState(
     customPhone: announcement.contact.custom?.primaryPhone ?? '',
     description: announcement.description,
     imageUrl: announcement.imageUrl,
-    price: announcement.priceCents ? announcement.priceCents / 100 : '',
+    priceCents: announcement.priceCents ?? null,
     showVerifiedBadge: announcement.showVerifiedBadge,
     subtitle: announcement.subtitle || '',
+    tags: announcement.tags,
     title: announcement.title,
   };
 }

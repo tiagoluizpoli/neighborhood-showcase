@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import type { ReactElement } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
 
@@ -47,7 +48,7 @@ const { ProviderDashboardEditFormFields } = await import(
   './panel/-provider-dashboard-edit-form-fields'
 );
 
-function renderWithProviders(ui: JSX.Element) {
+function renderWithProviders(ui: ReactElement) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });

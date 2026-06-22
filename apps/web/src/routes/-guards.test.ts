@@ -1,7 +1,23 @@
 import { describe, expect, mock, test } from 'bun:test';
 
+// Session/assignment fixtures the guards read. Typing the mock return up-front
+// lets `mockImplementation` hand back authenticated shapes without a cast.
+type GuardSession = {
+  data: {
+    user: { id: string; role: string };
+    session: Record<string, unknown>;
+  } | null;
+};
+type GuardAssignment = {
+  type: string;
+  status: string;
+  condominiumId: string | null;
+};
+
 // Set up mocks before importing the routes
-const mockGetSession = mock(() => Promise.resolve({ data: null }));
+const mockGetSession = mock(
+  (): Promise<GuardSession> => Promise.resolve({ data: null }),
+);
 mock.module('../lib/auth-client', () => ({
   authClient: {
     getSession: mockGetSession,
@@ -11,7 +27,9 @@ mock.module('../lib/auth-client', () => ({
 
 import { trpc } from '../utils/trpc';
 
-const mockGetMyAssignments = mock(() => Promise.resolve([]));
+const mockGetMyAssignments = mock(
+  (): Promise<GuardAssignment[]> => Promise.resolve([]),
+);
 const mockMyCreatedCondo = mock(() => Promise.resolve(null));
 const mockGetAccessProfile = mock(() =>
   Promise.resolve({ providerEnabled: false }),
@@ -66,10 +84,10 @@ describe('Route Guards Redirection & Security', () => {
           location: { pathname: '/panel' },
           params: {},
           search: {},
-        } as unknown as Parameters<
-          NonNullable<typeof PanelRoute.options.beforeLoad>
-        >[0]);
-        expect().unreachable(); // Should not reach here
+        } as unknown as NonNullable<
+          Parameters<NonNullable<typeof PanelRoute.options.beforeLoad>>[0]
+        >);
+        expect.unreachable(); // Should not reach here
       } catch (err: unknown) {
         expect(err).toBeDefined();
         const redirectErr = err as RedirectError;
@@ -97,9 +115,9 @@ describe('Route Guards Redirection & Security', () => {
         location: { pathname: '/panel' },
         params: {},
         search: {},
-      } as unknown as Parameters<
-        NonNullable<typeof PanelRoute.options.beforeLoad>
-      >[0]);
+      } as unknown as NonNullable<
+        Parameters<NonNullable<typeof PanelRoute.options.beforeLoad>>[0]
+      >);
 
       expect(ctx).toBeDefined();
       const resolvedCtx = ctx as {
@@ -140,10 +158,10 @@ describe('Route Guards Redirection & Security', () => {
               },
             },
           },
-        } as unknown as Parameters<
-          NonNullable<typeof DashboardRoute.options.beforeLoad>
-        >[0]);
-        expect().unreachable();
+        } as unknown as NonNullable<
+          Parameters<NonNullable<typeof DashboardRoute.options.beforeLoad>>[0]
+        >);
+        expect.unreachable();
       } catch (err: unknown) {
         expect(err).toBeDefined();
         const redirectErr = err as RedirectError;
@@ -179,9 +197,9 @@ describe('Route Guards Redirection & Security', () => {
             },
           },
         },
-      } as unknown as Parameters<
-        NonNullable<typeof DashboardRoute.options.beforeLoad>
-      >[0]);
+      } as unknown as NonNullable<
+        Parameters<NonNullable<typeof DashboardRoute.options.beforeLoad>>[0]
+      >);
 
       expect(ctx).toBeUndefined(); // Returns undefined or void on bypass
     });
@@ -196,10 +214,10 @@ describe('Route Guards Redirection & Security', () => {
           location: { pathname: '/panel/moderation' },
           params: {},
           search: {},
-        } as unknown as Parameters<
-          NonNullable<typeof ModerationRoute.options.beforeLoad>
-        >[0]);
-        expect().unreachable();
+        } as unknown as NonNullable<
+          Parameters<NonNullable<typeof ModerationRoute.options.beforeLoad>>[0]
+        >);
+        expect.unreachable();
       } catch (err: unknown) {
         expect(err).toBeDefined();
         const redirectErr = err as RedirectError;
@@ -237,10 +255,10 @@ describe('Route Guards Redirection & Security', () => {
           location: { pathname: '/panel/moderation' },
           params: {},
           search: {},
-        } as unknown as Parameters<
-          NonNullable<typeof ModerationRoute.options.beforeLoad>
-        >[0]);
-        expect().unreachable();
+        } as unknown as NonNullable<
+          Parameters<NonNullable<typeof ModerationRoute.options.beforeLoad>>[0]
+        >);
+        expect.unreachable();
       } catch (err: unknown) {
         expect(err).toBeDefined();
         const redirectErr = err as RedirectError;
@@ -277,9 +295,9 @@ describe('Route Guards Redirection & Security', () => {
         location: { pathname: '/panel/moderation' },
         params: {},
         search: {},
-      } as unknown as Parameters<
-        NonNullable<typeof ModerationRoute.options.beforeLoad>
-      >[0]);
+      } as unknown as NonNullable<
+        Parameters<NonNullable<typeof ModerationRoute.options.beforeLoad>>[0]
+      >);
       expect(ctx).toBeDefined();
       const resolvedCtx = ctx as { moderatorAssignments: unknown[] };
       expect(resolvedCtx.moderatorAssignments.length).toBe(1);
@@ -295,10 +313,10 @@ describe('Route Guards Redirection & Security', () => {
           location: { pathname: '/panel/admin' },
           params: {},
           search: {},
-        } as unknown as Parameters<
-          NonNullable<typeof AdminRoute.options.beforeLoad>
-        >[0]);
-        expect().unreachable();
+        } as unknown as NonNullable<
+          Parameters<NonNullable<typeof AdminRoute.options.beforeLoad>>[0]
+        >);
+        expect.unreachable();
       } catch (err: unknown) {
         expect(err).toBeDefined();
         const redirectErr = err as RedirectError;
@@ -327,10 +345,10 @@ describe('Route Guards Redirection & Security', () => {
           location: { pathname: '/panel/admin' },
           params: {},
           search: {},
-        } as unknown as Parameters<
-          NonNullable<typeof AdminRoute.options.beforeLoad>
-        >[0]);
-        expect().unreachable();
+        } as unknown as NonNullable<
+          Parameters<NonNullable<typeof AdminRoute.options.beforeLoad>>[0]
+        >);
+        expect.unreachable();
       } catch (err: unknown) {
         expect(err).toBeDefined();
         const redirectErr = err as RedirectError;
@@ -358,9 +376,9 @@ describe('Route Guards Redirection & Security', () => {
         location: { pathname: '/panel/admin' },
         params: {},
         search: {},
-      } as unknown as Parameters<
-        NonNullable<typeof AdminRoute.options.beforeLoad>
-      >[0]);
+      } as unknown as NonNullable<
+        Parameters<NonNullable<typeof AdminRoute.options.beforeLoad>>[0]
+      >);
       expect(ctx).toBeDefined();
       const resolvedCtx = ctx as {
         session: { data: { user: { role: string } } };
@@ -387,9 +405,9 @@ describe('Route Guards Redirection & Security', () => {
         location: { pathname: '/panel/admin' },
         params: {},
         search: {},
-      } as unknown as Parameters<
-        NonNullable<typeof AdminRoute.options.beforeLoad>
-      >[0]);
+      } as unknown as NonNullable<
+        Parameters<NonNullable<typeof AdminRoute.options.beforeLoad>>[0]
+      >);
       expect(ctx).toBeDefined();
       const resolvedCtx = ctx as {
         session: { data: { user: { role: string } } };

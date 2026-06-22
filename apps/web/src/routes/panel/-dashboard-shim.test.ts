@@ -1,155 +1,146 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { trpc } from '@/utils/trpc';
+
+// Use the real @tanstack/react-router (the global test-setup stub spreads the
+// real module, so `redirect` throws a real RedirectError whose target lives at
+// `err.to || err.options?.to`). Only the trpc client is mocked, with its full
+// export surface, because bun's `mock.module` is process-global and a partial
+// mock that drops a named export poisons every other file in the run. Provider
+// access + moderator assignments are driven through that trpc mock instead of
+// partial-mocking `-user-access-profile`.
 
 let mockProviderEnabled = false;
-let mockSessionData: { user: { role: string } } | null = null;
 let mockAssignments: Array<{
   type: string;
   status: string;
   condominiumId: string | null;
 }> = [];
 
-const mockRedirect = (opts: {
-  to: string;
-  search?: Record<string, string>;
-}) => {
-  const err = Object.assign(new Error('REDIRECT'), {
-    isRedirect: true,
-    ...opts,
-  });
-  throw err;
-};
-
-mock.module('@tanstack/react-router', () => ({
-  createFileRoute: (_path: string) => (config: unknown) => config,
-  Outlet: () => null,
-  redirect: mockRedirect,
-}));
-
-mock.module('@/routes/panel/-user-access-profile', () => ({
-  getUserAccessProfile: async () => ({ providerEnabled: mockProviderEnabled }),
-}));
-
-mock.module('@/utils/trpc', () => ({
+const trpcMockModule = {
   trpcClient: {
     assignment: {
-      getMyAssignments: {
-        query: async () => mockAssignments,
+      getMyAssignments: { query: async () => mockAssignments },
+    },
+    user: {
+      getAccessProfile: {
+        query: async () => ({ providerEnabled: mockProviderEnabled }),
       },
     },
   },
-}));
+  trpc,
+};
+mock.module('@/utils/trpc', () => trpcMockModule);
+mock.module('../utils/trpc', () => trpcMockModule);
+
+interface RedirectError {
+  to?: string;
+  options?: { to?: string };
+}
+
+const SHIM_PATH = '/panel/dashboard';
 
 type ShimBeforeLoad = (ctx: {
   location: { pathname: string; search?: Record<string, string> };
   context: { session: unknown };
 }) => Promise<void>;
 
-let routeConfig: {
-  beforeLoad?: ShimBeforeLoad;
-  options?: { beforeLoad?: ShimBeforeLoad };
-};
-
-const SHIM_PATH = '/panel/dashboard';
+let beforeLoad: ShimBeforeLoad | undefined;
+let session: { user: { role: string } } | null;
 
 describe('Dashboard shim — beforeLoad', () => {
   beforeEach(async () => {
     mockProviderEnabled = false;
     mockAssignments = [];
-    mockSessionData = { user: { role: 'USER' } };
+    session = { user: { role: 'USER' } };
     const mod = await import('@/routes/panel.dashboard');
-    routeConfig = mod.Route as typeof routeConfig;
+    beforeLoad = mod.Route.options.beforeLoad as unknown as ShimBeforeLoad;
   });
 
+  const expectRedirect = async (
+    ctx: Parameters<ShimBeforeLoad>[0],
+    dest: string,
+  ) => {
+    try {
+      await beforeLoad?.(ctx);
+      expect.unreachable();
+    } catch (err: unknown) {
+      const redirectErr = err as RedirectError;
+      expect(redirectErr.to || redirectErr.options?.to).toBe(dest);
+    }
+  };
+
   test('unauthenticated user is redirected to root', async () => {
-    const context = { session: null };
-    const beforeLoad =
-      routeConfig.beforeLoad || routeConfig.options?.beforeLoad;
-    await expect(
-      beforeLoad?.({
+    await expectRedirect(
+      {
         location: { pathname: SHIM_PATH, search: {} },
-        context,
-      }),
-    ).rejects.toMatchObject({ isRedirect: true, to: '/' });
+        context: { session: null },
+      },
+      '/',
+    );
   });
 
   test('SYSTEM_MANAGER is redirected to /panel/admin', async () => {
-    mockSessionData = { user: { role: 'SYSTEM_MANAGER' } };
-    const context = { session: { data: mockSessionData } };
-    const beforeLoad =
-      routeConfig.beforeLoad || routeConfig.options?.beforeLoad;
-    await expect(
-      beforeLoad?.({
+    session = { user: { role: 'SYSTEM_MANAGER' } };
+    await expectRedirect(
+      {
         location: { pathname: SHIM_PATH, search: {} },
-        context,
-      }),
-    ).rejects.toMatchObject({ isRedirect: true, to: '/panel/admin' });
+        context: { session: { data: session } },
+      },
+      '/panel/admin',
+    );
   });
 
   test('ADMINISTRATOR is redirected to /panel/admin', async () => {
-    mockSessionData = { user: { role: 'ADMINISTRATOR' } };
-    const context = { session: { data: mockSessionData } };
-    const beforeLoad =
-      routeConfig.beforeLoad || routeConfig.options?.beforeLoad;
-    await expect(
-      beforeLoad?.({
+    session = { user: { role: 'ADMINISTRATOR' } };
+    await expectRedirect(
+      {
         location: { pathname: SHIM_PATH, search: {} },
-        context,
-      }),
-    ).rejects.toMatchObject({ isRedirect: true, to: '/panel/admin' });
+        context: { session: { data: session } },
+      },
+      '/panel/admin',
+    );
   });
 
   test('moderator user is redirected to /panel/moderation', async () => {
     mockAssignments = [
       { type: 'MODERATOR', status: 'APPROVED', condominiumId: 'condo-123' },
     ];
-    const context = { session: { data: mockSessionData } };
-    const beforeLoad =
-      routeConfig.beforeLoad || routeConfig.options?.beforeLoad;
-    await expect(
-      beforeLoad?.({
+    await expectRedirect(
+      {
         location: { pathname: SHIM_PATH, search: {} },
-        context,
-      }),
-    ).rejects.toMatchObject({ isRedirect: true, to: '/panel/moderation' });
+        context: { session: { data: session } },
+      },
+      '/panel/moderation',
+    );
   });
 
   test('provider-enabled user is redirected to /panel/provider', async () => {
     mockProviderEnabled = true;
-    const context = { session: { data: mockSessionData } };
-    const beforeLoad =
-      routeConfig.beforeLoad || routeConfig.options?.beforeLoad;
-    await expect(
-      beforeLoad?.({
+    await expectRedirect(
+      {
         location: { pathname: SHIM_PATH, search: {} },
-        context,
-      }),
-    ).rejects.toMatchObject({ isRedirect: true, to: '/panel/provider' });
+        context: { session: { data: session } },
+      },
+      '/panel/provider',
+    );
   });
 
   test('non-provider USER is redirected to condo-setup onboarding', async () => {
     mockProviderEnabled = false;
-    const context = { session: { data: mockSessionData } };
-    const beforeLoad =
-      routeConfig.beforeLoad || routeConfig.options?.beforeLoad;
-    await expect(
-      beforeLoad?.({
+    await expectRedirect(
+      {
         location: { pathname: SHIM_PATH, search: {} },
-        context,
-      }),
-    ).rejects.toMatchObject({
-      isRedirect: true,
-      to: '/panel/dashboard/condo-setup',
-    });
+        context: { session: { data: session } },
+      },
+      '/panel/dashboard/condo-setup',
+    );
   });
 
   test('condo-setup path is allowed through without redirect', async () => {
-    const context = { session: { data: mockSessionData } };
-    const beforeLoad =
-      routeConfig.beforeLoad || routeConfig.options?.beforeLoad;
     await expect(
       beforeLoad?.({
         location: { pathname: '/panel/dashboard/condo-setup', search: {} },
-        context,
+        context: { session: { data: session } },
       }),
     ).resolves.toBeUndefined();
   });

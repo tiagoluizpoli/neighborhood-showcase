@@ -1,6 +1,8 @@
 import crypto from 'node:crypto';
 import { TRPCError } from '@trpc/server';
 import { Announcement } from '../../../domain/entities/announcement.entity';
+import { normalizePriceCents } from '../../../domain/entities/money';
+import { normalizeTags } from '../../../domain/entities/tags';
 import type { AnnouncementRepository } from '../../../domain/repositories/announcement.repository';
 import type { AssignmentRepository } from '../../../domain/repositories/assignment.repository';
 import type {
@@ -32,6 +34,11 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
       });
     }
 
+    // Normalize the scalable authoring primitives once so the validation entity
+    // and the persisted row agree (and create/update cannot drift).
+    const tags = normalizeTags(input.tags);
+    const priceCents = normalizePriceCents(input.priceCents);
+
     // Validate announcement details using domain entity constructor
     new Announcement({
       providerId: input.providerId,
@@ -40,10 +47,10 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
       title: input.title,
       subtitle: input.subtitle || null,
       description: input.description,
-      priceCents: input.priceCents || null,
+      priceCents,
       imageUrl: input.imageUrl,
       categoryId: input.categoryId,
-      tags: input.tags,
+      tags,
       contact: input.contact,
       cta: input.cta,
       showVerifiedBadge: input.showVerifiedBadge,
@@ -73,10 +80,10 @@ export class CreateAnnouncement implements CreateAnnouncementUseCase {
       title: input.title,
       subtitle: input.subtitle || null,
       description: input.description,
-      priceCents: input.priceCents || null,
+      priceCents,
       imageUrl: input.imageUrl,
       categoryId: input.categoryId,
-      tags: input.tags,
+      tags,
       contact: input.contact,
       cta: input.cta,
       showVerifiedBadge: input.showVerifiedBadge,

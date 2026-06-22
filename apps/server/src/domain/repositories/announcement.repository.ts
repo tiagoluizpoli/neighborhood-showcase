@@ -207,6 +207,7 @@ export interface AnnouncementRepository {
     input: ListPublicAnnouncementsInput,
   ): Promise<PublicAnnouncementDTO[]>;
   countPendingByCondo(condominiumId: string): Promise<number>;
+  listTagSuggestions(limit?: number): Promise<string[]>;
 }
 
 export interface ListPublicAnnouncementsInput {

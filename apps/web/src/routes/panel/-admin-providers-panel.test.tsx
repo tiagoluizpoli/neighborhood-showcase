@@ -177,8 +177,12 @@ describe('AdminProvidersPanel', () => {
     });
 
     expect(
-      findElement(tree, (element) =>
-        element.props?.className?.includes('animate-spin'),
+      findElement(
+        tree,
+        (element) =>
+          (element.props?.className as string | undefined)?.includes(
+            'animate-spin',
+          ) ?? false,
       ),
     ).toBeTruthy();
   });
@@ -364,7 +368,11 @@ describe('AdminProvidersPanel', () => {
     );
     expect(searchInput).toBeTruthy();
     // Simulate onChange by calling the handler directly
-    searchInput?.props?.onChange({
+    (
+      searchInput?.props?.onChange as unknown as (
+        e: React.ChangeEvent<HTMLInputElement>,
+      ) => void
+    )({
       target: { value: 'NewSearch' },
     } as unknown as React.ChangeEvent<HTMLInputElement>);
     expect(searchValue).toBe('NewSearch');
@@ -394,7 +402,11 @@ describe('AdminProvidersPanel', () => {
         element.props?.placeholder === 'Ex: Fraude ou spam recorrente',
     );
     expect(reasonInput).toBeTruthy();
-    reasonInput?.props?.onChange({
+    (
+      reasonInput?.props?.onChange as unknown as (
+        e: React.ChangeEvent<HTMLInputElement>,
+      ) => void
+    )({
       target: { value: 'Fraude digitada' },
     } as unknown as React.ChangeEvent<HTMLInputElement>);
     expect(reasonValue).toBe('Fraude digitada');

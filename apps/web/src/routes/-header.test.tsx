@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
 import { render, screen } from '@testing-library/react';
+import type { ReactElement } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
 
@@ -17,7 +18,7 @@ mock.module('@/lib/auth-client', () => ({
 const { Header } = await import('@/components/header');
 const { Footer } = await import('@/components/footer');
 
-const renderWithI18n = (ui: JSX.Element) =>
+const renderWithI18n = (ui: ReactElement) =>
   render(<I18nextProvider i18n={i18n}>{ui}</I18nextProvider>);
 
 describe('Public Shell Header & Footer Tests', () => {
