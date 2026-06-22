@@ -7,25 +7,18 @@ import {
   CardHeader,
   CardTitle,
 } from '@neighborhood-showcase/ui/components/card';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Loader2, Phone, ShieldCheck, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { ProviderDashboardAnalyticsPanel } from './panel/-provider-dashboard-analytics-panel';
-import { ProviderDashboardEditFormFields } from './panel/-provider-dashboard-edit-form-fields';
 import type { ProviderDashboardAnnouncementItem } from './panel/-provider-dashboard-types';
 import {
-  type AnnouncementContactMode,
   hasBaseline,
   type ProviderContactDefaultsView,
 } from './panel/provider/-announcement-contact-section';
-import {
-  type AnnouncementCtaView,
-  ctaHasIncompleteTarget,
-  withCtaIds,
-} from './panel/provider/-announcement-cta-section';
 import { authClient } from '@/lib/auth-client';
 import { useUserAccessProfile } from '@/routes/panel/-user-access-profile';
 import { trpc } from '@/utils/trpc';
@@ -40,23 +33,14 @@ export function ProviderAnnouncementDetailPage() {
   const { id } = Route.useParams();
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [isEditing, setIsEditing] = useState(false);
   const [period, setPeriod] = useState<AnalyticsPeriod>('7d');
-  const [form, setForm] = useState<ProviderAnnouncementFormState | null>(null);
   const dashboardQuery = useQuery(
     trpc.announcement.getDashboardData.queryOptions(),
-  );
-  const categoriesQuery = useQuery(
-    trpc.announcement.listCategories.queryOptions(),
   );
   const providerProfileQuery = useQuery(
     trpc.providerProfile.get.queryOptions(),
   );
   const accessProfileQuery = useUserAccessProfile();
-  const assignmentsQuery = useQuery(
-    trpc.assignment.getMyAssignments.queryOptions(),
-  );
 
   const announcement = useMemo(
     () =>
@@ -66,23 +50,11 @@ export function ProviderAnnouncementDetailPage() {
     [dashboardQuery.data, id],
   );
 
-  const selectedAssignment = assignmentsQuery.data?.find(
-    (assignment) => assignment.id === announcement?.providerAssignmentId,
-  );
-  const canVerify =
-    selectedAssignment?.type === 'RESIDENT' &&
-    selectedAssignment?.status === 'APPROVED';
   const providerDefaults = toProviderContactDefaults(
     providerProfileQuery.data?.contactDefaults,
   );
 
   const { data: session } = authClient.useSession();
-
-  useEffect(() => {
-    if (announcement) {
-      setForm(createInitialFormState(announcement));
-    }
-  }, [announcement]);
 
   useEffect(() => {
     if (
@@ -107,28 +79,7 @@ export function ProviderAnnouncementDetailPage() {
     t,
   ]);
 
-  const updateMutation = useMutation(
-    trpc.announcement.update.mutationOptions({
-      onError: (error) => {
-        toast.error(error.message || t('meus_anuncios.detail.update_error'));
-      },
-      onSuccess: () => {
-        toast.success(t('meus_anuncios.detail.update_success'));
-        setIsEditing(false);
-        void queryClient.invalidateQueries({
-          queryKey: trpc.announcement.getDashboardData.queryKey(),
-        });
-      },
-    }),
-  );
-
-  if (
-    !session ||
-    accessProfileQuery.isLoading ||
-    assignmentsQuery.isLoading ||
-    dashboardQuery.isLoading ||
-    !form
-  ) {
+  if (!session || accessProfileQuery.isLoading || dashboardQuery.isLoading) {
     return (
       <CenteredState message={t('meus_anuncios.detail.loading')} spinning />
     );
@@ -137,59 +88,6 @@ export function ProviderAnnouncementDetailPage() {
   if (!announcement) {
     return null;
   }
-
-  const handleSave = () => {
-    if (form.title.trim().length < 3) {
-      toast.error(t('meus_anuncios.detail.validation.title'));
-      return;
-    }
-
-    if (form.description.trim().length < 10) {
-      toast.error(t('meus_anuncios.detail.validation.description'));
-      return;
-    }
-
-    if (form.contactMode === 'inherit' && !hasBaseline(providerDefaults)) {
-      toast.error(t('new_announcement.toast.inherit_no_baseline'));
-      return;
-    }
-
-    if (
-      form.contactMode === 'custom' &&
-      form.customPhone.replace(/\D/g, '').length < 10
-    ) {
-      toast.error(t('new_announcement.toast.custom_phone_invalid'));
-      return;
-    }
-
-    if (ctaHasIncompleteTarget(form.cta)) {
-      toast.error(t('new_announcement.toast.cta_incomplete'));
-      return;
-    }
-
-    updateMutation.mutate({
-      categoryId: form.categoryId,
-      contact:
-        form.contactMode === 'inherit'
-          ? { mode: 'inherit', custom: null }
-          : {
-              mode: 'custom',
-              custom: {
-                primaryPhone: form.customPhone,
-                callEnabled: form.customCallEnabled,
-              },
-            },
-      cta: form.cta,
-      description: form.description,
-      id: announcement.id,
-      imageUrl: form.imageUrl,
-      priceCents: form.priceCents,
-      showVerifiedBadge: form.showVerifiedBadge && canVerify,
-      subtitle: form.subtitle || null,
-      tags: form.tags,
-      title: form.title,
-    });
-  };
 
   const locale = i18n.language === 'en' ? 'en-US' : 'pt-BR';
 
@@ -205,34 +103,17 @@ export function ProviderAnnouncementDetailPage() {
         </Link>
 
         <div className="flex gap-2">
-          {isEditing ? (
-            <>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setForm(createInitialFormState(announcement));
-                  setIsEditing(false);
-                }}
-              >
-                {t('meus_anuncios.detail.cancel')}
-              </Button>
-              <Button
-                type="button"
-                onClick={handleSave}
-                disabled={updateMutation.isPending}
-              >
-                {updateMutation.isPending && (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                )}
-                {t('meus_anuncios.detail.save')}
-              </Button>
-            </>
-          ) : (
-            <Button type="button" onClick={() => setIsEditing(true)}>
-              {t('meus_anuncios.detail.edit')}
-            </Button>
-          )}
+          <Button
+            type="button"
+            onClick={() =>
+              navigate({
+                to: '/panel/provider/announcements/$id/edit',
+                params: { id },
+              })
+            }
+          >
+            {t('meus_anuncios.detail.edit')}
+          </Button>
         </div>
       </div>
 
@@ -240,7 +121,7 @@ export function ProviderAnnouncementDetailPage() {
         <Card className="overflow-hidden">
           <div className="aspect-[4/3] w-full overflow-hidden bg-muted">
             <img
-              src={isEditing ? form.imageUrl : announcement.imageUrl}
+              src={announcement.imageUrl}
               alt={announcement.title}
               className="h-full w-full object-cover"
             />
@@ -354,123 +235,15 @@ export function ProviderAnnouncementDetailPage() {
           </CardContent>
         </Card>
 
-        {isEditing ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {t('meus_anuncios.detail.edit_panel_title')}
-              </CardTitle>
-              <CardDescription>
-                {t('meus_anuncios.detail.edit_panel_subtitle')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <ProviderDashboardEditFormFields
-                backendCategories={categoriesQuery.data}
-                canVerify={canVerify}
-                categoryId={form.categoryId}
-                contactMode={form.contactMode}
-                cta={form.cta}
-                customCallEnabled={form.customCallEnabled}
-                customPhone={form.customPhone}
-                description={form.description}
-                imageUrl={form.imageUrl}
-                isLoadingProviderDefaults={providerProfileQuery.isLoading}
-                isUploading={false}
-                priceCents={form.priceCents}
-                providerDefaults={providerDefaults}
-                showVerifiedBadge={form.showVerifiedBadge}
-                subtitle={form.subtitle}
-                tags={form.tags}
-                title={form.title}
-                onCategoryIdChange={(value: string) =>
-                  setForm({ ...form, categoryId: value })
-                }
-                onConfigureContact={() =>
-                  void navigate({ to: '/panel/provider/configuration' })
-                }
-                onContactModeChange={(value: AnnouncementContactMode) =>
-                  setForm({ ...form, contactMode: value })
-                }
-                onCtaChange={(value: AnnouncementCtaView) =>
-                  setForm({ ...form, cta: value })
-                }
-                onCustomCallEnabledChange={(value: boolean) =>
-                  setForm({ ...form, customCallEnabled: value })
-                }
-                onCustomPhoneChange={(value: string) =>
-                  setForm({ ...form, customPhone: value })
-                }
-                onDescriptionChange={(value: string) =>
-                  setForm({ ...form, description: value })
-                }
-                onImageUrlChange={(value: string) =>
-                  setForm({ ...form, imageUrl: value })
-                }
-                onPriceCentsChange={(value: number | null) =>
-                  setForm({ ...form, priceCents: value })
-                }
-                onShowVerifiedBadgeChange={(value: boolean) =>
-                  setForm({ ...form, showVerifiedBadge: value })
-                }
-                onSubtitleChange={(value: string) =>
-                  setForm({ ...form, subtitle: value })
-                }
-                onTagsChange={(value: string[]) =>
-                  setForm({ ...form, tags: value })
-                }
-                onTitleChange={(value: string) =>
-                  setForm({ ...form, title: value })
-                }
-                onUploadingChange={() => {}}
-              />
-            </CardContent>
-          </Card>
-        ) : (
-          <ProviderDashboardAnalyticsPanel
-            announcementId={announcement.id}
-            period={period}
-            title={announcement.title}
-            onPeriodChange={setPeriod}
-          />
-        )}
+        <ProviderDashboardAnalyticsPanel
+          announcementId={announcement.id}
+          period={period}
+          title={announcement.title}
+          onPeriodChange={setPeriod}
+        />
       </section>
     </div>
   );
-}
-
-interface ProviderAnnouncementFormState {
-  categoryId: string;
-  contactMode: AnnouncementContactMode;
-  cta: AnnouncementCtaView;
-  customCallEnabled: boolean;
-  customPhone: string;
-  description: string;
-  imageUrl: string;
-  priceCents: number | null;
-  showVerifiedBadge: boolean;
-  subtitle: string;
-  tags: string[];
-  title: string;
-}
-
-function createInitialFormState(
-  announcement: ProviderDashboardAnnouncementItem,
-): ProviderAnnouncementFormState {
-  return {
-    categoryId: announcement.categoryId,
-    contactMode: announcement.contact.mode,
-    cta: withCtaIds(announcement.cta),
-    customCallEnabled: announcement.contact.custom?.callEnabled ?? false,
-    customPhone: announcement.contact.custom?.primaryPhone ?? '',
-    description: announcement.description,
-    imageUrl: announcement.imageUrl,
-    priceCents: announcement.priceCents ?? null,
-    showVerifiedBadge: announcement.showVerifiedBadge,
-    subtitle: announcement.subtitle || '',
-    tags: announcement.tags,
-    title: announcement.title,
-  };
 }
 
 function flattenAnnouncements(announcements?: {
@@ -612,6 +385,24 @@ function StatusBadge({
   );
 }
 
+function toProviderContactDefaults(
+  defaults:
+    | {
+        primaryPhone?: string | null;
+        callEnabled?: boolean | null;
+      }
+    | undefined,
+): ProviderContactDefaultsView | null {
+  if (!defaults) {
+    return null;
+  }
+
+  return {
+    primaryPhone: defaults.primaryPhone ?? '',
+    callEnabled: defaults.callEnabled ?? false,
+  };
+}
+
 function statusKeyForAnnouncement(
   announcement: ProviderDashboardAnnouncementItem,
 ) {
@@ -650,22 +441,4 @@ function countContactLinks(
   links: ProviderDashboardAnnouncementItem['contactLinks'],
 ) {
   return Object.values(links).filter(Boolean).length;
-}
-
-function toProviderContactDefaults(
-  defaults:
-    | {
-        primaryPhone?: string | null;
-        callEnabled?: boolean | null;
-      }
-    | undefined,
-): ProviderContactDefaultsView | null {
-  if (!defaults) {
-    return null;
-  }
-
-  return {
-    primaryPhone: defaults.primaryPhone ?? '',
-    callEnabled: defaults.callEnabled ?? false,
-  };
 }

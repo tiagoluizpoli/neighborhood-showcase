@@ -41,7 +41,7 @@ interface AnnouncementBuckets {
   suspended: ProviderDashboardAnnouncementItem[];
 }
 
-const CREATE_ROUTE = '/panel/dashboard/announcements/new';
+const CREATE_ROUTE = '/panel/provider/announcements/new';
 
 const TAB_CONFIGS: AnnouncementTabConfig[] = [
   {

@@ -24,7 +24,7 @@ export function ProviderDashboardHeader({
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <Link
-          to="/panel/dashboard/announcements/new"
+          to="/panel/provider/announcements/new"
           className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-medium text-primary-foreground text-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         >
           <Plus className="h-4 w-4" />

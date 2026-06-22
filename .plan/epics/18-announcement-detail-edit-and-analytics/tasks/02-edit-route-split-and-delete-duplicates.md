@@ -2,7 +2,7 @@
 type: task
 id: T-18-02
 epic: E-18
-status: in-progress
+status: done
 blocked-by: [T-18-01]
 default-model: high
 ---
@@ -74,7 +74,7 @@ verification:
 
 ### ST-03 - Delete duplicate dashboard new form and narrow edit-fields component
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - A deleted file is still imported by a surface outside this epic's scope.
@@ -98,6 +98,24 @@ verification:
 - no dangling imports to deleted files
 
 #### Execution Notes
+
+- ST-03 (done): deleted the 3 obsolete files and stripped inline-edit from both $id routes.
+  - Deleted: `panel.dashboard.announcements.new.tsx`, `panel/-provider-dashboard-edit-form-fields.tsx`,
+    `panel/-provider-dashboard-edit-image-field.tsx`.
+  - `panel.provider.announcements.$id.tsx`: stripped inline-edit (isEditing state, form state,
+    updateMutation, handleSave, categoriesQuery, assignmentsQuery, createInitialFormState). Edit
+    button now navigates to `/panel/provider/announcements/$id/edit`. Always shows analytics panel.
+  - `panel.dashboard.announcements.$id.tsx`: same stripping; keeps session/access-profile guards,
+    ShieldCheck/StatusBadge, CardDescription for subtitle. Edit navigates to the provider edit route.
+  - Navigation links repointed from `/panel/dashboard/announcements/new` →
+    `/panel/provider/announcements/new` in: `-provider-dashboard-header.tsx`,
+    `panel.dashboard.announcements.index.tsx`, `-provider-dashboard-announcement-list.tsx`,
+    and 3 legacy redirect shims (`dashboard.announcements.new.tsx`, `dashboard.anuncios.novo.tsx`,
+    `panel.dashboard.anuncios.novo.tsx`).
+  - `-dashboard-analytics.test.tsx` stripped to just the redirect-shim describe block; no
+    references to deleted components remain.
+  - Gates: check-types clean (4/4); check clean (pre-existing biome-config warning + broken-symlink
+    info only); `-dashboard-analytics.test.tsx` 1/1; header/list/content tests 3/3.
 
 - ST-02 (done): exercised the identity-lock policy in edit mode.
   - `resolveAnnouncementFieldPolicy` renamed `_mode` → `mode` (now actively used).

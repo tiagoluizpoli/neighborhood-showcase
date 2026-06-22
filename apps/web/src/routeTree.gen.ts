@@ -50,7 +50,6 @@ import { Route as PanelDashboardAnnouncementsIndexRouteImport } from './routes/p
 import { Route as PanelProviderAnnouncementsNewRouteImport } from './routes/panel.provider.announcements.new'
 import { Route as PanelProviderAnnouncementsIdRouteImport } from './routes/panel.provider.announcements.$id'
 import { Route as PanelDashboardAnunciosNovoRouteImport } from './routes/panel.dashboard.anuncios.novo'
-import { Route as PanelDashboardAnnouncementsNewRouteImport } from './routes/panel.dashboard.announcements.new'
 import { Route as PanelDashboardAnnouncementsIdRouteImport } from './routes/panel.dashboard.announcements.$id'
 import { Route as DashboardAnunciosIdPagamentoRouteImport } from './routes/dashboard.anuncios.$id.pagamento'
 import { Route as PanelProviderAnunciosIdPagamentoRouteImport } from './routes/panel.provider.anuncios.$id.pagamento'
@@ -275,12 +274,6 @@ const PanelDashboardAnunciosNovoRoute =
     path: '/anuncios/novo',
     getParentRoute: () => PanelDashboardRoute,
   } as any)
-const PanelDashboardAnnouncementsNewRoute =
-  PanelDashboardAnnouncementsNewRouteImport.update({
-    id: '/new',
-    path: '/new',
-    getParentRoute: () => PanelDashboardAnnouncementsRoute,
-  } as any)
 const PanelDashboardAnnouncementsIdRoute =
   PanelDashboardAnnouncementsIdRouteImport.update({
     id: '/$id',
@@ -350,7 +343,6 @@ export interface FileRoutesByFullPath {
   '/panel/provider/': typeof PanelProviderIndexRoute
   '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
   '/panel/dashboard/announcements/$id': typeof PanelDashboardAnnouncementsIdRoute
-  '/panel/dashboard/announcements/new': typeof PanelDashboardAnnouncementsNewRoute
   '/panel/dashboard/anuncios/novo': typeof PanelDashboardAnunciosNovoRoute
   '/panel/provider/announcements/$id': typeof PanelProviderAnnouncementsIdRouteWithChildren
   '/panel/provider/announcements/new': typeof PanelProviderAnnouncementsNewRoute
@@ -392,7 +384,6 @@ export interface FileRoutesByTo {
   '/panel/provider': typeof PanelProviderIndexRoute
   '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
   '/panel/dashboard/announcements/$id': typeof PanelDashboardAnnouncementsIdRoute
-  '/panel/dashboard/announcements/new': typeof PanelDashboardAnnouncementsNewRoute
   '/panel/dashboard/anuncios/novo': typeof PanelDashboardAnunciosNovoRoute
   '/panel/provider/announcements/$id': typeof PanelProviderAnnouncementsIdRouteWithChildren
   '/panel/provider/announcements/new': typeof PanelProviderAnnouncementsNewRoute
@@ -442,7 +433,6 @@ export interface FileRoutesById {
   '/panel/provider/': typeof PanelProviderIndexRoute
   '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
   '/panel/dashboard/announcements/$id': typeof PanelDashboardAnnouncementsIdRoute
-  '/panel/dashboard/announcements/new': typeof PanelDashboardAnnouncementsNewRoute
   '/panel/dashboard/anuncios/novo': typeof PanelDashboardAnunciosNovoRoute
   '/panel/provider/announcements/$id': typeof PanelProviderAnnouncementsIdRouteWithChildren
   '/panel/provider/announcements/new': typeof PanelProviderAnnouncementsNewRoute
@@ -492,7 +482,6 @@ export interface FileRouteTypes {
     | '/panel/provider/'
     | '/dashboard/anuncios/$id/pagamento'
     | '/panel/dashboard/announcements/$id'
-    | '/panel/dashboard/announcements/new'
     | '/panel/dashboard/anuncios/novo'
     | '/panel/provider/announcements/$id'
     | '/panel/provider/announcements/new'
@@ -534,7 +523,6 @@ export interface FileRouteTypes {
     | '/panel/provider'
     | '/dashboard/anuncios/$id/pagamento'
     | '/panel/dashboard/announcements/$id'
-    | '/panel/dashboard/announcements/new'
     | '/panel/dashboard/anuncios/novo'
     | '/panel/provider/announcements/$id'
     | '/panel/provider/announcements/new'
@@ -583,7 +571,6 @@ export interface FileRouteTypes {
     | '/panel/provider/'
     | '/dashboard/anuncios/$id/pagamento'
     | '/panel/dashboard/announcements/$id'
-    | '/panel/dashboard/announcements/new'
     | '/panel/dashboard/anuncios/novo'
     | '/panel/provider/announcements/$id'
     | '/panel/provider/announcements/new'
@@ -892,13 +879,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanelDashboardAnunciosNovoRouteImport
       parentRoute: typeof PanelDashboardRoute
     }
-    '/panel/dashboard/announcements/new': {
-      id: '/panel/dashboard/announcements/new'
-      path: '/new'
-      fullPath: '/panel/dashboard/announcements/new'
-      preLoaderRoute: typeof PanelDashboardAnnouncementsNewRouteImport
-      parentRoute: typeof PanelDashboardAnnouncementsRoute
-    }
     '/panel/dashboard/announcements/$id': {
       id: '/panel/dashboard/announcements/$id'
       path: '/$id'
@@ -992,14 +972,12 @@ const PanelAdminRouteWithChildren = PanelAdminRoute._addFileChildren(
 
 interface PanelDashboardAnnouncementsRouteChildren {
   PanelDashboardAnnouncementsIdRoute: typeof PanelDashboardAnnouncementsIdRoute
-  PanelDashboardAnnouncementsNewRoute: typeof PanelDashboardAnnouncementsNewRoute
   PanelDashboardAnnouncementsIndexRoute: typeof PanelDashboardAnnouncementsIndexRoute
 }
 
 const PanelDashboardAnnouncementsRouteChildren: PanelDashboardAnnouncementsRouteChildren =
   {
     PanelDashboardAnnouncementsIdRoute: PanelDashboardAnnouncementsIdRoute,
-    PanelDashboardAnnouncementsNewRoute: PanelDashboardAnnouncementsNewRoute,
     PanelDashboardAnnouncementsIndexRoute:
       PanelDashboardAnnouncementsIndexRoute,
   }
