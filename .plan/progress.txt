@@ -162,3 +162,14 @@
   no border-dashed (absent mini-card); 3 metric card labels; h-[210px] / not h-[320px].
 - Gates: check-types 4/4; check clean; 16/16 per-file; 17/17 co-run (no leak).
 - Next: T-18-05/ST-03 (create regression guard + public-boundary guard).
+
+2026-06-22 T-18-05/ST-03 DONE: Create regression guard + public-boundary guard.
+- Create regression guard: AnnouncementForm create mode still has file input, contact
+  section (contact-mode-inherit-badge), and CTA section (cta-section) after extraction.
+- Public boundary guard: _portal.anuncios.$id with full fixture has no
+  Visualizações/Interações/Conversão labels, no h-[210px]/h-[320px] classes,
+  no /edit href, no "Editar" text.
+- Inlined into existing test file (reuses trpc/auth-client mocks, no new mock.module).
+- New: mockPublicAnnouncementData module var, getPublic case in trpcData, importPortalRoute.
+- Gates: check-types 4/4; check clean; 18/18 per-file; 19/19 co-run (no leak).
+- Next: T-18-05/ST-04 (Playwright create/edit end-to-end with seeded data).

@@ -75,7 +75,7 @@ verification:
 
 ### ST-03 - Create regression guard and public-boundary guard
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The public surface cannot be asserted free of analytics/edit affordance without restructuring its route.
@@ -168,6 +168,21 @@ verification:
   (5) `h-[210px]` in innerHTML, `h-[320px]` absent.
   Gates: check-types 4/4 clean; check clean (pre-existing biome info+warnings).
   16/16 per-file; 17/17 co-run with crop-image.test.ts confirms no leakage.
+- ST-03 done. Added 2 tests to `-panel.provider.announcements.test.tsx`.
+  (1) Create regression guard: renders `<AnnouncementForm mode="create" />` and asserts
+      `input[type="file"]` (image upload → cropper), `[data-testid="contact-mode-inherit-badge"]`
+      (contact section), and `[data-testid="cta-section"]` (CTA section) all present —
+      verifying the shared-form extraction preserved all three authoring sections.
+  (2) Public boundary guard: extends the existing trpc mock with a `getPublic` case
+      (new `mockPublicAnnouncementData` module variable, reset in `beforeEach`); adds
+      `importPortalRoute` helper. Renders `_portal.anuncios.$id` with a full fixture and
+      asserts: no "Visualizações"/"Interações"/"Conversão" metric card labels; no
+      `h-[210px]`/`h-[320px]` analytics chart classes; no `/edit` in innerHTML; no
+      "Editar" in text — proving the public surface exposes no analytics or edit affordance.
+  Inlined into the existing file (reuses established `@/utils/trpc` + `@/lib/auth-client`
+  mocks → no new `mock.module` calls, no leakage risk).
+  Gates: check-types 4/4 clean; check clean (pre-existing). 18/18 per-file;
+  19/19 co-run with crop-image.test.ts confirms no leakage. Next: ST-04.
 
 ---
 

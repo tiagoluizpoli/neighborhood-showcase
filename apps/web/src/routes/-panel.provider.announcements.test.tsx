@@ -9,6 +9,8 @@ import i18n from '@/i18n';
 let mockDashboardData: any = null;
 // biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
 let mockAssignments: any = [];
+// biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
+let mockPublicAnnouncementData: any = null;
 const mockProviderProfileData = {
   contactDefaults: { primaryPhone: '+5511999999999', callEnabled: true },
 };
@@ -29,6 +31,8 @@ function trpcData(method: string): any {
   switch (method) {
     case 'getDashboardData':
       return mockDashboardData;
+    case 'getPublic':
+      return mockPublicAnnouncementData;
     case 'listCategories':
       return [
         {
@@ -209,11 +213,18 @@ async function importDetailRoute() {
   return Route;
 }
 
+async function importPortalRoute() {
+  const { Route } = await import('@/routes/_portal.anuncios.$id');
+  Route.useParams = (() => ({ id: 'pub-1' })) as typeof Route.useParams;
+  return Route;
+}
+
 describe('Provider announcements routes', () => {
   beforeEach(async () => {
     await i18n.changeLanguage('pt');
     mockDashboardData = null;
     mockAssignments = [];
+    mockPublicAnnouncementData = null;
     mutationCalls.length = 0;
   });
 
@@ -538,6 +549,64 @@ describe('Provider announcements routes', () => {
 
     expect(container.innerHTML).toContain('h-[210px]');
     expect(container.innerHTML).not.toContain('h-[320px]');
+  });
+
+  // --- T-18-05 / ST-03: create regression guard + public-boundary guard -------
+
+  test('create form retains image cropper, contact section, and CTA section after shared-form extraction', async () => {
+    const { AnnouncementForm } = await import(
+      '@/routes/panel/provider/-announcement-form'
+    );
+    const { container } = renderRoute(() => <AnnouncementForm mode="create" />);
+
+    // Image upload input (triggers file picker → cropper)
+    expect(container.querySelector('input[type="file"]')).toBeTruthy();
+    // Contact section is present: inherit badge is the default state
+    expect(
+      container.querySelector('[data-testid="contact-mode-inherit-badge"]'),
+    ).toBeTruthy();
+    // CTA section is present
+    expect(container.querySelector('[data-testid="cta-section"]')).toBeTruthy();
+  });
+
+  test('public route _portal.anuncios.$id exposes no analytics or edit affordance', async () => {
+    // Populate a full public announcement so the component reaches the render
+    // branch — the boundary holds in loading/empty states too, but testing the
+    // rich state is more meaningful.
+    mockPublicAnnouncementData = {
+      id: 'pub-1',
+      providerId: 'prov-1',
+      condominiumId: null,
+      condoName: 'Condo A',
+      condoCity: 'City',
+      condoState: 'SC',
+      title: 'Public Title',
+      subtitle: null,
+      description: 'Public description.',
+      priceCents: null,
+      imageUrl: 'http://example.com/pub.jpg',
+      category: 'Services',
+      tags: [],
+      contactLinks: { phone: '', whatsapp: '', email: null },
+      cta: { primary: null, secondary: [] },
+      showVerifiedBadge: false,
+      providerName: 'Provider A',
+      providerAvatarUrl: null,
+    };
+    const Route = await importPortalRoute();
+    const { container } = renderRoute(Route.options.component);
+
+    const text = container.textContent ?? '';
+    // No analytics metric cards — those labels live only in the provider panel
+    expect(text).not.toContain('Visualizações');
+    expect(text).not.toContain('Interações');
+    expect(text).not.toContain('Conversão');
+    // No analytics chart height classes
+    expect(container.innerHTML).not.toContain('h-[210px]');
+    expect(container.innerHTML).not.toContain('h-[320px]');
+    // No edit affordance — no link or button pointing to the edit route
+    expect(container.innerHTML).not.toContain('/edit');
+    expect(text).not.toContain('Editar');
   });
 
   // --- T-18-05 / ST-01: shared-form parity + field-policy lock --------------

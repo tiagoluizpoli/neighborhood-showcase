@@ -1,20 +1,21 @@
 {
-  "currentRunId": "e-18-t-18-05-st-03",
+  "currentRunId": "e-18-t-18-05-st-04",
   "currentPrdId": "PRD-v11-announcement-detail-edit-and-analytics",
   "currentEpicId": "E-18",
   "currentTaskId": "T-18-05",
-  "currentSubTaskId": "ST-03",
+  "currentSubTaskId": "ST-04",
   "attemptCount": 1,
   "retrievalRound": 1,
   "lastModel": "sonnet",
   "escalated": false,
-  "requiredModel": "medium",
+  "requiredModel": "high",
   "runnerName": "claude",
   "escalateIf": [
-    "The public surface cannot be asserted free of analytics/edit affordance without restructuring its route."
+    "Seeded provider data required for the edit flow is unavailable and cannot be added through existing seed paths."
   ],
   "filesToTouch": [
-    "apps/web/src/routes/-panel.provider.announcements.test.tsx"
+    "apps/web/tests/meus-anuncios.spec.ts",
+    "apps/web/tests/meus-anuncios.spec.ts-snapshots/"
   ],
   "lastCommitChanged": false,
   "lastFailureReason": null
