@@ -2,7 +2,7 @@
 type: task
 id: T-17-05
 epic: E-17
-status: ready
+status: done
 blocked-by: [T-17-03]
 default-model: medium
 ---
@@ -27,7 +27,7 @@ The current create route uses a category button grid, raw tag string splitting, 
 
 ### ST-01 - Replace category, tag, and price primitives with shared authoring controls
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - Existing component/library constraints make the locked primitives impossible without introducing a larger UI foundation change.
@@ -54,11 +54,15 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- Shared controls added under `apps/web/src/components/`: `announcement-category-combobox.tsx` (Popover + cmdk Command, single-select, keyword search), `announcement-tags-input.tsx` (inline chips + autocomplete dropdown sourced from known tags, conservative client dedupe), `announcement-price-input.tsx` (calculator-style cents → fixed 2-decimal money display via Intl, emits integer cents).
+- Wired into create (`panel.provider.announcements.new.tsx`) and BOTH edit surfaces (`panel/-provider-dashboard-edit-form-fields.tsx`, consumed by `panel.provider.announcements.$id.tsx` + `panel.dashboard.announcements.$id.tsx`). Category button grid + raw tag string + plain price field all replaced.
+- Edit form props migrated `price: number|''`→`priceCents: number|null`, added `tags`/`onTagsChange`; both edit routes updated in lockstep.
+- i18n: new `announcement_authoring.*` namespace (category/tags/price) + `meus_anuncios.detail.form.tags` in en+pt.
+- User asked mid-task for the richer shadcnblocks-style tags widget → upgraded tags from chips-above-field to inline-chips + autocomplete.
 
 ### ST-02 - Align server normalization and persistence with the richer primitives
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by:
@@ -83,11 +87,13 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- Canonical normalization centralized in the domain: `domain/entities/tags.ts` (`normalizeTags`: trim, case-fold, accent-fold dedupe, length cap; NO singular/plural rewrite) + `domain/entities/money.ts` (`normalizePriceCents`: positive integer cents or null). Applied inside BOTH `create-announcement.ts` and `update-announcement.ts` use-cases so create/edit cannot drift (router stays thin).
+- Autocomplete source added end-to-end (new since the original spec): `announcement.listTagSuggestions` public tRPC query → `ListTagSuggestions` use-case → repo interface/class method → `announcement-repository/tags.ts` (`SELECT ... unnest(tags) ... GROUP BY tag ORDER BY uses DESC`, excludes soft-deleted) → DI wiring.
+- `categoryId` cardinality stays exactly one; CTA/contact contracts untouched.
 
 ### ST-03 - Lock create/edit primitive parity with behavior-focused tests
 
-status: ready
+status: done
 model: medium
 escalate-if: []
 blocked-by:
@@ -111,7 +117,10 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- Domain unit: `tags.test.ts` (6) + `money.test.ts` (5). Server integration: tag/price normalization added to create + update integration suites; new `list-tag-suggestions.integration.test.ts` (distinct, frequency-ordered, excludes soft-deleted). Web component: `announcement-authoring-controls.test.tsx` (price money format/parse + tag chip render/remove via the repo's shallow renderer). Playwright: `announcement-authoring-primitives.spec.ts` — category search/empty-state/select, tag chip dedupe (no plural collapse), autocomplete suggestion pick, money formatting, and edit-parity tag round-trip (uses the DRAFT seed announcement to avoid contaminating meus-anuncios active-announcement screenshots).
+- Regenerated create-page baselines (create-cta, create-contact, create-authoring-primitives) since the details card layout shifted.
+- Fixed a latent bug surfaced here: edit previously sent `tags: announcement.tags` (read-only) — tags are now actually editable on edit.
+- Gates: `bun run check-types` ✓, `bun run check` ✓ (1 pre-existing symlink warning), targeted server + web unit ✓, Playwright affected specs ✓. Note: combined-run create-contact-custom screenshot showed one transient AA diff; passes deterministically in isolation (matches handoff's known font-AA flakiness). `-dashboard-analytics.test.tsx` remains red on clean tree (pre-existing bun ESM `redirect` import error + stale removed-prop assertions from T-17-02/03; not touched).
 
 ---
 
