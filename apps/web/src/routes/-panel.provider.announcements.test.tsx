@@ -477,15 +477,16 @@ describe('Provider announcements routes', () => {
 
     const h1 = await waitFor(() => {
       const el = container.querySelector('h1');
-      expect(el).toBeTruthy();
-      return el!;
+      if (!el) throw new Error('h1 not found');
+      return el;
     });
     expect(h1.textContent).toContain('Test Announcement');
 
     const section = container.querySelector('section');
     expect(section).toBeTruthy();
     // 4 = DOCUMENT_POSITION_FOLLOWING: section comes after h1 in document order
-    expect(h1.compareDocumentPosition(section!) & 4).toBe(4);
+    const position = section ? h1.compareDocumentPosition(section) & 4 : 0;
+    expect(position).toBe(4);
   });
 
   test('$id: cover image is a constrained 4:3 block, not a full-width hero', async () => {
