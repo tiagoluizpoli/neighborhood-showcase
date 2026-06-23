@@ -500,7 +500,9 @@
     "about_empty": "This provider has not added a public description yet.",
     "announcements_title": "Active announcements",
     "announcements_description": "Check out the services and listings offered by this provider.",
-    "announcements_empty": "This provider has no active announcements at the moment."
+    "announcements_empty": "This provider has no active announcements at the moment.",
+    "banner_alt": "{{name}}'s banner",
+    "logo_alt": "{{name}}'s logo"
   },
   "new_announcement": {
     "title": "New Announcement",

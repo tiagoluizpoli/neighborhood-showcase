@@ -343,3 +343,11 @@ Planning files were not updated in that iteration (no-completion-signal).
 Closed out plan state now: task done, epic updated, index updated.
 Next: T-19-05/ST-01 — public page identity-hero recomposition.
 Gates: bun run check clean (1 pre-existing warning); bun run check-types pre-existing TS5103 only.
+
+[2026-06-23] T-19-05 DONE — Public page identity-hero recomposition
+ST-01: replaced inline logo-OR-avatar + always-on second avatar with single resolveProviderIdentity mark; removed local getInitials (uses shared deriveInitials).
+ST-02: recomposed layout to hero → announcements → contact; added sparse-branding fallback (no banner → centered identity band with description); capped page in max-w-5xl container; about card shown only in banner mode (sparse mode folds description into hero band).
+ST-03: 7 new tests (21/21 pass per-file) — single identity mark, hero→announcements→contact order, sparse fallback centered + description, full-width grid, width cap, card link/grid contract unchanged, banner hero with identity mark below.
+New i18n keys: provider_profile.banner_alt, provider_profile.logo_alt in en+pt.
+Gates: bun run check clean (1 pre-existing warning); bun run check-types pre-existing TS5103 only.
+Advancing to T-19-06 (i18n pt/en parity and cross-surface E2E matrix).

@@ -1,19 +1,17 @@
 {
-  "currentRunId": "e-19-t-19-05-st-01",
+  "currentRunId": "e-19-t-19-06-st-01",
   "currentPrdId": "PRD-v12-provider-identity-and-public-profile",
   "currentEpicId": "E-19",
-  "currentTaskId": "T-19-05",
+  "currentTaskId": "T-19-06",
   "currentSubTaskId": "ST-01",
-  "attemptCount": 1,
-  "retrievalRound": 1,
+  "attemptCount": 0,
+  "retrievalRound": 0,
   "lastModel": "sonnet",
   "escalated": false,
   "requiredModel": "medium",
   "runnerName": "claude",
-  "escalateIf": [
-    "The helper's identity-mark result cannot drive the hero without re-introducing a logo-AND-avatar path."
-  ],
-  "filesToTouch": ["apps/web/src/routes/_portal.providers.$id.tsx"],
-  "lastCommitChanged": true,
+  "escalateIf": [],
+  "filesToTouch": [],
+  "lastCommitChanged": false,
   "lastFailureReason": null
 }

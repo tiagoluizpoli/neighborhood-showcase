@@ -500,7 +500,9 @@
     "about_empty": "Este prestador ainda não adicionou uma descrição pública.",
     "announcements_title": "Anúncios ativos",
     "announcements_description": "Confira os serviços e listagens oferecidos por este prestador.",
-    "announcements_empty": "Este prestador não possui anúncios ativos no momento."
+    "announcements_empty": "Este prestador não possui anúncios ativos no momento.",
+    "banner_alt": "Banner de {{name}}",
+    "logo_alt": "Logo de {{name}}"
   },
   "new_announcement": {
     "title": "Novo Anúncio",

@@ -2,8 +2,8 @@
 type: task
 id: T-19-05
 epic: E-19
-status: ready
-blocked-by: [T-19-01]
+status: in-progress
+blocked-by: []
 default-model: medium
 ---
 
@@ -29,7 +29,7 @@ Recompose the public provider page identity-hero first, consuming the shared hel
 
 ### ST-01 - Replace identity rendering with the shared helper and remove the second avatar
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The helper's identity-mark result cannot drive the hero without re-introducing a logo-AND-avatar path.
@@ -50,7 +50,7 @@ verification:
 
 ### ST-02 - Recompose layout, sparse fallback, and max-width cap
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The full-width announcement body or max-width cap cannot be achieved without touching the announcement-card link/grid contract.
@@ -72,7 +72,7 @@ verification:
 
 ### ST-03 - Test composition, single mark, fallback, and width cap
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The composition order or single-identity-mark guarantee is not assertable from the rendered route.
@@ -93,7 +93,7 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- ST-01, ST-02, ST-03 all done in single iteration. 21/21 tests pass per-file.
 
 ---
 

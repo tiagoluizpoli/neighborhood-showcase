@@ -220,6 +220,148 @@ describe('Provider Public Profile Component Visuals', () => {
   });
 });
 
+describe('Provider Public Profile — composition, identity mark, and fallback (T-19-05)', () => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('pt');
+    mockError = false;
+    mockQueryData = {
+      provider: {
+        id: 'provider-123',
+        displayName: 'Maria Silva',
+        avatarUrl: 'http://localhost/maria.jpg',
+        logoUrl: null,
+        bannerUrl: null,
+        companyName: null,
+        tradeName: null,
+        publicDescription: 'Prestadora de serviços do bairro.',
+        socialLinks: { whatsapp: '5511988888888' },
+        isVerified: false,
+      },
+      announcements: [
+        {
+          id: 'ad-abc',
+          providerId: 'provider-123',
+          condominiumId: 'condo-1',
+          condoName: 'Residencial Aurora',
+          condoCity: 'São Paulo',
+          condoState: 'SP',
+          condoNeighborhood: 'Centro',
+          title: 'Aulas de Violão',
+          subtitle: null,
+          description: 'Aulas particulares para todas as idades.',
+          priceCents: null,
+          imageUrl: 'http://localhost/guitar.jpg',
+          category: 'Serviços',
+          tags: [],
+          contactLinks: { whatsapp: '5511988888888' },
+          showVerifiedBadge: false,
+          status: 'ACTIVE',
+          createdAt: new Date(),
+          providerName: 'Maria Silva',
+          providerAvatarUrl: null,
+          cta: { primary: null, secondary: [] },
+        },
+      ],
+    };
+  });
+
+  test('renders exactly one identity mark', async () => {
+    const { container } = renderProfile();
+    await screen.findByText('Maria Silva');
+    const marks = container.querySelectorAll('[data-testid="identity-mark"]');
+    expect(marks.length).toBe(1);
+  });
+
+  test('hero → announcements → contact order in DOM', async () => {
+    const { container } = renderProfile();
+    await screen.findByText('Maria Silva');
+
+    const hero = container.querySelector('[data-testid="identity-hero"]');
+    const announcements = container.querySelector(
+      '[data-testid="announcements-section"]',
+    );
+    const contact = container.querySelector('[data-testid="contact-section"]');
+
+    expect(hero).toBeTruthy();
+    expect(announcements).toBeTruthy();
+    expect(contact).toBeTruthy();
+
+    expect(
+      // biome-ignore lint/style/noNonNullAssertion: asserted above
+      hero!.compareDocumentPosition(announcements!) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      // biome-ignore lint/style/noNonNullAssertion: asserted above
+      announcements!.compareDocumentPosition(contact!) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  test('sparse fallback hero is centered and shows description when no banner', async () => {
+    const { container } = renderProfile();
+    await screen.findByText('Maria Silva');
+
+    const hero = container.querySelector('[data-testid="identity-hero"]');
+    // biome-ignore lint/style/noNonNullAssertion: asserted above
+    expect(hero!.className).toContain('items-center');
+    // biome-ignore lint/style/noNonNullAssertion: asserted above
+    expect(hero!.className).toContain('text-center');
+    expect(
+      container.textContent?.includes('Prestadora de serviços do bairro.'),
+    ).toBe(true);
+  });
+
+  test('sparse fallback has full-width announcement grid', async () => {
+    const { container } = renderProfile();
+    await screen.findByText('Aulas de Violão');
+
+    const grid = container.querySelector('.md\\:grid-cols-2');
+    expect(grid).toBeTruthy();
+  });
+
+  test('page has max-width container', async () => {
+    const { container } = renderProfile();
+    await screen.findByText('Maria Silva');
+
+    const widthCap = container.querySelector('.max-w-5xl');
+    expect(widthCap).toBeTruthy();
+  });
+
+  test('announcement card link/grid contract unchanged', async () => {
+    const { container } = renderProfile();
+    await screen.findByText('Aulas de Violão');
+
+    const cardLink = container.querySelector('a[data-to="/anuncios/$id"]');
+    expect(cardLink).toBeTruthy();
+
+    const grid = container.querySelector(
+      '[data-testid="announcements-section"] .grid',
+    );
+    expect(grid).toBeTruthy();
+  });
+
+  test('with banner: hero has banner img and identity mark below it', async () => {
+    mockQueryData.provider.bannerUrl = 'http://localhost/banner.jpg';
+    const { container } = renderProfile();
+    await screen.findByText('Maria Silva');
+
+    const hero = container.querySelector('[data-testid="identity-hero"]');
+    // biome-ignore lint/style/noNonNullAssertion: asserted above
+    const bannerImg = hero!.querySelector('img.aspect-video');
+    expect(bannerImg).toBeTruthy();
+    // biome-ignore lint/style/noNonNullAssertion: asserted above
+    const mark = hero!.querySelector('[data-testid="identity-mark"]');
+    expect(mark).toBeTruthy();
+    // banner img appears before the mark in the hero
+    expect(
+      // biome-ignore lint/style/noNonNullAssertion: asserted above
+      bannerImg!.compareDocumentPosition(mark!) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+});
+
 const baseConfigProfile = {
   displayName: 'Test Provider',
   companyName: null,

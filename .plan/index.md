@@ -88,7 +88,7 @@
 | T-19-02 | E-19 | Original-image retention backend slice | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/02-original-image-retention-backend.md` |
 | T-19-03 | E-19 | Role-parameterized ImageUploadField with re-crop | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/03-role-parameterized-image-upload-field.md` |
 | T-19-04 | E-19 | Configuration IA reorg, identity-first | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/04-configuration-ia-reorg.md` |
-| T-19-05 | E-19 | Public page identity-hero recomposition | ready | T-19-01 | `.plan/epics/19-provider-identity-and-public-profile/tasks/05-public-page-recomposition.md` |
+| T-19-05 | E-19 | Public page identity-hero recomposition | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/05-public-page-recomposition.md` |
 | T-19-06 | E-19 | i18n pt/en parity and cross-surface E2E matrix | ready | T-19-04, T-19-05 | `.plan/epics/19-provider-identity-and-public-profile/tasks/06-i18n-parity-and-e2e-matrix.md` |
 
 ## Migration Note

@@ -29,6 +29,10 @@ import {
 import type { SVGProps } from 'react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  deriveInitials,
+  resolveProviderIdentity,
+} from '@/utils/provider-identity';
 import { trpc } from '@/utils/trpc';
 
 const TiktokIcon = (props: SVGProps<SVGSVGElement>) => (
@@ -118,13 +122,6 @@ const SOCIAL_ACTIONS: SocialActionConfig[] = [
   },
 ];
 
-const getInitials = (name: string) => {
-  if (!name) return '';
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0]}${parts.at(-1)?.[0] ?? ''}`.toUpperCase();
-};
-
 const getIdentityLine = (
   companyName: string | null,
   tradeName: string | null,
@@ -189,8 +186,53 @@ function ProviderPublicProfileComponent() {
     Boolean(provider.socialLinks?.[key]),
   );
 
+  const { mark } = resolveProviderIdentity({
+    logoUrl: provider.logoUrl,
+    avatarUrl: provider.avatarUrl,
+    bannerUrl: provider.bannerUrl,
+    name: provider.displayName,
+  });
+
+  const identityMark =
+    mark.kind === 'logo' ? (
+      <div
+        data-testid="identity-mark"
+        className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-card p-3"
+      >
+        <img
+          src={mark.src}
+          alt={t('provider_profile.logo_alt', { name: provider.displayName })}
+          className="h-full w-full object-contain"
+        />
+      </div>
+    ) : mark.kind === 'avatar' ? (
+      <Avatar
+        data-testid="identity-mark"
+        className="h-24 w-24 shrink-0 border border-border"
+      >
+        <AvatarImage src={mark.src} />
+        <AvatarFallback className="text-xl">
+          {deriveInitials(provider.displayName)}
+        </AvatarFallback>
+      </Avatar>
+    ) : (
+      <Avatar
+        data-testid="identity-mark"
+        className="h-24 w-24 shrink-0 border border-border"
+      >
+        <AvatarFallback className="text-xl">{mark.initials}</AvatarFallback>
+      </Avatar>
+    );
+
+  const verifiedBadge = provider.isVerified ? (
+    <Badge className="gap-1.5 px-3 py-1 text-xs">
+      <CheckCircle2 className="h-3.5 w-3.5" />
+      {t('provider_profile.verified_resident')}
+    </Badge>
+  ) : null;
+
   return (
-    <div className="w-full space-y-6 px-4 py-8 lg:px-6">
+    <div className="mx-auto max-w-5xl space-y-6 px-4 py-8 lg:px-6">
       <Link
         to="/"
         className="inline-flex items-center gap-1.5 text-muted-foreground text-sm hover:text-foreground"
@@ -200,120 +242,58 @@ function ProviderPublicProfileComponent() {
       </Link>
 
       {provider.bannerUrl ? (
-        <section className="overflow-hidden rounded-3xl border border-border bg-muted">
+        <section
+          data-testid="identity-hero"
+          className="overflow-hidden rounded-3xl border border-border bg-card"
+        >
           <img
             src={provider.bannerUrl}
-            alt={`Banner de ${provider.displayName}`}
+            alt={t('provider_profile.banner_alt', {
+              name: provider.displayName,
+            })}
             className="aspect-video w-full object-cover object-center"
           />
-        </section>
-      ) : null}
-
-      <Card>
-        <CardContent className="flex flex-col gap-6 p-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-4">
-              {provider.logoUrl ? (
-                <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border border-border bg-card p-3">
-                  <img
-                    src={provider.logoUrl}
-                    alt={`Logo de ${provider.displayName}`}
-                    className="h-full w-full object-contain"
-                  />
-                </div>
-              ) : (
-                <Avatar className="h-24 w-24 border border-border">
-                  <AvatarImage src={provider.avatarUrl ?? undefined} />
-                  <AvatarFallback className="text-xl">
-                    {getInitials(provider.displayName)}
-                  </AvatarFallback>
-                </Avatar>
-              )}
-              <Avatar className="h-14 w-14 border border-border">
-                <AvatarImage src={provider.avatarUrl ?? undefined} />
-                <AvatarFallback>
-                  {getInitials(provider.displayName)}
-                </AvatarFallback>
-              </Avatar>
-            </div>
-
-            <div className="space-y-3">
+          <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
+            {identityMark}
+            <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-bold text-3xl text-foreground tracking-tight">
                   {provider.displayName}
                 </h1>
-                {provider.isVerified ? (
-                  <Badge className="gap-1.5 px-3 py-1 text-xs">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    {t('provider_profile.verified_resident')}
-                  </Badge>
-                ) : null}
+                {verifiedBadge}
               </div>
               <p className="text-base text-muted-foreground">
                 {getIdentityLine(provider.companyName, provider.tradeName)}
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('provider_profile.contact_title')}</CardTitle>
-          <CardDescription>
-            {t('provider_profile.contact_description')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {hasSocialLinks ? (
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {SOCIAL_ACTIONS.map(
-                ({ href, icon: Icon, key, label, variant }) => {
-                  const value = provider.socialLinks?.[key];
-                  if (!value) return null;
-
-                  return (
-                    <a
-                      key={key}
-                      href={href(value)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button
-                        variant={variant}
-                        className="w-full justify-start gap-2"
-                      >
-                        <Icon className="h-4 w-4" />
-                        <span>{label}</span>
-                      </Button>
-                    </a>
-                  );
-                },
-              )}
+        </section>
+      ) : (
+        <section
+          data-testid="identity-hero"
+          className="flex flex-col items-center gap-4 rounded-3xl border border-border bg-card px-6 py-10 text-center"
+        >
+          {identityMark}
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <h1 className="font-bold text-3xl text-foreground tracking-tight">
+                {provider.displayName}
+              </h1>
+              {verifiedBadge}
             </div>
-          ) : (
-            <p className="text-muted-foreground text-sm italic">
-              {t('provider_profile.contact_empty')}
+            <p className="text-base text-muted-foreground">
+              {getIdentityLine(provider.companyName, provider.tradeName)}
             </p>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+          {provider.publicDescription ? (
+            <p className="max-w-xl whitespace-pre-wrap text-muted-foreground text-sm leading-7">
+              {provider.publicDescription}
+            </p>
+          ) : null}
+        </section>
+      )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('provider_profile.about_title')}</CardTitle>
-          <CardDescription>
-            {t('provider_profile.about_description')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="whitespace-pre-wrap text-muted-foreground text-sm leading-7">
-            {provider.publicDescription ?? t('provider_profile.about_empty')}
-          </p>
-        </CardContent>
-      </Card>
-
-      <section className="space-y-4">
+      <section data-testid="announcements-section" className="space-y-4">
         <div>
           <h2 className="font-bold text-2xl text-foreground tracking-tight">
             {t('provider_profile.announcements_title')}
@@ -396,6 +376,64 @@ function ProviderPublicProfileComponent() {
           </div>
         )}
       </section>
+
+      <Card data-testid="contact-section">
+        <CardHeader>
+          <CardTitle>{t('provider_profile.contact_title')}</CardTitle>
+          <CardDescription>
+            {t('provider_profile.contact_description')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {hasSocialLinks ? (
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {SOCIAL_ACTIONS.map(
+                ({ href, icon: Icon, key, label, variant }) => {
+                  const value = provider.socialLinks?.[key];
+                  if (!value) return null;
+
+                  return (
+                    <a
+                      key={key}
+                      href={href(value)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button
+                        variant={variant}
+                        className="w-full justify-start gap-2"
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span>{label}</span>
+                      </Button>
+                    </a>
+                  );
+                },
+              )}
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-sm italic">
+              {t('provider_profile.contact_empty')}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {provider.bannerUrl ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('provider_profile.about_title')}</CardTitle>
+            <CardDescription>
+              {t('provider_profile.about_description')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="whitespace-pre-wrap text-muted-foreground text-sm leading-7">
+              {provider.publicDescription ?? t('provider_profile.about_empty')}
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }
