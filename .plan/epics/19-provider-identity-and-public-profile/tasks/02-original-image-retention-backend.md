@@ -19,9 +19,9 @@ Schema: `packages/db/src/schema/showcase.ts`, table `provider_profile` (`avatar_
 
 - [x] An additive migration adds an original-source reference column per image role (avatar/logo/banner) to `provider_profile`; the base migration is NOT rebuilt.
 - [x] The provider-profile entity, repository, mapper, and DTOs carry the original-source reference per role alongside the cropped URL.
-- [ ] The update contract persists BOTH the cropped URL and the original-source reference when an image is saved.
+- [x] The update contract persists BOTH the cropped URL and the original-source reference when an image is saved.
 - [x] The read contract returns the original-source reference so the UI can re-crop from the original.
-- [ ] An upload/storage strategy stores the original full-resolution asset (following the existing cropped-asset path).
+- [x] An upload/storage strategy stores the original full-resolution asset (following the existing cropped-asset path).
 - [ ] A server test asserts saving an image persists both the cropped URL and the original-source reference, and that the read contract returns the original.
 - [ ] All gates pass; schema applied to dev + test DBs (no `db:push` postgis block).
 
@@ -79,7 +79,7 @@ verification:
 
 ### ST-03 - Wire router contract and original-asset storage
 
-status: ready
+status: done
 model: high
 escalate-if:
 - The existing upload/storage path cannot store an original alongside the crop without changing the cropped-asset contract.
@@ -171,6 +171,25 @@ verification:
     biome-config warning + broken-symlink info only).
 - Next: ST-03 — wire router input/output for originals + original-asset
   storage via the existing upload path.
+- 2026-06-23 ST-03 DONE: Threaded the 3 `*OriginalUrl` per-role fields
+  through `presentation/routers/provider-profile.ts`.
+  - `update` zod input: added `avatarOriginalUrl` / `logoOriginalUrl` /
+    `bannerOriginalUrl` (`z.string().url().nullable().optional()`, same shape
+    as each cropped `*Url`); forwarded into `UpdateProviderProfileInput`
+    (use-case already accepted them from ST-02, undefined-preserving).
+  - `get` query output: returns the 3 originals straight off the entity
+    getters beside each cropped `*Url`. Cropped `*Url` semantics unchanged.
+  - Storage: originals reuse the existing generic `POST /api/upload` path
+    (per-file, returns a URL); the router contract carries the resulting URL
+    exactly like the cropped asset — no change to the cropped-asset contract,
+    so no escalation. The re-crop UI (T-19-03) uploads original + crop via
+    the same endpoint and passes both URLs to `update`.
+  - Gates: `bun run check-types` — server clean (only pre-existing web TS5103
+    `ignoreDeprecations`, unrelated). `bun run check` — clean (pre-existing
+    biome-config warning + broken-symlink info; biome auto-formatted the
+    router). Sanity: `provider-profile.integration.test.ts` 5/5 pass.
+- Next: ST-04 — backend test asserting the original-retention round-trip
+  (update persists crop + original; private + public read return original).
 
 ---
 

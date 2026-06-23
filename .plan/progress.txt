@@ -251,3 +251,24 @@
 - Gates: check-types server clean (only pre-existing web TS5103 ignoreDeprecations,
   unrelated); check clean (pre-existing biome warning + broken-symlink info only).
 - Next: T-19-02/ST-03 — wire router input/output + original-asset storage.
+
+---
+2026-06-23 T-19-02/ST-03 DONE
+- Wired the 3 *OriginalUrl per-role fields through the provider-profile router
+  (apps/server/src/presentation/routers/provider-profile.ts).
+- update zod input: added avatarOriginalUrl/logoOriginalUrl/bannerOriginalUrl
+  (z.string().url().nullable().optional(), same shape as each cropped *Url);
+  forwarded into UpdateProviderProfileInput (use-case already accepted them
+  from ST-02, undefined-preserving).
+- get query output: returns the 3 originals off the entity getters beside each
+  cropped *Url. Cropped *Url semantics unchanged.
+- Storage: originals reuse the existing generic POST /api/upload path (per-file,
+  returns a URL); router carries the resulting URL exactly like the cropped
+  asset — no change to cropped-asset contract, no escalation. Re-crop UI
+  (T-19-03) uploads original + crop via the same endpoint, passes both URLs.
+- Gates: check-types server clean (only pre-existing web TS5103
+  ignoreDeprecations, unrelated); check clean (pre-existing biome warning +
+  broken-symlink info; biome auto-formatted the router). Sanity:
+  provider-profile.integration.test.ts 5/5 pass.
+- Next: T-19-02/ST-04 — backend test for original-retention round-trip
+  (update persists crop + original; private + public read return original).

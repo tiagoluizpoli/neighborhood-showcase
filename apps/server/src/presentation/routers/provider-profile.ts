@@ -29,10 +29,15 @@ export function createProviderProfileRouter(
           id: profile.id,
           displayName: profile.displayName,
           avatarUrl: profile.avatarUrl,
+          // Untouched full-resolution source per role; backs the re-crop UI
+          // (T-19-03). The cropped *Url stays the derived crop.
+          avatarOriginalUrl: profile.avatarOriginalUrl,
           companyName: profile.companyName,
           tradeName: profile.tradeName,
           logoUrl: profile.logoUrl,
+          logoOriginalUrl: profile.logoOriginalUrl,
           bannerUrl: profile.bannerUrl,
+          bannerOriginalUrl: profile.bannerOriginalUrl,
           publicDescription: profile.publicDescription,
           contactDefaults: profile.contactDefaults,
           contactMetadata: profile.contactMetadata,
@@ -67,10 +72,15 @@ export function createProviderProfileRouter(
             .max(100, 'O nome de exibição deve ter no máximo 100 caracteres')
             .optional(),
           avatarUrl: z.string().url().nullable().optional(),
+          // Full-resolution source the UI re-crops from; stored via the same
+          // /api/upload path as the cropped asset, persisted alongside it.
+          avatarOriginalUrl: z.string().url().nullable().optional(),
           companyName: z.string().max(100).nullable().optional(),
           tradeName: z.string().max(100).nullable().optional(),
           logoUrl: z.string().url().nullable().optional(),
+          logoOriginalUrl: z.string().url().nullable().optional(),
           bannerUrl: z.string().url().nullable().optional(),
+          bannerOriginalUrl: z.string().url().nullable().optional(),
           publicDescription: z
             .string()
             .max(500, 'A descrição pública não pode exceder 500 caracteres')
@@ -95,10 +105,13 @@ export function createProviderProfileRouter(
           providerId: ctx.session.user.id,
           displayName: input.displayName,
           avatarUrl: input.avatarUrl,
+          avatarOriginalUrl: input.avatarOriginalUrl,
           companyName: input.companyName,
           tradeName: input.tradeName,
           logoUrl: input.logoUrl,
+          logoOriginalUrl: input.logoOriginalUrl,
           bannerUrl: input.bannerUrl,
+          bannerOriginalUrl: input.bannerOriginalUrl,
           publicDescription: input.publicDescription,
           primaryPhone: input.primaryPhone,
           callEnabled: input.callEnabled,
