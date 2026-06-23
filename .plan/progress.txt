@@ -202,3 +202,11 @@
 - deriveInitials matches existing getInitials in _portal.providers.$id.tsx
 - Gates: bun run check clean (pre-existing warning/info only); tsc clean on provider-identity.ts
 - Next: T-19-01/ST-02 (unit tests)
+
+---
+2026-06-23 T-19-01/ST-02 DONE
+- Created apps/web/src/utils/provider-identity.test.ts (10 tests, 15 expect calls)
+- deriveInitials: single-word→first2chars, multi-word→first+last initial, empty string, two-word
+- resolveProviderIdentity precedence: logo>avatar, avatar>initials, initials fallback, banner never identity mark, banner passthrough separate, bannerUrl null when absent
+- Gates: 10/10 bun test pass; biome check clean (1 pre-existing warning); TS5103 pre-existing
+- T-19-01 COMPLETE. Next: T-19-02 (original-image retention backend slice)

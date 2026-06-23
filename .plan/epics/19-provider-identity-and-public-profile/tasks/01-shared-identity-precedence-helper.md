@@ -2,7 +2,7 @@
 type: task
 id: T-19-01
 epic: E-19
-status: ready
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -58,7 +58,7 @@ verification:
 
 ### ST-02 - Unit-test the precedence rule
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The precedence outcomes are not deterministically assertable from helper inputs alone.
@@ -79,7 +79,8 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- Created `apps/web/src/utils/provider-identity.test.ts` with 10 tests across two describe blocks: `deriveInitials` (4 cases: single-word → 2 chars, multi-word → first+last initial, empty string, two-word) and `resolveProviderIdentity — precedence` (6 cases: logo wins over avatar, avatar when no logo, initials fallback, banner never identity mark, banner passthrough separate from mark, bannerUrl null when absent).
+- Gates: 10/10 pass; biome check clean (1 pre-existing warning only); TS5103 pre-existing tsconfig ignoreDeprecations error unchanged.
 
 ---
 
