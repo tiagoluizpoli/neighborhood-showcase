@@ -23,7 +23,7 @@ Current state: the public page `apps/web/src/routes/_portal.providers.$id.tsx` r
 | Task ID | Task | Status | Blocked By | File |
 | --- | --- | --- | --- | --- |
 | T-19-01 | Shared identity-precedence helper | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/01-shared-identity-precedence-helper.md` |
-| T-19-02 | Original-image retention backend slice | in-progress | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/02-original-image-retention-backend.md` |
+| T-19-02 | Original-image retention backend slice | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/02-original-image-retention-backend.md` |
 | T-19-03 | Role-parameterized ImageUploadField with re-crop | ready | T-19-02 | `.plan/epics/19-provider-identity-and-public-profile/tasks/03-role-parameterized-image-upload-field.md` |
 | T-19-04 | Configuration IA reorg, identity-first | ready | T-19-01, T-19-03 | `.plan/epics/19-provider-identity-and-public-profile/tasks/04-configuration-ia-reorg.md` |
 | T-19-05 | Public page identity-hero recomposition | ready | T-19-01 | `.plan/epics/19-provider-identity-and-public-profile/tasks/05-public-page-recomposition.md` |

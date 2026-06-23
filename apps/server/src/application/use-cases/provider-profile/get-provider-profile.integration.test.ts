@@ -57,4 +57,34 @@ describe('GetProviderProfile integration', () => {
     expect(profile.publicDescription).toBe('This profile exists now.');
     expect(profile.contactMetadata.website).toBe('https://found.example.com');
   });
+
+  test('read contract returns original-source references alongside cropped URLs', async () => {
+    const { UpdateProviderProfile } = await import('./update-provider-profile');
+    const updateUseCase = new UpdateProviderProfile(repo);
+    await updateUseCase.execute({
+      providerId: testUserId,
+      displayName: 'Found Provider With Originals',
+      avatarUrl: 'https://cdn.example.com/avatar-crop.jpg',
+      avatarOriginalUrl: 'https://cdn.example.com/avatar-original.jpg',
+      logoUrl: 'https://cdn.example.com/logo-crop.png',
+      logoOriginalUrl: 'https://cdn.example.com/logo-original.png',
+      bannerUrl: 'https://cdn.example.com/banner-crop.jpg',
+      bannerOriginalUrl: 'https://cdn.example.com/banner-original.jpg',
+    });
+
+    const profile = await useCase.execute({ providerId: testUserId });
+
+    expect(profile.avatarUrl).toBe('https://cdn.example.com/avatar-crop.jpg');
+    expect(profile.avatarOriginalUrl).toBe(
+      'https://cdn.example.com/avatar-original.jpg',
+    );
+    expect(profile.logoUrl).toBe('https://cdn.example.com/logo-crop.png');
+    expect(profile.logoOriginalUrl).toBe(
+      'https://cdn.example.com/logo-original.png',
+    );
+    expect(profile.bannerUrl).toBe('https://cdn.example.com/banner-crop.jpg');
+    expect(profile.bannerOriginalUrl).toBe(
+      'https://cdn.example.com/banner-original.jpg',
+    );
+  });
 });

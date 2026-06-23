@@ -272,3 +272,9 @@
   provider-profile.integration.test.ts 5/5 pass.
 - Next: T-19-02/ST-04 — backend test for original-retention round-trip
   (update persists crop + original; private + public read return original).
+
+2026-06-23 T-19-02/ST-04 DONE: Added original-retention round-trip integration tests.
+- update-provider-profile.integration.test.ts: 2 new tests (6/6 total) — persists both cropped + original URLs; preserves originals on partial update.
+- get-provider-profile.integration.test.ts: 1 new test (3/3 total) — read contract returns original-source references via entity getters.
+- Gates: check-types server clean; check clean (biome auto-formatted update test).
+- T-19-02 fully complete. Next: T-19-03 (role-parameterized ImageUploadField with re-crop).

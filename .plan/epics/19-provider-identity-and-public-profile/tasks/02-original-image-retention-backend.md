@@ -2,7 +2,7 @@
 type: task
 id: T-19-02
 epic: E-19
-status: in-progress
+status: done
 blocked-by: []
 default-model: high
 ---
@@ -22,8 +22,8 @@ Schema: `packages/db/src/schema/showcase.ts`, table `provider_profile` (`avatar_
 - [x] The update contract persists BOTH the cropped URL and the original-source reference when an image is saved.
 - [x] The read contract returns the original-source reference so the UI can re-crop from the original.
 - [x] An upload/storage strategy stores the original full-resolution asset (following the existing cropped-asset path).
-- [ ] A server test asserts saving an image persists both the cropped URL and the original-source reference, and that the read contract returns the original.
-- [ ] All gates pass; schema applied to dev + test DBs (no `db:push` postgis block).
+- [x] A server test asserts saving an image persists both the cropped URL and the original-source reference, and that the read contract returns the original.
+- [x] All gates pass; schema applied to dev + test DBs (no `db:push` postgis block).
 
 ## Sub-Tasks
 
@@ -100,7 +100,7 @@ verification:
 
 ### ST-04 - Backend test for original retention round-trip
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The round-trip cannot be asserted without standing up infrastructure beyond the existing integration-test harness.
@@ -190,6 +190,21 @@ verification:
     router). Sanity: `provider-profile.integration.test.ts` 5/5 pass.
 - Next: ST-04 — backend test asserting the original-retention round-trip
   (update persists crop + original; private + public read return original).
+- 2026-06-23 ST-04 DONE: Added integration tests for original-retention
+  round-trip.
+  - `update-provider-profile.integration.test.ts`: 2 new tests — "persists both
+    cropped URL and original-source reference when both supplied" (asserts all 6
+    image cols in DB row) and "preserves originals when partial update does not
+    include them" (asserts merge semantics keep originals after a crop-only
+    partial update). Now 6/6.
+  - `get-provider-profile.integration.test.ts`: 1 new test — "read contract
+    returns original-source references alongside cropped URLs" (upserts with all
+    6 image fields, asserts all 6 entity getters return correct values). Now 3/3.
+  - Both files run per-file (no cross-file mock.module leakage).
+  - Gates: `bun run check-types --filter=server` clean (only pre-existing web
+    TS5103 ignoreDeprecations); `bun run check` clean (pre-existing biome-config
+    warning + broken-symlink info; biome auto-formatted the update test file).
+  - T-19-02 fully complete.
 
 ---
 

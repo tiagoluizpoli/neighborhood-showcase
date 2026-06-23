@@ -1,17 +1,20 @@
 {
-  "currentRunId": "e-19-t-19-02-st-03",
+  "currentRunId": "e-19-t-19-02-st-04",
   "currentPrdId": "PRD-v12-provider-identity-and-public-profile",
   "currentEpicId": "E-19",
   "currentTaskId": "T-19-02",
-  "currentSubTaskId": "ST-03",
+  "currentSubTaskId": "ST-04",
   "attemptCount": 1,
   "retrievalRound": 1,
   "lastModel": "opus",
   "escalated": false,
-  "requiredModel": "high",
+  "requiredModel": "medium",
   "runnerName": "claude",
   "escalateIf": [],
-  "filesToTouch": ["apps/server/src/presentation/routers/provider-profile.ts"],
+  "filesToTouch": [
+    "apps/server/src/application/use-cases/provider-profile/update-provider-profile.integration.test.ts",
+    "apps/server/src/application/use-cases/provider-profile/get-provider-profile.integration.test.ts"
+  ],
   "lastCommitChanged": false,
   "lastFailureReason": null
 }

@@ -110,4 +110,62 @@ describe('UpdateProviderProfile integration', () => {
     // companyName/logoUrl etc. should be preserved (merged, not overwritten)
     expect(r.companyName).toBe('Acme Tecnologia LTDA');
   });
+
+  test('persists both cropped URL and original-source reference when both supplied', async () => {
+    await useCase.execute({
+      providerId: testUserId,
+      displayName: 'Acme Com Originais',
+      avatarUrl: 'https://cdn.example.com/avatar-crop.jpg',
+      avatarOriginalUrl: 'https://cdn.example.com/avatar-original.jpg',
+      logoUrl: 'https://cdn.example.com/logo-crop.png',
+      logoOriginalUrl: 'https://cdn.example.com/logo-original.png',
+      bannerUrl: 'https://cdn.example.com/banner-crop.jpg',
+      bannerOriginalUrl: 'https://cdn.example.com/banner-original.jpg',
+    });
+
+    const [row] = await db
+      .select()
+      .from(providerProfileSchema)
+      .where(eq(providerProfileSchema.providerId, testUserId))
+      .limit(1);
+
+    expect(row).not.toBeNull();
+    const r = row as NonNullable<typeof row>;
+    expect(r.avatarUrl).toBe('https://cdn.example.com/avatar-crop.jpg');
+    expect(r.avatarOriginalUrl).toBe(
+      'https://cdn.example.com/avatar-original.jpg',
+    );
+    expect(r.logoUrl).toBe('https://cdn.example.com/logo-crop.png');
+    expect(r.logoOriginalUrl).toBe('https://cdn.example.com/logo-original.png');
+    expect(r.bannerUrl).toBe('https://cdn.example.com/banner-crop.jpg');
+    expect(r.bannerOriginalUrl).toBe(
+      'https://cdn.example.com/banner-original.jpg',
+    );
+  });
+
+  test('preserves originals when partial update does not include them', async () => {
+    await useCase.execute({
+      providerId: testUserId,
+      displayName: 'Acme Parcial',
+      publicDescription: 'Descrição parcial',
+    });
+
+    const [row] = await db
+      .select()
+      .from(providerProfileSchema)
+      .where(eq(providerProfileSchema.providerId, testUserId))
+      .limit(1);
+
+    expect(row).not.toBeNull();
+    const r = row as NonNullable<typeof row>;
+    expect(r.displayName).toBe('Acme Parcial');
+    // originals from the previous upsert must survive a partial update
+    expect(r.avatarOriginalUrl).toBe(
+      'https://cdn.example.com/avatar-original.jpg',
+    );
+    expect(r.logoOriginalUrl).toBe('https://cdn.example.com/logo-original.png');
+    expect(r.bannerOriginalUrl).toBe(
+      'https://cdn.example.com/banner-original.jpg',
+    );
+  });
 });
