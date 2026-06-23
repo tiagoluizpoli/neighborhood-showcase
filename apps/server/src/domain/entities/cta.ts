@@ -26,6 +26,9 @@ export type CtaTargetType = (typeof CTA_TARGET_TYPES)[number];
 /** Bounded ceiling on secondary CTA targets to keep the model coherent. */
 export const MAX_SECONDARY_CTA_TARGETS = 3;
 
+/** Upper bound on a target's optional display name. */
+export const MAX_CTA_LABEL_LENGTH = 40;
+
 /**
  * URL-backed targets require a concrete http(s) destination. Other types
  * resolve from existing data: `provider_profile` points at the provider page,
@@ -40,6 +43,12 @@ const URL_TARGET_TYPES: readonly CtaTargetType[] = [
 export interface CtaTarget {
   type: CtaTargetType;
   value: string | null;
+  /**
+   * Optional provider-authored display name (e.g. "Cardápio"). When absent,
+   * read surfaces fall back to the type's default word. Bounded by
+   * `MAX_CTA_LABEL_LENGTH`.
+   */
+  label?: string | null;
 }
 
 export interface AnnouncementCta {
@@ -61,6 +70,22 @@ export class TooManyCtaTargetsError extends DomainError {
       `O anúncio permite no máximo ${MAX_SECONDARY_CTA_TARGETS} destinos de CTA secundários.`,
     );
   }
+}
+
+export class InvalidCtaLabelError extends DomainError {
+  constructor() {
+    super(
+      `O nome do botão de CTA não pode exceder ${MAX_CTA_LABEL_LENGTH} caracteres.`,
+    );
+  }
+}
+
+/** A label is valid when absent/empty or within the bounded length. */
+export function isValidCtaLabel(label: string | null | undefined): boolean {
+  if (label == null) {
+    return true;
+  }
+  return label.length <= MAX_CTA_LABEL_LENGTH;
 }
 
 export function isCtaTargetType(value: string): value is CtaTargetType {
@@ -111,12 +136,13 @@ export function validateCta(cta: AnnouncementCta): void {
   if (cta.secondary.length > MAX_SECONDARY_CTA_TARGETS) {
     throw new TooManyCtaTargetsError();
   }
-  if (cta.primary && !isValidCtaTarget(cta.primary)) {
-    throw new InvalidCtaTargetError();
-  }
-  for (const target of cta.secondary) {
+  const all = [...(cta.primary ? [cta.primary] : []), ...cta.secondary];
+  for (const target of all) {
     if (!isValidCtaTarget(target)) {
       throw new InvalidCtaTargetError();
+    }
+    if (!isValidCtaLabel(target.label)) {
+      throw new InvalidCtaLabelError();
     }
   }
 }

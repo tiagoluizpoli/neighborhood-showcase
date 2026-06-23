@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import {
   type AnnouncementCta,
+  InvalidCtaLabelError,
   InvalidCtaTargetError,
+  MAX_CTA_LABEL_LENGTH,
   MAX_SECONDARY_CTA_TARGETS,
   resolveCtaTarget,
   sanitizeCta,
@@ -166,5 +168,42 @@ describe('sanitizeCta', () => {
       value: 'https://menu.example.com',
     });
     expect(result.secondary).toHaveLength(1);
+  });
+});
+
+describe('validateCta — optional label', () => {
+  test('accepts a target with a bounded display name', () => {
+    expect(() =>
+      validateCta({
+        primary: {
+          type: 'website',
+          value: 'https://menu.example.com',
+          label: 'Cardápio',
+        },
+        secondary: [],
+      }),
+    ).not.toThrow();
+  });
+
+  test('accepts an absent label (optional)', () => {
+    expect(() =>
+      validateCta({
+        primary: { type: 'provider_profile', value: null },
+        secondary: [],
+      }),
+    ).not.toThrow();
+  });
+
+  test('rejects a label longer than the bound', () => {
+    expect(() =>
+      validateCta({
+        primary: {
+          type: 'website',
+          value: 'https://menu.example.com',
+          label: 'x'.repeat(MAX_CTA_LABEL_LENGTH + 1),
+        },
+        secondary: [],
+      }),
+    ).toThrow(InvalidCtaLabelError);
   });
 });

@@ -20,6 +20,7 @@ import {
   type AnnouncementCta,
   type CtaTarget,
   EMPTY_CTA,
+  InvalidCtaLabelError,
   InvalidCtaTargetError,
   TooManyCtaTargetsError,
 } from '../../../domain/entities/cta';
@@ -61,6 +62,7 @@ const ctaTargetInputSchema = z.object({
     'whatsapp',
   ]),
   value: z.string().nullable(),
+  label: z.string().nullable().optional(),
 });
 
 const announcementCtaInputSchema = z.object({
@@ -69,12 +71,13 @@ const announcementCtaInputSchema = z.object({
 });
 
 function toCtaTarget(target: z.infer<typeof ctaTargetInputSchema>): CtaTarget {
+  const label = target.label?.trim() || null;
   const raw = target.value?.trim() ?? '';
   if (raw.length === 0) {
-    return { type: target.type, value: null };
+    return { type: target.type, value: null, label };
   }
   const value = target.type === 'whatsapp' ? normalizePhone(raw) : raw;
-  return { type: target.type, value };
+  return { type: target.type, value, label };
 }
 
 function toCta(
@@ -94,6 +97,7 @@ function toCta(
 function toCtaAwareTRPCError(error: unknown): unknown {
   if (
     error instanceof InvalidCtaTargetError ||
+    error instanceof InvalidCtaLabelError ||
     error instanceof TooManyCtaTargetsError
   ) {
     return new TRPCError({

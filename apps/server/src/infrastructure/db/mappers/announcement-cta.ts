@@ -8,6 +8,7 @@ import {
 export interface AnnouncementCtaRowTarget {
   type: string;
   value: string | null;
+  label?: string | null;
 }
 
 export interface AnnouncementCtaRow {
@@ -21,7 +22,11 @@ function rowTargetToDomain(
   if (!target || !isCtaTargetType(target.type)) {
     return null;
   }
-  return { type: target.type, value: target.value ?? null };
+  return {
+    type: target.type,
+    value: target.value ?? null,
+    label: target.label ?? null,
+  };
 }
 
 /**
@@ -47,11 +52,16 @@ export function rowToCta(
 export function ctaToRow(cta: AnnouncementCta): AnnouncementCtaRow {
   return {
     primary: cta.primary
-      ? { type: cta.primary.type, value: cta.primary.value }
+      ? {
+          type: cta.primary.type,
+          value: cta.primary.value,
+          label: cta.primary.label,
+        }
       : null,
     secondary: cta.secondary.map((target) => ({
       type: target.type,
       value: target.value,
+      label: target.label,
     })),
   };
 }
