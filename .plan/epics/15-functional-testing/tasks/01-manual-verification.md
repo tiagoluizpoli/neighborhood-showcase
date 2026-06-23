@@ -2,7 +2,7 @@
 type: task
 id: T-15-01
 epic: E-15
-status: ready
+status: done
 blocked-by: [manual-execution-only]
 default-model: medium
 ---
@@ -100,6 +100,18 @@ All seeded test users share the password: **`Test@1234`**
   3. Navigate to Conta e Segurança (Account and Security). Verify it handles user details and changes are stored on the User row, not mirrored to the provider profile.
 
 ---
+
+## Sub-Tasks
+
+### ST-01 - Manual verification execution sign-off
+
+status: done
+
+what-to-do:
+- Execute every manual test case above against the seeded environment.
+
+verification:
+- Tester confirmed all cases pass (E-13/E-14 functional verification complete, 2026-06-23).
 
 <!-- INDEX SYNC: After completing or modifying any child task file, run
 .plan/helper-scripts/sync-state.sh and update the parent epic.md checklist and

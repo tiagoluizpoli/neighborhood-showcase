@@ -16,7 +16,8 @@ Use this file as the thin index of versioned PRDs stored under `.plan/prds/`.
 | SUPERSEDED | v8 | Role access and route architecture | `.plan/prds/PRD-v8-role-access-and-route-architecture.md` | `.plan/prds/PRD-v8-role-access-and-route-architecture.md` | 2026-06-18 |
 | SUPERSEDED | v9 | Panel shell, layout, and navigation | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | 2026-06-19 |
 | SUPERSEDED | v10 | Announcement creation and authoring model | `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md` | `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md` | 2026-06-20 |
-| CURRENT | v11 | Announcement detail, edit split, and analytics | `.plan/prds/PRD-v11-announcement-detail-edit-and-analytics.md` | `.plan/prds/PRD-v11-announcement-detail-edit-and-analytics.md` | 2026-06-22 |
+| SUPERSEDED | v11 | Announcement detail, edit split, and analytics | `.plan/prds/PRD-v11-announcement-detail-edit-and-analytics.md` | `.plan/prds/PRD-v11-announcement-detail-edit-and-analytics.md` | 2026-06-22 |
+| CURRENT | v12 | Provider identity, configuration IA, and public profile | `.plan/prds/PRD-v12-provider-identity-and-public-profile.md` | `.plan/prds/PRD-v12-provider-identity-and-public-profile.md` | 2026-06-23 |
 
 ## Rules
 

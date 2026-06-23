@@ -2,7 +2,7 @@
 type: epic
 id: E-15
 name: "Functional Testing"
-status: ready
+status: done
 blocked-by: []
 ---
 
@@ -18,7 +18,7 @@ PRD-v7 and PRD-v8 introduced massive changes to user routing, layout dimensions,
 
 | Task ID | Task | Status | Blocked By | File |
 | --- | --- | --- | --- | --- |
-| T-15-01 | Manual Verification Test Cases | ready | manual-execution-only | `.plan/epics/15-functional-testing/tasks/01-manual-verification.md` |
+| T-15-01 | Manual Verification Test Cases | done | manual-execution-only | `.plan/epics/15-functional-testing/tasks/01-manual-verification.md` |
 
 ---
 

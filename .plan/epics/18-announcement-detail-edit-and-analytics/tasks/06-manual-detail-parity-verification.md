@@ -2,7 +2,7 @@
 type: task
 id: T-18-06
 epic: E-18
-status: ready
+status: done
 blocked-by: [manual-execution-only]
 default-model: medium
 ---
@@ -145,6 +145,20 @@ Every row is authorable on **create** and **edit**. Each MUST render on the
 - [ ] PT/EN both clean (no raw i18n keys).
 
 ---
+
+## Sub-Tasks
+
+### ST-01 - Detail field-parity manual sign-off
+
+status: done
+
+what-to-do:
+- Execute the Field Parity Matrix and all cases above, including CTA name +
+  provider info-view and public name behavior.
+
+verification:
+- Tester confirmed CTA visibility fix and full create/edit→detail parity
+  (functional verification complete, 2026-06-23).
 
 <!-- INDEX SYNC: After completing or modifying any child task file, run
 .plan/helper-scripts/sync-state.sh and update the parent epic.md checklist and

@@ -5,7 +5,7 @@
 
 ## Current Run Family
 
-- Current PRD: `.plan/prds/PRD-v11-announcement-detail-edit-and-analytics.md`
+- Current PRD: `.plan/prds/PRD-v12-provider-identity-and-public-profile.md`
 - Current PRD pointer: `.plan/prds/.current-prd`
 - Current grilling pointer: `.plan/grilling/.current-session`
 - Current grill handoff pointer: `.plan/handoffs/.current-grill-handoff`
@@ -31,7 +31,8 @@
 | SUPERSEDED | v8 | Role access and route architecture | `.plan/prds/PRD-v8-role-access-and-route-architecture.md` | `.plan/prds/PRD-v8-role-access-and-route-architecture.md` | 2026-06-18 |
 | SUPERSEDED | v9 | Panel shell, layout, and navigation | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | 2026-06-19 |
 | SUPERSEDED | v10 | Announcement creation and authoring model | `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md` | `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md` | 2026-06-20 |
-| CURRENT | v11 | Announcement detail, edit split, and analytics | `.plan/prds/PRD-v11-announcement-detail-edit-and-analytics.md` | `.plan/prds/PRD-v11-announcement-detail-edit-and-analytics.md` | 2026-06-22 |
+| SUPERSEDED | v11 | Announcement detail, edit split, and analytics | `.plan/prds/PRD-v11-announcement-detail-edit-and-analytics.md` | `.plan/prds/PRD-v11-announcement-detail-edit-and-analytics.md` | 2026-06-22 |
+| CURRENT | v12 | Provider identity, configuration IA, and public profile | `.plan/prds/PRD-v12-provider-identity-and-public-profile.md` | `.plan/prds/PRD-v12-provider-identity-and-public-profile.md` | 2026-06-23 |
 
 ## Epics
 
@@ -39,10 +40,11 @@
 | --- | --- | --- | --- | --- |
 | E-13 | Provider Section Reorg | done | — | `.plan/epics/13-provider-section-reorg/epic.md` |
 | E-14 | Role Access and Route Architecture | done | — | `.plan/epics/14-role-access-and-route-architecture/epic.md` |
-| E-15 | Functional Testing | ready | — | `.plan/epics/15-functional-testing/epic.md` |
+| E-15 | Functional Testing | done | — | `.plan/epics/15-functional-testing/epic.md` |
 | E-16 | Panel Shell, Layout, and Navigation | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/epic.md` |
 | E-17 | Announcement Creation and Authoring Model | done | — | `.plan/epics/17-announcement-creation-and-authoring-model/epic.md` |
-| E-18 | Announcement Detail, Edit Split, and Analytics | in-progress | — | `.plan/epics/18-announcement-detail-edit-and-analytics/epic.md` |
+| E-18 | Announcement Detail, Edit Split, and Analytics | done | — | `.plan/epics/18-announcement-detail-edit-and-analytics/epic.md` |
+| E-19 | Provider Identity, Configuration IA, and Public Profile | ready | — | `.plan/epics/19-provider-identity-and-public-profile/epic.md` |
 
 ## Tasks
 
@@ -63,7 +65,7 @@
 | T-14-03 | E-14 | Section-specific non-Provider landings | done | — | `.plan/epics/14-role-access-and-route-architecture/tasks/03-section-specific-non-provider-landings.md` |
 | T-14-04 | E-14 | Fail-closed landing resolution | done | — | `.plan/epics/14-role-access-and-route-architecture/tasks/04-fail-closed-landing-resolution.md` |
 | T-14-05 | E-14 | Provider enablement surface sync | done | — | `.plan/epics/14-role-access-and-route-architecture/tasks/05-provider-enablement-surface-sync.md` |
-| T-15-01 | E-15 | Manual Verification Test Cases | ready | manual-execution-only | `.plan/epics/15-functional-testing/tasks/01-manual-verification.md` |
+| T-15-01 | E-15 | Manual Verification Test Cases | done | manual-execution-only | `.plan/epics/15-functional-testing/tasks/01-manual-verification.md` |
 | T-16-01 | E-16 | Canonical content container primitive | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/01-canonical-content-container.md` |
 | T-16-02 | E-16 | Migrate provider routes to container variants | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/02-migrate-routes-to-variants.md` |
 | T-16-03 | E-16 | Sidebar collapse regression fix | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/tasks/03-sidebar-collapse-regression-fix.md` |
@@ -81,7 +83,13 @@
 | T-18-03 | E-18 | Facts-first read-only detail rebuild | done | T-18-02 | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/03-facts-first-read-only-detail-rebuild.md` |
 | T-18-04 | E-18 | Analytics placement and chart shrink | done | T-18-03 | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/04-analytics-placement-and-chart-shrink.md` |
 | T-18-05 | E-18 | Test matrix and boundary guards | done | — | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/05-test-matrix-and-boundary-guards.md` |
-| T-18-06 | E-18 | Manual detail field-parity verification | ready | manual-execution-only | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/06-manual-detail-parity-verification.md` |
+| T-18-06 | E-18 | Manual detail field-parity verification | done | manual-execution-only | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/06-manual-detail-parity-verification.md` |
+| T-19-01 | E-19 | Shared identity-precedence helper | ready | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/01-shared-identity-precedence-helper.md` |
+| T-19-02 | E-19 | Original-image retention backend slice | ready | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/02-original-image-retention-backend.md` |
+| T-19-03 | E-19 | Role-parameterized ImageUploadField with re-crop | ready | T-19-02 | `.plan/epics/19-provider-identity-and-public-profile/tasks/03-role-parameterized-image-upload-field.md` |
+| T-19-04 | E-19 | Configuration IA reorg, identity-first | ready | T-19-01, T-19-03 | `.plan/epics/19-provider-identity-and-public-profile/tasks/04-configuration-ia-reorg.md` |
+| T-19-05 | E-19 | Public page identity-hero recomposition | ready | T-19-01 | `.plan/epics/19-provider-identity-and-public-profile/tasks/05-public-page-recomposition.md` |
+| T-19-06 | E-19 | i18n pt/en parity and cross-surface E2E matrix | ready | T-19-04, T-19-05 | `.plan/epics/19-provider-identity-and-public-profile/tasks/06-i18n-parity-and-e2e-matrix.md` |
 
 ## Migration Note
 

@@ -1,7 +1,7 @@
 ---
 type: future-grilling-session
 date: 2026-06-18
-status: queued
+status: completed
 group: provider-configuration-and-public-profile
 source_session: ./00-umbrella-intake-and-audit.md
 ---
@@ -345,3 +345,14 @@ Why this excerpt matters:
 - Image-management interaction model for identity assets.
 - Correct weight and placement of public visibility.
 - Public provider-page composition rules, including fallback layout behavior.
+
+## Grilling completion
+- Completed on: 2026-06-23
+- Live grilling file: `.plan/grilling/2026-06-23-03-provider-configuration-and-public-profile-grilling.md`
+- Handoff file: `.plan/handoffs/grill-to-prd-provider-configuration-and-public-profile.md`
+- Outcome summary:
+  - Identity precedence rule (logo→avatar→initials, banner = background only) in one shared helper; removes the duplicated public-hero mark.
+  - Image lifecycle: Replace + Re-crop (no re-upload) + Remove; drop URL input; retain ORIGINAL upload for re-crop (backend/schema change).
+  - Config IA: identity-first + live identity preview + compact visibility toggle promoted near top.
+  - Public page: identity hero → announcements (full-width) → contact; max-width container + compact fallback for sparse branding.
+  - i18n leaking-keys issue (#3) closed as already-fixed by the dashboard→provider refactor.
