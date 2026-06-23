@@ -191,3 +191,14 @@
   edit e2e covered by meus-anuncios edit tests now repointed at the $id/edit route.
 - Gates: check-types 4/4; check clean; meus-anuncios.spec.ts 13/13 clean no-update reseeded run;
   create specs green; RTL 18/18. T-18-05 + E-18 COMPLETE.
+
+---
+2026-06-23 T-19-01/ST-01 DONE
+- Created apps/web/src/utils/provider-identity.ts
+- Exports: resolveProviderIdentity, deriveInitials, ProviderIdentityInput, ProviderIdentityMark, ProviderIdentityResult
+- ProviderIdentityMark is a discriminated union: { kind: 'logo'|'avatar'; src } | { kind: 'initials'; initials }
+- bannerUrl passthrough is a separate field in ProviderIdentityResult — never an identity mark
+- Precedence: logo → avatar → initials
+- deriveInitials matches existing getInitials in _portal.providers.$id.tsx
+- Gates: bun run check clean (pre-existing warning/info only); tsc clean on provider-identity.ts
+- Next: T-19-01/ST-02 (unit tests)

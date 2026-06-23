@@ -28,7 +28,7 @@ Implement ONE shared identity-precedence helper — the spine of this epic. Give
 
 ### ST-01 - Implement the shared identity-precedence helper
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - A single return contract cannot serve config preview, public hero, and cards without per-caller special-casing.
@@ -47,6 +47,14 @@ files-to-touch:
 verification:
 - `bun run check`
 - `bun run check-types`
+
+#### Execution Notes
+
+- Created `apps/web/src/utils/provider-identity.ts` exporting `resolveProviderIdentity`, `deriveInitials`, `ProviderIdentityInput`, `ProviderIdentityMark`, `ProviderIdentityResult`.
+- `ProviderIdentityMark` is a discriminated union: `{ kind: 'logo' | 'avatar'; src }` or `{ kind: 'initials'; initials }`.
+- `bannerUrl` is a separate field in `ProviderIdentityResult` — never an identity mark.
+- `deriveInitials` matches the existing `getInitials` implementation in `_portal.providers.$id.tsx` (single word → first 2 chars, multi word → first[0] + last[0]).
+- Gates: `bun run check` clean (pre-existing biome-config warning + broken symlink only); `bunx tsc --noEmit --skipLibCheck` no errors in provider-identity.ts.
 
 ### ST-02 - Unit-test the precedence rule
 
