@@ -149,6 +149,61 @@ test.describe('Configurações page', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Configurações page — E-19 identity IA and compact visibility (T-19-06)
+// ---------------------------------------------------------------------------
+test.describe('Configurações page — identity IA and compact visibility (E-19)', () => {
+  const PROVIDER_EMAIL = 'provider@test.com';
+  const PROVIDER_PASSWORD = 'Test@1234';
+
+  test.beforeEach(async ({ page }) => {
+    await signInViaUI(page, PROVIDER_EMAIL, PROVIDER_PASSWORD);
+    await page.waitForSelector('[data-sidebar]', { timeout: 10_000 });
+    await page.goto('/panel/provider/configuration');
+    await page.waitForLoadState('networkidle', { timeout: 10_000 });
+  });
+
+  test('identity-preview block is present in the public-profile section', async ({
+    page,
+  }) => {
+    await expect(page.getByTestId('identity-preview')).toBeVisible();
+  });
+
+  test('visibility-row is a compact element, not a full Card', async ({
+    page,
+  }) => {
+    await expect(page.getByTestId('visibility-row')).toBeVisible();
+    // Old heavyweight Card title should be gone
+    await expect(
+      page.getByText('Visibilidade Pública', { exact: true }),
+    ).toHaveCount(0);
+  });
+
+  test('section order: identity-preview precedes visibility-row precedes contact-channels section', async ({
+    page,
+  }) => {
+    const preview = page.getByTestId('identity-preview');
+    const visRow = page.getByTestId('visibility-row');
+    // CardTitle renders as a div (data-slot="card-title"), not a semantic heading
+    const contactTitle = page.getByText('Canais de Contato', { exact: true });
+
+    await expect(preview).toBeVisible();
+    await expect(visRow).toBeVisible();
+    await expect(contactTitle).toBeVisible();
+
+    const [previewBox, visBox, contactBox] = await Promise.all([
+      preview.boundingBox(),
+      visRow.boundingBox(),
+      contactTitle.boundingBox(),
+    ]);
+
+    if (!previewBox || !visBox || !contactBox)
+      throw new Error('bounding box missing');
+    expect(previewBox.y).toBeLessThan(visBox.y);
+    expect(visBox.y).toBeLessThan(contactBox.y);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Configurações page — contact defaults for the authoring matrix provider
 // These tests use authoring@test.com (seed: primaryPhone=+5511966667777,
 // callEnabled=true) and run serially so the restore step is deterministic.

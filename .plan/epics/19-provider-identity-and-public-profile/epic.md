@@ -2,7 +2,7 @@
 type: epic
 id: E-19
 name: "Provider Identity, Configuration IA, and Public Profile"
-status: in-progress
+status: done
 blocked-by: []
 ---
 
@@ -27,7 +27,7 @@ Current state: the public page `apps/web/src/routes/_portal.providers.$id.tsx` r
 | T-19-03 | Role-parameterized ImageUploadField with re-crop | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/03-role-parameterized-image-upload-field.md` |
 | T-19-04 | Configuration IA reorg, identity-first | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/04-configuration-ia-reorg.md` |
 | T-19-05 | Public page identity-hero recomposition | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/05-public-page-recomposition.md` |
-| T-19-06 | i18n pt/en parity and cross-surface E2E matrix | ready | T-19-04, T-19-05 | `.plan/epics/19-provider-identity-and-public-profile/tasks/06-i18n-parity-and-e2e-matrix.md` |
+| T-19-06 | i18n pt/en parity and cross-surface E2E matrix | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/06-i18n-parity-and-e2e-matrix.md` |
 
 ---
 

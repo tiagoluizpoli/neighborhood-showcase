@@ -2,8 +2,8 @@
 type: task
 id: T-19-06
 epic: E-19
-status: ready
-blocked-by: [T-19-04, T-19-05]
+status: done
+blocked-by: []
 default-model: medium
 ---
 
@@ -27,7 +27,7 @@ Locale files: `apps/web/src/locales/pt/translation.json` and `apps/web/src/local
 
 ### ST-01 - pt/en parity pass on E-19 strings
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - A key added this epic has no sensible counterpart in one locale (would indicate a missed extraction, not a parity gap).
@@ -48,7 +48,7 @@ verification:
 
 ### ST-02 - Seeded Playwright config-edit and public-view matrix
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The re-crop or auto-save interaction cannot be driven reliably in Playwright against seeded data.

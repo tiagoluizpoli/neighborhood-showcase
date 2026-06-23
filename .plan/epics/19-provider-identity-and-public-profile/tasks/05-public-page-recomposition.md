@@ -2,7 +2,7 @@
 type: task
 id: T-19-05
 epic: E-19
-status: in-progress
+status: done
 blocked-by: []
 default-model: medium
 ---

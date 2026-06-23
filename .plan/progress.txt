@@ -351,3 +351,37 @@ ST-03: 7 new tests (21/21 pass per-file) — single identity mark, hero→announ
 New i18n keys: provider_profile.banner_alt, provider_profile.logo_alt in en+pt.
 Gates: bun run check clean (1 pre-existing warning); bun run check-types pre-existing TS5103 only.
 Advancing to T-19-06 (i18n pt/en parity and cross-surface E2E matrix).
+
+---
+[2026-06-23] T-19-06/ST-01 DONE — pt/en parity pass on E-19 strings
+Audited all translation keys used by T-19-03/04/05 components:
+  image-upload-field.tsx, -configuration-public-profile-section.tsx,
+  -configuration-visibility-section.tsx, _portal.providers.$id.tsx.
+Result: zero parity gaps. Both pt and en translation files have identical key
+sets (confirmed via flat-key comparison). No hardcoded UI strings found in E-19
+components. Gates: bun run check clean (1 pre-existing warning only);
+check-types pre-existing TS5103 only.
+Advancing to ST-02 (Playwright E2E matrix).
+
+---
+[2026-06-23] T-19-06/ST-02 DONE — Seeded Playwright E2E matrix
+Config-edit flow (configuracoes.spec.ts, new describe block):
+  - identity-preview block visible in public-profile section
+  - visibility-row compact element; old "Visibilidade Pública" Card title absent
+  - section order: identity-preview < visibility-row < contact-channels (by y position)
+Public-view flow (public-provider.spec.ts, two new describe blocks):
+  Full branding (seed-branding-id): single identity-mark, hero→announcements→contact
+  DOM order, banner img inside hero.
+  Sparse fallback (seed-provider-other-id): single identity-mark, identity-hero has
+  items-center class, max-w-5xl present, hero→announcements→contact DOM order,
+  announcement card link/grid contract unchanged (a[href*="/anuncios/"] + .grid).
+Regression fixes:
+  - Updated assertion for no-banner Sobre card: "does NOT render the Sobre card"
+    (T-19-05 removed the Sobre Card for no-banner; description folds into identity band)
+  - Regenerated visual snapshot public-provider-no-banner-1280x900-chromium-linux.png
+    (layout changed in T-19-05)
+  - Fixed full-branding visual snapshot (regenerated via --update-snapshots)
+  - Replaced all !-assertions with if-guard throws (biome noNonNullAssertion)
+37/37 tests pass (public-provider.spec.ts + configuracoes.spec.ts combined).
+Gates: bun run check clean (1 pre-existing warning only); check-types pre-existing TS5103.
+T-19-06 fully done. E-19 COMPLETE.

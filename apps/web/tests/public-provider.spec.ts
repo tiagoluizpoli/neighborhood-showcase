@@ -108,10 +108,13 @@ test.describe('Public provider page — no banner', () => {
     await expect(page.locator('section img[alt*="Banner"]')).toHaveCount(0);
   });
 
-  test('renders the Sobre section with placeholder text', async ({ page }) => {
-    await expect(
-      page.getByText(/ainda não adicionou uma descrição pública/i),
-    ).toBeVisible();
+  test('does NOT render the Sobre card for the no-banner sparse layout (T-19-05)', async ({
+    page,
+  }) => {
+    // T-19-05: Sobre Card is only rendered when bannerUrl is present.
+    // For the no-banner sparse fallback the description (or empty state) is
+    // shown inside the identity band, not in a separate About card.
+    await expect(page.getByText('Sobre', { exact: true })).toHaveCount(0);
   });
 
   test('renders contact card with "no channels" message', async ({ page }) => {
@@ -195,6 +198,110 @@ test.describe('Public provider page — non-existent provider', () => {
     ).toBeVisible({
       timeout: 15_000,
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// E-19 public-view matrix: identity mark, layout, and announcement contract
+// ---------------------------------------------------------------------------
+test.describe('Public provider page — E-19 identity-hero (full branding)', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize(VIEWPORT);
+    await page.goto(`/providers/${BRANDING_PROVIDER_ID}`);
+    await page.waitForLoadState('networkidle', { timeout: 20_000 });
+  });
+
+  test('renders exactly one identity-mark element', async ({ page }) => {
+    await expect(page.getByTestId('identity-mark')).toHaveCount(1);
+  });
+
+  test('DOM order: identity-hero precedes announcements-section precedes contact-section', async ({
+    page,
+  }) => {
+    const hero = page.getByTestId('identity-hero');
+    const announcements = page.getByTestId('announcements-section');
+    const contact = page.getByTestId('contact-section');
+
+    await expect(hero).toBeVisible();
+    await expect(announcements).toBeVisible();
+    await expect(contact).toBeVisible();
+
+    const [heroBox, announcementsBox, contactBox] = await Promise.all([
+      hero.boundingBox(),
+      announcements.boundingBox(),
+      contact.boundingBox(),
+    ]);
+
+    if (!heroBox || !announcementsBox || !contactBox)
+      throw new Error('bounding box missing');
+    expect(heroBox.y).toBeLessThan(announcementsBox.y);
+    expect(announcementsBox.y).toBeLessThan(contactBox.y);
+  });
+
+  test('banner image is inside the identity-hero section', async ({ page }) => {
+    const heroImg = page.getByTestId('identity-hero').locator('img').first();
+    await expect(heroImg).toBeVisible();
+  });
+});
+
+test.describe('Public provider page — E-19 sparse fallback (no banner)', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize(VIEWPORT);
+    await page.goto(`/providers/${PLAIN_PROVIDER_ID}`);
+    await page.waitForLoadState('networkidle', { timeout: 20_000 });
+  });
+
+  test('renders exactly one identity-mark element', async ({ page }) => {
+    await expect(page.getByTestId('identity-mark')).toHaveCount(1);
+  });
+
+  test('identity-hero has centered (items-center) layout for sparse fallback', async ({
+    page,
+  }) => {
+    const hero = page.getByTestId('identity-hero');
+    await expect(hero).toBeVisible();
+    const classAttr = await hero.getAttribute('class');
+    expect(classAttr).toContain('items-center');
+  });
+
+  test('page has a max-w-5xl width cap container', async ({ page }) => {
+    await expect(page.locator('.max-w-5xl').first()).toBeVisible();
+  });
+
+  test('DOM order: identity-hero precedes announcements-section precedes contact-section', async ({
+    page,
+  }) => {
+    const hero = page.getByTestId('identity-hero');
+    const announcements = page.getByTestId('announcements-section');
+    const contact = page.getByTestId('contact-section');
+
+    await expect(hero).toBeVisible();
+    await expect(announcements).toBeVisible();
+    await expect(contact).toBeVisible();
+
+    const [heroBox, announcementsBox, contactBox] = await Promise.all([
+      hero.boundingBox(),
+      announcements.boundingBox(),
+      contact.boundingBox(),
+    ]);
+
+    if (!heroBox || !announcementsBox || !contactBox)
+      throw new Error('bounding box missing');
+    expect(heroBox.y).toBeLessThan(announcementsBox.y);
+    expect(announcementsBox.y).toBeLessThan(contactBox.y);
+  });
+
+  test('announcement card link/grid contract: link to /anuncios/ and md:grid-cols-2 present', async ({
+    page,
+  }) => {
+    // seed-provider-other-id has "Jardinagem Express" as an active announcement
+    const announcementLink = page.locator('a[href*="/anuncios/"]').first();
+    await expect(announcementLink).toBeVisible({ timeout: 10_000 });
+    const grid = page
+      .getByTestId('announcements-section')
+      .locator('.grid')
+      .first();
+    await expect(grid).toBeVisible();
   });
 });
 

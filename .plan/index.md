@@ -44,7 +44,7 @@
 | E-16 | Panel Shell, Layout, and Navigation | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/epic.md` |
 | E-17 | Announcement Creation and Authoring Model | done | — | `.plan/epics/17-announcement-creation-and-authoring-model/epic.md` |
 | E-18 | Announcement Detail, Edit Split, and Analytics | done | — | `.plan/epics/18-announcement-detail-edit-and-analytics/epic.md` |
-| E-19 | Provider Identity, Configuration IA, and Public Profile | in-progress | — | `.plan/epics/19-provider-identity-and-public-profile/epic.md` |
+| E-19 | Provider Identity, Configuration IA, and Public Profile | done | — | `.plan/epics/19-provider-identity-and-public-profile/epic.md` |
 
 ## Tasks
 
@@ -89,7 +89,7 @@
 | T-19-03 | E-19 | Role-parameterized ImageUploadField with re-crop | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/03-role-parameterized-image-upload-field.md` |
 | T-19-04 | E-19 | Configuration IA reorg, identity-first | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/04-configuration-ia-reorg.md` |
 | T-19-05 | E-19 | Public page identity-hero recomposition | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/05-public-page-recomposition.md` |
-| T-19-06 | E-19 | i18n pt/en parity and cross-surface E2E matrix | ready | T-19-04, T-19-05 | `.plan/epics/19-provider-identity-and-public-profile/tasks/06-i18n-parity-and-e2e-matrix.md` |
+| T-19-06 | E-19 | i18n pt/en parity and cross-surface E2E matrix | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/06-i18n-parity-and-e2e-matrix.md` |
 
 ## Migration Note
 
