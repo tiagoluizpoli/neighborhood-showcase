@@ -2,7 +2,7 @@
 type: task
 id: T-19-03
 epic: E-19
-status: in-progress
+status: done
 blocked-by: []
 default-model: high
 ---
@@ -79,7 +79,7 @@ verification:
 
 ### ST-03 - Component test for lifecycle and actions
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The cropper modal cannot be driven in the RTL harness to assert re-crop-without-upload.

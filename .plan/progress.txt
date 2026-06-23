@@ -304,3 +304,20 @@
 - Call site: passes imageRole per field, wires originalValue/onOriginalChange to new *OriginalUrl state from profile.*OriginalUrl, save mutation sends the 3 *OriginalUrl fields; dropped urlInput/aspectRatio/circular (role drives shape). profile-preferences.tsx untouched (no imageRole → aspectRatio/circular path preserved).
 - Gates: check clean (pre-existing biome-config warning + broken symlink only); check-types clean apart from pre-existing web TS5103 ignoreDeprecations (unrelated, present on clean tree).
 - Next: T-19-03/ST-03 — component test (lifecycle + 3 actions + re-crop-no-upload + per-role shape + no URL input).
+
+---
+2026-06-23 T-19-03/ST-03 DONE
+- Added component test: apps/web/src/components/image-upload-field.test.tsx
+- 10 tests covering all acceptance criteria:
+  - Empty state: Upload button visible, no preview, no URL text input
+  - Filled state: Replace / Re-crop / Remove visible, no URL text input
+  - Per-role preview shape: avatar→rounded-full, banner→aspect-video, logo→aspect-square (not circular)
+  - Remove: calls onChange('') and onOriginalChange('')
+  - file pick on empty → crop modal opens (empty→cropping lifecycle)
+  - confirm crop → onChange called with uploaded URL (cropping→filled lifecycle)
+  - Re-crop opens cropper without triggering new original upload (fetch once, onOriginalChange not called)
+  - Replace in filled state re-enters crop flow
+- mocks: getCroppedImg (module mock), env/web (module mock), sonner, react-easy-crop stub
+- fetch patched globally per test via fetchSpy mock (cleared in beforeEach, restored in afterEach)
+- 10/10 pass per-file; bun run check clean; check-types pre-existing TS5103 only
+- T-19-03 status → done; T-19-04 is next (Configuration IA reorg, identity-first)
