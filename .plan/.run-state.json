@@ -1,17 +1,20 @@
 {
-  "currentRunId": "e-19-t-19-03-st-01",
+  "currentRunId": "e-19-t-19-03-st-02",
   "currentPrdId": "PRD-v12-provider-identity-and-public-profile",
   "currentEpicId": "E-19",
   "currentTaskId": "T-19-03",
-  "currentSubTaskId": "ST-01",
-  "attemptCount": 1,
-  "retrievalRound": 1,
+  "currentSubTaskId": "ST-02",
+  "attemptCount": 0,
+  "retrievalRound": 0,
   "lastModel": "opus",
   "escalated": false,
   "requiredModel": "high",
   "runnerName": "claude",
   "escalateIf": [],
-  "filesToTouch": ["apps/web/src/components/image-upload-field.tsx"],
+  "filesToTouch": [
+    "apps/web/src/components/image-upload-field.tsx",
+    "apps/web/src/routes/panel/provider/-configuration-public-profile-section.tsx"
+  ],
   "lastCommitChanged": false,
   "lastFailureReason": null
 }

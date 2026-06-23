@@ -3,6 +3,7 @@ import { Button } from '@neighborhood-showcase/ui/components/button';
 import { Loader2, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import Cropper, { type Area } from 'react-easy-crop';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { getCroppedImg } from '@/utils/crop-image';
 
@@ -16,9 +17,19 @@ export interface ImageUploadFieldProps {
   onChange: (url: string) => void;
   /**
    * Role driving preview shape/size: banner 16:9 wide, avatar round, logo
-   * square. When set it supersedes `aspectRatio`/`circular`.
+   * square. When set it supersedes `aspectRatio`/`circular`. Named `imageRole`
+   * (not `role`) to avoid colliding with the DOM ARIA `role` attribute, which
+   * the a11y linter rejects for non-ARIA values like `avatar`/`logo`.
    */
-  role?: ImageUploadRole;
+  imageRole?: ImageUploadRole;
+  /**
+   * Original full-resolution upload reference (T-19-02 contract). Re-crop
+   * reopens the cropper on this source so re-framing is lossless. Falls back
+   * to `value` when absent (legacy rows persisted before original retention).
+   */
+  originalValue?: string;
+  /** Persist the original-source reference alongside the derived crop. */
+  onOriginalChange?: (url: string) => void;
   /** Explicit aspect ratio for the non-role (account) consumer. */
   aspectRatio?: number;
   /**
@@ -49,19 +60,28 @@ export function ImageUploadField({
   helpText,
   value,
   onChange,
-  role,
+  imageRole,
+  originalValue,
+  onOriginalChange,
   aspectRatio,
   circular = false,
 }: ImageUploadFieldProps) {
+  const { t } = useTranslation('configuracoes');
   const [isUploading, setIsUploading] = useState(false);
   const [selectedImageSrc, setSelectedImageSrc] = useState('');
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [isCroppingOpen, setIsCroppingOpen] = useState(false);
+  // When set, the crop session originated from a NEW file pick (Replace /
+  // initial upload), so the untouched original is uploaded too. Null on
+  // Re-crop, where the original is already persisted and must not change.
+  const [pendingOriginalFile, setPendingOriginalFile] = useState<File | null>(
+    null,
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { isCircular, aspect } = resolveShape(role, aspectRatio, circular);
+  const { isCircular, aspect } = resolveShape(imageRole, aspectRatio, circular);
   const isWide = !isCircular && aspect > 1;
   const previewClass = isCircular
     ? 'aspect-square w-24 rounded-full'
@@ -73,24 +93,61 @@ export function ImageUploadField({
     setIsUploading(nextState);
   };
 
+  const resetCropState = () => {
+    setZoom(1);
+    setCrop({ x: 0, y: 0 });
+    setCroppedAreaPixels(null);
+    setIsCroppingOpen(true);
+  };
+
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    // Reset the input so picking the same file again still fires onChange.
+    e.target.value = '';
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      toast.error('Please select a valid image.');
+      toast.error(t('image_upload_invalid'));
       return;
     }
 
     const reader = new FileReader();
     reader.onload = () => {
       setSelectedImageSrc(reader.result as string);
-      setZoom(1);
-      setCrop({ x: 0, y: 0 });
-      setCroppedAreaPixels(null);
-      setIsCroppingOpen(true);
+      setPendingOriginalFile(file);
+      resetCropState();
     };
     reader.readAsDataURL(file);
+  };
+
+  // Re-crop reopens the cropper on the ORIGINAL full-resolution upload with no
+  // new file selection. Falls back to the derived crop for legacy rows that
+  // predate original retention.
+  const handleRecrop = () => {
+    const source = originalValue || value;
+    if (!source) return;
+    setSelectedImageSrc(source);
+    setPendingOriginalFile(null);
+    resetCropState();
+  };
+
+  const uploadBlob = async (blob: Blob, filename: string): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', blob, filename);
+    formData.append('type', 'image');
+
+    const response = await fetch(`${env.VITE_SERVER_URL}/api/upload`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error(t('image_upload_failed'));
+    }
+
+    const data = await response.json();
+    return data.url as string;
   };
 
   const handleCropConfirm = async () => {
@@ -102,27 +159,24 @@ export function ImageUploadField({
         selectedImageSrc,
         croppedAreaPixels,
       );
+      const croppedUrl = await uploadBlob(croppedBlob, 'upload.webp');
+      onChange(croppedUrl);
 
-      const formData = new FormData();
-      formData.append('file', croppedBlob, 'upload.webp');
-      formData.append('type', 'image');
-
-      const response = await fetch(`${env.VITE_SERVER_URL}/api/upload`, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Image upload failed.');
+      // Persist the untouched original only when this crop came from a new
+      // file pick; a Re-crop keeps the already-saved original intact.
+      if (pendingOriginalFile) {
+        const originalUrl = await uploadBlob(
+          pendingOriginalFile,
+          pendingOriginalFile.name || 'original',
+        );
+        onOriginalChange?.(originalUrl);
       }
 
-      const data = await response.json();
-      onChange(data.url);
-      toast.success('Image uploaded successfully!');
+      toast.success(t('image_upload_success'));
+      setPendingOriginalFile(null);
       setIsCroppingOpen(false);
     } catch (err: unknown) {
-      toast.error((err as Error).message || 'Error processing image.');
+      toast.error((err as Error).message || t('image_upload_error'));
     } finally {
       setUploadingState(false);
     }
@@ -130,6 +184,7 @@ export function ImageUploadField({
 
   const handleRemove = () => {
     onChange('');
+    onOriginalChange?.('');
   };
 
   return (
@@ -146,7 +201,7 @@ export function ImageUploadField({
           >
             <img
               src={value}
-              alt="Preview"
+              alt={t('image_upload_preview_alt')}
               className={`h-full w-full object-cover ${isCircular ? 'rounded-full' : ''}`}
             />
             {isUploading && (
@@ -159,41 +214,61 @@ export function ImageUploadField({
 
         {/* Controls */}
         <div className="space-y-1.5">
-          {value && (
+          {value ? (
+            <div className="flex flex-wrap gap-1.5">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="text-xs"
+              >
+                {t('image_upload_replace')}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleRecrop}
+                disabled={isUploading}
+                className="text-xs"
+              >
+                {t('image_upload_recrop')}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleRemove}
+                disabled={isUploading}
+                className="text-muted-foreground text-xs"
+              >
+                {t('button_remove')}
+              </Button>
+            </div>
+          ) : (
             <Button
               type="button"
-              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              variant="secondary"
               size="sm"
-              onClick={handleRemove}
-              className="text-muted-foreground text-xs"
+              disabled={isUploading}
             >
-              Remove
+              {isUploading ? (
+                <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
+              ) : null}
+              {t('button_upload')}
             </Button>
           )}
 
-          {!value && (
-            <>
-              <Button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                variant="secondary"
-                size="sm"
-                disabled={isUploading}
-              >
-                {isUploading ? (
-                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
-                ) : null}
-                Upload image
-              </Button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImageSelect}
-                accept="image/*"
-                className="hidden"
-              />
-            </>
-          )}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageSelect}
+            accept="image/*"
+            className="hidden"
+          />
 
           <p className="text-muted-foreground text-xs">{helpText}</p>
         </div>
@@ -206,16 +281,14 @@ export function ImageUploadField({
             <div className="flex items-center justify-between border-border border-b p-5">
               <div>
                 <h4 className="font-bold text-foreground text-lg">
-                  Adjust Image
+                  {t('image_upload_adjust_title')}
                 </h4>
                 <p className="mt-0.5 text-muted-foreground text-xs">
-                  Drag to adjust the{' '}
                   {aspect === 1
-                    ? 'square'
+                    ? t('image_upload_adjust_help_square')
                     : aspect < 1
-                      ? 'portrait'
-                      : 'landscape'}{' '}
-                  framing.
+                      ? t('image_upload_adjust_help_portrait')
+                      : t('image_upload_adjust_help_landscape')}
                 </p>
               </div>
               <button
@@ -251,7 +324,7 @@ export function ImageUploadField({
               <div className="space-y-1">
                 <div className="flex justify-between text-muted-foreground text-xs">
                   <span className="font-medium text-foreground text-sm">
-                    Zoom
+                    {t('image_upload_zoom')}
                   </span>
                   <span>{zoom.toFixed(1)}x</span>
                 </div>
@@ -273,14 +346,16 @@ export function ImageUploadField({
                 variant="outline"
                 onClick={() => setIsCroppingOpen(false)}
               >
-                Cancel
+                {t('image_upload_cancel')}
               </Button>
               <Button
                 type="button"
                 onClick={handleCropConfirm}
                 disabled={isUploading}
               >
-                {isUploading ? 'Uploading...' : 'Crop and Save'}
+                {isUploading
+                  ? t('image_upload_uploading')
+                  : t('image_upload_save')}
               </Button>
             </div>
           </div>

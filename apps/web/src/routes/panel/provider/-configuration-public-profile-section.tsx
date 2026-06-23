@@ -34,6 +34,15 @@ export function PublicProfileSection({ profile }: PublicProfileSectionProps) {
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl ?? '');
   const [logoUrl, setLogoUrl] = useState(profile.logoUrl ?? '');
   const [bannerUrl, setBannerUrl] = useState(profile.bannerUrl ?? '');
+  const [avatarOriginalUrl, setAvatarOriginalUrl] = useState(
+    profile.avatarOriginalUrl ?? '',
+  );
+  const [logoOriginalUrl, setLogoOriginalUrl] = useState(
+    profile.logoOriginalUrl ?? '',
+  );
+  const [bannerOriginalUrl, setBannerOriginalUrl] = useState(
+    profile.bannerOriginalUrl ?? '',
+  );
   const [publicDescription, setPublicDescription] = useState(
     profile.publicDescription ?? '',
   );
@@ -58,6 +67,9 @@ export function PublicProfileSection({ profile }: PublicProfileSectionProps) {
       avatarUrl: avatarUrl || null,
       logoUrl: logoUrl || null,
       bannerUrl: bannerUrl || null,
+      avatarOriginalUrl: avatarOriginalUrl || null,
+      logoOriginalUrl: logoOriginalUrl || null,
+      bannerOriginalUrl: bannerOriginalUrl || null,
       publicDescription: publicDescription.trim() || null,
     });
   };
@@ -124,25 +136,27 @@ export function PublicProfileSection({ profile }: PublicProfileSectionProps) {
               helpText={t('field_avatarUrl_help')}
               value={avatarUrl}
               onChange={setAvatarUrl}
-              aspectRatio={1}
-              urlInput={false}
-              circular={true}
+              originalValue={avatarOriginalUrl}
+              onOriginalChange={setAvatarOriginalUrl}
+              imageRole="avatar"
             />
             <ImageUploadField
               label={t('field_logoUrl')}
               helpText={t('field_logoUrl_help')}
               value={logoUrl}
               onChange={setLogoUrl}
-              aspectRatio={1}
-              urlInput={true}
+              originalValue={logoOriginalUrl}
+              onOriginalChange={setLogoOriginalUrl}
+              imageRole="logo"
             />
             <ImageUploadField
               label={t('field_bannerUrl')}
               helpText={t('field_bannerUrl_help')}
               value={bannerUrl}
               onChange={setBannerUrl}
-              aspectRatio={16 / 9}
-              urlInput={true}
+              originalValue={bannerOriginalUrl}
+              onOriginalChange={setBannerOriginalUrl}
+              imageRole="banner"
             />
           </div>
 

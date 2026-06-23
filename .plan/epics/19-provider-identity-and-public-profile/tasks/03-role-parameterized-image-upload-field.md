@@ -3,7 +3,7 @@ type: task
 id: T-19-03
 epic: E-19
 status: in-progress
-blocked-by: [T-19-02]
+blocked-by: []
 default-model: high
 ---
 
@@ -54,7 +54,7 @@ verification:
 
 ### ST-02 - Implement the filled-state Replace / Re-crop / Remove actions
 
-status: ready
+status: done
 model: high
 escalate-if:
 - Re-crop cannot reopen the cropper without re-running the upload path.
@@ -100,7 +100,37 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- ST-02 done. Filled state renders Replace / Re-crop / Remove; the `<input
+  type=file>` is now always mounted so Replace can trigger it. Re-crop reopens
+  the cropper on `originalValue || value` (original full-res from T-19-02;
+  falls back to the cropped URL for legacy rows) and sets no pending file, so
+  NO new upload happens on a re-crop. New file picks (Upload / Replace) stash
+  the original `File`; on crop save the cropped blob is uploaded via the
+  existing POST /api/upload and, only for a new-file session, the original is
+  uploaded too and pushed through `onOriginalChange`. Remove clears both
+  cropped and original.
+- CONTRACT NOTE / divergence: the prop is named `imageRole` (not `role`). Biome
+  `lint/a11y/useValidAriaRole` rejects a JSX `role="avatar"`/`role="logo"` at
+  the call site (treated as the DOM ARIA attribute; `avatar`/`logo` are not
+  valid ARIA roles — `banner` happens to be, which is why only 2 of 3 errored).
+  RULES §5 forbids biome-config changes, so the prop was renamed; the
+  role-parameterized CONCEPT and the `ImageUploadRole` type are unchanged. This
+  was the recurring blocker behind the prior failed attempts.
+- All component strings now route through `useTranslation('configuracoes')`;
+  added `image_upload_*` keys to en + pt (reused existing `button_upload` /
+  `button_remove`).
+- Call site (`-configuration-public-profile-section.tsx`) passes `imageRole`
+  per field, wires `originalValue`/`onOriginalChange` to new `*OriginalUrl`
+  state seeded from `profile.*OriginalUrl`, and the save mutation now sends the
+  3 `*OriginalUrl` fields. `urlInput`/`aspectRatio`/`circular` props dropped
+  from the provider call site (role drives shape).
+- `profile-preferences.tsx` (account avatar) does not pass `imageRole`; the
+  `aspectRatio`/`circular` path is untouched — non-provider usage preserved.
+- Gates: `bun run check` clean (pre-existing biome-config warning + broken
+  symlink info only); `bun run check-types` clean apart from the pre-existing
+  web TS5103 `ignoreDeprecations` error (unrelated, present on the clean tree).
+- Next: ST-03 — component test for lifecycle + the three actions + re-crop
+  without upload + per-role preview shape + no URL input.
 
 ---
 

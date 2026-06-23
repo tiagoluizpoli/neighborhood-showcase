@@ -296,3 +296,11 @@
   biome auto-formatted the component).
 - Next: T-19-03/ST-02 — filled-state Replace/Re-crop/Remove + wire provider section
   to pass role + original-source URL from T-19-02 contract.
+
+2026-06-23 T-19-03/ST-02 DONE: filled-state Replace/Re-crop/Remove + original-source wiring.
+- ImageUploadField: filled state renders Replace / Re-crop / Remove. File input always mounted so Replace works. Re-crop reopens cropper on originalValue||value (original full-res from T-19-02; legacy-row fallback to cropped URL), sets no pending file → NO new upload on re-crop. New-file picks stash the original File; crop save uploads cropped blob then (new-file only) the original, pushing it via onOriginalChange. Remove clears both.
+- BLOCKER RESOLVED (root cause of prior 9 attempts): prop `role` triggered biome lint/a11y/useValidAriaRole at the call site (role="avatar"/"logo" invalid ARIA; "banner" valid → only 2/3 errored). RULES §5 forbids biome-config edits, so prop renamed role → imageRole. Concept + ImageUploadRole type unchanged.
+- i18n: component now uses useTranslation('configuracoes'); added image_upload_* keys to en+pt (reused button_upload/button_remove).
+- Call site: passes imageRole per field, wires originalValue/onOriginalChange to new *OriginalUrl state from profile.*OriginalUrl, save mutation sends the 3 *OriginalUrl fields; dropped urlInput/aspectRatio/circular (role drives shape). profile-preferences.tsx untouched (no imageRole → aspectRatio/circular path preserved).
+- Gates: check clean (pre-existing biome-config warning + broken symlink only); check-types clean apart from pre-existing web TS5103 ignoreDeprecations (unrelated, present on clean tree).
+- Next: T-19-03/ST-03 — component test (lifecycle + 3 actions + re-crop-no-upload + per-role shape + no URL input).
