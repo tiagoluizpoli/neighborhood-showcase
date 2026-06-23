@@ -278,3 +278,21 @@
 - get-provider-profile.integration.test.ts: 1 new test (3/3 total) — read contract returns original-source references via entity getters.
 - Gates: check-types server clean; check clean (biome auto-formatted update test).
 - T-19-02 fully complete. Next: T-19-03 (role-parameterized ImageUploadField with re-crop).
+
+2026-06-23 T-19-03/ST-01 DONE: Role-parameterized ImageUploadField; removed URL text box.
+- Added `role?: 'banner' | 'avatar' | 'logo'` prop + `ImageUploadRole` type. New
+  resolveShape() derives shape from role (avatar→round, logo→square aspect 1,
+  banner→16:9), superseding aspectRatio/circular; non-role consumer still uses
+  aspectRatio/circular. Preview class: round / aspect-video wide / square.
+- Removed the urlInput text box, Apply button, "or paste an image URL" hint, the
+  urlText state, and the unused Input import. URL DATA PATH PRESERVED: value/onChange
+  props unchanged. urlInput? kept in interface as deprecated/ignored so the provider
+  consumer (-configuration-public-profile-section.tsx, passes urlInput) keeps
+  compiling — ST-02 rewires it to pass role.
+- Crop modal now reads resolved aspect/isCircular (was raw aspectRatio/circular).
+- profile-preferences.tsx (account avatar, circular) untouched, behavior preserved.
+- Gates: check-types clean (only pre-existing web TS5103 ignoreDeprecations,
+  unrelated); check clean (pre-existing biome-config warning + broken-symlink info;
+  biome auto-formatted the component).
+- Next: T-19-03/ST-02 — filled-state Replace/Re-crop/Remove + wire provider section
+  to pass role + original-source URL from T-19-02 contract.

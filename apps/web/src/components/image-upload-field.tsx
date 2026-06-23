@@ -1,22 +1,47 @@
 import { env } from '@neighborhood-showcase/env/web';
 import { Button } from '@neighborhood-showcase/ui/components/button';
-import { Input } from '@neighborhood-showcase/ui/components/input';
 import { Loader2, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import Cropper, { type Area } from 'react-easy-crop';
 import { toast } from 'sonner';
 import { getCroppedImg } from '@/utils/crop-image';
 
+/** Provider image roles driving preview shape/size. */
+export type ImageUploadRole = 'banner' | 'avatar' | 'logo';
+
 export interface ImageUploadFieldProps {
   label: string;
   helpText: string;
   value: string;
   onChange: (url: string) => void;
-  aspectRatio: number;
-  /** When true, renders both a URL text input and an upload button. */
+  /**
+   * Role driving preview shape/size: banner 16:9 wide, avatar round, logo
+   * square. When set it supersedes `aspectRatio`/`circular`.
+   */
+  role?: ImageUploadRole;
+  /** Explicit aspect ratio for the non-role (account) consumer. */
+  aspectRatio?: number;
+  /**
+   * Deprecated: the raw URL text box is no longer rendered. Accepted so
+   * existing call sites keep compiling; ignored.
+   */
   urlInput?: boolean;
   /** When true, renders a small circular crop for avatar. */
   circular?: boolean;
+}
+
+function resolveShape(
+  role: ImageUploadRole | undefined,
+  aspectRatio: number | undefined,
+  circular: boolean,
+): { isCircular: boolean; aspect: number } {
+  if (role) {
+    return {
+      isCircular: role === 'avatar',
+      aspect: role === 'banner' ? 16 / 9 : 1,
+    };
+  }
+  return { isCircular: circular, aspect: aspectRatio ?? 1 };
 }
 
 export function ImageUploadField({
@@ -24,8 +49,8 @@ export function ImageUploadField({
   helpText,
   value,
   onChange,
+  role,
   aspectRatio,
-  urlInput = false,
   circular = false,
 }: ImageUploadFieldProps) {
   const [isUploading, setIsUploading] = useState(false);
@@ -34,8 +59,15 @@ export function ImageUploadField({
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [isCroppingOpen, setIsCroppingOpen] = useState(false);
-  const [urlText, setUrlText] = useState(value);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { isCircular, aspect } = resolveShape(role, aspectRatio, circular);
+  const isWide = !isCircular && aspect > 1;
+  const previewClass = isCircular
+    ? 'aspect-square w-24 rounded-full'
+    : isWide
+      ? 'aspect-video w-full max-w-[16rem]'
+      : 'aspect-square w-24';
 
   const setUploadingState = (nextState: boolean) => {
     setIsUploading(nextState);
@@ -98,7 +130,6 @@ export function ImageUploadField({
 
   const handleRemove = () => {
     onChange('');
-    setUrlText('');
   };
 
   return (
@@ -111,14 +142,12 @@ export function ImageUploadField({
         {/* Preview */}
         {value && (
           <div
-            className={`relative overflow-hidden rounded-lg border border-border bg-muted ${
-              circular ? 'aspect-square w-24 rounded-full' : 'aspect-video w-32'
-            }`}
+            className={`relative overflow-hidden rounded-lg border border-border bg-muted ${previewClass}`}
           >
             <img
               src={value}
               alt="Preview"
-              className={`h-full w-full object-cover ${circular ? 'rounded-full' : ''}`}
+              className={`h-full w-full object-cover ${isCircular ? 'rounded-full' : ''}`}
             />
             {isUploading && (
               <div className="absolute inset-0 flex items-center justify-center bg-background/75">
@@ -130,38 +159,6 @@ export function ImageUploadField({
 
         {/* Controls */}
         <div className="space-y-1.5">
-          {urlInput && (
-            <div className="flex items-center gap-2">
-              <Input
-                type="url"
-                value={urlText}
-                onChange={(e) => setUrlText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    if (urlText.trim()) {
-                      onChange(urlText.trim());
-                    }
-                  }
-                }}
-                placeholder="https://..."
-                className="h-9 flex-1 text-sm"
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => {
-                  if (urlText.trim()) {
-                    onChange(urlText.trim());
-                  }
-                }}
-              >
-                Apply
-              </Button>
-            </div>
-          )}
-
           {value && (
             <Button
               type="button"
@@ -198,12 +195,6 @@ export function ImageUploadField({
             </>
           )}
 
-          {urlInput && !value && (
-            <p className="text-muted-foreground text-xs">
-              or paste an image URL
-            </p>
-          )}
-
           <p className="text-muted-foreground text-xs">{helpText}</p>
         </div>
       </div>
@@ -219,9 +210,9 @@ export function ImageUploadField({
                 </h4>
                 <p className="mt-0.5 text-muted-foreground text-xs">
                   Drag to adjust the{' '}
-                  {aspectRatio === 1
+                  {aspect === 1
                     ? 'square'
-                    : aspectRatio < 1
+                    : aspect < 1
                       ? 'portrait'
                       : 'landscape'}{' '}
                   framing.
@@ -239,21 +230,21 @@ export function ImageUploadField({
             <div className="min-h-[300px] flex-1 space-y-4 p-6">
               <div
                 className={`relative min-h-[220px] w-full overflow-hidden rounded-lg border bg-background ${
-                  circular ? 'aspect-square max-w-[220px]' : ''
+                  isCircular ? 'aspect-square max-w-[220px]' : ''
                 }`}
-                style={circular ? {} : { aspectRatio: String(aspectRatio) }}
+                style={isCircular ? {} : { aspectRatio: String(aspect) }}
               >
                 <Cropper
                   image={selectedImageSrc}
                   crop={crop}
                   zoom={zoom}
-                  aspect={aspectRatio}
+                  aspect={aspect}
                   onCropChange={setCrop}
                   onZoomChange={setZoom}
                   onCropComplete={(_, croppedPixels) =>
                     setCroppedAreaPixels(croppedPixels)
                   }
-                  cropShape={circular ? 'round' : 'rect'}
+                  cropShape={isCircular ? 'round' : 'rect'}
                 />
               </div>
 

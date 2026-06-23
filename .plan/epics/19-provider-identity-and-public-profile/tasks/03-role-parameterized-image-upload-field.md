@@ -2,7 +2,7 @@
 type: task
 id: T-19-03
 epic: E-19
-status: ready
+status: in-progress
 blocked-by: [T-19-02]
 default-model: high
 ---
@@ -32,7 +32,7 @@ Collapse the three provider image roles onto ONE role-parameterized `ImageUpload
 
 ### ST-01 - Role-parameterize the field and remove the URL input
 
-status: ready
+status: done
 model: high
 escalate-if:
 - Parameterizing preview shape per role cannot be done without diverging into three components.
