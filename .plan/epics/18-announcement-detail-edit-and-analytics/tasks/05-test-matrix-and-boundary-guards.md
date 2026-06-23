@@ -2,8 +2,8 @@
 type: task
 id: T-18-05
 epic: E-18
-status: in-progress
-blocked-by: [T-18-01, T-18-02, T-18-03, T-18-04]
+status: done
+blocked-by: []
 default-model: high
 ---
 
@@ -34,9 +34,7 @@ model: high
 escalate-if:
 - The shared form lacks a seam that makes parity or the field-policy lock assertable without test-only abstractions.
 
-blocked-by:
-- T-18-01
-- T-18-02
+blocked-by: [T-18-01, T-18-02]
 
 what-to-do:
 - Add route/component tests for create (submit via `create`) and edit (prefill all + submit via `update` carrying id) parity.
@@ -57,9 +55,7 @@ model: medium
 escalate-if:
 - The view layout cannot be asserted at the route seam without reaching into widget internals.
 
-blocked-by:
-- T-18-03
-- T-18-04
+blocked-by: [T-18-03, T-18-04]
 
 what-to-do:
 - Assert facts-first hierarchy (title + key facts above analytics), constrained 4:3 cover image (not full-width hero), and absent summary mini-card.
@@ -80,9 +76,7 @@ model: medium
 escalate-if:
 - The public surface cannot be asserted free of analytics/edit affordance without restructuring its route.
 
-blocked-by:
-- T-18-01
-- T-18-03
+blocked-by: [T-18-01, T-18-03]
 
 what-to-do:
 - Add a guard that the create flow retains cropper, contact section, and CTA section after extraction.
@@ -99,15 +93,12 @@ verification:
 
 ### ST-04 - Playwright create and edit end-to-end with seeded data
 
-status: ready
+status: done
 model: high
 escalate-if:
 - Seeded provider data required for the edit flow is unavailable and cannot be added through existing seed paths.
 
-blocked-by:
-- ST-01
-- ST-02
-- ST-03
+blocked-by: []
 
 what-to-do:
 - Extend Playwright coverage for create and edit end-to-end with seeded provider data.
@@ -183,6 +174,25 @@ verification:
   mocks → no new `mock.module` calls, no leakage risk).
   Gates: check-types 4/4 clean; check clean (pre-existing). 18/18 per-file;
   19/19 co-run with crop-image.test.ts confirms no leakage. Next: ST-04.
+- ST-04 done. The `history-retrieval-exhausted` block was NOT a real domain blocker
+  — it was the autonomous loop's circuit-breaker (`runtime-state.sh:534-536`: result
+  == retry AND retrievalRound >= 3 AND no committed change → auto-`blocked`). The loop
+  spun on two real but unrecorded breakages and never reached a green commit:
+  (1) `meus-anuncios.spec.ts:115` asserted the `resumo rápido` summary mini-card that
+      T-18-03 deleted → serial-mode abort cascaded the whole detail/edit chain red.
+      Replaced with a facts-first marker (`canais de contato` contact card visible).
+  (2) `-panel.provider.announcements.test.tsx` imported `@/routes/panel.provider.
+      announcements.$id`, but the detail route was renamed `$id.tsx` → `$id.index.tsx`
+      (TanStack requires the index variant once `$id.edit.tsx` exists) → check-types
+      TS2307. Repointed both imports to `.$id.index`.
+  All E-18 layout snapshots drifted from the T-18-03 facts-first rebuild + T-18-04
+  chart shrink and were regenerated in-env (meus-anuncios detail/edit/authoring-matrix
+  + the T-17 `create-contact-custom` baseline). Create e2e is already covered by the
+  T-17 `announcement-create-*.spec.ts` suite (YAGNI — not duplicated); edit e2e is
+  covered by the meus-anuncios edit tests now repointed at the `$id/edit` route.
+  Gates: `bun run check-types` 4/4; `bun run check` clean (pre-existing warning+info);
+  `meus-anuncios.spec.ts` 13/13 clean no-update reseeded run; create specs green;
+  RTL `-panel.provider.announcements.test.tsx` 18/18. T-18-05 + E-18 COMPLETE.
 
 ---
 

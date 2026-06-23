@@ -2,7 +2,7 @@
 type: epic
 id: E-18
 name: "Announcement Detail, Edit Split, and Analytics"
-status: in-progress
+status: done
 blocked-by: []
 ---
 
@@ -26,7 +26,7 @@ Current state: `apps/web/src/routes/panel.provider.announcements.$id.tsx` entang
 | T-18-02 | Edit route split onto shared form and delete duplicates | done | T-18-01 | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/02-edit-route-split-and-delete-duplicates.md` |
 | T-18-03 | Facts-first read-only detail rebuild | done | T-18-02 | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/03-facts-first-read-only-detail-rebuild.md` |
 | T-18-04 | Analytics placement and chart shrink | done | T-18-03 | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/04-analytics-placement-and-chart-shrink.md` |
-| T-18-05 | Test matrix and boundary guards | in-progress | T-18-01, T-18-02, T-18-03, T-18-04 | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/05-test-matrix-and-boundary-guards.md` |
+| T-18-05 | Test matrix and boundary guards | done | — | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/05-test-matrix-and-boundary-guards.md` |
 
 ---
 

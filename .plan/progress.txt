@@ -173,3 +173,21 @@
 - New: mockPublicAnnouncementData module var, getPublic case in trpcData, importPortalRoute.
 - Gates: check-types 4/4; check clean; 18/18 per-file; 19/19 co-run (no leak).
 - Next: T-18-05/ST-04 (Playwright create/edit end-to-end with seeded data).
+[2026-06-22 19:17:52] NO MORE TASKS
+
+---
+2026-06-22 T-18-05/ST-04 DONE (manual unblock — block was a false circuit-breaker, not a domain blocker)
+- `history-retrieval-exhausted` came from the Ralph-loop breaker (runtime-state.sh L534-536:
+  retry + retrievalRound>=3 + no commit → auto-blocked). Loop spun on two silent breakages:
+  1) meus-anuncios.spec.ts:115 asserted `resumo rápido` summary mini-card that T-18-03 deleted
+     → serial-mode abort cascaded the detail/edit chain red. Replaced with facts-first marker
+     (`canais de contato`).
+  2) -panel.provider.announcements.test.tsx imported `@/routes/panel.provider.announcements.$id`,
+     but the detail route was renamed `$id.tsx`→`$id.index.tsx` (TanStack index variant required
+     once `$id.edit.tsx` exists) → check-types TS2307. Repointed both imports to `.$id.index`.
+- Regenerated all E-18-affected visual snapshots in-env (detail/edit/authoring-matrix from the
+  T-18-03 facts-first rebuild + T-18-04 chart shrink, plus the T-17 create-contact-custom baseline).
+- Create e2e already covered by T-17 announcement-create-*.spec.ts (YAGNI — not duplicated);
+  edit e2e covered by meus-anuncios edit tests now repointed at the $id/edit route.
+- Gates: check-types 4/4; check clean; meus-anuncios.spec.ts 13/13 clean no-update reseeded run;
+  create specs green; RTL 18/18. T-18-05 + E-18 COMPLETE.

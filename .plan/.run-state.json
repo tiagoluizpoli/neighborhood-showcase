@@ -1,22 +1,17 @@
 {
-  "currentRunId": "e-18-t-18-05-st-04",
+  "currentRunId": null,
   "currentPrdId": "PRD-v11-announcement-detail-edit-and-analytics",
-  "currentEpicId": "E-18",
-  "currentTaskId": "T-18-05",
-  "currentSubTaskId": "ST-04",
-  "attemptCount": 1,
-  "retrievalRound": 1,
-  "lastModel": "sonnet",
+  "currentEpicId": null,
+  "currentTaskId": null,
+  "currentSubTaskId": null,
+  "attemptCount": 0,
+  "retrievalRound": 0,
+  "lastModel": "Gemini 3.5 Flash (High)",
   "escalated": false,
-  "requiredModel": "high",
-  "runnerName": "claude",
-  "escalateIf": [
-    "Seeded provider data required for the edit flow is unavailable and cannot be added through existing seed paths."
-  ],
-  "filesToTouch": [
-    "apps/web/tests/meus-anuncios.spec.ts",
-    "apps/web/tests/meus-anuncios.spec.ts-snapshots/"
-  ],
+  "requiredModel": null,
+  "runnerName": "agy",
+  "escalateIf": [],
+  "filesToTouch": [],
   "lastCommitChanged": false,
   "lastFailureReason": null
 }
