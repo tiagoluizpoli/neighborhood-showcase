@@ -112,7 +112,11 @@ test.describe('Meus Anúncios', () => {
     await expect(
       page.getByRole('heading', { name: /métricas|analytics/i }),
     ).toBeVisible();
-    await expect(page.getByText(/resumo rápido|quick summary/i)).toBeVisible();
+    // Facts-first (T-18-03): summary mini-card removed; contact channels card now
+    // sits in the primary block beside the demoted 4:3 cover.
+    await expect(
+      page.getByText(/canais de contato|contact channels/i),
+    ).toBeVisible();
     await expect(page).toHaveScreenshot('meus-anuncios-detail-view.png', {
       fullPage: true,
       maxDiffPixels: 1500,

@@ -15,7 +15,7 @@ import {
 import { PanelContentContainer } from '@/components/panel-content-container';
 import { trpc } from '@/utils/trpc';
 
-export const Route = createFileRoute('/panel/provider/announcements/$id')({
+export const Route = createFileRoute('/panel/provider/announcements/$id/')({
   component: ProviderAnnouncementDetailPage,
 });
 

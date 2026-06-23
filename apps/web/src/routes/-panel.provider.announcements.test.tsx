@@ -208,7 +208,9 @@ async function importEditRoute() {
 }
 
 async function importDetailRoute() {
-  const { Route } = await import('@/routes/panel.provider.announcements.$id');
+  const { Route } = await import(
+    '@/routes/panel.provider.announcements.$id.index'
+  );
   Route.useParams = (() => ({ id: 'ann-1' })) as typeof Route.useParams;
   return Route;
 }
@@ -257,7 +259,9 @@ describe('Provider announcements routes', () => {
 
   test('announcements $id: detail-header renders the announcement title', async () => {
     mockDashboardData = withAnnouncement();
-    const { Route } = await import('@/routes/panel.provider.announcements.$id');
+    const { Route } = await import(
+      '@/routes/panel.provider.announcements.$id.index'
+    );
     Route.useParams = (() => ({ id: 'ann-1' })) as typeof Route.useParams;
     const { container } = renderRoute(Route.options.component);
 
