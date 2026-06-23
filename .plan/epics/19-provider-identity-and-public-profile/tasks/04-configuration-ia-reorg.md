@@ -3,7 +3,7 @@ type: task
 id: T-19-04
 epic: E-19
 status: done
-blocked-by: [T-19-01, T-19-03]
+blocked-by: []
 default-model: medium
 ---
 

@@ -335,3 +335,11 @@ ST-03: Extended -provider-profile.test.tsx with 7 new tests (config IA describe 
        compact row (no Card heading), auto-save toggle. 14/14 tests pass.
 Gates: bun run check clean (1 pre-existing warning); bun run check-types pre-existing TS5103 only.
 Next: T-19-05 (Public page identity-hero recomposition, ready).
+
+---
+2026-06-23 T-19-04 DONE (planning close-out)
+All sub-tasks (ST-01/ST-02/ST-03) completed in commit 98f276e.
+Planning files were not updated in that iteration (no-completion-signal).
+Closed out plan state now: task done, epic updated, index updated.
+Next: T-19-05/ST-01 — public page identity-hero recomposition.
+Gates: bun run check clean (1 pre-existing warning); bun run check-types pre-existing TS5103 only.
