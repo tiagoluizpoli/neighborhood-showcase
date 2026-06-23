@@ -210,3 +210,23 @@
 - resolveProviderIdentity precedence: logo>avatar, avatar>initials, initials fallback, banner never identity mark, banner passthrough separate, bannerUrl null when absent
 - Gates: 10/10 bun test pass; biome check clean (1 pre-existing warning); TS5103 pre-existing
 - T-19-01 COMPLETE. Next: T-19-02 (original-image retention backend slice)
+
+---
+2026-06-23 T-19-02/ST-01 DONE
+- Added 3 nullable original-source columns to provider_profile in
+  packages/db/src/schema/showcase.ts: avatarOriginalUrl (avatar_original_url),
+  logoOriginalUrl (logo_original_url), bannerOriginalUrl (banner_original_url),
+  each beside its cropped *_url. *_url = derived crop; *_original_url = untouched
+  full-res upload for re-crop (T-19-03 depends on this).
+- bun run db:generate → ADDITIVE migration 0001_outgoing_ozymandias.sql
+  (3× ALTER TABLE ADD COLUMN text) + meta/0001_snapshot.json; journal idx 1
+  appended. Base 0000_concerned_violations.sql UNCHANGED (postgis/seed SQL
+  intact) — no escalation needed.
+- Applied directly to dev (neighborhood_showcase) + test
+  (neighborhood_showcase_test) via docker exec psql ADD COLUMN IF NOT EXISTS
+  (db:push blocks on postgis). Verified all 3 cols present in both DBs.
+- Gates: check-types db package clean (only pre-existing web TS5103
+  ignoreDeprecations, unrelated); check clean (pre-existing biome warning +
+  broken-symlink info only).
+- Next: T-19-02/ST-02 — thread original-source per role through entity /
+  repository / mapper / DTOs + get/update + public-profile use-cases.

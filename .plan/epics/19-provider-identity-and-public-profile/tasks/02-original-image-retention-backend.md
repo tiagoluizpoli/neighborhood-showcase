@@ -2,7 +2,7 @@
 type: task
 id: T-19-02
 epic: E-19
-status: ready
+status: in-progress
 blocked-by: []
 default-model: high
 ---
@@ -17,7 +17,7 @@ Schema: `packages/db/src/schema/showcase.ts`, table `provider_profile` (`avatar_
 
 ## Acceptance Criteria
 
-- [ ] An additive migration adds an original-source reference column per image role (avatar/logo/banner) to `provider_profile`; the base migration is NOT rebuilt.
+- [x] An additive migration adds an original-source reference column per image role (avatar/logo/banner) to `provider_profile`; the base migration is NOT rebuilt.
 - [ ] The provider-profile entity, repository, mapper, and DTOs carry the original-source reference per role alongside the cropped URL.
 - [ ] The update contract persists BOTH the cropped URL and the original-source reference when an image is saved.
 - [ ] The read contract returns the original-source reference so the UI can re-crop from the original.
@@ -29,7 +29,7 @@ Schema: `packages/db/src/schema/showcase.ts`, table `provider_profile` (`avatar_
 
 ### ST-01 - Additive schema migration for original-source columns
 
-status: ready
+status: done
 model: high
 escalate-if:
 - The additive migration cannot be generated without drizzle attempting to rebuild the base migration (which would drop postgis/seed SQL).
@@ -123,7 +123,26 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- 2026-06-23 ST-01 DONE: Added 3 nullable original-source columns to
+  `provider_profile` in `packages/db/src/schema/showcase.ts` —
+  `avatarOriginalUrl` (`avatar_original_url`), `logoOriginalUrl`
+  (`logo_original_url`), `bannerOriginalUrl` (`banner_original_url`), each
+  placed next to its cropped `*_url`. Semantics: `*_url` stays the derived
+  crop; `*_original_url` is the untouched full-res upload for re-crop.
+- `bun run db:generate` produced ADDITIVE migration
+  `0001_outgoing_ozymandias.sql` (3× `ALTER TABLE ... ADD COLUMN ... text`)
+  + `meta/0001_snapshot.json`; journal appended idx 1. Base migration
+  `0000_concerned_violations.sql` UNCHANGED — no postgis/seed SQL dropped,
+  no escalation needed.
+- Applied directly to dev (`neighborhood_showcase`) + test
+  (`neighborhood_showcase_test`) DBs via `docker exec ... psql` with
+  `ADD COLUMN IF NOT EXISTS` (db:push blocks on postgis). Verified all 3
+  columns present in both via information_schema.
+- Gates: `bun run check-types` — db package clean (only pre-existing web
+  TS5103 `ignoreDeprecations` error, unrelated). `bun run check` — clean
+  (pre-existing biome-config warning + broken-symlink info only).
+- Next: ST-02 — thread original-source per role through entity / repository
+  / mapper / DTOs + get/update + public-profile use-cases.
 
 ---
 

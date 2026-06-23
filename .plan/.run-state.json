@@ -1,17 +1,25 @@
 {
-  "currentRunId": "e-19-t-19-02-st-01",
+  "currentRunId": "e-19-t-19-02-st-02",
   "currentPrdId": "PRD-v12-provider-identity-and-public-profile",
   "currentEpicId": "E-19",
   "currentTaskId": "T-19-02",
-  "currentSubTaskId": "ST-01",
-  "attemptCount": 1,
+  "currentSubTaskId": "ST-02",
+  "attemptCount": 0,
   "retrievalRound": 0,
-  "lastModel": "medium",
+  "lastModel": "opus",
   "escalated": false,
-  "requiredModel": "medium",
+  "requiredModel": "high",
   "runnerName": "claude",
   "escalateIf": [],
-  "filesToTouch": [],
-  "lastCommitChanged": false,
-  "lastFailureReason": null
+  "filesToTouch": [
+    "apps/server/src/domain/entities/provider-profile.entity.ts",
+    "apps/server/src/domain/repositories/provider-profile.repository.ts",
+    "apps/server/src/infrastructure/db/provider-profile-repository.ts",
+    "apps/server/src/infrastructure/db/mappers/provider-profile.mapper.ts",
+    "apps/server/src/application/use-cases/provider-profile/get-provider-profile.ts",
+    "apps/server/src/application/use-cases/provider-profile/update-provider-profile.ts",
+    "apps/server/src/application/use-cases/user/get-public-provider-profile.ts"
+  ],
+  "lastCommitChanged": true,
+  "lastFailureReason": ""
 }

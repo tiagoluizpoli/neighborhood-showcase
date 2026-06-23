@@ -44,7 +44,7 @@
 | E-16 | Panel Shell, Layout, and Navigation | done | — | `.plan/epics/16-panel-shell-layout-and-navigation/epic.md` |
 | E-17 | Announcement Creation and Authoring Model | done | — | `.plan/epics/17-announcement-creation-and-authoring-model/epic.md` |
 | E-18 | Announcement Detail, Edit Split, and Analytics | done | — | `.plan/epics/18-announcement-detail-edit-and-analytics/epic.md` |
-| E-19 | Provider Identity, Configuration IA, and Public Profile | ready | — | `.plan/epics/19-provider-identity-and-public-profile/epic.md` |
+| E-19 | Provider Identity, Configuration IA, and Public Profile | in-progress | — | `.plan/epics/19-provider-identity-and-public-profile/epic.md` |
 
 ## Tasks
 
@@ -85,7 +85,7 @@
 | T-18-05 | E-18 | Test matrix and boundary guards | done | — | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/05-test-matrix-and-boundary-guards.md` |
 | T-18-06 | E-18 | Manual detail field-parity verification | done | manual-execution-only | `.plan/epics/18-announcement-detail-edit-and-analytics/tasks/06-manual-detail-parity-verification.md` |
 | T-19-01 | E-19 | Shared identity-precedence helper | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/01-shared-identity-precedence-helper.md` |
-| T-19-02 | E-19 | Original-image retention backend slice | ready | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/02-original-image-retention-backend.md` |
+| T-19-02 | E-19 | Original-image retention backend slice | in-progress | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/02-original-image-retention-backend.md` |
 | T-19-03 | E-19 | Role-parameterized ImageUploadField with re-crop | ready | T-19-02 | `.plan/epics/19-provider-identity-and-public-profile/tasks/03-role-parameterized-image-upload-field.md` |
 | T-19-04 | E-19 | Configuration IA reorg, identity-first | ready | T-19-01, T-19-03 | `.plan/epics/19-provider-identity-and-public-profile/tasks/04-configuration-ia-reorg.md` |
 | T-19-05 | E-19 | Public page identity-hero recomposition | ready | T-19-01 | `.plan/epics/19-provider-identity-and-public-profile/tasks/05-public-page-recomposition.md` |
