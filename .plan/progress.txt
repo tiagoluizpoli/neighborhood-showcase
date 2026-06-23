@@ -321,3 +321,17 @@
 - fetch patched globally per test via fetchSpy mock (cleared in beforeEach, restored in afterEach)
 - 10/10 pass per-file; bun run check clean; check-types pre-existing TS5103 only
 - T-19-03 status → done; T-19-04 is next (Configuration IA reorg, identity-first)
+
+---
+2026-06-23 T-19-04 DONE
+ST-01: Reordered configuration.tsx (PublicProfileSection → VisibilitySection → ContactChannelsSection).
+       Replaced heavyweight Card in VisibilitySection with compact toggle row (data-testid="visibility-row").
+       Debounced auto-save behavior preserved unchanged.
+ST-02: Added live identity preview (data-testid="identity-preview") to PublicProfileSection using
+       resolveProviderIdentity (T-19-01 helper). Preview renders logo → avatar → initials per precedence.
+       New i18n key: identity_preview_label in both pt and en.
+ST-03: Extended -provider-profile.test.tsx with 7 new tests (config IA describe block):
+       loading state, section order, initials preview, avatar preview, logo preview,
+       compact row (no Card heading), auto-save toggle. 14/14 tests pass.
+Gates: bun run check clean (1 pre-existing warning); bun run check-types pre-existing TS5103 only.
+Next: T-19-05 (Public page identity-hero recomposition, ready).

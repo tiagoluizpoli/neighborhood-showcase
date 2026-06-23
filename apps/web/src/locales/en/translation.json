@@ -258,6 +258,7 @@
     "image_upload_failed": "Image upload failed.",
     "image_upload_success": "Image uploaded successfully!",
     "image_upload_error": "Error processing image.",
+    "identity_preview_label": "Identity mark preview — logo wins over avatar; both fall back to initials.",
     "toast_success_public_profile": "Public profile updated!",
     "toast_success_contact_channels": "Contact channels updated!",
     "toast_success_visibility": "Visibility preference saved!",

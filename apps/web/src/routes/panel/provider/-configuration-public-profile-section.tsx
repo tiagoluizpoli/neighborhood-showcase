@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { ImageUploadField } from '@/components/image-upload-field';
+import { resolveProviderIdentity } from '@/utils/provider-identity';
 import type { RouterOutputs } from '@/utils/trpc';
 import { trpc } from '@/utils/trpc';
 
@@ -76,6 +77,13 @@ export function PublicProfileSection({ profile }: PublicProfileSectionProps) {
 
   const remaining = MAX_DESCRIPTION_CHARS - publicDescription.length;
 
+  const identity = resolveProviderIdentity({
+    logoUrl: logoUrl || null,
+    avatarUrl: avatarUrl || null,
+    bannerUrl: bannerUrl || null,
+    name: displayName || tradeName || companyName || '',
+  });
+
   return (
     <Card>
       <CardHeader className="border-b pb-4">
@@ -127,6 +135,32 @@ export function PublicProfileSection({ profile }: PublicProfileSectionProps) {
             />
             <p className="text-muted-foreground text-xs">
               {t('field_tradeName_help')}
+            </p>
+          </div>
+
+          <div
+            data-testid="identity-preview"
+            className="flex items-center gap-3 rounded-lg border border-border px-4 py-3"
+          >
+            {identity.mark.kind === 'logo' ? (
+              <img
+                src={identity.mark.src}
+                alt={t('image_upload_preview_alt')}
+                className="h-12 w-12 rounded-lg object-contain"
+              />
+            ) : identity.mark.kind === 'avatar' ? (
+              <img
+                src={identity.mark.src}
+                alt={t('image_upload_preview_alt')}
+                className="h-12 w-12 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted font-semibold text-muted-foreground text-sm">
+                {identity.mark.initials || '?'}
+              </div>
+            )}
+            <p className="text-muted-foreground text-xs">
+              {t('identity_preview_label')}
             </p>
           </div>
 

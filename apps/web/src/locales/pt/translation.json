@@ -258,6 +258,7 @@
     "image_upload_failed": "Falha no envio da imagem.",
     "image_upload_success": "Imagem enviada com sucesso!",
     "image_upload_error": "Erro ao processar a imagem.",
+    "identity_preview_label": "Prévia da marca de identidade — logo prevalece sobre avatar; ambos recuam para iniciais.",
     "toast_success_public_profile": "Perfil público atualizado!",
     "toast_success_contact_channels": "Canais de contato atualizados!",
     "toast_success_visibility": "Preferência de visibilidade salva!",

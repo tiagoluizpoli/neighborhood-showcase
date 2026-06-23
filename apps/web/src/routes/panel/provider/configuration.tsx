@@ -39,8 +39,8 @@ function ProviderConfigurationPage() {
       </div>
 
       <PublicProfileSection profile={profile} />
-      <ContactChannelsSection profile={profile} />
       <VisibilitySection profile={profile} />
+      <ContactChannelsSection profile={profile} />
     </div>
   );
 }

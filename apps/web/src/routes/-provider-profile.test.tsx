@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
@@ -8,6 +8,11 @@ import i18n from '@/i18n';
 // biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
 let mockQueryData: any = null;
 let mockError = false;
+
+// biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
+let mockProviderProfileData: any = null;
+// biome-ignore lint/suspicious/noExplicitAny: test boundary
+const configMutationCalls: any[] = [];
 
 mock.module('@/utils/trpc', () => ({
   trpcClient: {},
@@ -24,6 +29,25 @@ mock.module('@/utils/trpc', () => ({
         }),
       },
     },
+    providerProfile: {
+      get: {
+        queryOptions: () => ({
+          queryKey: ['providerProfile.get'],
+          queryFn: async () => mockProviderProfileData,
+        }),
+      },
+      update: {
+        // biome-ignore lint/suspicious/noExplicitAny: test boundary mock
+        mutationOptions: (opts?: any) => ({
+          // biome-ignore lint/suspicious/noExplicitAny: test boundary mock
+          mutationFn: async (vars: any) => {
+            configMutationCalls.push(vars);
+            return {};
+          },
+          ...(opts || {}),
+        }),
+      },
+    },
   },
 }));
 
@@ -31,10 +55,41 @@ mock.module('sonner', () => ({
   toast: { success: () => {}, error: () => {} },
 }));
 
+mock.module('@/lib/auth-client', () => ({
+  authClient: {
+    useSession: () => ({
+      data: { user: { id: 'u-1', name: 'Test User', role: 'USER' } },
+      isPending: false,
+    }),
+  },
+}));
+
+mock.module('@/components/image-upload-field', () => ({
+  ImageUploadField: ({ label }: { label: string }) => (
+    <div data-testid="image-field">{label}</div>
+  ),
+}));
+
 const { Route: ProfileRoute } = await import('./_portal.providers.$id');
 ProfileRoute.useParams = (() => ({
   id: 'provider-123',
 })) as typeof ProfileRoute.useParams;
+
+const { Route: ConfigRoute } = await import('./panel/provider/configuration');
+
+function renderConfig() {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  const Component = ConfigRoute.options.component as () => ReactElement;
+  return render(
+    <QueryClientProvider client={client}>
+      <I18nextProvider i18n={i18n}>
+        <Component />
+      </I18nextProvider>
+    </QueryClientProvider>,
+  );
+}
 
 function renderProfile() {
   const client = new QueryClient({
@@ -162,5 +217,133 @@ describe('Provider Public Profile Component Visuals', () => {
     expect(container.textContent).toContain(
       'Este prestador não possui anúncios ativos no momento.',
     );
+  });
+});
+
+const baseConfigProfile = {
+  displayName: 'Test Provider',
+  companyName: null,
+  tradeName: null,
+  avatarUrl: null,
+  logoUrl: null,
+  bannerUrl: null,
+  avatarOriginalUrl: null,
+  logoOriginalUrl: null,
+  bannerOriginalUrl: null,
+  publicDescription: null,
+  isProviderVisible: false,
+  contactDefaults: { primaryPhone: '', callEnabled: false },
+  contactMetadata: {
+    email: null,
+    instagram: null,
+    tiktok: null,
+    facebook: null,
+    website: null,
+  },
+};
+
+describe('Provider Configuration IA — section order, identity preview, visibility row', () => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('pt');
+    mockProviderProfileData = { ...baseConfigProfile };
+    configMutationCalls.length = 0;
+  });
+
+  test('renders page title while loading', () => {
+    renderConfig();
+    // Loader shown when query is pending (no initial data)
+    const { container } = renderConfig();
+    expect(container.querySelector('.animate-spin')).toBeTruthy();
+  });
+
+  test('sections render in order: identity → visibility row → contact channels', async () => {
+    const { container } = renderConfig();
+    await screen.findByText('Perfil Público');
+
+    const identityPreview = container.querySelector(
+      '[data-testid="identity-preview"]',
+    );
+    const visibilityRow = container.querySelector(
+      '[data-testid="visibility-row"]',
+    );
+    const contactHeading = screen.getByText('Canais de Contato');
+
+    expect(identityPreview).toBeTruthy();
+    expect(visibilityRow).toBeTruthy();
+
+    // identity appears before visibility in DOM
+    expect(
+      // biome-ignore lint/style/noNonNullAssertion: asserted above
+      identityPreview!.compareDocumentPosition(visibilityRow!) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    // visibility appears before contact in DOM
+    expect(
+      // biome-ignore lint/style/noNonNullAssertion: asserted above
+      visibilityRow!.compareDocumentPosition(contactHeading) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  test('live preview renders initials when no images set', async () => {
+    renderConfig();
+    await screen.findByText('Perfil Público');
+    const preview = screen.getByTestId('identity-preview');
+    // 'T'est 'P'rovider → TP
+    expect(preview.textContent).toContain('TP');
+  });
+
+  test('live preview renders avatar img when avatarUrl set and no logo', async () => {
+    mockProviderProfileData = {
+      ...baseConfigProfile,
+      avatarUrl: 'http://localhost/avatar.jpg',
+    };
+    renderConfig();
+    await screen.findByText('Perfil Público');
+    const preview = screen.getByTestId('identity-preview');
+    const img = preview.querySelector('img');
+    expect(img).toBeTruthy();
+    // biome-ignore lint/style/noNonNullAssertion: asserted above
+    expect(img!.className).toContain('rounded-full');
+  });
+
+  test('live preview renders logo img when logoUrl set (logo wins over avatar)', async () => {
+    mockProviderProfileData = {
+      ...baseConfigProfile,
+      avatarUrl: 'http://localhost/avatar.jpg',
+      logoUrl: 'http://localhost/logo.jpg',
+    };
+    renderConfig();
+    await screen.findByText('Perfil Público');
+    const preview = screen.getByTestId('identity-preview');
+    const img = preview.querySelector('img');
+    expect(img).toBeTruthy();
+    // biome-ignore lint/style/noNonNullAssertion: asserted above
+    expect(img!.className).toContain('rounded-lg');
+  });
+
+  test('visibility is compact row without heavyweight Card heading', async () => {
+    renderConfig();
+    await screen.findByText('Perfil Público');
+    // compact row testid is present
+    expect(screen.getByTestId('visibility-row')).toBeTruthy();
+    // old Card title 'Visibilidade Pública' is gone
+    expect(screen.queryByText('Visibilidade Pública')).toBeNull();
+  });
+
+  test('visibility toggle triggers debounced auto-save mutation', async () => {
+    renderConfig();
+    await screen.findByText('Perfil Público');
+    const toggleBtn = screen.getByTitle('Mostrar no diretório público');
+    fireEvent.click(toggleBtn);
+    await waitFor(
+      () =>
+        expect(configMutationCalls.some((c) => 'isProviderVisible' in c)).toBe(
+          true,
+        ),
+      { timeout: 1000 },
+    );
+    const call = configMutationCalls.find((c) => 'isProviderVisible' in c);
+    expect(call?.isProviderVisible).toBe(true);
   });
 });

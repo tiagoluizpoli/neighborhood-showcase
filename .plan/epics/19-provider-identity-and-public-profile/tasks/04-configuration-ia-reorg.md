@@ -2,7 +2,7 @@
 type: task
 id: T-19-04
 epic: E-19
-status: ready
+status: done
 blocked-by: [T-19-01, T-19-03]
 default-model: medium
 ---
@@ -17,19 +17,19 @@ Reorganize the provider configuration page identity-first. New section order: (1
 
 ## Acceptance Criteria
 
-- [ ] Config section order is: identity & branding → compact visibility toggle row → contact channels.
-- [ ] The identity section shows a small live preview rendering the precedence winner via the shared helper (T-19-01).
-- [ ] The heavyweight visibility Card is removed and replaced by a compact toggle ROW near the top.
-- [ ] The visibility toggle preserves its existing debounced auto-save behavior.
-- [ ] The contact-channels model is unchanged; only its position moves.
-- [ ] A route/component test asserts the section order, that the live preview renders the precedence winner, and that visibility is the compact row (not the old Card) with auto-save preserved.
-- [ ] All visible strings route through i18next `t()` with keys in both pt and en.
+- [x] Config section order is: identity & branding → compact visibility toggle row → contact channels.
+- [x] The identity section shows a small live preview rendering the precedence winner via the shared helper (T-19-01).
+- [x] The heavyweight visibility Card is removed and replaced by a compact toggle ROW near the top.
+- [x] The visibility toggle preserves its existing debounced auto-save behavior.
+- [x] The contact-channels model is unchanged; only its position moves.
+- [x] A route/component test asserts the section order, that the live preview renders the precedence winner, and that visibility is the compact row (not the old Card) with auto-save preserved.
+- [x] All visible strings route through i18next `t()` with keys in both pt and en.
 
 ## Sub-Tasks
 
 ### ST-01 - Reorder sections and replace the visibility Card with a compact row
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The visibility toggle's debounced auto-save cannot be preserved when moved into a compact row near the top.
@@ -50,7 +50,7 @@ verification:
 
 ### ST-02 - Add the identity live preview via the shared helper
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The live preview cannot consume `resolveProviderIdentity` without duplicating precedence logic in the section.
@@ -71,7 +71,7 @@ verification:
 
 ### ST-03 - Route/component test for IA order, preview, and visibility row
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - Section order or the compact-row vs Card distinction is not assertable from the rendered route.
