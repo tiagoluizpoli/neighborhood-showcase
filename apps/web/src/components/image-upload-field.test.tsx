@@ -1,7 +1,7 @@
 // biome-ignore-all lint/suspicious/noExplicitAny: test boundary mocks
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { useEffect } from 'react';
+import { act, useEffect } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
 
@@ -131,9 +131,9 @@ describe('ImageUploadField', () => {
     const { container } = renderField({ value: '', onChange: () => {} });
     const fileInput =
       container.querySelector<HTMLInputElement>('input[type="file"]');
-    expect(fileInput).toBeTruthy();
+    if (!fileInput) throw new Error('file input not found');
     const file = new File(['img'], 'photo.png', { type: 'image/png' });
-    fireEvent.change(fileInput!, { target: { files: [file] } });
+    fireEvent.change(fileInput, { target: { files: [file] } });
     await waitFor(() => expect(screen.getByText('Adjust Image')).toBeTruthy());
   });
 
@@ -144,9 +144,13 @@ describe('ImageUploadField', () => {
     const { container } = renderField({ value: '', onChange });
     const fileInput =
       container.querySelector<HTMLInputElement>('input[type="file"]');
+    if (!fileInput) throw new Error('file input not found');
     const file = new File(['img'], 'photo.png', { type: 'image/png' });
-    fireEvent.change(fileInput!, { target: { files: [file] } });
+    fireEvent.change(fileInput, { target: { files: [file] } });
     await waitFor(() => screen.getByText('Adjust Image'));
+    // Flush pending React effects (Cropper stub onCropComplete via useEffect)
+    // so croppedAreaPixels is set before we click "Crop and Save".
+    await act(async () => {});
     fireEvent.click(screen.getByRole('button', { name: /crop and save/i }));
     await waitFor(() =>
       expect(onChange).toHaveBeenCalledWith('http://test.local/uploaded.webp'),
@@ -165,8 +169,12 @@ describe('ImageUploadField', () => {
       originalValue: 'http://example.com/original.jpg',
     });
     expect(screen.queryByText('Adjust Image')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: /re-crop/i }));
-    await waitFor(() => expect(screen.getByText('Adjust Image')).toBeTruthy());
+    // act flushes synchronous state updates from handleRecrop so the modal
+    // renders and effects (onCropComplete) are flushed before we continue.
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /re-crop/i }));
+    });
+    expect(screen.getByText('Adjust Image')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /crop and save/i }));
     await waitFor(() => expect(onChange).toHaveBeenCalled());
     // Only the cropped-blob upload fires; no second upload for the original.
@@ -185,9 +193,9 @@ describe('ImageUploadField', () => {
     // The file input is always mounted; simulate the Replace trigger.
     const fileInput =
       container.querySelector<HTMLInputElement>('input[type="file"]');
-    expect(fileInput).toBeTruthy();
+    if (!fileInput) throw new Error('file input not found');
     const file = new File(['img2'], 'new.png', { type: 'image/png' });
-    fireEvent.change(fileInput!, { target: { files: [file] } });
+    fireEvent.change(fileInput, { target: { files: [file] } });
     await waitFor(() => expect(screen.getByText('Adjust Image')).toBeTruthy());
   });
 });
