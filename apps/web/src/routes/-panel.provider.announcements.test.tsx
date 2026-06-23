@@ -272,6 +272,51 @@ describe('Provider announcements routes', () => {
     expect(outer.getAttribute('data-container-variant')).toBe('default');
   });
 
+  test('$id: configured CTA renders as a provider-facing info view, not sell buttons', async () => {
+    mockDashboardData = withAnnouncement({
+      ...mockAnnouncement,
+      cta: {
+        primary: {
+          type: 'website',
+          value: 'https://shop.example.com',
+          label: 'Cardápio',
+        },
+        secondary: [{ type: 'whatsapp', value: null, label: null }],
+      },
+    });
+    const { Route } = await import(
+      '@/routes/panel.provider.announcements.$id.index'
+    );
+    Route.useParams = (() => ({ id: 'ann-1' })) as typeof Route.useParams;
+    const { container } = renderRoute(Route.options.component);
+
+    await screen.findAllByText('Test Announcement');
+    const summary = await waitFor(() =>
+      container.querySelector('[data-testid="cta-summary"]'),
+    );
+    expect(summary).toBeTruthy();
+
+    // The provider sees the saved facts: name + destination, not a generic
+    // "Acessar site" sell button.
+    const primary = container.querySelector(
+      '[data-testid="cta-summary-primary"]',
+    );
+    expect(primary?.textContent).toContain('Cardápio');
+    expect(primary?.textContent).toContain('https://shop.example.com');
+
+    // The destination is still followable via an explicit "open" link.
+    const open = container.querySelector(
+      '[data-testid="cta-summary-primary-open"]',
+    );
+    expect(open?.getAttribute('href')).toBe('https://shop.example.com');
+
+    // Secondary whatsapp with no explicit name/value resolves via fallback.
+    const secondaryOpen = container.querySelector(
+      '[data-testid="cta-summary-secondary-0-open"]',
+    );
+    expect(secondaryOpen?.getAttribute('href')).toContain('wa.me/');
+  });
+
   // --- T-18-05 / ST-01: shared-form parity + field-policy lock --------------
 
   test('edit mode renders the shared form in edit mode for the routed id', async () => {

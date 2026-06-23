@@ -1,5 +1,13 @@
+import { Badge } from '@neighborhood-showcase/ui/components/badge';
 import { Button } from '@neighborhood-showcase/ui/components/button';
-import { Globe, Instagram, MessageCircle, Target, User } from 'lucide-react';
+import {
+  ExternalLink,
+  Globe,
+  Instagram,
+  MessageCircle,
+  Target,
+  User,
+} from 'lucide-react';
 import type React from 'react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +29,19 @@ export type CtaTargetType =
 export interface CtaTargetView {
   type: CtaTargetType;
   value: string | null;
+  /** Provider-authored button name; falls back to the type word when empty. */
+  label?: string | null;
+}
+
+/** Display text for a CTA target: the authored name, else the type word. */
+export function ctaDisplayLabel(
+  target: CtaTargetView,
+  t: (key: string) => string,
+): string {
+  const named = target.label?.trim();
+  return named && named.length > 0
+    ? named
+    : t(`announcement_cta.actions.${target.type}`);
 }
 
 export interface AnnouncementCtaView {
@@ -148,7 +169,7 @@ function CtaActionLink({
   }
 
   const internal = target.type === 'provider_profile';
-  const label = t(`announcement_cta.actions.${target.type}`);
+  const label = ctaDisplayLabel(target, t);
 
   return (
     <a
@@ -229,6 +250,151 @@ export function AnnouncementCtaActions({
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * Destination text shown to the provider for a target — the raw saved value, or
+ * a descriptive phrase for targets that resolve from other data.
+ */
+function ctaDestinationText(
+  target: CtaTargetView,
+  t: (key: string) => string,
+): string {
+  switch (target.type) {
+    case 'provider_profile':
+      return t('announcement_cta.summary.profile_destination');
+    case 'whatsapp':
+      return target.value?.trim()
+        ? target.value
+        : t('announcement_cta.summary.whatsapp_fallback');
+    default:
+      return target.value?.trim() ?? '';
+  }
+}
+
+interface CtaSummaryRowProps {
+  target: CtaTargetView;
+  providerId: string;
+  fallbackWhatsapp?: string;
+  roleLabel: string;
+  testId: string;
+}
+
+function CtaSummaryRow({
+  target,
+  providerId,
+  fallbackWhatsapp,
+  roleLabel,
+  testId,
+}: CtaSummaryRowProps) {
+  const { t } = useTranslation();
+  const href = resolveCtaHref({ target, providerId, fallbackWhatsapp });
+  const internal = target.type === 'provider_profile';
+
+  return (
+    <div
+      className="space-y-2 rounded-xl border bg-background px-4 py-3"
+      data-testid={testId}
+      data-cta-type={target.type}
+    >
+      <div className="flex items-center gap-2">
+        <Badge variant="outline" className="gap-1">
+          <CtaIcon type={target.type} className="h-3.5 w-3.5" />
+          {t(`new_announcement.cta_card.types.${target.type}`)}
+        </Badge>
+        <Badge variant="secondary">{roleLabel}</Badge>
+      </div>
+      <div className="grid gap-1 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-3">
+        <span className="text-muted-foreground">
+          {t('announcement_cta.summary.name')}
+        </span>
+        <span className="font-medium text-foreground">
+          {target.label?.trim() ? (
+            target.label
+          ) : (
+            <span className="text-muted-foreground italic">
+              {t('announcement_cta.summary.no_name')}
+            </span>
+          )}
+        </span>
+        <span className="text-muted-foreground">
+          {t('announcement_cta.summary.destination')}
+        </span>
+        <span className="min-w-0 break-words font-medium text-foreground">
+          {ctaDestinationText(target, t)}
+        </span>
+      </div>
+      {href && (
+        <a
+          href={href}
+          target={internal ? undefined : '_blank'}
+          rel={internal ? undefined : 'noopener noreferrer'}
+          className="inline-flex items-center gap-1.5 text-primary text-sm hover:underline"
+          data-testid={`${testId}-open`}
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          {t('announcement_cta.summary.open')}
+        </a>
+      )}
+    </div>
+  );
+}
+
+interface AnnouncementCtaSummaryProps {
+  cta: AnnouncementCtaView;
+  providerId: string;
+  fallbackWhatsapp?: string;
+}
+
+/**
+ * Provider-facing CTA read view. Unlike `AnnouncementCtaActions` (public, sells
+ * the click), this surfaces exactly what the provider configured — type, name,
+ * destination — as inspectable facts, with an optional link to follow. Renders
+ * nothing when no CTA is configured.
+ */
+export function AnnouncementCtaSummary({
+  cta,
+  providerId,
+  fallbackWhatsapp,
+}: AnnouncementCtaSummaryProps) {
+  const { t } = useTranslation();
+  const secondaryItems = useMemo(
+    () => cta.secondary.map((target) => ({ key: crypto.randomUUID(), target })),
+    [cta.secondary],
+  );
+
+  if (!cta.primary && cta.secondary.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-2" data-testid="cta-summary">
+      <h2 className="font-semibold text-foreground text-lg">
+        {t('announcement_cta.summary.title')}
+      </h2>
+      <div className="space-y-2">
+        {cta.primary && (
+          <CtaSummaryRow
+            target={cta.primary}
+            providerId={providerId}
+            fallbackWhatsapp={fallbackWhatsapp}
+            roleLabel={t('announcement_cta.summary.primary')}
+            testId="cta-summary-primary"
+          />
+        )}
+        {secondaryItems.map(({ key, target }, index) => (
+          <CtaSummaryRow
+            key={key}
+            target={target}
+            providerId={providerId}
+            fallbackWhatsapp={fallbackWhatsapp}
+            roleLabel={t('announcement_cta.summary.secondary')}
+            testId={`cta-summary-secondary-${index}`}
+          />
+        ))}
+      </div>
     </div>
   );
 }

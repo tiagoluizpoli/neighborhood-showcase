@@ -581,7 +581,9 @@
         "instagram": "https://instagram.com/your_profile",
         "tiktok": "https://tiktok.com/@your_profile",
         "whatsapp": "Optional — uses your contact number if empty"
-      }
+      },
+      "name_label": "Button name (optional)",
+      "name_placeholder": "E.g. Menu, Order now"
     },
     "image_card": {
       "title": "Cover Image",
@@ -615,6 +617,17 @@
       "instagram": "View Instagram",
       "tiktok": "View TikTok",
       "whatsapp": "WhatsApp"
+    },
+    "summary": {
+      "title": "Action buttons (CTA)",
+      "name": "Name",
+      "no_name": "No custom name",
+      "destination": "Destination",
+      "primary": "Primary",
+      "secondary": "Secondary",
+      "open": "Open destination",
+      "profile_destination": "Your public provider profile",
+      "whatsapp_fallback": "Uses your contact number"
     }
   },
   "announcement_authoring": {

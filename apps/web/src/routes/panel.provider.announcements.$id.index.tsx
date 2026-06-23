@@ -12,6 +12,7 @@ import {
   hasBaseline,
   type ProviderContactDefaultsView,
 } from './panel/provider/-announcement-contact-section';
+import { AnnouncementCtaSummary } from '@/components/announcement-cta';
 import { PanelContentContainer } from '@/components/panel-content-container';
 import { trpc } from '@/utils/trpc';
 
@@ -152,6 +153,12 @@ export function ProviderAnnouncementDetailPage() {
             <AnnouncementContactCard
               announcement={announcement}
               providerDefaults={providerDefaults}
+            />
+
+            <AnnouncementCtaSummary
+              cta={announcement.cta}
+              providerId={providerProfileQuery.data?.id ?? ''}
+              fallbackWhatsapp={announcement.contactLinks.whatsapp}
             />
           </div>
 

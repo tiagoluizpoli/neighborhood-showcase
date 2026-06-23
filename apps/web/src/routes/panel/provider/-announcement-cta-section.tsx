@@ -34,6 +34,8 @@ export interface CtaTargetView {
   id: string;
   type: CtaTargetType;
   value: string | null;
+  /** Optional provider-authored button name; falls back to the type word. */
+  label: string | null;
 }
 
 export interface AnnouncementCtaView {
@@ -49,14 +51,16 @@ export const EMPTY_CTA_VIEW: AnnouncementCtaView = {
 export function createCtaTarget(
   type: CtaTargetType = 'provider_profile',
   value: string | null = null,
+  label: string | null = null,
 ): CtaTargetView {
-  return { id: crypto.randomUUID(), type, value };
+  return { id: crypto.randomUUID(), type, value, label };
 }
 
 /** Persisted/DTO CTA shape (no client id) — what the API returns and accepts. */
 export interface CtaTargetData {
   type: CtaTargetType;
   value: string | null;
+  label?: string | null;
 }
 
 export interface AnnouncementCtaData {
@@ -71,10 +75,10 @@ export interface AnnouncementCtaData {
 export function withCtaIds(cta: AnnouncementCtaData): AnnouncementCtaView {
   return {
     primary: cta.primary
-      ? createCtaTarget(cta.primary.type, cta.primary.value)
+      ? createCtaTarget(cta.primary.type, cta.primary.value, cta.primary.label)
       : null,
     secondary: cta.secondary.map((target) =>
-      createCtaTarget(target.type, target.value),
+      createCtaTarget(target.type, target.value, target.label),
     ),
   };
 }
@@ -285,6 +289,26 @@ function CtaTargetEditor({
         >
           <Trash2 className="h-4 w-4" />
         </Button>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label
+          htmlFor={`${testIdPrefix}-name`}
+          className="text-muted-foreground text-xs"
+        >
+          {t('new_announcement.cta_card.name_label')}
+        </Label>
+        <Input
+          id={`${testIdPrefix}-name`}
+          type="text"
+          maxLength={40}
+          value={target.label ?? ''}
+          onChange={(e) =>
+            onChange({ ...target, label: e.target.value || null })
+          }
+          placeholder={t('new_announcement.cta_card.name_placeholder')}
+          data-testid={`${testIdPrefix}-name`}
+        />
       </div>
 
       {showValue && (

@@ -581,7 +581,9 @@
         "instagram": "https://instagram.com/seu_perfil",
         "tiktok": "https://tiktok.com/@seu_perfil",
         "whatsapp": "Opcional — usa seu número de contato se vazio"
-      }
+      },
+      "name_label": "Nome do botão (opcional)",
+      "name_placeholder": "Ex.: Cardápio, Faça seu pedido"
     },
     "image_card": {
       "title": "Imagem de Capa",
@@ -615,6 +617,17 @@
       "instagram": "Ver Instagram",
       "tiktok": "Ver TikTok",
       "whatsapp": "WhatsApp"
+    },
+    "summary": {
+      "title": "Botões de ação (CTA)",
+      "name": "Nome",
+      "no_name": "Sem nome personalizado",
+      "destination": "Destino",
+      "primary": "Principal",
+      "secondary": "Secundário",
+      "open": "Abrir destino",
+      "profile_destination": "Seu perfil público de prestador",
+      "whatsapp_fallback": "Usa seu número de contato"
     }
   },
   "announcement_authoring": {
