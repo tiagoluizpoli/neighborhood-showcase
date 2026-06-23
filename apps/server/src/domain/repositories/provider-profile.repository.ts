@@ -8,10 +8,13 @@ export interface UpsertProviderProfileInput {
   providerId: string;
   displayName: string;
   avatarUrl?: string | null;
+  avatarOriginalUrl?: string | null;
   companyName?: string | null;
   tradeName?: string | null;
   logoUrl?: string | null;
+  logoOriginalUrl?: string | null;
   bannerUrl?: string | null;
+  bannerOriginalUrl?: string | null;
   publicDescription?: string | null;
   contactDefaults: ProviderContactDefaults;
   contactMetadata: ProviderContactMetadata;

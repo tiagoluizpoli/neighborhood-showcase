@@ -21,10 +21,13 @@ export interface PublicProviderProfileResult {
     id: string;
     displayName: string;
     avatarUrl: string | null;
+    avatarOriginalUrl: string | null;
     companyName: string | null;
     tradeName: string | null;
     logoUrl: string | null;
+    logoOriginalUrl: string | null;
     bannerUrl: string | null;
+    bannerOriginalUrl: string | null;
     publicDescription: string | null;
     socialLinks: Record<string, string | undefined>;
     isVerified: boolean;
@@ -69,10 +72,13 @@ export class GetPublicProviderProfile {
         id: provider.id,
         displayName: provider.displayName,
         avatarUrl: provider.avatarUrl,
+        avatarOriginalUrl: provider.avatarOriginalUrl,
         companyName: provider.companyName,
         tradeName: provider.tradeName,
         logoUrl: provider.logoUrl,
+        logoOriginalUrl: provider.logoOriginalUrl,
         bannerUrl: provider.bannerUrl,
+        bannerOriginalUrl: provider.bannerOriginalUrl,
         publicDescription: provider.publicDescription,
         socialLinks: provider.socialLinks,
         isVerified,

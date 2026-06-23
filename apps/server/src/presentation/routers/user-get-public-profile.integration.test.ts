@@ -21,10 +21,13 @@ describe('user.getPublicProfile Router Procedure', () => {
           id: providerId,
           displayName: 'Jane Profile Provider',
           avatarUrl: 'http://localhost/jane-avatar.jpg',
+          avatarOriginalUrl: null,
           companyName: null,
           tradeName: null,
           logoUrl: null,
+          logoOriginalUrl: null,
           bannerUrl: null,
+          bannerOriginalUrl: null,
           publicDescription: null,
           socialLinks: {
             whatsapp: '5511999999999',

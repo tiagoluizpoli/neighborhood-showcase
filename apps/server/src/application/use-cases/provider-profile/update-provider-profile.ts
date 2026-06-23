@@ -11,10 +11,13 @@ export interface UpdateProviderProfileInput {
   providerId: string;
   displayName?: string;
   avatarUrl?: string | null;
+  avatarOriginalUrl?: string | null;
   companyName?: string | null;
   tradeName?: string | null;
   logoUrl?: string | null;
+  logoOriginalUrl?: string | null;
   bannerUrl?: string | null;
+  bannerOriginalUrl?: string | null;
   publicDescription?: string | null;
   primaryPhone?: string;
   callEnabled?: boolean;
@@ -91,6 +94,10 @@ export class UpdateProviderProfile {
         input.avatarUrl !== undefined
           ? input.avatarUrl
           : (existing?.avatarUrl ?? null),
+      avatarOriginalUrl:
+        input.avatarOriginalUrl !== undefined
+          ? input.avatarOriginalUrl
+          : (existing?.avatarOriginalUrl ?? null),
       companyName:
         input.companyName !== undefined
           ? input.companyName
@@ -103,10 +110,18 @@ export class UpdateProviderProfile {
         input.logoUrl !== undefined
           ? input.logoUrl
           : (existing?.logoUrl ?? null),
+      logoOriginalUrl:
+        input.logoOriginalUrl !== undefined
+          ? input.logoOriginalUrl
+          : (existing?.logoOriginalUrl ?? null),
       bannerUrl:
         input.bannerUrl !== undefined
           ? input.bannerUrl
           : (existing?.bannerUrl ?? null),
+      bannerOriginalUrl:
+        input.bannerOriginalUrl !== undefined
+          ? input.bannerOriginalUrl
+          : (existing?.bannerOriginalUrl ?? null),
       publicDescription:
         input.publicDescription !== undefined
           ? input.publicDescription

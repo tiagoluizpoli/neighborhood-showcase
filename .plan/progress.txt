@@ -230,3 +230,24 @@
   broken-symlink info only).
 - Next: T-19-02/ST-02 — thread original-source per role through entity /
   repository / mapper / DTOs + get/update + public-profile use-cases.
+
+---
+2026-06-23 T-19-02/ST-02 DONE
+- Threaded avatarOriginalUrl/logoOriginalUrl/bannerOriginalUrl per role through
+  the backend stack alongside each cropped *Url (crop semantics unchanged).
+- Entity provider-profile.entity.ts: 3 nullable props + 3 read-only getters.
+- Repository interface UpsertProviderProfileInput: 3 fields.
+- DB repo provider-profile-repository.ts: 3 cols in insert .values + onConflict
+  set (?? null). Mapper: toDomain + toPersistence carry all 3.
+- update-provider-profile.ts: 3 input fields + undefined-preserving fallback to
+  existing?.*OriginalUrl ?? null. get-provider-profile.ts unchanged (returns
+  entity which now carries originals).
+- Public read: get-public-provider-profile.ts result.provider gains 3
+  *OriginalUrl; sourced from PublicProviderProfileDTO. Extended user.repository.ts
+  DTO + user-repository.ts findPublicProviderById select/return (no user-table
+  fallback for originals → ?? null). These two user-repo files were outside the
+  runtime files-to-touch list but are the source of the public DTO.
+- Fixed user-get-public-profile.integration.test.ts mock literal (+3 null fields).
+- Gates: check-types server clean (only pre-existing web TS5103 ignoreDeprecations,
+  unrelated); check clean (pre-existing biome warning + broken-symlink info only).
+- Next: T-19-02/ST-03 — wire router input/output + original-asset storage.
