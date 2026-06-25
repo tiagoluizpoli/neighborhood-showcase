@@ -95,7 +95,7 @@
 | T-19-06 | E-19 | i18n pt/en parity and cross-surface E2E matrix | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/06-i18n-parity-and-e2e-matrix.md` |
 | T-20-01 | E-20 | Provider table, re-key migration, domain/repo plumbing, seed rebuild | done | — | `.plan/epics/20-provider-entity-refactor/tasks/01-provider-table-rekey-and-seed.md` |
 | T-20-02 | E-20 | Provider-profile read/write re-key + soft-delete exclusion | done | — | `.plan/epics/20-provider-entity-refactor/tasks/02-provider-profile-rekey.md` |
-| T-20-03 | E-20 | Announcement read/write re-key + soft-delete exclusion | in-progress | — | `.plan/epics/20-provider-entity-refactor/tasks/03-announcement-rekey.md` |
+| T-20-03 | E-20 | Announcement read/write re-key + soft-delete exclusion | done | — | `.plan/epics/20-provider-entity-refactor/tasks/03-announcement-rekey.md` |
 | T-20-04 | E-20 | Layered auth — global role + provider-scoped gating | ready | T-20-01 | `.plan/epics/20-provider-entity-refactor/tasks/04-layered-auth.md` |
 | T-20-05 | E-20 | Panel `$providerId` routing + My Providers + switcher + onboarding | ready | T-20-01, T-20-04 | `.plan/epics/20-provider-entity-refactor/tasks/05-panel-routing-and-my-providers.md` |
 | T-21-01 | E-21 | `get-public-profile` condo contract | ready | T-20-02 | `.plan/epics/21-verified-resident-stamp/tasks/01-get-public-profile-condo-contract.md` |

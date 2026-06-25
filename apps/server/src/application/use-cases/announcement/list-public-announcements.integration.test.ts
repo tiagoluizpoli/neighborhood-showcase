@@ -7,6 +7,7 @@ import {
   providerAssignment as assignment,
   condominium,
   payment,
+  provider,
   providerProfile,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq, sql } from 'drizzle-orm';
@@ -18,6 +19,7 @@ describe('List Public Announcements Integration Test', () => {
     new DrizzleAnnouncementRepository(),
   );
 
+  const userId = 'list-user-id';
   const providerId = 'list-provider-id';
   const condoAId = 'condo-a-id'; // Florianópolis, SC
   const condoBId = 'condo-b-id'; // Florianópolis, SC
@@ -30,18 +32,24 @@ describe('List Public Announcements Integration Test', () => {
     await db.delete(providerProfile);
     await db.delete(assignment);
     await db.delete(condominium);
+    await db.delete(provider);
     await db.delete(user);
     await db.delete(address).where(eq(address.id, 'ext-address-id'));
     await db.delete(address).where(eq(address.id, 'condo-a-address-id'));
 
     // Insert user
     await db.insert(user).values({
-      id: providerId,
+      id: userId,
       name: 'Auth List Provider',
       email: 'list@example.com',
       emailVerified: true,
       role: 'USER',
       status: 'ACTIVE',
+    });
+
+    await db.insert(provider).values({
+      id: providerId,
+      ownerId: userId,
     });
 
     await db.insert(providerProfile).values({
@@ -58,7 +66,7 @@ describe('List Public Announcements Integration Test', () => {
         city: 'Florianópolis',
         state: 'SC',
         cep: '88000001',
-        createdBy: providerId,
+        createdBy: userId,
         status: 'APPROVED',
         latitude: '-27.5965',
         longitude: '-48.5495',
@@ -70,7 +78,7 @@ describe('List Public Announcements Integration Test', () => {
         city: 'Florianópolis',
         state: 'SC',
         cep: '88000002',
-        createdBy: providerId,
+        createdBy: userId,
         status: 'APPROVED',
         latitude: '-27.5925',
         longitude: '-48.5495',
@@ -82,7 +90,7 @@ describe('List Public Announcements Integration Test', () => {
         city: 'Curitiba',
         state: 'PR',
         cep: '80000001',
-        createdBy: providerId,
+        createdBy: userId,
         status: 'APPROVED',
         latitude: '-27.5500',
         longitude: '-48.5495',
@@ -148,6 +156,7 @@ describe('List Public Announcements Integration Test', () => {
     await db.delete(providerProfile);
     await db.delete(assignment);
     await db.delete(condominium);
+    await db.delete(provider);
     await db.delete(user);
   });
 
@@ -292,7 +301,7 @@ describe('List Public Announcements Integration Test', () => {
       city: 'Biguaçu',
       state: 'SC',
       cep: '88123456',
-      createdBy: providerId,
+      createdBy: userId,
       status: 'APPROVED',
       latitude: '-27.4500',
       longitude: '-48.5495',
@@ -413,5 +422,22 @@ describe('List Public Announcements Integration Test', () => {
     });
 
     expect(list[0]?.id).toBe('ann-burger-c');
+  });
+
+  test('excludes announcements from soft-deleted providers', async () => {
+    await db
+      .update(provider)
+      .set({ deletedAt: new Date() })
+      .where(eq(provider.id, providerId));
+
+    try {
+      const list = await useCase.execute({});
+      expect(list).toHaveLength(0);
+    } finally {
+      await db
+        .update(provider)
+        .set({ deletedAt: null })
+        .where(eq(provider.id, providerId));
+    }
   });
 });

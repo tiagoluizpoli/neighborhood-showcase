@@ -24,7 +24,7 @@ Code truth at grill time: schema `packages/db/src/schema/showcase.ts` — `provi
 | --- | --- | --- | --- | --- |
 | T-20-01 | Provider table, re-key migration, domain/repo plumbing, seed rebuild | done | — | `.plan/epics/20-provider-entity-refactor/tasks/01-provider-table-rekey-and-seed.md` |
 | T-20-02 | Provider-profile read/write re-key + soft-delete exclusion | done | — | `.plan/epics/20-provider-entity-refactor/tasks/02-provider-profile-rekey.md` |
-| T-20-03 | Announcement read/write re-key + soft-delete exclusion | in-progress | — | `.plan/epics/20-provider-entity-refactor/tasks/03-announcement-rekey.md` |
+| T-20-03 | Announcement read/write re-key + soft-delete exclusion | done | — | `.plan/epics/20-provider-entity-refactor/tasks/03-announcement-rekey.md` |
 | T-20-04 | Layered auth — global role + provider-scoped gating | ready | T-20-01 | `.plan/epics/20-provider-entity-refactor/tasks/04-layered-auth.md` |
 | T-20-05 | Panel `$providerId` routing + My Providers + switcher + onboarding | ready | T-20-01, T-20-04 | `.plan/epics/20-provider-entity-refactor/tasks/05-panel-routing-and-my-providers.md` |
 

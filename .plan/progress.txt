@@ -549,6 +549,7 @@ Next: T-20-03/ST-02 (re-key panel/dashboard/moderation announcement paths + soft
 
 ---
 [2026-06-25] T-20-03/ST-02 DONE — Panel/dashboard/moderation announcement paths re-keyed on provider.id + provider soft-delete exclusion
+
 Code:
   - `apps/server/src/application/use-cases/announcement/update-announcement.ts`: ownership now keys on `input.providerId` (`announcement.providerId === providerId`) instead of the broken `actorId` (user-id) comparison left over from the T-20-01 re-key. Input field `actorId` -> `providerId`.
   - `apps/server/src/presentation/routers/announcement/provider.ts`: `create`, `getDashboardData`, and `update` accept an optional `providerId` and feed the active provider PK into the use-cases, falling back to `ctx.session.user.id` for legacy single-provider callers (provider.id === user.id in the seed) until T-20-05 wires panel URLs onto `$providerId`. Same seam as T-20-02.
@@ -564,3 +565,20 @@ Task state:
   - T-20-03 remains in-progress.
   - Advanced run-state to T-20-03/ST-03.
 Next: T-20-03/ST-03 (integration tests for re-key + soft-delete exclusion — rebuild fixtures around distinct provider.id and provider rows).
+
+---
+[2026-06-25] T-20-03/ST-03 DONE — Announcement integration tests rebuilt around distinct provider.id + soft-delete exclusion assertions
+Code:
+  - `list-public-announcements.integration.test.ts`: split userId/providerId; insert provider row before profile/announcements; fix all condominium.createdBy to use userId; add soft-delete exclusion test (provider soft-deleted → list returns empty).
+  - `get-public-announcement.integration.test.ts`: split userId/providerId; insert provider row; add soft-delete exclusion test (throws AnnouncementNotFoundError); update CTA assertions to include label: null (added in later E-18 CTA work, assertions were pre-existing stale).
+  - `get-provider-dashboard-data.integration.test.ts`: split userId/providerId; insert provider row; add soft-delete exclusion test (all announcement groups empty, all stats 0); add afterAll cleanup.
+Verification:
+  - bun test list-public-announcements.integration.test.ts ✅ (12/12)
+  - bun test get-public-announcement.integration.test.ts ✅ (8/8)
+  - bun test get-provider-dashboard-data.integration.test.ts ✅ (3/3)
+  - bun run --filter server check-types ✅
+  - bun run check ✅ (pre-existing optional-chain warning + broken-symlink info only)
+Task state:
+  - T-20-03 fully complete. All 3 STs done.
+  - Advanced run-state to T-20-04.
+Next: T-20-04 (Layered auth — global role + provider-scoped gating).

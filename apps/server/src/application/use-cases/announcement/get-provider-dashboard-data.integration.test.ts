@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
@@ -6,6 +6,7 @@ import {
   announcement,
   providerAssignment as assignment,
   condominium,
+  provider,
   providerProfile,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
@@ -19,6 +20,7 @@ describe('Get Provider Dashboard Data Integration Test', () => {
     new DrizzleAnalyticsRepository(),
   );
 
+  const userId = 'dash-user-id';
   const providerId = 'dash-provider-id';
   const condoId = 'dash-condo-id';
 
@@ -29,16 +31,22 @@ describe('Get Provider Dashboard Data Integration Test', () => {
     await db.delete(providerProfile);
     await db.delete(assignment);
     await db.delete(condominium);
+    await db.delete(provider);
     await db.delete(user);
 
     // Insert user
     await db.insert(user).values({
-      id: providerId,
+      id: userId,
       name: 'Dash Provider',
       email: 'dash@example.com',
       emailVerified: true,
       role: 'USER',
       status: 'ACTIVE',
+    });
+
+    await db.insert(provider).values({
+      id: providerId,
+      ownerId: userId,
     });
 
     await db.insert(providerProfile).values({
@@ -57,7 +65,7 @@ describe('Get Provider Dashboard Data Integration Test', () => {
       city: 'Joinville',
       state: 'SC',
       cep: '89200000',
-      createdBy: providerId,
+      createdBy: userId,
       status: 'APPROVED',
     });
 
@@ -246,5 +254,38 @@ describe('Get Provider Dashboard Data Integration Test', () => {
     expect(customDraft.contact.mode).toBe('custom');
     expect(customDraft.contactLinks.whatsapp).toBe('551188887777');
     expect(customDraft.contactLinks.phone).toBeUndefined();
+  });
+
+  test('returns empty data when provider is soft-deleted', async () => {
+    await db
+      .update(provider)
+      .set({ deletedAt: new Date() })
+      .where(eq(provider.id, providerId));
+
+    try {
+      const result = await useCase.execute({ providerId });
+      expect(result.announcements.active).toHaveLength(0);
+      expect(result.announcements.draft).toHaveLength(0);
+      expect(result.announcements.expired).toHaveLength(0);
+      expect(result.announcements.suspended).toHaveLength(0);
+      expect(result.stats.totalImpressions).toBe(0);
+      expect(result.stats.totalInteractions).toBe(0);
+      expect(result.stats.conversionRate).toBe(0);
+    } finally {
+      await db
+        .update(provider)
+        .set({ deletedAt: null })
+        .where(eq(provider.id, providerId));
+    }
+  });
+
+  afterAll(async () => {
+    await db.delete(analyticsEvent);
+    await db.delete(announcement);
+    await db.delete(providerProfile);
+    await db.delete(assignment);
+    await db.delete(condominium);
+    await db.delete(provider);
+    await db.delete(user);
   });
 });

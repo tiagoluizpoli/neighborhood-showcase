@@ -2,7 +2,7 @@
 type: task
 id: T-20-03
 epic: E-20
-status: in-progress
+status: done
 blocked-by: []
 default-model: high
 ---
@@ -74,7 +74,7 @@ verification:
 
 ### ST-03 - Integration tests for re-key + soft-delete exclusion
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - Soft-delete exclusion cannot be asserted within the existing integration-test harness.

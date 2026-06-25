@@ -4,8 +4,10 @@ import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement,
   condominium,
+  provider,
   providerProfile,
 } from '@neighborhood-showcase/db/schema/showcase';
+import { eq } from 'drizzle-orm';
 import { DrizzleAnnouncementRepository } from '../../../infrastructure/db/announcement-repository';
 import {
   AnnouncementNotFoundError,
@@ -13,6 +15,7 @@ import {
 } from './get-public-announcement';
 
 describe('GetPublicAnnouncement use case', () => {
+  const userId = 'public-announcement-user-id';
   const providerId = 'public-announcement-provider-id';
   const condoId = 'public-announcement-condo-id';
   const activeAnnouncementId = 'public-announcement-active-id';
@@ -28,16 +31,22 @@ describe('GetPublicAnnouncement use case', () => {
     await db.delete(announcement);
     await db.delete(providerProfile);
     await db.delete(condominium);
+    await db.delete(provider);
     await db.delete(user);
 
     await db.insert(user).values({
-      id: providerId,
+      id: userId,
       name: 'Auth Identity Provider',
       email: 'public-provider@example.com',
       image: 'https://example.com/avatar.png',
       emailVerified: true,
       role: 'USER',
       status: 'ACTIVE',
+    });
+
+    await db.insert(provider).values({
+      id: providerId,
+      ownerId: userId,
     });
 
     await db.insert(providerProfile).values({
@@ -52,7 +61,7 @@ describe('GetPublicAnnouncement use case', () => {
       city: 'Florianopolis',
       state: 'SC',
       cep: '88000000',
-      createdBy: providerId,
+      createdBy: userId,
       status: 'APPROVED',
     });
 
@@ -166,16 +175,21 @@ describe('GetPublicAnnouncement use case', () => {
     expect(result.cta.primary).toEqual({
       type: 'website',
       value: 'https://menu.example.com',
+      label: null,
     });
     expect(result.cta.secondary).toEqual([
-      { type: 'provider_profile', value: null },
+      { type: 'provider_profile', value: null, label: null },
     ]);
   });
 
   test('whatsapp CTA without value stays resolvable against the contact number', async () => {
     const result = await getPublicAnnouncement.execute({ id: ctaWhatsappId });
 
-    expect(result.cta.primary).toEqual({ type: 'whatsapp', value: null });
+    expect(result.cta.primary).toEqual({
+      type: 'whatsapp',
+      value: null,
+      label: null,
+    });
   });
 
   test('invalid CTA data is dropped so the DTO falls back to contact', async () => {
@@ -199,5 +213,23 @@ describe('GetPublicAnnouncement use case', () => {
         id: 'missing-public-announcement-id',
       }),
     ).rejects.toBeInstanceOf(AnnouncementNotFoundError);
+  });
+
+  test('throws AnnouncementNotFoundError when provider is soft-deleted', async () => {
+    await db
+      .update(provider)
+      .set({ deletedAt: new Date() })
+      .where(eq(provider.id, providerId));
+
+    try {
+      await expect(
+        getPublicAnnouncement.execute({ id: activeAnnouncementId }),
+      ).rejects.toBeInstanceOf(AnnouncementNotFoundError);
+    } finally {
+      await db
+        .update(provider)
+        .set({ deletedAt: null })
+        .where(eq(provider.id, providerId));
+    }
   });
 });
