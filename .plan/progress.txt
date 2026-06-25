@@ -514,3 +514,21 @@ Task state:
   - T-20-02 remains in-progress.
   - Advanced run-state to T-20-02/ST-03.
 Next: T-20-02/ST-03 (integration tests for re-key + soft-delete exclusion).
+
+---
+[2026-06-24] T-20-02/ST-03 DONE — Provider-profile integration tests now prove provider.id keying + soft-delete exclusion
+Code:
+  - apps/server/src/application/use-cases/provider-profile/get-provider-profile.integration.test.ts now seeds a distinct owner user plus provider row, then verifies panel reads resolve by provider.id and reject soft-deleted providers.
+  - apps/server/src/application/use-cases/provider-profile/update-provider-profile.integration.test.ts now seeds the same split identity shape and verifies writes persist under provider_profile.providerId = provider.id.
+  - apps/server/src/application/use-cases/user/get-public-provider-profile.integration.test.ts now resolves the public profile through provider.id -> provider.ownerId, keeps the auth fallback assertions, and rejects soft-deleted providers.
+Verification:
+  - bun test apps/server/src/application/use-cases/provider-profile/get-provider-profile.integration.test.ts ✅
+  - bun test apps/server/src/application/use-cases/provider-profile/update-provider-profile.integration.test.ts ✅
+  - bun test apps/server/src/application/use-cases/user/get-public-provider-profile.integration.test.ts ✅
+  - bun run --filter server check-types ✅
+  - bun run check ✅ (pre-existing Biome deprecation warning + broken-symlink info only)
+  - bun run check-types -> only pre-existing web TS5103 --ignoreDeprecations failure
+Task state:
+  - T-20-02 is complete.
+  - Advanced run-state to T-20-03/ST-01.
+Next: T-20-03/ST-01 (re-key public announcement read paths + soft-delete exclusion).

@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from 'bun:test';
+import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
@@ -6,6 +6,7 @@ import {
   condominium,
   providerAssignment,
   providerProfile,
+  provider as providerSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 import { DrizzleAnnouncementRepository } from '../../../infrastructure/db/announcement-repository';
@@ -17,6 +18,7 @@ import {
 } from './get-public-provider-profile';
 
 describe('GetPublicProviderProfile use case', () => {
+  const ownerUserId = 'public-provider-profile-owner-user';
   const providerId = 'public-provider-profile-provider-id';
   const categoryId = 'cat-servicos';
   const condoId = 'public-provider-profile-condo-id';
@@ -37,25 +39,23 @@ describe('GetPublicProviderProfile use case', () => {
     await db
       .delete(providerAssignment)
       .where(eq(providerAssignment.id, assignmentId));
+    await db.delete(providerSchema).where(eq(providerSchema.id, providerId));
     await db.delete(condominium).where(eq(condominium.id, condoId));
-    await db.delete(user).where(eq(user.id, providerId));
+    await db.delete(user).where(eq(user.id, ownerUserId));
 
     await db.insert(user).values({
-      id: providerId,
+      id: ownerUserId,
       name: 'Auth Identity Name',
-      email: 'public-profile@example.com',
+      email: 'public-profile-owner@example.com',
       emailVerified: true,
       image: 'https://cdn.example.com/auth-avatar.jpg',
       role: 'USER',
       status: 'ACTIVE',
     });
 
-    await db.insert(providerProfile).values({
-      providerId,
-      displayName: 'Provider Branding Name',
-      primaryPhone: '5511999999999',
-      contactMetadata: { instagram: 'provider-branding' },
-      isProviderVisible: true,
+    await db.insert(providerSchema).values({
+      id: providerId,
+      ownerId: ownerUserId,
     });
 
     await db.insert(condominium).values({
@@ -64,7 +64,7 @@ describe('GetPublicProviderProfile use case', () => {
       city: 'Curitiba',
       state: 'PR',
       cep: '80000000',
-      createdBy: providerId,
+      createdBy: ownerUserId,
       status: 'APPROVED',
     });
 
@@ -92,9 +92,32 @@ describe('GetPublicProviderProfile use case', () => {
     });
   });
 
-  test('reads public provider data from provider_profile instead of auth identity fields', async () => {
+  beforeEach(async () => {
+    await db
+      .update(user)
+      .set({ status: 'ACTIVE' })
+      .where(eq(user.id, ownerUserId));
+    await db
+      .update(providerSchema)
+      .set({ deletedAt: null })
+      .where(eq(providerSchema.id, providerId));
+    await db
+      .delete(providerProfile)
+      .where(eq(providerProfile.providerId, providerId));
+
+    await db.insert(providerProfile).values({
+      providerId,
+      displayName: 'Provider Branding Name',
+      primaryPhone: '5511999999999',
+      contactMetadata: { instagram: 'provider-branding' },
+      isProviderVisible: true,
+    });
+  });
+
+  test('reads public provider data from provider_profile resolved by provider.id via owner identity', async () => {
     const result = await useCase.execute({ providerId });
 
+    expect(result.provider.id).toBe(providerId);
     expect(result.provider.displayName).toBe('Provider Branding Name');
     expect(result.provider.socialLinks).toEqual({
       whatsapp: '5511999999999',
@@ -130,30 +153,17 @@ describe('GetPublicProviderProfile use case', () => {
       .limit(1);
 
     expect(profileRow).toBeUndefined();
-
-    await db.insert(providerProfile).values({
-      providerId,
-      displayName: 'Provider Branding Name',
-      primaryPhone: '5511999999999',
-      contactMetadata: { instagram: 'provider-branding' },
-      isProviderVisible: true,
-    });
   });
 
   test('throws not found for banned providers', async () => {
     await db
       .update(user)
       .set({ status: 'BANNED' })
-      .where(eq(user.id, providerId));
+      .where(eq(user.id, ownerUserId));
 
     await expect(useCase.execute({ providerId })).rejects.toBeInstanceOf(
       PublicProviderNotFoundError,
     );
-
-    await db
-      .update(user)
-      .set({ status: 'ACTIVE' })
-      .where(eq(user.id, providerId));
   });
 
   test('throws not found for hidden providers', async () => {
@@ -165,10 +175,16 @@ describe('GetPublicProviderProfile use case', () => {
     await expect(useCase.execute({ providerId })).rejects.toBeInstanceOf(
       PublicProviderNotFoundError,
     );
+  });
 
+  test('throws not found for soft-deleted providers', async () => {
     await db
-      .update(providerProfile)
-      .set({ isProviderVisible: true })
-      .where(eq(providerProfile.providerId, providerId));
+      .update(providerSchema)
+      .set({ deletedAt: new Date() })
+      .where(eq(providerSchema.id, providerId));
+
+    await expect(useCase.execute({ providerId })).rejects.toBeInstanceOf(
+      PublicProviderNotFoundError,
+    );
   });
 });

@@ -1,7 +1,10 @@
-import { beforeAll, describe, expect, test } from 'bun:test';
+import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
-import { providerProfile as providerProfileSchema } from '@neighborhood-showcase/db/schema/showcase';
+import {
+  providerProfile as providerProfileSchema,
+  provider as providerSchema,
+} from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 import { ProviderProfileRepositoryImpl } from '../../../infrastructure/db/provider-profile-repository';
 import {
@@ -14,27 +17,43 @@ describe('UpdateProviderProfile integration', () => {
   const repo = new ProviderProfileRepositoryImpl();
   const useCase = new UpdateProviderProfile(repo);
 
-  const testUserId = 'update-provider-profile-integration-user';
+  const ownerUserId = 'update-provider-profile-owner-user';
+  const providerId = 'update-provider-profile-provider';
 
   beforeAll(async () => {
-    // Seed a user (provider) — user must exist in auth.user
     await db
       .delete(providerProfileSchema)
-      .where(eq(providerProfileSchema.providerId, testUserId));
-    await db.delete(user).where(eq(user.id, testUserId));
+      .where(eq(providerProfileSchema.providerId, providerId));
+    await db.delete(providerSchema).where(eq(providerSchema.id, providerId));
+    await db.delete(user).where(eq(user.id, ownerUserId));
 
     await db.insert(user).values({
-      id: testUserId,
-      name: 'Provider Integration Test',
-      email: 'provider-integration@example.com',
+      id: ownerUserId,
+      name: 'Provider Integration Owner',
+      email: 'provider-integration-owner@example.com',
       role: 'USER',
       status: 'ACTIVE',
     });
+
+    await db.insert(providerSchema).values({
+      id: providerId,
+      ownerId: ownerUserId,
+    });
   });
 
-  test('upserts all 9 fields on a fresh provider_profile row', async () => {
+  beforeEach(async () => {
+    await db
+      .delete(providerProfileSchema)
+      .where(eq(providerProfileSchema.providerId, providerId));
+    await db
+      .update(providerSchema)
+      .set({ deletedAt: null })
+      .where(eq(providerSchema.id, providerId));
+  });
+
+  test('upserts all profile fields on a fresh provider_profile row keyed by provider.id', async () => {
     await useCase.execute({
-      providerId: testUserId,
+      providerId,
       displayName: 'Acme Soluções',
       companyName: 'Acme Tecnologia LTDA',
       tradeName: 'Acme Soluções',
@@ -53,11 +72,12 @@ describe('UpdateProviderProfile integration', () => {
     const [row] = await db
       .select()
       .from(providerProfileSchema)
-      .where(eq(providerProfileSchema.providerId, testUserId))
+      .where(eq(providerProfileSchema.providerId, providerId))
       .limit(1);
 
     expect(row).not.toBeNull();
     const r = row as NonNullable<typeof row>;
+    expect(r.providerId).toBe(providerId);
     expect(r.displayName).toBe('Acme Soluções');
     expect(r.companyName).toBe('Acme Tecnologia LTDA');
     expect(r.tradeName).toBe('Acme Soluções');
@@ -77,20 +97,28 @@ describe('UpdateProviderProfile integration', () => {
 
   test('displayName with 2 chars throws InvalidProviderDisplayNameError', async () => {
     await expect(
-      useCase.execute({ providerId: testUserId, displayName: 'ab' }),
+      useCase.execute({ providerId, displayName: 'ab' }),
     ).rejects.toThrow(InvalidProviderDisplayNameError);
   });
 
   test('publicDescription with 501 chars throws InvalidProviderPublicDescriptionError', async () => {
     const longDesc = 'a'.repeat(501);
+
     await expect(
-      useCase.execute({ providerId: testUserId, publicDescription: longDesc }),
+      useCase.execute({ providerId, publicDescription: longDesc }),
     ).rejects.toThrow(InvalidProviderPublicDescriptionError);
   });
 
-  test('subsequent update overwrites previous values', async () => {
+  test('subsequent update overwrites previous values while keeping provider.id as the row key', async () => {
     await useCase.execute({
-      providerId: testUserId,
+      providerId,
+      displayName: 'Acme Soluções',
+      companyName: 'Acme Tecnologia LTDA',
+      isProviderVisible: true,
+    });
+
+    await useCase.execute({
+      providerId,
       displayName: 'Novo Nome',
       isProviderVisible: false,
     });
@@ -98,20 +126,20 @@ describe('UpdateProviderProfile integration', () => {
     const [row] = await db
       .select()
       .from(providerProfileSchema)
-      .where(eq(providerProfileSchema.providerId, testUserId))
+      .where(eq(providerProfileSchema.providerId, providerId))
       .limit(1);
 
     expect(row).not.toBeNull();
     const r = row as NonNullable<typeof row>;
+    expect(r.providerId).toBe(providerId);
     expect(r.displayName).toBe('Novo Nome');
     expect(r.isProviderVisible).toBe(false);
-    // companyName/logoUrl etc. should be preserved (merged, not overwritten)
     expect(r.companyName).toBe('Acme Tecnologia LTDA');
   });
 
   test('persists both cropped URL and original-source reference when both supplied', async () => {
     await useCase.execute({
-      providerId: testUserId,
+      providerId,
       displayName: 'Acme Com Originais',
       logoUrl: 'https://cdn.example.com/logo-crop.png',
       logoOriginalUrl: 'https://cdn.example.com/logo-original.png',
@@ -122,7 +150,7 @@ describe('UpdateProviderProfile integration', () => {
     const [row] = await db
       .select()
       .from(providerProfileSchema)
-      .where(eq(providerProfileSchema.providerId, testUserId))
+      .where(eq(providerProfileSchema.providerId, providerId))
       .limit(1);
 
     expect(row).not.toBeNull();
@@ -137,7 +165,14 @@ describe('UpdateProviderProfile integration', () => {
 
   test('preserves originals when partial update does not include them', async () => {
     await useCase.execute({
-      providerId: testUserId,
+      providerId,
+      displayName: 'Acme Com Originais',
+      logoOriginalUrl: 'https://cdn.example.com/logo-original.png',
+      bannerOriginalUrl: 'https://cdn.example.com/banner-original.jpg',
+    });
+
+    await useCase.execute({
+      providerId,
       displayName: 'Acme Parcial',
       publicDescription: 'Descrição parcial',
     });
@@ -145,13 +180,12 @@ describe('UpdateProviderProfile integration', () => {
     const [row] = await db
       .select()
       .from(providerProfileSchema)
-      .where(eq(providerProfileSchema.providerId, testUserId))
+      .where(eq(providerProfileSchema.providerId, providerId))
       .limit(1);
 
     expect(row).not.toBeNull();
     const r = row as NonNullable<typeof row>;
     expect(r.displayName).toBe('Acme Parcial');
-    // originals from the previous upsert must survive a partial update
     expect(r.logoOriginalUrl).toBe('https://cdn.example.com/logo-original.png');
     expect(r.bannerOriginalUrl).toBe(
       'https://cdn.example.com/banner-original.jpg',

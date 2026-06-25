@@ -1,22 +1,23 @@
 {
-  "currentRunId": "e-20-t-20-02-st-03",
+  "currentRunId": "e-20-t-20-03-st-01",
   "currentPrdId": "PRD-v13-provider-entity-and-verified-stamp",
   "currentEpicId": "E-20",
-  "currentTaskId": "T-20-02",
-  "currentSubTaskId": "ST-03",
-  "attemptCount": 1,
-  "retrievalRound": 1,
+  "currentTaskId": "T-20-03",
+  "currentSubTaskId": "ST-01",
+  "attemptCount": 0,
+  "retrievalRound": 0,
   "lastModel": "gpt-5.4",
   "escalated": false,
-  "requiredModel": "medium",
+  "requiredModel": "high",
   "runnerName": "hermes",
   "escalateIf": [],
   "filesToTouch": [
-    "apps/server/src/application/use-cases/provider-profile/get-provider-profile.integration.test.ts",
-    "apps/server/src/application/use-cases/provider-profile/update-provider-profile.integration.test.ts",
-    "apps/server/src/application/use-cases/user/get-public-provider-profile.integration.test.ts"
+    "apps/server/src/infrastructure/db/announcement-repository/public/list-public-announcements.ts",
+    "apps/server/src/infrastructure/db/announcement-repository/public/find-public-announcement-by-id.ts",
+    "apps/server/src/application/use-cases/announcement/list-public-announcements.ts",
+    "apps/server/src/application/use-cases/announcement/get-public-announcement.ts"
   ],
-  "lastCommitChanged": true,
+  "lastCommitChanged": false,
   "lastFailureReason": null,
   "epicDone": false
 }
