@@ -2,7 +2,7 @@
 type: task
 id: T-20-01
 epic: E-20
-status: in-progress
+status: done
 blocked-by: []
 default-model: high
 ---
@@ -101,7 +101,7 @@ verification:
 
 ### ST-04 - Rebuild seed to the three required states
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The three states cannot be expressed without a schema gap that points back to ST-01.
@@ -194,6 +194,32 @@ verification:
   That fixture repair belongs to the remaining T-20-01 work (seed rebuild / later
   path hardening), not to this compile-threading slice.
 - Next: ST-04 (rebuild seed to the three required states).
+
+- ST-04 (2026-06-24): Rebuilt `apps/server/src/infrastructure/db/seed.ts` to the
+  new `provider.id` model. The seed now wipes `provider_profile` and `provider`
+  explicitly, creates first-class provider rows before seeding assignments /
+  profiles / announcements, and keeps the existing public/test-facing provider IDs
+  stable by reusing the historical seed IDs as provider PKs where tests depend on
+  them.
+- Added a dedicated acceptance persona `multi.provider.owner@test.com` with two
+  provider rows (`seed-multi-provider-condo-1`, `seed-multi-provider-condo-2`),
+  both APPROVED RESIDENT, split across `moderator-condo-1` and
+  `moderator-condo-2` so the PRD's multi-provider / multi-condo state is
+  demonstrable without disturbing existing Playwright personas. `branding@test.com`
+  remains a single-provider verified user. `provider.transition@test.com` now has
+  a provider row + profile but no approved assignment, covering the no-approved
+  state.
+- Verification: `bun run src/infrastructure/db/seed.ts` succeeded against the dev
+  DB. Live query verification confirmed (1) `multi.provider.owner@test.com` owns 2
+  APPROVED RESIDENT providers in 2 condos, (2) `branding@test.com` has exactly 1
+  APPROVED RESIDENT provider, and (3) `provider.transition@test.com` has a
+  provider row with no assignment / no approved state.
+- Gates: `bun run --filter server check-types` clean; root `bun run check` clean
+  (pre-existing Biome deprecation warning + broken-symlink info only); root
+  `bun run check-types` still fails only on the pre-existing web TS5103
+  `--ignoreDeprecations` value.
+- T-20-01 is now fully complete. Next: T-20-02 / ST-01 (re-key provider-profile
+  use-cases + soft-delete filter).
 
 ---
 

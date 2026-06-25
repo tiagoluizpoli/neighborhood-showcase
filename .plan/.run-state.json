@@ -1,9 +1,9 @@
 {
-  "currentRunId": "e-20-t-20-01-st-04",
+  "currentRunId": "e-20-t-20-02-st-01",
   "currentPrdId": "PRD-v13-provider-entity-and-verified-stamp",
   "currentEpicId": "E-20",
-  "currentTaskId": "T-20-01",
-  "currentSubTaskId": "ST-04",
+  "currentTaskId": "T-20-02",
+  "currentSubTaskId": "ST-01",
   "attemptCount": 0,
   "retrievalRound": 0,
   "lastModel": "gpt-5.4",
@@ -12,12 +12,12 @@
   "runnerName": "hermes",
   "escalateIf": [],
   "filesToTouch": [
-    "apps/server/src/infrastructure/db/provider-profile-repository.ts",
-    "apps/server/src/infrastructure/db/mappers/provider-profile.mapper.ts",
-    "apps/server/src/infrastructure/db/announcement-repository/",
-    "apps/server/src/infrastructure/db/mappers/"
+    "apps/server/src/application/use-cases/provider-profile/get-provider-profile.ts",
+    "apps/server/src/application/use-cases/provider-profile/update-provider-profile.ts",
+    "apps/server/src/application/use-cases/user/get-public-provider-profile.ts",
+    "apps/server/src/infrastructure/db/provider-profile-repository.ts"
   ],
-  "lastCommitChanged": true,
+  "lastCommitChanged": false,
   "lastFailureReason": null,
   "epicDone": false
 }

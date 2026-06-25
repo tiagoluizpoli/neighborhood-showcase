@@ -452,3 +452,28 @@ Exploratory tests:
     That confirms the remaining T-20-01 seed/fixture rebuild is still pending, not a
     regression in this join-threading slice.
 Next: ST-04 (rebuild seed to the three required states).
+
+[2026-06-24] T-20-01/ST-04 DONE — Seed rebuilt to the provider.id model
+Code:
+  - apps/server/src/infrastructure/db/seed.ts now imports the first-class provider table,
+    explicitly clears provider_profile + provider during seed reset, and inserts provider
+    rows before any provider_assignment / provider_profile / announcement rows.
+  - Existing public/test-facing provider IDs stay stable where Playwright depends on them
+    (provider@test.com, branding@test.com, authoring@test.com, banned@test.com, etc.).
+  - Added acceptance persona multi.provider.owner@test.com with two provider rows
+    (seed-multi-provider-condo-1 / seed-multi-provider-condo-2), both APPROVED RESIDENT,
+    split across moderator-condo-1 and moderator-condo-2.
+State coverage:
+  - 2-provider user across 2 condos: multi.provider.owner@test.com
+  - single-provider verified user: branding@test.com
+  - provider with no approved assignment: provider.transition@test.com
+Verification:
+  - bun run src/infrastructure/db/seed.ts ✅
+  - live DB query confirmed the 3 required states ✅
+  - bun run --filter server check-types ✅
+  - bun run check ✅ (pre-existing Biome deprecation warning + broken symlink info only)
+  - bun run check-types -> only pre-existing web TS5103 --ignoreDeprecations failure
+Task state:
+  - T-20-01 fully complete.
+  - Advanced run-state to T-20-02/ST-01.
+Next: T-20-02/ST-01 (re-key provider-profile use-cases + soft-delete filter).

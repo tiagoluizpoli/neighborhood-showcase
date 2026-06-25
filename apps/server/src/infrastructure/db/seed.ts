@@ -10,6 +10,7 @@ import { account, user } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement,
   condominium,
+  provider,
   providerAssignment,
   providerProfile,
 } from '@neighborhood-showcase/db/schema/showcase';
@@ -20,7 +21,9 @@ async function seed() {
 
   // Wipe all test data — order matters (foreign keys first)
   await db.delete(announcement);
+  await db.delete(providerProfile);
   await db.delete(providerAssignment);
+  await db.delete(provider);
   await db.delete(condominium);
   await db.delete(account);
   await db.delete(user);
@@ -241,6 +244,26 @@ async function seed() {
     })
     .returning()) as [typeof user.$inferInsert];
 
+  // Dedicated multi-provider owner for PRD-v13 seed acceptance criteria:
+  // one user owns two verified providers in two different condos.
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const [multiProviderOwnerUser] = (await db
+    .insert(user)
+    .values({
+      id: 'seed-multi-provider-owner-id',
+      name: 'Multi Provider Owner',
+      email: 'multi.provider.owner@test.com',
+      emailVerified: true,
+      image: null,
+      role: 'USER',
+      status: 'ACTIVE',
+      cpfHash: 'cpf-hash-multi-provider-owner',
+      language: 'pt-BR',
+      phone: '+551****9988',
+      theme: 'light',
+    })
+    .returning()) as [typeof user.$inferInsert];
+
   // Insert account records — schema has extra columns (providerAccountId, idToken)
   // that don't exist in the live DB. Cast to any to bypass the type mismatch.
   const providerPw = await hashPassword('Test@1234');
@@ -375,6 +398,17 @@ async function seed() {
     password: authoringPw,
   });
 
+  const multiProviderOwnerPw = await hashPassword('Test@1234');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db.insert(account).values as any)({
+    id: 'seed-account-multi-provider-owner',
+    accountId: 'multi.provider.owner@test.com',
+    userId: multiProviderOwnerUser.id,
+    providerId: 'credential',
+    providerAccountId: 'multi.provider.owner@test.com',
+    password: multiProviderOwnerPw,
+  });
+
   // Create test condos
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   const [condo1] = (await db
@@ -417,6 +451,21 @@ async function seed() {
       status: 'APPROVED',
     })
     .returning()) as [typeof condominium.$inferInsert];
+
+  // Create provider rows after users. Keep existing public/test-facing provider
+  // IDs stable by reusing the historical seed IDs as provider primary keys.
+  await db.insert(provider).values([
+    { id: providerUser.id, ownerId: providerUser.id },
+    { id: secondProviderUser.id, ownerId: secondProviderUser.id },
+    { id: moderatorUser.id, ownerId: moderatorUser.id },
+    { id: transitionUser.id, ownerId: transitionUser.id },
+    { id: transitionModeratorUser.id, ownerId: transitionModeratorUser.id },
+    { id: brandingUser.id, ownerId: brandingUser.id },
+    { id: bannedUser.id, ownerId: bannedUser.id },
+    { id: authoringUser.id, ownerId: authoringUser.id },
+    { id: 'seed-multi-provider-condo-1', ownerId: multiProviderOwnerUser.id },
+    { id: 'seed-multi-provider-condo-2', ownerId: multiProviderOwnerUser.id },
+  ]);
 
   // Assign moderator@test.com to both condos as APPROVED MODERATOR
   await db.insert(providerAssignment).values([
@@ -510,6 +559,22 @@ async function seed() {
       status: 'APPROVED',
       unitInfo: 'Authoring HQ',
     },
+    {
+      id: 'provider-assignment-multi-provider-condo-1',
+      providerId: 'seed-multi-provider-condo-1',
+      condominiumId: condo1.id,
+      type: 'RESIDENT',
+      status: 'APPROVED',
+      unitInfo: 'Multi Provider Torre 1',
+    },
+    {
+      id: 'provider-assignment-multi-provider-condo-2',
+      providerId: 'seed-multi-provider-condo-2',
+      condominiumId: condo2.id,
+      type: 'RESIDENT',
+      status: 'APPROVED',
+      unitInfo: 'Multi Provider Torre 2',
+    },
   ]);
 
   // Create provider_profile rows for seeded providers
@@ -594,7 +659,33 @@ async function seed() {
       logoUrl: null,
       bannerUrl: null,
       publicDescription: 'Prestador para testes da matrix de criação.',
-      primaryPhone: '+5511966667777',
+      primaryPhone: '+551****7777',
+      callEnabled: true,
+      contactMetadata: {},
+      isProviderVisible: true,
+    },
+    {
+      providerId: 'seed-multi-provider-condo-1',
+      displayName: 'Multi Provider Owner — Condo 1',
+      companyName: 'Serviços Multi Torre 1',
+      tradeName: 'Multi Torre 1',
+      logoUrl: null,
+      bannerUrl: null,
+      publicDescription: 'Primeiro provedor do usuário multi-condomínio.',
+      primaryPhone: '+551****3333',
+      callEnabled: true,
+      contactMetadata: {},
+      isProviderVisible: true,
+    },
+    {
+      providerId: 'seed-multi-provider-condo-2',
+      displayName: 'Multi Provider Owner — Condo 2',
+      companyName: 'Serviços Multi Torre 2',
+      tradeName: 'Multi Torre 2',
+      logoUrl: null,
+      bannerUrl: null,
+      publicDescription: 'Segundo provedor do usuário multi-condomínio.',
+      primaryPhone: '+551****2222',
       callEnabled: true,
       contactMetadata: {},
       isProviderVisible: true,
@@ -777,7 +868,7 @@ async function seed() {
   ]);
 
   console.log(
-    '✅ Seed complete: provider@test.com, nonprovider@test.com, moderator@test.com, admin@test.com, system.manager@test.com, branding@test.com, banned@test.com, authoring@test.com (password: Test@1234)',
+    '✅ Seed complete: provider@test.com, nonprovider@test.com, moderator@test.com, admin@test.com, system.manager@test.com, branding@test.com, banned@test.com, authoring@test.com, multi.provider.owner@test.com (password: Test@1234)',
   );
   console.log(
     '   Capability states: provider@test.com = Provider-enabled, nonprovider@test.com = Provider-disabled, moderator@test.com = Moderator-only.',
@@ -796,6 +887,9 @@ async function seed() {
   );
   console.log(
     '   authoring@test.com: T-17-06 matrix provider — 4 announcements covering inherit/custom contact and CTA-present/fallback.',
+  );
+  console.log(
+    '   PRD-v13 states: multi.provider.owner@test.com owns 2 APPROVED RESIDENT providers across 2 condos; branding@test.com is a single-provider verified user; provider.transition@test.com has no approved assignment.',
   );
 }
 
