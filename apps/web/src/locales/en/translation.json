@@ -378,6 +378,12 @@
     "empty_description": "Create your first provider to start publishing announcements in your condominium.",
     "empty_cta": "Create your first provider"
   },
+  "provider_switcher": {
+    "label": "Active provider",
+    "aria": "Switch provider",
+    "select": "Select provider",
+    "manage": "My Providers"
+  },
   "meus_anuncios": {
     "page_title": "My Announcements",
     "page_subtitle": "Track your announcements by status and open each detail view.",

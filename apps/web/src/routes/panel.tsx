@@ -47,6 +47,7 @@ import {
   Outlet,
   redirect,
   useNavigate,
+  useParams,
 } from '@tanstack/react-router';
 import {
   Building2,
@@ -69,6 +70,7 @@ import { ThemeCycleToggle } from '@/components/theme-cycle-toggle';
 import { authClient } from '@/lib/auth-client';
 import { useModerationCondoId } from '@/lib/moderation-condo-context';
 import { useUserAccessProfile } from '@/routes/panel/-user-access-profile';
+import { ProviderSwitcher } from '@/routes/panel/provider/-provider-switcher';
 import { trpc } from '@/utils/trpc';
 
 // ---------------------------------------------------------------------------
@@ -496,6 +498,13 @@ function PanelLayout() {
   const accessProfileQuery = useUserAccessProfile();
   const storedModerationCondoId = useModerationCondoId();
 
+  // Active provider is URL-derived (the `$providerId` segment), never stored.
+  // `strict: false` so this resolves on every panel route, not just provider
+  // ones; it is `null` outside a `$providerId` context (e.g. dashboard).
+  const routeParams = useParams({ strict: false });
+  const activeProviderId =
+    (routeParams as { providerId?: string }).providerId ?? null;
+
   const { data: assignments } = useQuery(
     trpc.assignment.getMyAssignments.queryOptions(undefined, {
       enabled: !!session,
@@ -724,6 +733,7 @@ function PanelLayout() {
               ) : null}
             </div>
             <div className="flex items-center gap-2">
+              <ProviderSwitcher activeProviderId={activeProviderId} />
               <ThemeCycleToggle />
               <LanguageSwitcher />
             </div>

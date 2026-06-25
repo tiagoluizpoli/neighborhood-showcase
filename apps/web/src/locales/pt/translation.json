@@ -378,6 +378,12 @@
     "empty_description": "Crie seu primeiro prestador para começar a publicar anúncios no seu condomínio.",
     "empty_cta": "Criar seu primeiro prestador"
   },
+  "provider_switcher": {
+    "label": "Prestador ativo",
+    "aria": "Trocar de prestador",
+    "select": "Selecionar prestador",
+    "manage": "Meus Prestadores"
+  },
   "meus_anuncios": {
     "page_title": "Meus Anúncios",
     "page_subtitle": "Acompanhe seus anúncios por status e entre no detalhe de cada um.",

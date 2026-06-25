@@ -75,7 +75,7 @@ verification:
 
 ### ST-03 - Persistent header provider switcher
 
-status: ready
+status: done
 model: high
 escalate-if:
 - The header shell cannot host a persistent switcher without a layout change beyond this slice.
@@ -226,6 +226,57 @@ Gates: `bun run --filter server check-types` clean; `bun run --filter web
 check-types` clean except the pre-existing web TS5103 `--ignoreDeprecations`
 error (untouched); `bun run check` clean (pre-existing optional-chain warning +
 broken-symlink info only).
+
+##### ST-03 (done)
+
+Persistent header provider switcher, mounted once in the shared panel shell.
+
+Component (`apps/web/src/routes/panel/provider/-provider-switcher.tsx`):
+- `ProviderSwitcher({ activeProviderId })` — reads
+  `providerProfile.listMine` (owner-scoped, from ST-02). Renders nothing when
+  the caller owns no providers, so it is inert for non-provider users and on the
+  zero-provider state (handled by the My Providers page). A base-ui `Popover`
+  whose trigger label reflects the active provider — resolved from the
+  URL-derived `activeProviderId` (the `$providerId` segment), NOT a store — and
+  falls back to `provider_switcher.select` when no provider is active.
+- `ProviderSwitcherItems({ providers, activeProviderId })` — extracted
+  presentational dropdown body so it is unit-testable without opening the
+  portal. One navigation `Link to="/panel/provider/$providerId"` per owned
+  provider (selecting a provider = navigation, no client state), the active one
+  marked with `data-active` + a check, unnamed providers falling back to
+  `my_providers.unnamed`, plus a `Link` into `/panel/provider/my-providers`.
+
+Shell wiring (`apps/web/src/routes/panel.tsx`):
+- `PanelLayout` reads `useParams({ strict: false })` and derives
+  `activeProviderId = params.providerId ?? null` (null outside a `$providerId`
+  context, e.g. dashboard/moderation/admin). `<ProviderSwitcher>` is placed in
+  the persistent top header's right control group, before the theme/language
+  controls, so it shows across every panel section.
+
+i18n: `provider_switcher.*` block added to pt + en
+(`label`/`aria`/`select`/`manage`).
+
+Tests (`apps/web/src/routes/-provider-switcher.test.tsx`, 4/4):
+- `ProviderSwitcherItems`: each item carries
+  `data-to=/panel/provider/$providerId` + `data-params={providerId}`, the active
+  item carries `data-active=true` (non-active none), unnamed falls back to the
+  localized placeholder, manage link `data-to=/panel/provider/my-providers`.
+- `ProviderSwitcher`: renders nothing with zero providers; trigger label
+  reflects the active provider; shows the localized select placeholder when no
+  provider is active. trpc proxy + global Link stub pattern reused from the My
+  Providers test.
+- Sibling suites unaffected: `-panel.provider.my-providers.test.tsx` 2/2,
+  `-panel.provider.test.tsx` 2/2, `-panel.provider.announcements.test.tsx`
+  19/19, `-provider-profile.test.tsx` 20/20.
+
+Gates: `bun run --filter web check-types` clean except the pre-existing web
+TS5103 `--ignoreDeprecations` error (untouched); `bun run check` clean
+(pre-existing optional-chain warning + broken-symlink info only; biome
+auto-formatted the two touched files). dependency-cruiser: no layer violations.
+
+Note: making My Providers the multi-provider landing (the ST-01/ST-02 known
+limitation) is still open and now most naturally folds into ST-04's create-flow
+landing wiring.
 
 ---
 

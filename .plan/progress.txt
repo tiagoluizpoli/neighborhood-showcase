@@ -632,3 +632,14 @@ Next: T-20-04/ST-02 (pin platform-admin vs provider-scoped action split; apply g
 - Known limitation (from ST-01): legacy redirects + requireDefaultProviderId still send a no-default caller to condo-setup, not this page; making My Providers the multi-provider landing folds into ST-03.
 - Gates: server check-types clean; web check-types clean except pre-existing TS5103 ignoreDeprecations; bun run check clean (pre-existing optional-chain warning + broken-symlink info only).
 - Run-state advanced to T-20-05/ST-03 (persistent header provider switcher).
+
+---
+2026-06-25 T-20-05/ST-03 DONE
+- Persistent header provider switcher mounted once in the shared panel shell.
+- apps/web/src/routes/panel/provider/-provider-switcher.tsx: ProviderSwitcher({activeProviderId}) reads providerProfile.listMine (owner-scoped, ST-02), renders nothing when caller owns no providers (inert for non-provider users + zero-provider state). base-ui Popover; trigger label reflects the URL-derived active provider (the $providerId segment, NOT a store), falling back to provider_switcher.select when none active. ProviderSwitcherItems({providers, activeProviderId}) extracted presentational body (testable without opening the portal): one Link to /panel/provider/$providerId per provider (selecting = navigation, no client state), active one marked data-active + check, unnamed → my_providers.unnamed, plus a Link into /panel/provider/my-providers.
+- apps/web/src/routes/panel.tsx: PanelLayout reads useParams({strict:false}) → activeProviderId = params.providerId ?? null (null outside a $providerId context). <ProviderSwitcher> placed in the persistent top header's right control group, before theme/language, so it shows across every panel section.
+- i18n: provider_switcher.* block added pt+en (label/aria/select/manage).
+- Tests: -provider-switcher.test.tsx 4/4 (items nav data-to/data-params + active marker + unnamed fallback + manage link; switcher null on zero, trigger reflects active, select placeholder when none). Sibling suites unaffected: -panel.provider.my-providers.test.tsx 2/2, -panel.provider.test.tsx 2/2, -panel.provider.announcements.test.tsx 19/19, -provider-profile.test.tsx 20/20 (43/43 combined).
+- Gates: web check-types clean except pre-existing TS5103 ignoreDeprecations; bun run check clean (pre-existing optional-chain warning + broken-symlink info only; biome auto-formatted the 2 touched files); dependency-cruiser no layer violations.
+- Known limitation (from ST-01/ST-02): My Providers is not yet the multi-provider landing; folds into ST-04's create-flow landing wiring.
+- Run-state advanced to T-20-05/ST-04 (repeatable condo-setup create-provider flow).
