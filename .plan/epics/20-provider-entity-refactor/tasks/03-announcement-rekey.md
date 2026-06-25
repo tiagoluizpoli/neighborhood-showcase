@@ -2,8 +2,8 @@
 type: task
 id: T-20-03
 epic: E-20
-status: ready
-blocked-by: [T-20-01]
+status: in-progress
+blocked-by: []
 default-model: high
 ---
 
@@ -27,7 +27,7 @@ Public read repo `apps/server/src/infrastructure/db/announcement-repository/publ
 
 ### ST-01 - Re-key public announcement read paths + soft-delete exclusion
 
-status: ready
+status: done
 model: high
 escalate-if:
 - Excluding a soft-deleted provider's announcements requires a join the public repo cannot express without a contract change beyond this slice.
@@ -50,7 +50,7 @@ verification:
 
 ### ST-02 - Re-key panel/dashboard/moderation announcement paths + soft-delete exclusion
 
-status: ready
+status: in-progress
 model: high
 escalate-if:
 - A panel write path needs the active-provider routing context owned by T-20-05 to resolve `provider.id`.

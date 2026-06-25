@@ -1,23 +1,26 @@
 {
-  "currentRunId": "e-20-t-20-03-st-01",
+  "currentRunId": "e-20-t-20-03-st-02",
   "currentPrdId": "PRD-v13-provider-entity-and-verified-stamp",
   "currentEpicId": "E-20",
   "currentTaskId": "T-20-03",
-  "currentSubTaskId": "ST-01",
+  "currentSubTaskId": "ST-02",
   "attemptCount": 0,
   "retrievalRound": 0,
   "lastModel": "gpt-5.4",
   "escalated": false,
   "requiredModel": "high",
   "runnerName": "hermes",
-  "escalateIf": [],
-  "filesToTouch": [
-    "apps/server/src/infrastructure/db/announcement-repository/public/list-public-announcements.ts",
-    "apps/server/src/infrastructure/db/announcement-repository/public/find-public-announcement-by-id.ts",
-    "apps/server/src/application/use-cases/announcement/list-public-announcements.ts",
-    "apps/server/src/application/use-cases/announcement/get-public-announcement.ts"
+  "escalateIf": [
+    "A panel write path needs the active-provider routing context owned by T-20-05 to resolve `provider.id`."
   ],
-  "lastCommitChanged": false,
+  "filesToTouch": [
+    "apps/server/src/application/use-cases/announcement/create-announcement.ts",
+    "apps/server/src/application/use-cases/announcement/update-announcement.ts",
+    "apps/server/src/application/use-cases/announcement/get-provider-dashboard-data.ts",
+    "apps/server/src/application/use-cases/announcement/list-announcements-for-moderation.ts",
+    "apps/server/src/presentation/routers/announcement/"
+  ],
+  "lastCommitChanged": true,
   "lastFailureReason": null,
   "epicDone": false
 }

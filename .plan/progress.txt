@@ -532,3 +532,17 @@ Task state:
   - T-20-02 is complete.
   - Advanced run-state to T-20-03/ST-01.
 Next: T-20-03/ST-01 (re-key public announcement read paths + soft-delete exclusion).
+
+---
+[2026-06-24] T-20-03/ST-01 DONE — Public announcement reads now exclude soft-deleted providers
+Code:
+  - `apps/server/src/infrastructure/db/announcement-repository/public/list-public-announcements.ts` now filters the public feed with `provider.deletedAt IS NULL` in addition to the existing active-announcement predicates.
+  - `apps/server/src/infrastructure/db/announcement-repository/public/find-public-announcement-by-id.ts` now resolves the announcement through `announcement.providerId -> provider.id`, returns null for soft-deleted providers, and keeps the owner/profile fallback lookup behind the same provider soft-delete guard.
+Verification:
+  - bun run --filter server check-types ✅
+  - bun run check ✅ (pre-existing Biome deprecation warning + broken-symlink info only)
+  - bun run check-types -> only pre-existing web TS5103 --ignoreDeprecations failure
+Task state:
+  - T-20-03 remains in-progress.
+  - Advanced run-state to T-20-03/ST-02.
+Next: T-20-03/ST-02 (re-key panel/dashboard/moderation announcement paths + soft-delete exclusion).

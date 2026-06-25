@@ -9,7 +9,7 @@ import {
   providerProfile as providerProfileSchema,
   provider as providerSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { sanitizeCta } from '../../../../domain/entities/cta';
 import type { PublicAnnouncementDTO } from '../../../../domain/repositories/announcement.repository';
 import {
@@ -22,12 +22,22 @@ export async function findPublicAnnouncementById(
   id: string,
 ): Promise<PublicAnnouncementDTO | null> {
   const [found] = await db
-    .select()
+    .select({ announcement: announcementSchema })
     .from(announcementSchema)
-    .where(eq(announcementSchema.id, id))
+    .innerJoin(
+      providerSchema,
+      eq(announcementSchema.providerId, providerSchema.id),
+    )
+    .where(and(eq(announcementSchema.id, id), isNull(providerSchema.deletedAt)))
     .limit(1);
 
-  if (found?.status !== 'ACTIVE' || found.deletedAt !== null) {
+  const announcement = found?.announcement;
+
+  if (
+    !announcement ||
+    announcement.status !== 'ACTIVE' ||
+    announcement.deletedAt !== null
+  ) {
     return null;
   }
 
@@ -35,18 +45,18 @@ export async function findPublicAnnouncementById(
   let condoCity = '';
   let condoState = '';
 
-  if (found.condominiumId) {
+  if (announcement.condominiumId) {
     const [condo] = await db
       .select()
       .from(condominiumSchema)
-      .where(eq(condominiumSchema.id, found.condominiumId))
+      .where(eq(condominiumSchema.id, announcement.condominiumId))
       .limit(1);
     if (condo) {
       condoName = condo.name;
       condoCity = condo.city;
       condoState = condo.state;
     }
-  } else if (found.providerAssignmentId) {
+  } else if (announcement.providerAssignmentId) {
     const [location] = await db
       .select({ city: addressSchema.city, state: addressSchema.state })
       .from(providerAssignmentSchema)
@@ -54,7 +64,7 @@ export async function findPublicAnnouncementById(
         addressSchema,
         eq(providerAssignmentSchema.addressId, addressSchema.id),
       )
-      .where(eq(providerAssignmentSchema.id, found.providerAssignmentId))
+      .where(eq(providerAssignmentSchema.id, announcement.providerAssignmentId))
       .limit(1);
     if (location) {
       condoCity = location.city;
@@ -76,18 +86,23 @@ export async function findPublicAnnouncementById(
       providerProfileSchema,
       eq(providerProfileSchema.providerId, providerSchema.id),
     )
-    .where(eq(providerSchema.id, found.providerId))
+    .where(
+      and(
+        eq(providerSchema.id, announcement.providerId),
+        isNull(providerSchema.deletedAt),
+      ),
+    )
     .limit(1);
 
   const [category] = await db
     .select({ name: categorySchema.name })
     .from(categorySchema)
-    .where(eq(categorySchema.id, found.categoryId))
+    .where(eq(categorySchema.id, announcement.categoryId))
     .limit(1);
 
   const contact = rowToContactSettings({
-    mode: found.contactMode,
-    custom: found.contactCustom ?? null,
+    mode: announcement.contactMode,
+    custom: announcement.contactCustom ?? null,
   });
   const providerDefaults = {
     primaryPhone: provider?.primaryPhone ?? '',
@@ -95,29 +110,29 @@ export async function findPublicAnnouncementById(
   };
   const contactLinks = contactSettingsToLinks(contact, providerDefaults);
   const cta = sanitizeCta({
-    cta: rowToCta(found.cta),
-    providerId: found.providerId,
+    cta: rowToCta(announcement.cta),
+    providerId: announcement.providerId,
     effectiveWhatsappPhone: contactLinks.whatsapp ?? '',
   });
 
   return {
-    id: found.id,
-    providerId: found.providerId,
-    condominiumId: found.condominiumId,
-    providerAssignmentId: found.providerAssignmentId,
-    title: found.title,
-    subtitle: found.subtitle,
-    description: found.description,
-    priceCents: found.priceCents,
-    imageUrl: found.imageUrl,
-    categoryId: found.categoryId,
-    tags: found.tags,
+    id: announcement.id,
+    providerId: announcement.providerId,
+    condominiumId: announcement.condominiumId,
+    providerAssignmentId: announcement.providerAssignmentId,
+    title: announcement.title,
+    subtitle: announcement.subtitle,
+    description: announcement.description,
+    priceCents: announcement.priceCents,
+    imageUrl: announcement.imageUrl,
+    categoryId: announcement.categoryId,
+    tags: announcement.tags,
     contact,
     cta,
     contactLinks,
-    showVerifiedBadge: found.showVerifiedBadge,
-    status: found.status,
-    createdAt: found.createdAt,
+    showVerifiedBadge: announcement.showVerifiedBadge,
+    status: announcement.status,
+    createdAt: announcement.createdAt,
     category: category?.name ?? '',
     condoName,
     condoCity,

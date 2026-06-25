@@ -51,6 +51,7 @@ export async function listPublicAnnouncements(
   const conditions: SQL[] = [
     eq(announcementSchema.status, 'ACTIVE'),
     isNull(announcementSchema.deletedAt),
+    isNull(providerSchema.deletedAt),
   ];
 
   if (input.condominiumId) {
