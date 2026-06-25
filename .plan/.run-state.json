@@ -1,17 +1,21 @@
 {
-  "currentRunId": "e-20-t-20-02-st-01",
+  "currentRunId": "e-20-t-20-02-st-03",
   "currentPrdId": "PRD-v13-provider-entity-and-verified-stamp",
   "currentEpicId": "E-20",
   "currentTaskId": "T-20-02",
-  "currentSubTaskId": "ST-02",
-  "attemptCount": 0,
-  "retrievalRound": 0,
+  "currentSubTaskId": "ST-03",
+  "attemptCount": 1,
+  "retrievalRound": 1,
   "lastModel": "gpt-5.4",
   "escalated": false,
   "requiredModel": "medium",
   "runnerName": "hermes",
   "escalateIf": [],
-  "filesToTouch": ["apps/server/src/presentation/routers/provider-profile.ts"],
+  "filesToTouch": [
+    "apps/server/src/application/use-cases/provider-profile/get-provider-profile.integration.test.ts",
+    "apps/server/src/application/use-cases/provider-profile/update-provider-profile.integration.test.ts",
+    "apps/server/src/application/use-cases/user/get-public-provider-profile.integration.test.ts"
+  ],
   "lastCommitChanged": true,
   "lastFailureReason": null,
   "epicDone": false

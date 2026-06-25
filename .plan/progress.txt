@@ -495,3 +495,22 @@ Verification:
   - bun run check ✅ (pre-existing Biome deprecation warning + broken-symlink info only)
   - bun run check-types -> only pre-existing web TS5103 --ignoreDeprecations failure
 Next: T-20-02/ST-02 (re-key provider-profile router contract).
+
+---
+[2026-06-24] T-20-02/ST-02 DONE — Provider-profile router contract now accepts provider.id
+Code:
+  - apps/server/src/presentation/routers/provider-profile.ts now accepts an optional providerId on both
+    get and update, feeds that PK into the provider-profile use-cases, and returns providerId in the
+    get payload so callers can treat the router contract as provider-keyed.
+Behavior:
+  - Existing single-provider panel callers remain compatible because omitted providerId still falls back
+    to ctx.session.user.id until T-20-05 migrates panel URLs to $providerId.
+  - Future multi-provider callers can pass providerId explicitly without another router-contract change.
+Verification:
+  - bun run --filter server check-types ✅
+  - bun run check ✅ (pre-existing Biome deprecation warning + broken-symlink info only)
+  - bun run check-types -> only pre-existing web TS5103 --ignoreDeprecations failure
+Task state:
+  - T-20-02 remains in-progress.
+  - Advanced run-state to T-20-02/ST-03.
+Next: T-20-02/ST-03 (integration tests for re-key + soft-delete exclusion).

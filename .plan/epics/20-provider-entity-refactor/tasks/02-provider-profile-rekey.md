@@ -50,7 +50,7 @@ verification:
 
 ### ST-02 - Re-key provider-profile router contract
 
-status: in-progress
+status: done
 model: medium
 escalate-if:
 - The router input/output cannot be keyed by `provider.id` without breaking a panel caller owned by T-20-05.
@@ -94,6 +94,7 @@ verification:
 #### Execution Notes
 
 - 2026-06-24 — ST-01 complete. `ProviderProfileRepositoryImpl.findByProviderId()` now inner-joins `provider` and filters `provider.deletedAt IS NULL`, so panel profile reads stop leaking soft-deleted providers. `DrizzleUserRepository.findPublicProviderById()` now resolves the public profile by `provider.id` via `provider.ownerId -> user.id` and also filters soft-deleted providers, preserving auth-user fallback name/avatar while moving the public read onto the provider PK. Verification: `bun run --filter server check-types` ✅, `bun run check` ✅, root `bun run check-types` still fails only on the pre-existing web TS5103 `--ignoreDeprecations` issue.
+- 2026-06-24 — ST-02 complete. `apps/server/src/presentation/routers/provider-profile.ts` now accepts an optional `providerId` on both `get` and `update`, feeds that provider PK into the use-cases, and returns `providerId` in the `get` payload so the router contract is explicitly keyed on `provider.id`. The legacy no-input panel callers still fall back to `ctx.session.user.id`, preserving the single-provider route surface until T-20-05 migrates panel URLs to `$providerId`. Verification: `bun run --filter server check-types` ✅, `bun run check` ✅ (Biome deprecation warning + broken-symlink info only), root `bun run check-types` still fails only on the pre-existing web TS5103 `--ignoreDeprecations` issue. Next: ST-03 integration tests.
 
 ---
 

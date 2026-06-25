@@ -11,6 +11,41 @@ import {
 } from '../../main/di/provider-profile-router';
 import { protectedProcedure, router } from '../trpc';
 
+const providerProfileIdentitySchema = z.object({
+  providerId: z.string().min(1).optional(),
+});
+
+const updateProviderProfileSchema = providerProfileIdentitySchema.extend({
+  displayName: z
+    .string()
+    .min(3, 'O nome de exibição deve ter pelo menos 3 caracteres')
+    .max(100, 'O nome de exibição deve ter no máximo 100 caracteres')
+    .optional(),
+  companyName: z.string().max(100).nullable().optional(),
+  tradeName: z.string().max(100).nullable().optional(),
+  logoUrl: z.string().url().nullable().optional(),
+  logoOriginalUrl: z.string().url().nullable().optional(),
+  bannerUrl: z.string().url().nullable().optional(),
+  bannerOriginalUrl: z.string().url().nullable().optional(),
+  publicDescription: z
+    .string()
+    .max(500, 'A descrição pública não pode exceder 500 caracteres')
+    .nullable()
+    .optional(),
+  primaryPhone: z.string().optional(),
+  callEnabled: z.boolean().optional(),
+  contactMetadata: z
+    .object({
+      email: z.string().optional(),
+      instagram: z.string().optional(),
+      tiktok: z.string().optional(),
+      facebook: z.string().optional(),
+      website: z.string().optional(),
+    })
+    .optional(),
+  isProviderVisible: z.boolean().optional(),
+});
+
 export function createProviderProfileRouter(
   dependencies: ProviderProfileRouterDependencies,
 ) {
@@ -18,83 +53,58 @@ export function createProviderProfileRouter(
     dependencies;
 
   return router({
-    get: protectedProcedure.query(async ({ ctx }) => {
-      const input: GetProviderProfileInput = {
-        providerId: ctx.session.user.id,
-      };
-      try {
-        const profile = await getProviderProfileUseCase.execute(input);
-        const { primaryPhone, callEnabled } = profile.contactDefaults;
-        return {
-          id: profile.id,
-          displayName: profile.displayName,
-          companyName: profile.companyName,
-          tradeName: profile.tradeName,
-          logoUrl: profile.logoUrl,
-          logoOriginalUrl: profile.logoOriginalUrl,
-          bannerUrl: profile.bannerUrl,
-          bannerOriginalUrl: profile.bannerOriginalUrl,
-          publicDescription: profile.publicDescription,
-          contactDefaults: profile.contactDefaults,
-          contactMetadata: profile.contactMetadata,
-          // Transitional flat view derived from the canonical contract; removed
-          // when public surfaces migrate in T-17-04.
-          socialLinks: {
-            whatsapp: primaryPhone || undefined,
-            phone: callEnabled && primaryPhone ? primaryPhone : undefined,
-            ...profile.contactMetadata,
-          },
-          isProviderVisible: profile.isProviderVisible,
-          createdAt: profile.createdAt,
-          updatedAt: profile.updatedAt,
+    get: protectedProcedure
+      .input(providerProfileIdentitySchema.optional())
+      .query(async ({ ctx, input }) => {
+        const providerInput: GetProviderProfileInput = {
+          providerId: input?.providerId ?? ctx.session.user.id,
         };
-      } catch (err) {
-        if (err instanceof ProviderProfileNotFoundError) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: err.message,
-          });
+
+        try {
+          const profile =
+            await getProviderProfileUseCase.execute(providerInput);
+          const { primaryPhone, callEnabled } = profile.contactDefaults;
+
+          return {
+            id: profile.id,
+            providerId: profile.id,
+            displayName: profile.displayName,
+            companyName: profile.companyName,
+            tradeName: profile.tradeName,
+            logoUrl: profile.logoUrl,
+            logoOriginalUrl: profile.logoOriginalUrl,
+            bannerUrl: profile.bannerUrl,
+            bannerOriginalUrl: profile.bannerOriginalUrl,
+            publicDescription: profile.publicDescription,
+            contactDefaults: profile.contactDefaults,
+            contactMetadata: profile.contactMetadata,
+            // Transitional flat view derived from the canonical contract; removed
+            // when public surfaces migrate in T-17-04.
+            socialLinks: {
+              whatsapp: primaryPhone || undefined,
+              phone: callEnabled && primaryPhone ? primaryPhone : undefined,
+              ...profile.contactMetadata,
+            },
+            isProviderVisible: profile.isProviderVisible,
+            createdAt: profile.createdAt,
+            updatedAt: profile.updatedAt,
+          };
+        } catch (err) {
+          if (err instanceof ProviderProfileNotFoundError) {
+            throw new TRPCError({
+              code: 'NOT_FOUND',
+              message: err.message,
+            });
+          }
+          throw err;
         }
-        throw err;
-      }
-    }),
+      }),
 
     update: protectedProcedure
-      .input(
-        z.object({
-          displayName: z
-            .string()
-            .min(3, 'O nome de exibição deve ter pelo menos 3 caracteres')
-            .max(100, 'O nome de exibição deve ter no máximo 100 caracteres')
-            .optional(),
-          companyName: z.string().max(100).nullable().optional(),
-          tradeName: z.string().max(100).nullable().optional(),
-          logoUrl: z.string().url().nullable().optional(),
-          logoOriginalUrl: z.string().url().nullable().optional(),
-          bannerUrl: z.string().url().nullable().optional(),
-          bannerOriginalUrl: z.string().url().nullable().optional(),
-          publicDescription: z
-            .string()
-            .max(500, 'A descrição pública não pode exceder 500 caracteres')
-            .nullable()
-            .optional(),
-          primaryPhone: z.string().optional(),
-          callEnabled: z.boolean().optional(),
-          contactMetadata: z
-            .object({
-              email: z.string().optional(),
-              instagram: z.string().optional(),
-              tiktok: z.string().optional(),
-              facebook: z.string().optional(),
-              website: z.string().optional(),
-            })
-            .optional(),
-          isProviderVisible: z.boolean().optional(),
-        }),
-      )
+      .input(updateProviderProfileSchema)
       .mutation(async ({ ctx, input }) => {
         const updateInput: UpdateProviderProfileInput = {
-          providerId: ctx.session.user.id,
+          providerId: input.providerId ?? ctx.session.user.id,
           displayName: input.displayName,
           companyName: input.companyName,
           tradeName: input.tradeName,
