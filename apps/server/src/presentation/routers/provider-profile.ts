@@ -28,10 +28,6 @@ export function createProviderProfileRouter(
         return {
           id: profile.id,
           displayName: profile.displayName,
-          avatarUrl: profile.avatarUrl,
-          // Untouched full-resolution source per role; backs the re-crop UI
-          // (T-19-03). The cropped *Url stays the derived crop.
-          avatarOriginalUrl: profile.avatarOriginalUrl,
           companyName: profile.companyName,
           tradeName: profile.tradeName,
           logoUrl: profile.logoUrl,
@@ -71,10 +67,6 @@ export function createProviderProfileRouter(
             .min(3, 'O nome de exibição deve ter pelo menos 3 caracteres')
             .max(100, 'O nome de exibição deve ter no máximo 100 caracteres')
             .optional(),
-          avatarUrl: z.string().url().nullable().optional(),
-          // Full-resolution source the UI re-crops from; stored via the same
-          // /api/upload path as the cropped asset, persisted alongside it.
-          avatarOriginalUrl: z.string().url().nullable().optional(),
           companyName: z.string().max(100).nullable().optional(),
           tradeName: z.string().max(100).nullable().optional(),
           logoUrl: z.string().url().nullable().optional(),
@@ -104,8 +96,6 @@ export function createProviderProfileRouter(
         const updateInput: UpdateProviderProfileInput = {
           providerId: ctx.session.user.id,
           displayName: input.displayName,
-          avatarUrl: input.avatarUrl,
-          avatarOriginalUrl: input.avatarOriginalUrl,
           companyName: input.companyName,
           tradeName: input.tradeName,
           logoUrl: input.logoUrl,

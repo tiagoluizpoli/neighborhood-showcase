@@ -7,8 +7,6 @@ import type { ProviderProfile } from '../entities/provider-profile.entity';
 export interface UpsertProviderProfileInput {
   providerId: string;
   displayName: string;
-  avatarUrl?: string | null;
-  avatarOriginalUrl?: string | null;
   companyName?: string | null;
   tradeName?: string | null;
   logoUrl?: string | null;

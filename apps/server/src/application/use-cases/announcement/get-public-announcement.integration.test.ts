@@ -43,7 +43,6 @@ describe('GetPublicAnnouncement use case', () => {
     await db.insert(providerProfile).values({
       providerId,
       displayName: 'Provider Profile Brand',
-      avatarUrl: 'https://example.com/provider-profile-avatar.png',
       isProviderVisible: true,
     });
 
@@ -147,9 +146,7 @@ describe('GetPublicAnnouncement use case', () => {
     expect(result.condoCity).toBe('Florianopolis');
     expect(result.condoState).toBe('SC');
     expect(result.providerName).toBe('Provider Profile Brand');
-    expect(result.providerAvatarUrl).toBe(
-      'https://example.com/provider-profile-avatar.png',
-    );
+    expect(result.providerAvatarUrl).toBe('https://example.com/avatar.png');
   });
 
   test('absent CTA leaves the DTO primary empty for contact fallback', async () => {

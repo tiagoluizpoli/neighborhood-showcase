@@ -1,3 +1,3 @@
 export interface ImageOptimizer {
-  resizeTo43Webp(buffer: Buffer): Promise<Buffer>;
+  optimizeWebp(buffer: Buffer): Promise<Buffer>;
 }

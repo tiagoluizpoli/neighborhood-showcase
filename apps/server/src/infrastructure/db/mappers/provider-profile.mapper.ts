@@ -17,8 +17,6 @@ export class ProviderProfileMapper
     return new ProviderProfile(
       {
         displayName: raw.displayName,
-        avatarUrl: raw.avatarUrl,
-        avatarOriginalUrl: raw.avatarOriginalUrl,
         companyName: raw.companyName,
         tradeName: raw.tradeName,
         logoUrl: raw.logoUrl,
@@ -43,8 +41,6 @@ export class ProviderProfileMapper
     return {
       providerId: entity.id,
       displayName: entity.displayName,
-      avatarUrl: entity.avatarUrl,
-      avatarOriginalUrl: entity.avatarOriginalUrl,
       companyName: entity.companyName,
       tradeName: entity.tradeName,
       logoUrl: entity.logoUrl,

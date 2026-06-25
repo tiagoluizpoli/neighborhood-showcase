@@ -26,7 +26,7 @@ export class UploadFile {
     let uploadFilename = `${input.userId}-${Date.now()}-${input.filename}`;
 
     if (input.uploadType === 'image' || input.mimetype.startsWith('image/')) {
-      uploadBuffer = await this.imageOptimizer.resizeTo43Webp(input.buffer);
+      uploadBuffer = await this.imageOptimizer.optimizeWebp(input.buffer);
       uploadMimetype = 'image/webp';
 
       const extIndex = uploadFilename.lastIndexOf('.');

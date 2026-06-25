@@ -15,7 +15,6 @@ export interface PublicProviderProfileDTO {
   id: string;
   displayName: string;
   avatarUrl: string | null;
-  avatarOriginalUrl: string | null;
   companyName: string | null;
   tradeName: string | null;
   logoUrl: string | null;

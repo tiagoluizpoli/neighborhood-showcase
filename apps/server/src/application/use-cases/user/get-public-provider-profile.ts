@@ -20,8 +20,6 @@ export interface PublicProviderProfileResult {
   provider: {
     id: string;
     displayName: string;
-    avatarUrl: string | null;
-    avatarOriginalUrl: string | null;
     companyName: string | null;
     tradeName: string | null;
     logoUrl: string | null;
@@ -71,8 +69,6 @@ export class GetPublicProviderProfile {
       provider: {
         id: provider.id,
         displayName: provider.displayName,
-        avatarUrl: provider.avatarUrl,
-        avatarOriginalUrl: provider.avatarOriginalUrl,
         companyName: provider.companyName,
         tradeName: provider.tradeName,
         logoUrl: provider.logoUrl,

@@ -37,7 +37,6 @@ describe('getPublic Announcement Router Procedure', () => {
     await db.insert(providerProfile).values({
       providerId,
       displayName: 'Router Profile Provider',
-      avatarUrl: 'http://localhost/profile-avatar.jpg',
       isProviderVisible: true,
     });
 
@@ -92,7 +91,7 @@ describe('getPublic Announcement Router Procedure', () => {
     expect(res.id).toBe(testAnnId);
     expect(res.title).toBe('Delicious Pizza');
     expect(res.providerName).toBe('Router Profile Provider');
-    expect(res.providerAvatarUrl).toBe('http://localhost/profile-avatar.jpg');
+    expect(res.providerAvatarUrl).toBe('http://localhost/avatar.jpg');
   });
 
   test('exposes the bounded CTA payload distinct from contact links', async () => {

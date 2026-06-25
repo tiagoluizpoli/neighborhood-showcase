@@ -20,8 +20,6 @@ describe('user.getPublicProfile Router Procedure', () => {
         provider: {
           id: providerId,
           displayName: 'Jane Profile Provider',
-          avatarUrl: 'http://localhost/jane-avatar.jpg',
-          avatarOriginalUrl: null,
           companyName: null,
           tradeName: null,
           logoUrl: null,
@@ -101,7 +99,6 @@ describe('user.getPublicProfile Router Procedure', () => {
 
     expect(res.provider.id).toBe(providerId);
     expect(res.provider.displayName).toBe('Jane Profile Provider');
-    expect(res.provider.avatarUrl).toBe('http://localhost/jane-avatar.jpg');
     expect(res.provider.socialLinks).toEqual({
       whatsapp: '5511999999999',
       instagram: 'jane.provider',

@@ -47,7 +47,6 @@ describe('List Public Announcements Integration Test', () => {
     await db.insert(providerProfile).values({
       providerId,
       displayName: 'Branded List Provider',
-      avatarUrl: 'https://example.com/branded-list-provider.png',
       isProviderVisible: true,
     });
 
@@ -163,9 +162,7 @@ describe('List Public Announcements Integration Test', () => {
 
     // Verify provider details are mapped correctly
     expect(list[0]?.providerName).toBe('Branded List Provider');
-    expect(list[0]?.providerAvatarUrl).toBe(
-      'https://example.com/branded-list-provider.png',
-    );
+    expect(list[0]?.providerAvatarUrl).toBeNull();
   });
 
   test('filters by category', async () => {

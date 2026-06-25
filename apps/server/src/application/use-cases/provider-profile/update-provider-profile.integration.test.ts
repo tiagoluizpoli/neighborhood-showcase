@@ -36,7 +36,6 @@ describe('UpdateProviderProfile integration', () => {
     await useCase.execute({
       providerId: testUserId,
       displayName: 'Acme Soluções',
-      avatarUrl: 'https://cdn.example.com/avatar.jpg',
       companyName: 'Acme Tecnologia LTDA',
       tradeName: 'Acme Soluções',
       logoUrl: 'https://cdn.example.com/logo.png',
@@ -60,7 +59,6 @@ describe('UpdateProviderProfile integration', () => {
     expect(row).not.toBeNull();
     const r = row as NonNullable<typeof row>;
     expect(r.displayName).toBe('Acme Soluções');
-    expect(r.avatarUrl).toBe('https://cdn.example.com/avatar.jpg');
     expect(r.companyName).toBe('Acme Tecnologia LTDA');
     expect(r.tradeName).toBe('Acme Soluções');
     expect(r.logoUrl).toBe('https://cdn.example.com/logo.png');
@@ -115,8 +113,6 @@ describe('UpdateProviderProfile integration', () => {
     await useCase.execute({
       providerId: testUserId,
       displayName: 'Acme Com Originais',
-      avatarUrl: 'https://cdn.example.com/avatar-crop.jpg',
-      avatarOriginalUrl: 'https://cdn.example.com/avatar-original.jpg',
       logoUrl: 'https://cdn.example.com/logo-crop.png',
       logoOriginalUrl: 'https://cdn.example.com/logo-original.png',
       bannerUrl: 'https://cdn.example.com/banner-crop.jpg',
@@ -131,10 +127,6 @@ describe('UpdateProviderProfile integration', () => {
 
     expect(row).not.toBeNull();
     const r = row as NonNullable<typeof row>;
-    expect(r.avatarUrl).toBe('https://cdn.example.com/avatar-crop.jpg');
-    expect(r.avatarOriginalUrl).toBe(
-      'https://cdn.example.com/avatar-original.jpg',
-    );
     expect(r.logoUrl).toBe('https://cdn.example.com/logo-crop.png');
     expect(r.logoOriginalUrl).toBe('https://cdn.example.com/logo-original.png');
     expect(r.bannerUrl).toBe('https://cdn.example.com/banner-crop.jpg');
@@ -160,9 +152,6 @@ describe('UpdateProviderProfile integration', () => {
     const r = row as NonNullable<typeof row>;
     expect(r.displayName).toBe('Acme Parcial');
     // originals from the previous upsert must survive a partial update
-    expect(r.avatarOriginalUrl).toBe(
-      'https://cdn.example.com/avatar-original.jpg',
-    );
     expect(r.logoOriginalUrl).toBe('https://cdn.example.com/logo-original.png');
     expect(r.bannerOriginalUrl).toBe(
       'https://cdn.example.com/banner-original.jpg',

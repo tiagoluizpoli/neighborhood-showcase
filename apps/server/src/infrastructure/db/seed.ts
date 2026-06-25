@@ -518,7 +518,6 @@ async function seed() {
     {
       providerId: providerUser.id,
       displayName: 'Provider Test',
-      avatarUrl: null,
       companyName: null,
       tradeName: null,
       logoUrl: null,
@@ -532,7 +531,6 @@ async function seed() {
     {
       providerId: secondProviderUser.id,
       displayName: 'Provider Other',
-      avatarUrl: null,
       companyName: null,
       tradeName: null,
       logoUrl: null,
@@ -547,7 +545,6 @@ async function seed() {
     {
       providerId: transitionUser.id,
       displayName: 'Provider Transition Test',
-      avatarUrl: null,
       companyName: null,
       tradeName: null,
       logoUrl: null,
@@ -562,7 +559,6 @@ async function seed() {
       // Full-branding provider: banner + logo + company + social links
       providerId: brandingUser.id,
       displayName: 'Branding Visual Test',
-      avatarUrl: null,
       companyName: 'Branding Ltda.',
       tradeName: 'Branding Co.',
       logoUrl: 'https://placehold.co/200x200/png',
@@ -578,7 +574,6 @@ async function seed() {
       // Banned provider: profile exists but user is BANNED — page must show not-found
       providerId: bannedUser.id,
       displayName: 'Banned Provider',
-      avatarUrl: null,
       companyName: null,
       tradeName: null,
       logoUrl: null,
@@ -594,7 +589,6 @@ async function seed() {
       // Its announcements cover inherit/custom contact and CTA variants for T-17-06.
       providerId: authoringUser.id,
       displayName: 'Authoring Test',
-      avatarUrl: null,
       companyName: null,
       tradeName: null,
       logoUrl: null,

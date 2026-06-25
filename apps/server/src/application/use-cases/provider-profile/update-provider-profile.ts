@@ -10,8 +10,6 @@ import { DomainError } from '../../../shared/domain-error';
 export interface UpdateProviderProfileInput {
   providerId: string;
   displayName?: string;
-  avatarUrl?: string | null;
-  avatarOriginalUrl?: string | null;
   companyName?: string | null;
   tradeName?: string | null;
   logoUrl?: string | null;
@@ -90,14 +88,6 @@ export class UpdateProviderProfile {
       providerId: input.providerId,
       displayName:
         input.displayName?.trim() ?? existing?.displayName ?? 'Provider',
-      avatarUrl:
-        input.avatarUrl !== undefined
-          ? input.avatarUrl
-          : (existing?.avatarUrl ?? null),
-      avatarOriginalUrl:
-        input.avatarOriginalUrl !== undefined
-          ? input.avatarOriginalUrl
-          : (existing?.avatarOriginalUrl ?? null),
       companyName:
         input.companyName !== undefined
           ? input.companyName

@@ -69,8 +69,6 @@ export class DrizzleUserRepository implements UserRepository {
         fallbackName: userSchema.name,
         fallbackAvatarUrl: userSchema.image,
         profileName: providerProfileSchema.displayName,
-        profileAvatarUrl: providerProfileSchema.avatarUrl,
-        profileAvatarOriginalUrl: providerProfileSchema.avatarOriginalUrl,
         companyName: providerProfileSchema.companyName,
         tradeName: providerProfileSchema.tradeName,
         logoUrl: providerProfileSchema.logoUrl,
@@ -102,8 +100,7 @@ export class DrizzleUserRepository implements UserRepository {
     return {
       id: row.id,
       displayName: row.profileName ?? row.fallbackName,
-      avatarUrl: row.profileAvatarUrl ?? row.fallbackAvatarUrl ?? null,
-      avatarOriginalUrl: row.profileAvatarOriginalUrl ?? null,
+      avatarUrl: row.fallbackAvatarUrl ?? null,
       companyName: row.companyName ?? null,
       tradeName: row.tradeName ?? null,
       logoUrl: row.logoUrl ?? null,
@@ -357,7 +354,6 @@ export class DrizzleUserRepository implements UserRepository {
       .values({
         providerId: id,
         displayName: userRow.name,
-        avatarUrl: userRow.image ?? null,
         isProviderVisible: isVisible,
       })
       .onConflictDoUpdate({

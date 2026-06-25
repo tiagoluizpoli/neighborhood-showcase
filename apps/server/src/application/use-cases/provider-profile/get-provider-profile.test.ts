@@ -29,7 +29,6 @@ describe('GetProviderProfile use case', () => {
     const fakeProfile = new ProviderProfile(
       {
         displayName: 'Test Provider',
-        avatarUrl: null,
         companyName: null,
         tradeName: null,
         logoUrl: null,

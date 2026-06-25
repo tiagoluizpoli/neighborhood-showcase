@@ -31,8 +31,6 @@ export class ProviderProfileRepositoryImpl
       .values({
         providerId: input.providerId,
         displayName: input.displayName,
-        avatarUrl: input.avatarUrl ?? null,
-        avatarOriginalUrl: input.avatarOriginalUrl ?? null,
         companyName: input.companyName ?? null,
         tradeName: input.tradeName ?? null,
         logoUrl: input.logoUrl ?? null,
@@ -49,8 +47,6 @@ export class ProviderProfileRepositoryImpl
         target: providerProfileSchema.providerId,
         set: {
           displayName: input.displayName,
-          avatarUrl: input.avatarUrl ?? null,
-          avatarOriginalUrl: input.avatarOriginalUrl ?? null,
           companyName: input.companyName ?? null,
           tradeName: input.tradeName ?? null,
           logoUrl: input.logoUrl ?? null,

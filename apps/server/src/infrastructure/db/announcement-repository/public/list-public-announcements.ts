@@ -202,8 +202,7 @@ export async function listPublicAnnouncements(
       longitude:
         row.condominium?.longitude || row.providerAssignment?.longitude || null,
       providerName: row.providerProfile?.displayName ?? row.provider.name,
-      providerAvatarUrl:
-        row.providerProfile?.avatarUrl ?? row.provider.image ?? null,
+      providerAvatarUrl: row.provider.image ?? null,
     };
   };
 

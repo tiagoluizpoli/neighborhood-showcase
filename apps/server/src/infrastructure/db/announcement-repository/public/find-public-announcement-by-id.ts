@@ -66,7 +66,6 @@ export async function findPublicAnnouncementById(
       name: userSchema.name,
       image: userSchema.image,
       profileName: providerProfileSchema.displayName,
-      profileAvatarUrl: providerProfileSchema.avatarUrl,
       primaryPhone: providerProfileSchema.primaryPhone,
       callEnabled: providerProfileSchema.callEnabled,
     })
@@ -122,6 +121,6 @@ export async function findPublicAnnouncementById(
     condoCity,
     condoState,
     providerName: provider?.profileName ?? provider?.name ?? '',
-    providerAvatarUrl: provider?.profileAvatarUrl ?? provider?.image ?? null,
+    providerAvatarUrl: provider?.image ?? null,
   };
 }

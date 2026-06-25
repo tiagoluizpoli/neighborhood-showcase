@@ -53,7 +53,6 @@ describe('GetPublicProviderProfile use case', () => {
     await db.insert(providerProfile).values({
       providerId,
       displayName: 'Provider Branding Name',
-      avatarUrl: 'https://cdn.example.com/provider-avatar.jpg',
       primaryPhone: '5511999999999',
       contactMetadata: { instagram: 'provider-branding' },
       isProviderVisible: true,
@@ -97,9 +96,6 @@ describe('GetPublicProviderProfile use case', () => {
     const result = await useCase.execute({ providerId });
 
     expect(result.provider.displayName).toBe('Provider Branding Name');
-    expect(result.provider.avatarUrl).toBe(
-      'https://cdn.example.com/provider-avatar.jpg',
-    );
     expect(result.provider.socialLinks).toEqual({
       whatsapp: '5511999999999',
       instagram: 'provider-branding',
@@ -109,7 +105,7 @@ describe('GetPublicProviderProfile use case', () => {
       'Provider Branding Name',
     );
     expect(result.announcements[0]?.providerAvatarUrl).toBe(
-      'https://cdn.example.com/provider-avatar.jpg',
+      'https://cdn.example.com/auth-avatar.jpg',
     );
   });
 
@@ -121,9 +117,6 @@ describe('GetPublicProviderProfile use case', () => {
     const result = await useCase.execute({ providerId });
 
     expect(result.provider.displayName).toBe('Auth Identity Name');
-    expect(result.provider.avatarUrl).toBe(
-      'https://cdn.example.com/auth-avatar.jpg',
-    );
     expect(result.provider.socialLinks).toEqual({});
     expect(result.announcements[0]?.providerName).toBe('Auth Identity Name');
     expect(result.announcements[0]?.providerAvatarUrl).toBe(
@@ -141,7 +134,6 @@ describe('GetPublicProviderProfile use case', () => {
     await db.insert(providerProfile).values({
       providerId,
       displayName: 'Provider Branding Name',
-      avatarUrl: 'https://cdn.example.com/provider-avatar.jpg',
       primaryPhone: '5511999999999',
       contactMetadata: { instagram: 'provider-branding' },
       isProviderVisible: true,

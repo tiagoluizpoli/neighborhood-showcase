@@ -35,8 +35,6 @@ export class ProviderCallRequiresPhoneError extends DomainError {
 
 export interface ProviderProfileProps extends AuditableProps {
   displayName: string;
-  avatarUrl?: string | null;
-  avatarOriginalUrl?: string | null;
   companyName?: string | null;
   tradeName?: string | null;
   logoUrl?: string | null;
@@ -89,14 +87,6 @@ export class ProviderProfile extends AuditableEntity<ProviderProfileProps> {
 
   get displayName(): string {
     return this.props.displayName;
-  }
-
-  get avatarUrl(): string | null | undefined {
-    return this.props.avatarUrl;
-  }
-
-  get avatarOriginalUrl(): string | null | undefined {
-    return this.props.avatarOriginalUrl;
   }
 
   get companyName(): string | null | undefined {
