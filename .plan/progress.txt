@@ -425,3 +425,30 @@ Infrastructure:
 Gates: server + db check-types clean; web fails only on pre-existing TS5103.
   bun run check clean (pre-existing biome-config warning + broken-symlink info only).
 Consumer wiring to provider.id deferred to ST-03. Advancing to ST-03.
+
+[2026-06-24] T-20-01/ST-03 DONE — Announcement read-path provider.id threading
+Code:
+  - apps/server/src/infrastructure/db/announcement-repository/public/list-public-announcements.ts
+    now joins announcement.providerId -> provider.id -> provider.ownerId -> user.id,
+    and provider_profile.providerId -> provider.id (was -> user.id).
+  - apps/server/src/infrastructure/db/announcement-repository/public/find-public-announcement-by-id.ts
+    uses the same provider->owner chain for provider brand/contact fallback while
+    resolving provider_profile against the provider PK.
+  - apps/server/src/infrastructure/db/announcement-repository/moderation.ts now
+    resolves moderation/report queue provider name + email through provider.ownerId
+    instead of assuming announcement.providerId === user.id.
+Scope notes:
+  - No soft-delete behavior changes were added in this slice; ST-03 stayed limited to
+    build-green PK threading.
+  - provider-profile-repository.ts and provider-profile.mapper.ts were inspected and
+    already keyed on providerId, so they required no code change.
+Gates:
+  - bun run --filter server check-types ✅
+  - bun run check ✅ (pre-existing Biome deprecation warning + broken symlink info only)
+  - bun run check-types -> only pre-existing web TS5103 --ignoreDeprecations failure
+Exploratory tests:
+  - Targeted announcement/moderation integration tests now fail in setup because legacy
+    fixtures still insert provider_profile/provider_location rows keyed by old user IDs.
+    That confirms the remaining T-20-01 seed/fixture rebuild is still pending, not a
+    regression in this join-threading slice.
+Next: ST-04 (rebuild seed to the three required states).

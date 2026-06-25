@@ -77,7 +77,7 @@ verification:
 
 ### ST-03 - Thread provider.id through existing repos/mappers to keep build green
 
-status: ready
+status: done
 model: high
 escalate-if:
 - Threading `provider.id` forces a behavioral change to a read/write path that belongs in T-20-02 / T-20-03 / T-20-04 rather than this foundation slice.
@@ -165,6 +165,35 @@ verification:
   `bun run check` clean (pre-existing biome-config migrate warning + broken-symlink
   info only; biome auto-collapsed the mapper `implements` line).
 - Next: ST-03 (thread `provider.id` through existing repos/mappers).
+
+- ST-03 (2026-06-24): Threaded announcement read paths that still assumed
+  `announcement.providerId === user.id` through the new `provider.id` seam while
+  keeping existing behavior intact. In
+  `apps/server/src/infrastructure/db/announcement-repository/public/list-public-announcements.ts`
+  and `public/find-public-announcement-by-id.ts`, the provider-facing joins now
+  go `announcement.providerId -> provider.id -> provider.ownerId -> user.id`; the
+  `provider_profile` join also keys on `provider.id` instead of `user.id`. This
+  preserves name/avatar fallback from the owner `user` row while making
+  `provider_profile` resolve against the new provider PK. In
+  `announcement-repository/moderation.ts`, moderation/report-queue provider name +
+  email now flow through the same provider→owner join chain instead of joining
+  announcements straight to `user.id`.
+- No soft-delete behavior changes were added beyond the pre-existing filters in
+  the announcement repo helpers; ST-03 stayed scoped to compile/build-green
+  threading only, per contract. `provider-profile-repository.ts` and
+  `provider-profile.mapper.ts` already keyed on `providerId` and needed no code
+  change.
+- Gates: `bun run --filter server check-types` clean; root `bun run check` clean
+  (pre-existing Biome deprecation warning + broken-symlink info only); root
+  `bun run check-types` still fails only on the pre-existing web TS5103
+  `--ignoreDeprecations` value.
+- Exploratory targeted server integration tests exposed expected follow-up work:
+  legacy fixtures in public-announcement / moderation tests still insert
+  `provider_profile` and `provider_location` rows keyed by old `user.id` values,
+  so they now trip FK errors until the provider-row/seed-fixture rebuild lands.
+  That fixture repair belongs to the remaining T-20-01 work (seed rebuild / later
+  path hardening), not to this compile-threading slice.
+- Next: ST-04 (rebuild seed to the three required states).
 
 ---
 

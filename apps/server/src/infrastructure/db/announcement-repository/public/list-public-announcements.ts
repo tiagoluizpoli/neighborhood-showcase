@@ -7,6 +7,7 @@ import {
   condominium as condominiumSchema,
   providerAssignment as providerAssignmentSchema,
   providerProfile as providerProfileSchema,
+  provider as providerSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { env } from '@neighborhood-showcase/env/server';
 import { and, desc, eq, ilike, isNull, or, type SQL, sql } from 'drizzle-orm';
@@ -118,10 +119,14 @@ export async function listPublicAnnouncements(
       category: categorySchema,
     })
     .from(announcementSchema)
-    .innerJoin(userSchema, eq(announcementSchema.providerId, userSchema.id))
+    .innerJoin(
+      providerSchema,
+      eq(announcementSchema.providerId, providerSchema.id),
+    )
+    .innerJoin(userSchema, eq(providerSchema.ownerId, userSchema.id))
     .leftJoin(
       providerProfileSchema,
-      eq(providerProfileSchema.providerId, userSchema.id),
+      eq(providerProfileSchema.providerId, providerSchema.id),
     )
     .innerJoin(
       categorySchema,

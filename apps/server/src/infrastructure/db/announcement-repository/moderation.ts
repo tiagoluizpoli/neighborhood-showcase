@@ -3,6 +3,7 @@ import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
 import {
   announcement as announcementSchema,
   category as categorySchema,
+  provider as providerSchema,
   report as reportSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
@@ -40,7 +41,11 @@ export async function listAnnouncementsForModeration(
       providerName: userSchema.name,
     })
     .from(announcementSchema)
-    .innerJoin(userSchema, eq(announcementSchema.providerId, userSchema.id))
+    .innerJoin(
+      providerSchema,
+      eq(announcementSchema.providerId, providerSchema.id),
+    )
+    .innerJoin(userSchema, eq(providerSchema.ownerId, userSchema.id))
     .innerJoin(
       categorySchema,
       eq(announcementSchema.categoryId, categorySchema.id),
@@ -93,7 +98,11 @@ export async function listReportedAnnouncements(
         sql<number>`count(distinct ${reportSchema.reporterId})`.mapWith(Number),
     })
     .from(announcementSchema)
-    .innerJoin(userSchema, eq(announcementSchema.providerId, userSchema.id))
+    .innerJoin(
+      providerSchema,
+      eq(announcementSchema.providerId, providerSchema.id),
+    )
+    .innerJoin(userSchema, eq(providerSchema.ownerId, userSchema.id))
     .innerJoin(
       reportSchema,
       eq(reportSchema.announcementId, announcementSchema.id),

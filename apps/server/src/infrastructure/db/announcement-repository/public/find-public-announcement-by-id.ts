@@ -7,6 +7,7 @@ import {
   condominium as condominiumSchema,
   providerAssignment as providerAssignmentSchema,
   providerProfile as providerProfileSchema,
+  provider as providerSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 import { sanitizeCta } from '../../../../domain/entities/cta';
@@ -69,12 +70,13 @@ export async function findPublicAnnouncementById(
       primaryPhone: providerProfileSchema.primaryPhone,
       callEnabled: providerProfileSchema.callEnabled,
     })
-    .from(userSchema)
+    .from(providerSchema)
+    .innerJoin(userSchema, eq(providerSchema.ownerId, userSchema.id))
     .leftJoin(
       providerProfileSchema,
-      eq(providerProfileSchema.providerId, userSchema.id),
+      eq(providerProfileSchema.providerId, providerSchema.id),
     )
-    .where(eq(userSchema.id, found.providerId))
+    .where(eq(providerSchema.id, found.providerId))
     .limit(1);
 
   const [category] = await db
