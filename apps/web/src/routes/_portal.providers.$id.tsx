@@ -1,7 +1,6 @@
 import {
   Avatar,
   AvatarFallback,
-  AvatarImage,
 } from '@neighborhood-showcase/ui/components/avatar';
 import { Badge } from '@neighborhood-showcase/ui/components/badge';
 import { Button } from '@neighborhood-showcase/ui/components/button';
@@ -29,10 +28,8 @@ import {
 import type { SVGProps } from 'react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  deriveInitials,
-  resolveProviderIdentity,
-} from '@/utils/provider-identity';
+import { ProviderIdentityHero } from '@/components/provider-identity-hero';
+import { resolveProviderIdentity } from '@/utils/provider-identity';
 import { trpc } from '@/utils/trpc';
 
 const TiktokIcon = (props: SVGProps<SVGSVGElement>) => (
@@ -188,7 +185,6 @@ function ProviderPublicProfileComponent() {
 
   const { mark } = resolveProviderIdentity({
     logoUrl: provider.logoUrl,
-    avatarUrl: provider.avatarUrl,
     bannerUrl: provider.bannerUrl,
     name: provider.displayName,
   });
@@ -205,16 +201,6 @@ function ProviderPublicProfileComponent() {
           className="h-full w-full object-contain"
         />
       </div>
-    ) : mark.kind === 'avatar' ? (
-      <Avatar
-        data-testid="identity-mark"
-        className="h-24 w-24 shrink-0 border border-border"
-      >
-        <AvatarImage src={mark.src} />
-        <AvatarFallback className="text-xl">
-          {deriveInitials(provider.displayName)}
-        </AvatarFallback>
-      </Avatar>
     ) : (
       <Avatar
         data-testid="identity-mark"
@@ -242,32 +228,18 @@ function ProviderPublicProfileComponent() {
       </Link>
 
       {provider.bannerUrl ? (
-        <section
-          data-testid="identity-hero"
-          className="overflow-hidden rounded-3xl border border-border bg-card"
-        >
-          <img
-            src={provider.bannerUrl}
-            alt={t('provider_profile.banner_alt', {
-              name: provider.displayName,
-            })}
-            className="aspect-video w-full object-cover object-center"
-          />
-          <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
-            {identityMark}
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="font-bold text-3xl text-foreground tracking-tight">
-                  {provider.displayName}
-                </h1>
-                {verifiedBadge}
-              </div>
-              <p className="text-base text-muted-foreground">
-                {getIdentityLine(provider.companyName, provider.tradeName)}
-              </p>
-            </div>
-          </div>
-        </section>
+        <ProviderIdentityHero
+          testId="identity-hero"
+          bannerUrl={provider.bannerUrl}
+          logoUrl={provider.logoUrl}
+          name={provider.displayName}
+          identityLine={getIdentityLine(
+            provider.companyName,
+            provider.tradeName,
+          )}
+          description={provider.publicDescription}
+          verifiedBadge={verifiedBadge}
+        />
       ) : (
         <section
           data-testid="identity-hero"

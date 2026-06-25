@@ -204,8 +204,6 @@
     "field_tradeName": "Trade Name",
     "field_tradeName_placeholder": "Commercial name",
     "field_tradeName_help": "The commercial name customers recognize you by.",
-    "field_avatarUrl": "Profile Photo",
-    "field_avatarUrl_help": "Your photo shown to users browsing providers.",
     "field_logoUrl": "Logo",
     "field_logoUrl_help": "Your brand logo in square format.",
     "field_bannerUrl": "Cover Banner",
@@ -258,12 +256,13 @@
     "image_upload_failed": "Image upload failed.",
     "image_upload_success": "Image uploaded successfully!",
     "image_upload_error": "Error processing image.",
-    "identity_preview_label": "Identity mark preview — logo wins over avatar; both fall back to initials.",
+    "identity_preview_label": "Preview of how your public identity appears.",
     "toast_success_public_profile": "Public profile updated!",
     "toast_success_contact_channels": "Contact channels updated!",
     "toast_success_visibility": "Visibility preference saved!",
     "toast_error_generic": "Something went wrong. Please try again.",
-    "toast_error_no_provider_account": "You do not have an active provider account."
+    "toast_error_no_provider_account": "You do not have an active provider account.",
+    "image_edit_label": "Edit image"
   },
   "provider_activation": {
     "page_title": "Activate provider access",

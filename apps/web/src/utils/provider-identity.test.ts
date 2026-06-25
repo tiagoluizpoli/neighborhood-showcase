@@ -20,10 +20,9 @@ describe('deriveInitials', () => {
 });
 
 describe('resolveProviderIdentity — precedence', () => {
-  it('logo wins over avatar when both present', () => {
+  it('logo wins when present', () => {
     const result = resolveProviderIdentity({
       logoUrl: 'https://example.com/logo.png',
-      avatarUrl: 'https://example.com/avatar.png',
       name: 'Acme',
     });
     expect(result.mark.kind).toBe('logo');
@@ -32,20 +31,9 @@ describe('resolveProviderIdentity — precedence', () => {
     }
   });
 
-  it('avatar wins when no logo', () => {
+  it('initials fallback when no logo', () => {
     const result = resolveProviderIdentity({
       logoUrl: null,
-      avatarUrl: 'https://example.com/avatar.png',
-      name: 'Acme',
-    });
-    expect(result.mark.kind).toBe('avatar');
-    if (result.mark.kind === 'avatar') {
-      expect(result.mark.src).toBe('https://example.com/avatar.png');
-    }
-  });
-
-  it('initials fallback when neither logo nor avatar', () => {
-    const result = resolveProviderIdentity({
       name: 'Padaria Silva',
     });
     expect(result.mark.kind).toBe('initials');

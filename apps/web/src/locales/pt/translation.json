@@ -204,8 +204,6 @@
     "field_tradeName": "Nome Fantasia",
     "field_tradeName_placeholder": "Nome comercial",
     "field_tradeName_help": "O nome comercial pelo qual seus clientes te reconhecem.",
-    "field_avatarUrl": "Foto de Perfil",
-    "field_avatarUrl_help": "Sua foto exibida para usuários que navegam pelos prestadores.",
     "field_logoUrl": "Logo",
     "field_logoUrl_help": "Sua logo da marca em formato quadrado.",
     "field_bannerUrl": "Banner de Capa",
@@ -258,12 +256,13 @@
     "image_upload_failed": "Falha no envio da imagem.",
     "image_upload_success": "Imagem enviada com sucesso!",
     "image_upload_error": "Erro ao processar a imagem.",
-    "identity_preview_label": "Prévia da marca de identidade — logo prevalece sobre avatar; ambos recuam para iniciais.",
+    "identity_preview_label": "Prévia de como sua identidade pública aparece.",
     "toast_success_public_profile": "Perfil público atualizado!",
     "toast_success_contact_channels": "Canais de contato atualizados!",
     "toast_success_visibility": "Preferência de visibilidade salva!",
     "toast_error_generic": "Algo deu errado. Tente novamente.",
-    "toast_error_no_provider_account": "Você não tem uma conta de prestador ativa."
+    "toast_error_no_provider_account": "Você não tem uma conta de prestador ativa.",
+    "image_edit_label": "Editar imagem"
   },
   "provider_activation": {
     "page_title": "Ativar acesso de prestador",

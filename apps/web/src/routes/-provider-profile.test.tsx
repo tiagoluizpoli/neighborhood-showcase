@@ -113,7 +113,6 @@ describe('Provider Public Profile Component Visuals', () => {
       provider: {
         id: 'provider-123',
         displayName: 'Maria Silva',
-        avatarUrl: 'http://localhost/maria.jpg',
         logoUrl: null,
         bannerUrl: null,
         companyName: null,
@@ -176,7 +175,7 @@ describe('Provider Public Profile Component Visuals', () => {
     expect(await screen.findByText('Prestador não encontrado')).toBeTruthy();
   });
 
-  test('renders provider display name, avatar, and verified badge', async () => {
+  test('renders provider display name and verified badge', async () => {
     renderProfile();
     expect(await screen.findByText('Maria Silva')).toBeTruthy();
     expect(screen.getByText('Morador verificado')).toBeTruthy();
@@ -228,7 +227,6 @@ describe('Provider Public Profile — composition, identity mark, and fallback (
       provider: {
         id: 'provider-123',
         displayName: 'Maria Silva',
-        avatarUrl: 'http://localhost/maria.jpg',
         logoUrl: null,
         bannerUrl: null,
         companyName: null,
@@ -348,7 +346,7 @@ describe('Provider Public Profile — composition, identity mark, and fallback (
 
     const hero = container.querySelector('[data-testid="identity-hero"]');
     // biome-ignore lint/style/noNonNullAssertion: asserted above
-    const bannerImg = hero!.querySelector('img.aspect-video');
+    const bannerImg = hero!.querySelector('img');
     expect(bannerImg).toBeTruthy();
     // biome-ignore lint/style/noNonNullAssertion: asserted above
     const mark = hero!.querySelector('[data-testid="identity-mark"]');
@@ -366,10 +364,8 @@ const baseConfigProfile = {
   displayName: 'Test Provider',
   companyName: null,
   tradeName: null,
-  avatarUrl: null,
   logoUrl: null,
   bannerUrl: null,
-  avatarOriginalUrl: null,
   logoOriginalUrl: null,
   bannerOriginalUrl: null,
   publicDescription: null,
@@ -435,24 +431,9 @@ describe('Provider Configuration IA — section order, identity preview, visibil
     expect(preview.textContent).toContain('TP');
   });
 
-  test('live preview renders avatar img when avatarUrl set and no logo', async () => {
+  test('live preview renders logo img when logoUrl set', async () => {
     mockProviderProfileData = {
       ...baseConfigProfile,
-      avatarUrl: 'http://localhost/avatar.jpg',
-    };
-    renderConfig();
-    await screen.findByText('Perfil Público');
-    const preview = screen.getByTestId('identity-preview');
-    const img = preview.querySelector('img');
-    expect(img).toBeTruthy();
-    // biome-ignore lint/style/noNonNullAssertion: asserted above
-    expect(img!.className).toContain('rounded-full');
-  });
-
-  test('live preview renders logo img when logoUrl set (logo wins over avatar)', async () => {
-    mockProviderProfileData = {
-      ...baseConfigProfile,
-      avatarUrl: 'http://localhost/avatar.jpg',
       logoUrl: 'http://localhost/logo.jpg',
     };
     renderConfig();

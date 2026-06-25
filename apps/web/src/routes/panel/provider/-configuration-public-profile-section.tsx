@@ -5,16 +5,25 @@ import {
   CardHeader,
   CardTitle,
 } from '@neighborhood-showcase/ui/components/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@neighborhood-showcase/ui/components/dropdown-menu';
 import { Input } from '@neighborhood-showcase/ui/components/input';
 import { Label } from '@neighborhood-showcase/ui/components/label';
 import { Textarea } from '@neighborhood-showcase/ui/components/textarea';
 import { useMutation } from '@tanstack/react-query';
-import { Loader2, Save } from 'lucide-react';
+import { Crop, ImageUp, Loader2, Pencil, Save, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { ImageUploadField } from '@/components/image-upload-field';
-import { resolveProviderIdentity } from '@/utils/provider-identity';
+import {
+  BANNER_ASPECT,
+  ProviderIdentityHero,
+} from '@/components/provider-identity-hero';
+import { type UseImageCrop, useImageCrop } from '@/hooks/use-image-crop';
 import type { RouterOutputs } from '@/utils/trpc';
 import { trpc } from '@/utils/trpc';
 
@@ -26,18 +35,57 @@ interface PublicProfileSectionProps {
 
 const MAX_DESCRIPTION_CHARS = 500;
 
+/** Hover-revealed pencil → Replace / Re-crop / Remove menu over a hero image. */
+function ImageEditMenu({
+  crop,
+  hasValue,
+  reveal,
+  position,
+}: {
+  crop: UseImageCrop;
+  hasValue: boolean;
+  reveal: string;
+  position: string;
+}) {
+  const { t } = useTranslation('configuracoes');
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        aria-label={t('image_edit_label')}
+        className={`absolute ${position} ${reveal} z-10 inline-flex items-center justify-center rounded-full border border-border bg-background/90 p-1.5 text-foreground shadow-sm backdrop-blur transition hover:bg-background focus-visible:opacity-100 data-[popup-open]:opacity-100`}
+      >
+        <Pencil className="h-4 w-4" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => crop.triggerReplace()}>
+          <ImageUp className="mr-2 h-4 w-4" />
+          {hasValue ? t('image_upload_replace') : t('button_upload')}
+        </DropdownMenuItem>
+        {hasValue ? (
+          <DropdownMenuItem onClick={() => crop.triggerRecrop()}>
+            <Crop className="mr-2 h-4 w-4" />
+            {t('image_upload_recrop')}
+          </DropdownMenuItem>
+        ) : null}
+        {hasValue ? (
+          <DropdownMenuItem variant="destructive" onClick={() => crop.remove()}>
+            <Trash2 className="mr-2 h-4 w-4" />
+            {t('button_remove')}
+          </DropdownMenuItem>
+        ) : null}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export function PublicProfileSection({ profile }: PublicProfileSectionProps) {
   const { t } = useTranslation('configuracoes');
 
   const [displayName, setDisplayName] = useState(profile.displayName ?? '');
   const [companyName, setCompanyName] = useState(profile.companyName ?? '');
   const [tradeName, setTradeName] = useState(profile.tradeName ?? '');
-  const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl ?? '');
   const [logoUrl, setLogoUrl] = useState(profile.logoUrl ?? '');
   const [bannerUrl, setBannerUrl] = useState(profile.bannerUrl ?? '');
-  const [avatarOriginalUrl, setAvatarOriginalUrl] = useState(
-    profile.avatarOriginalUrl ?? '',
-  );
   const [logoOriginalUrl, setLogoOriginalUrl] = useState(
     profile.logoOriginalUrl ?? '',
   );
@@ -47,6 +95,21 @@ export function PublicProfileSection({ profile }: PublicProfileSectionProps) {
   const [publicDescription, setPublicDescription] = useState(
     profile.publicDescription ?? '',
   );
+
+  const logoCrop = useImageCrop({
+    value: logoUrl,
+    onChange: setLogoUrl,
+    originalValue: logoOriginalUrl,
+    onOriginalChange: setLogoOriginalUrl,
+    aspect: 1,
+  });
+  const bannerCrop = useImageCrop({
+    value: bannerUrl,
+    onChange: setBannerUrl,
+    originalValue: bannerOriginalUrl,
+    onOriginalChange: setBannerOriginalUrl,
+    aspect: BANNER_ASPECT,
+  });
 
   const updateMutation = useMutation(
     trpc.providerProfile.update.mutationOptions({
@@ -65,10 +128,8 @@ export function PublicProfileSection({ profile }: PublicProfileSectionProps) {
       displayName: displayName.trim() || undefined,
       companyName: companyName.trim() || undefined,
       tradeName: tradeName.trim() || undefined,
-      avatarUrl: avatarUrl || null,
       logoUrl: logoUrl || null,
       bannerUrl: bannerUrl || null,
-      avatarOriginalUrl: avatarOriginalUrl || null,
       logoOriginalUrl: logoOriginalUrl || null,
       bannerOriginalUrl: bannerOriginalUrl || null,
       publicDescription: publicDescription.trim() || null,
@@ -76,13 +137,8 @@ export function PublicProfileSection({ profile }: PublicProfileSectionProps) {
   };
 
   const remaining = MAX_DESCRIPTION_CHARS - publicDescription.length;
-
-  const identity = resolveProviderIdentity({
-    logoUrl: logoUrl || null,
-    avatarUrl: avatarUrl || null,
-    bannerUrl: bannerUrl || null,
-    name: displayName || tradeName || companyName || '',
-  });
+  const previewName = displayName || tradeName || companyName || '';
+  const identityLine = [companyName, tradeName].filter(Boolean).join(' · ');
 
   return (
     <Card>
@@ -92,6 +148,38 @@ export function PublicProfileSection({ profile }: PublicProfileSectionProps) {
       </CardHeader>
       <CardContent className="space-y-6 pt-6">
         <form onSubmit={handleSave} className="space-y-6">
+          {/* Editable live preview — exactly what the public page shows. */}
+          <div className="space-y-2">
+            <p className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
+              {t('identity_preview_label')}
+            </p>
+            <ProviderIdentityHero
+              testId="identity-preview"
+              bannerUrl={bannerUrl || null}
+              logoUrl={logoUrl || null}
+              name={previewName}
+              namePlaceholder={t('field_displayName_placeholder')}
+              identityLine={identityLine || null}
+              description={publicDescription || null}
+              bannerEdit={
+                <ImageEditMenu
+                  crop={bannerCrop}
+                  hasValue={Boolean(bannerUrl)}
+                  position="top-2 right-2"
+                  reveal="opacity-0 group-hover/banner:opacity-100"
+                />
+              }
+              logoEdit={
+                <ImageEditMenu
+                  crop={logoCrop}
+                  hasValue={Boolean(logoUrl)}
+                  position="right-0 bottom-0"
+                  reveal="opacity-0 group-hover/logo:opacity-100"
+                />
+              }
+            />
+          </div>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="displayName">{t('field_displayName')}</Label>
@@ -136,62 +224,6 @@ export function PublicProfileSection({ profile }: PublicProfileSectionProps) {
             <p className="text-muted-foreground text-xs">
               {t('field_tradeName_help')}
             </p>
-          </div>
-
-          <div
-            data-testid="identity-preview"
-            className="flex items-center gap-3 rounded-lg border border-border px-4 py-3"
-          >
-            {identity.mark.kind === 'logo' ? (
-              <img
-                src={identity.mark.src}
-                alt={t('image_upload_preview_alt')}
-                className="h-12 w-12 rounded-lg object-contain"
-              />
-            ) : identity.mark.kind === 'avatar' ? (
-              <img
-                src={identity.mark.src}
-                alt={t('image_upload_preview_alt')}
-                className="h-12 w-12 rounded-full object-cover"
-              />
-            ) : (
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted font-semibold text-muted-foreground text-sm">
-                {identity.mark.initials || '?'}
-              </div>
-            )}
-            <p className="text-muted-foreground text-xs">
-              {t('identity_preview_label')}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-            <ImageUploadField
-              label={t('field_avatarUrl')}
-              helpText={t('field_avatarUrl_help')}
-              value={avatarUrl}
-              onChange={setAvatarUrl}
-              originalValue={avatarOriginalUrl}
-              onOriginalChange={setAvatarOriginalUrl}
-              imageRole="avatar"
-            />
-            <ImageUploadField
-              label={t('field_logoUrl')}
-              helpText={t('field_logoUrl_help')}
-              value={logoUrl}
-              onChange={setLogoUrl}
-              originalValue={logoOriginalUrl}
-              onOriginalChange={setLogoOriginalUrl}
-              imageRole="logo"
-            />
-            <ImageUploadField
-              label={t('field_bannerUrl')}
-              helpText={t('field_bannerUrl_help')}
-              value={bannerUrl}
-              onChange={setBannerUrl}
-              originalValue={bannerOriginalUrl}
-              onOriginalChange={setBannerOriginalUrl}
-              imageRole="banner"
-            />
           </div>
 
           <div className="space-y-2">
@@ -244,6 +276,11 @@ export function PublicProfileSection({ profile }: PublicProfileSectionProps) {
           </div>
         </form>
       </CardContent>
+
+      {logoCrop.fileInput}
+      {bannerCrop.fileInput}
+      {logoCrop.modal}
+      {bannerCrop.modal}
     </Card>
   );
 }
