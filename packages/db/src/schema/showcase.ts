@@ -150,14 +150,12 @@ export const providerProfile = pgTable('provider_profile', {
     .primaryKey()
     .references(() => user.id, { onDelete: 'cascade' }),
   displayName: text('display_name').notNull(),
-  avatarUrl: text('avatar_url'),
-  // Original full-resolution source per image role, retained alongside the
-  // derived crop so the UI can re-crop from the original (PRD-v12 / T-19-02).
-  // `*_url` stays the derived crop; `*_original_url` is the untouched upload.
-  avatarOriginalUrl: text('avatar_original_url'),
   companyName: text('company_name'),
   tradeName: text('trade_name'),
   logoUrl: text('logo_url'),
+  // Original full-resolution source per image role, retained alongside the
+  // derived crop so the UI can re-crop from the original (PRD-v12 / T-19-02).
+  // `*_url` stays the derived crop; `*_original_url` is the untouched upload.
   logoOriginalUrl: text('logo_original_url'),
   bannerUrl: text('banner_url'),
   bannerOriginalUrl: text('banner_original_url'),

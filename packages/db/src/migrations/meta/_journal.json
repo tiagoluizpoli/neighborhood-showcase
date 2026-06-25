@@ -15,6 +15,13 @@
       "when": 1782194041075,
       "tag": "0001_outgoing_ozymandias",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1782272582988,
+      "tag": "0002_chilly_wolf_cub",
+      "breakpoints": true
     }
   ]
 }
