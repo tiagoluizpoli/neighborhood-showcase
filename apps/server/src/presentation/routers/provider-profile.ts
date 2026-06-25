@@ -9,7 +9,7 @@ import {
   createProviderProfileRouterDependencies,
   type ProviderProfileRouterDependencies,
 } from '../../main/di/provider-profile-router';
-import { protectedProcedure, router } from '../trpc';
+import { assertProviderOwnership, protectedProcedure, router } from '../trpc';
 
 const providerProfileIdentitySchema = z.object({
   providerId: z.string().min(1).optional(),
@@ -56,8 +56,15 @@ export function createProviderProfileRouter(
     get: protectedProcedure
       .input(providerProfileIdentitySchema.optional())
       .query(async ({ ctx, input }) => {
+        const providerId = input?.providerId ?? ctx.session.user.id;
+        // Provider-scoped read: ownership only (no APPROVED standing required to
+        // view your own provider profile).
+        await assertProviderOwnership({
+          providerId,
+          userId: ctx.session.user.id,
+        });
         const providerInput: GetProviderProfileInput = {
-          providerId: input?.providerId ?? ctx.session.user.id,
+          providerId,
         };
 
         try {
@@ -103,8 +110,15 @@ export function createProviderProfileRouter(
     update: protectedProcedure
       .input(updateProviderProfileSchema)
       .mutation(async ({ ctx, input }) => {
+        const providerId = input.providerId ?? ctx.session.user.id;
+        // Provider-scoped mutation: ownership only (managing your provider's
+        // profile does not require APPROVED residency standing).
+        await assertProviderOwnership({
+          providerId,
+          userId: ctx.session.user.id,
+        });
         const updateInput: UpdateProviderProfileInput = {
-          providerId: input.providerId ?? ctx.session.user.id,
+          providerId,
           displayName: input.displayName,
           companyName: input.companyName,
           tradeName: input.tradeName,

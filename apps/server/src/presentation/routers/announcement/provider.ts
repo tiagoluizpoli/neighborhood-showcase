@@ -25,7 +25,11 @@ import {
   TooManyCtaTargetsError,
 } from '../../../domain/entities/cta';
 import type { AnnouncementRouterDependencies } from '../../../main/di/announcement-router';
-import { protectedProcedure } from '../../trpc';
+import {
+  assertProviderApprovedStanding,
+  assertProviderOwnership,
+  protectedProcedure,
+} from '../../trpc';
 
 const providerContactLinksSchema = z.object({
   whatsapp: z.string().optional(),
@@ -176,13 +180,21 @@ export function createProviderAnnouncementRouter(
         }),
       )
       .mutation(async ({ input, ctx }) => {
+        const providerId = input.providerId ?? ctx.session.user.id;
+        // Publishing an announcement requires the provider to be an APPROVED
+        // resident of its condo (ownership + standing).
+        await assertProviderApprovedStanding({
+          providerId,
+          userId: ctx.session.user.id,
+        });
+
         const contact = input.contact
           ? toContactSettings(input.contact)
           : flatLinksToContactSettings(input.contactLinks ?? {});
 
         try {
           const ann = await createAnnouncementUseCase.execute({
-            providerId: input.providerId ?? ctx.session.user.id,
+            providerId,
             providerAssignmentId: input.providerAssignmentId,
             title: input.title,
             subtitle: input.subtitle,
@@ -259,8 +271,14 @@ export function createProviderAnnouncementRouter(
           .optional(),
       )
       .query(async ({ input, ctx }) => {
+        const providerId = input?.providerId ?? ctx.session.user.id;
+        // Provider-scoped read: ownership only.
+        await assertProviderOwnership({
+          providerId,
+          userId: ctx.session.user.id,
+        });
         return getProviderDashboardDataUseCase.execute({
-          providerId: input?.providerId ?? ctx.session.user.id,
+          providerId,
         });
       }),
 
@@ -320,6 +338,13 @@ export function createProviderAnnouncementRouter(
         }),
       )
       .mutation(async ({ input, ctx }) => {
+        const providerId = input.providerId ?? ctx.session.user.id;
+        // Provider-scoped mutation: ownership only. Standing was required to
+        // publish; editing an owned announcement does not re-check residency.
+        await assertProviderOwnership({
+          providerId,
+          userId: ctx.session.user.id,
+        });
         try {
           const contact = input.contact
             ? toContactSettings(input.contact)
@@ -328,7 +353,7 @@ export function createProviderAnnouncementRouter(
                 phone: input.contactLinks?.phone,
               });
           const updatedAnn = await updateAnnouncementUseCase.execute({
-            providerId: input.providerId ?? ctx.session.user.id,
+            providerId,
             announcementId: input.id,
             title: input.title,
             subtitle: input.subtitle,

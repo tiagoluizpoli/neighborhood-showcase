@@ -5,14 +5,17 @@ import { CondominiumNotFoundError } from '../../application/use-cases/user/assig
 import { ProviderNotFoundError } from '../../application/use-cases/user/ban-provider';
 import { UserNotFoundError } from '../../application/use-cases/user/promote-to-system-manager';
 import { createAdminRouterDependencies } from '../../main/di';
-import { protectedProcedure, router } from '../trpc';
+import { adminProcedure, router } from '../trpc';
+
+// Every action in this router is a PLATFORM-ADMIN action: it operates on global
+// state (user roles, provider visibility/bans, the CPF blacklist) and is gated
+// solely by the global `user.role` (SYSTEM_MANAGER | ADMINISTRATOR) through
+// `adminProcedure`. None of these are provider-scoped, so no ownership/standing
+// guard applies. The role gate now lives in the procedure layer (T-20-04/ST-02)
+// instead of per-handler `checkGlobalAdmin` branches.
 
 const userRoleSchema = z.enum(['USER', 'SYSTEM_MANAGER', 'ADMINISTRATOR']);
 const userStatusSchema = z.enum(['ACTIVE', 'BANNED']);
-
-function checkGlobalAdmin(role: string | null | undefined) {
-  return role === 'SYSTEM_MANAGER' || role === 'ADMINISTRATOR';
-}
 
 export function createAdminRouter(
   dependencies = createAdminRouterDependencies(),
@@ -30,7 +33,7 @@ export function createAdminRouter(
   } = dependencies;
 
   return router({
-    listProviders: protectedProcedure
+    listProviders: adminProcedure
       .input(
         z.object({
           search: z.string().optional(),
@@ -39,11 +42,7 @@ export function createAdminRouter(
           neighborhood: z.string().optional(),
         }),
       )
-      .query(async ({ input, ctx }) => {
-        if (!checkGlobalAdmin(ctx.session.user.role)) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
-        }
-
+      .query(async ({ input }) => {
         const providers = await listProvidersUseCase.execute({
           search: input.search,
           condominiumId: input.condominiumId,
@@ -54,7 +53,7 @@ export function createAdminRouter(
         return providers.map((p) => p.toDTO());
       }),
 
-    listUsers: protectedProcedure
+    listUsers: adminProcedure
       .input(
         z.object({
           search: z.string().optional(),
@@ -62,11 +61,7 @@ export function createAdminRouter(
           status: userStatusSchema.optional(),
         }),
       )
-      .query(async ({ input, ctx }) => {
-        if (!checkGlobalAdmin(ctx.session.user.role)) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
-        }
-
+      .query(async ({ input }) => {
         const users = await listUsersUseCase.execute({
           search: input.search,
           role: input.role,
@@ -76,7 +71,7 @@ export function createAdminRouter(
         return users.map((u) => u.toDTO());
       }),
 
-    banProvider: protectedProcedure
+    banProvider: adminProcedure
       .input(
         z.object({
           id: z.string().min(1),
@@ -84,10 +79,6 @@ export function createAdminRouter(
         }),
       )
       .mutation(async ({ input, ctx }) => {
-        if (!checkGlobalAdmin(ctx.session.user.role)) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
-        }
-
         try {
           await banProviderUseCase.execute({
             actorId: ctx.session.user.id,
@@ -107,26 +98,19 @@ export function createAdminRouter(
         }
       }),
 
-    listBlacklist: protectedProcedure.query(async ({ ctx }) => {
-      if (!checkGlobalAdmin(ctx.session.user.role)) {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
-      }
+    listBlacklist: adminProcedure.query(async () => {
       const entries = await listBlacklistUseCase.execute();
       return entries.map((e) => e.toDTO());
     }),
 
-    addBlacklist: protectedProcedure
+    addBlacklist: adminProcedure
       .input(
         z.object({
           cpfHash: z.string().min(1),
           reason: z.string().min(1),
         }),
       )
-      .mutation(async ({ input, ctx }) => {
-        if (!checkGlobalAdmin(ctx.session.user.role)) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
-        }
-
+      .mutation(async ({ input }) => {
         try {
           await addBlacklistUseCase.execute({
             cpfHash: input.cpfHash,
@@ -145,24 +129,16 @@ export function createAdminRouter(
         }
       }),
 
-    removeBlacklist: protectedProcedure
+    removeBlacklist: adminProcedure
       .input(z.object({ id: z.string().min(1) }))
-      .mutation(async ({ input, ctx }) => {
-        if (!checkGlobalAdmin(ctx.session.user.role)) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
-        }
-
+      .mutation(async ({ input }) => {
         await removeBlacklistUseCase.execute({ id: input.id });
         return { success: true };
       }),
 
-    promoteToSystemManager: protectedProcedure
+    promoteToSystemManager: adminProcedure
       .input(z.object({ targetUserId: z.string().min(1) }))
       .mutation(async ({ input, ctx }) => {
-        if (!checkGlobalAdmin(ctx.session.user.role)) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
-        }
-
         try {
           await promoteToSystemManagerUseCase.execute({
             actorId: ctx.session.user.id,
@@ -181,7 +157,7 @@ export function createAdminRouter(
         }
       }),
 
-    assignModerator: protectedProcedure
+    assignModerator: adminProcedure
       .input(
         z.object({
           targetUserId: z.string().min(1),
@@ -189,10 +165,6 @@ export function createAdminRouter(
         }),
       )
       .mutation(async ({ input, ctx }) => {
-        if (!checkGlobalAdmin(ctx.session.user.role)) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
-        }
-
         try {
           await assignModeratorUseCase.execute({
             actorId: ctx.session.user.id,
@@ -215,13 +187,9 @@ export function createAdminRouter(
         }
       }),
 
-    toggleProviderVisibility: protectedProcedure
+    toggleProviderVisibility: adminProcedure
       .input(z.object({ targetUserId: z.string().min(1) }))
-      .mutation(async ({ input, ctx }) => {
-        if (!checkGlobalAdmin(ctx.session.user.role)) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Acesso negado.' });
-        }
-
+      .mutation(async ({ input }) => {
         try {
           return await toggleProviderVisibilityUseCase.execute({
             targetUserId: input.targetUserId,

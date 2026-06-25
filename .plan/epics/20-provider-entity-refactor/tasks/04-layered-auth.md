@@ -49,7 +49,7 @@ verification:
 
 ### ST-02 - Pin platform-admin vs provider-scoped actions and apply guards
 
-status: ready
+status: done
 model: high
 escalate-if:
 - An existing action cannot be cleanly classified as platform-admin vs provider-scoped without a product decision.
@@ -125,6 +125,56 @@ verification:
   intentionally not modified.
 - Guards are defined but not yet applied to routers (that is ST-02) and not yet
   tested (ST-03).
+- Gates: `bun run --filter server check-types` clean; root `bun run check`
+  clean (pre-existing optional-chain warning + broken-symlink info only).
+
+- ST-02 done. **Action classification (the pinned split, enforced at the
+  procedure/guard layer):**
+
+  | Action | Class | Enforced by |
+  | --- | --- | --- |
+  | `admin.listProviders` / `listUsers` / `banProvider` / `listBlacklist` / `addBlacklist` / `removeBlacklist` / `promoteToSystemManager` / `assignModerator` / `toggleProviderVisibility` | platform-admin (global `user.role`) | `adminProcedure` |
+  | `assignment.listPending` / `approve` / `reject` / `pendingCount` | condo-moderator (APPROVED MODERATOR assignment in that condo) | `checkModerator` |
+  | `providerProfile.get` / `update` | provider-scoped, ownership only | `assertProviderOwnership` |
+  | `announcement(provider).getDashboardData` / `update` | provider-scoped, ownership only | `assertProviderOwnership` |
+  | `announcement(provider).create` | provider-scoped, ownership + APPROVED standing | `assertProviderApprovedStanding` |
+  | `assignment.request` / `getMyAssignments` / `registerExternal`; `announcement(provider).getPaymentDetails` / `getPaymentStatus` / `getAnalytics` | self-scoped (operate on the session user's own data; key on `session.user.id`) | session + use-case-level announcement ownership |
+
+  Rationale for the self-scoped row: `assignment.request` is the onboarding
+  entry point (the user may not yet own a provider; `$providerId` threading is
+  owned by T-20-05), and the payment/analytics announcement procedures resolve
+  the provider from `session.user.id` with announcement ownership already
+  enforced inside their use cases. Threading these onto `$providerId` + the
+  guard is deferred to T-20-05; they are not currently a cross-provider leak
+  because they only ever read the caller's own session identity.
+
+- Changes applied:
+  - `admin.ts`: every procedure converted from `protectedProcedure` +
+    per-handler `checkGlobalAdmin(...)` branches to `adminProcedure`. The
+    `checkGlobalAdmin` helper and its inline `FORBIDDEN` throws were removed;
+    the role gate now lives in the procedure layer (identical
+    `SYSTEM_MANAGER | ADMINISTRATOR` semantics).
+  - `provider-profile.ts`: `get` + `update` call `assertProviderOwnership`
+    on the resolved `providerId` (`input?.providerId ?? session.user.id`)
+    before invoking the use case.
+  - `announcement/provider.ts`: `create` calls
+    `assertProviderApprovedStanding`; `update` + `getDashboardData` call
+    `assertProviderOwnership`. All resolve the same transitional `providerId`
+    seam.
+  - `assignment.ts`: closed a permission leak — `pendingCount` was ungated
+    (any authenticated user could count any condo's pending queue). Now gated
+    by `checkModerator`, matching `listPending`/`approve`/`reject`.
+- `context.ts` again left unchanged (same reasoning as ST-01: guards are wired
+  at module scope via the composition root, not the request context).
+- Existing router tests: `admin-role-management.integration.test.ts` already
+  asserts non-admin callers are rejected — `adminProcedure` preserves that
+  (still throws `FORBIDDEN`). No router-level test currently exercises
+  `announcement(provider).create/update/getDashboardData` or
+  `assignment.request/registerExternal`, so those guards do not regress
+  existing suites. `provider-profile.integration.test.ts` (tests a/b) does not
+  seed `provider` rows and will fail the ownership guard until ST-03 rebuilds
+  its fixtures — that file is explicitly ST-03's to-touch. ST-02 gates are
+  type/lint only.
 - Gates: `bun run --filter server check-types` clean; root `bun run check`
   clean (pre-existing optional-chain warning + broken-symlink info only).
 

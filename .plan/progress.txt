@@ -596,3 +596,16 @@ Task state:
   - T-20-04 ST-01 done. ST-02 (apply guards across routers) and ST-03 (auth integration tests) remain.
   - Advance run-state to T-20-04/ST-02.
 Next: T-20-04/ST-02 (pin platform-admin vs provider-scoped action split; apply guards in admin/provider-profile/announcement-provider/assignment routers).
+
+---
+2026-06-25 T-20-04/ST-02 DONE
+- Pinned the action authorization split (written into the task execution notes as a table) and applied guards across the four routers:
+  - PLATFORM-ADMIN (global user.role) via adminProcedure: admin.ts — all 9 procedures converted from protectedProcedure + per-handler checkGlobalAdmin(...) to adminProcedure. Removed the checkGlobalAdmin helper and inline FORBIDDEN throws; role gate now lives in the procedure layer.
+  - PROVIDER-SCOPED ownership-only via assertProviderOwnership: provider-profile.ts get/update; announcement/provider.ts update + getDashboardData.
+  - PROVIDER-SCOPED ownership + APPROVED standing via assertProviderApprovedStanding: announcement/provider.ts create (publishing requires the provider to be an APPROVED resident of its condo).
+  - CONDO-MODERATOR via checkModerator: assignment.ts — closed a permission leak: pendingCount was UNGATED (any authenticated user could count any condo's pending queue) and now requires an APPROVED MODERATOR assignment, matching listPending/approve/reject.
+  - SELF-SCOPED (session.user.id, use-case-level ownership): assignment.request/getMyAssignments/registerExternal and the payment/analytics announcement procedures; $providerId threading deferred to T-20-05.
+- context.ts intentionally unchanged (guards wired at module scope via the composition root, same as ST-01).
+- Existing router tests safe except provider-profile.integration.test.ts a/b (no provider rows seeded) which will fail the ownership guard until ST-03 rebuilds those fixtures — that file is ST-03's to-touch. ST-02 gates are type/lint only.
+- Gates: bun run --filter server check-types clean; root bun run check clean (pre-existing optional-chain warning + broken-symlink info only).
+- Next: T-20-04/ST-03 (authorization integration tests).

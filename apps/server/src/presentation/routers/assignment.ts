@@ -96,7 +96,16 @@ export function createAssignmentRouter(
           type: z.enum(['MODERATOR', 'RESIDENT']).optional(),
         }),
       )
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        // Condo-moderator-scoped: reading a condo's pending-assignment count is
+        // a moderation action, gated by an APPROVED MODERATOR assignment in that
+        // condo — same guard as listPending/approve/reject. (Was previously
+        // ungated; closed in T-20-04/ST-02.)
+        await checkModerator(
+          ctx.session.user.id,
+          input.condominiumId,
+          assignmentRepo,
+        );
         const count = await countPendingAssignmentsUseCase.execute({
           condominiumId: input.condominiumId,
           type: input.type,
