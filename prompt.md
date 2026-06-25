@@ -12,6 +12,17 @@ Then read `AGENTS.md`, then `agents.local.md` (project-context only — not
 rules), then `PRD.md`.
 Review the last 10 recent commits if they are provided in the run context.
 
+# SKILL DISCOVERY
+
+After loading all mandatory context, load and use the `find-skills` skill
+before planning, task selection, or implementation.
+
+Use it to identify the best additional skills for the current task, then load
+and follow the selected skills during execution.
+
+This step is mandatory on every iteration, including development tasks where
+no specialized skill has been chosen yet.
+
 # PRD
 
 Use `PRD.md` as the source of truth.

@@ -21,6 +21,17 @@ Read in this order:
 
 If `prompt.local.md` exists at the repo root, read it now.
 
+## Skill Discovery
+
+After loading all mandatory context, load and use the `find-skills` skill
+before work selection, planning, or implementation.
+
+Use it to identify the best task-specific skills for the current work, then
+load and follow those selected skills during execution.
+
+This step is mandatory on every iteration, including ordinary development
+tasks where no specialized skill has been chosen yet.
+
 ## Work Selection
 
 - Select only dependency-safe executable work.

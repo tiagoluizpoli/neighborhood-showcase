@@ -4,6 +4,19 @@ This file contains project-specific runtime instructions, verification commands,
 
 ## Feedback Loops
 
+## Skill Discovery
+
+After the base prompt finishes loading required context, execution must load
+and use the `find-skills` skill before planning or implementation.
+
+Use `find-skills` to identify the best task-specific skills for the current
+work, then load and follow those selected skills for the rest of the run.
+
+This requirement applies even when the task is ordinary development work and
+no other skill has been picked yet.
+
+## Feedback Loops
+
 Before committing, run:
 - `bun run test` — unit and integration tests
 - `bun run check-types` — TypeScript type check
