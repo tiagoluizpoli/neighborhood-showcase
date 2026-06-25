@@ -2,7 +2,7 @@
 type: task
 id: T-20-01
 epic: E-20
-status: ready
+status: in-progress
 blocked-by: []
 default-model: high
 ---
@@ -29,7 +29,7 @@ Schema `packages/db/src/schema/showcase.ts`: `providerAssignment` (`provider_loc
 
 ### ST-01 - Provider table + re-key schema + additive migration
 
-status: ready
+status: done
 model: high
 escalate-if:
 - The additive migration cannot be generated without drizzle attempting to rebuild the base migration (which would drop postgis/seed SQL).
@@ -123,7 +123,26 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- ST-01 (2026-06-24): Added first-class `provider` table to `showcase.ts` (`id`,
+  `ownerId → user.id` cascade, `createdAt`, `updatedAt`, soft-delete `deletedAt`)
+  + `providerRelations` (owner→user, one profile, many assignments, many
+  announcements). Re-keyed `providerProfile.providerId`,
+  `providerAssignment.providerId`, `announcement.providerId` from `user.id` →
+  `provider.id` and re-pointed their three `relations(...)` blocks to `provider`.
+  NO `(ownerId, condominiumId)` unique constraint.
+- `bun run db:generate` produced ADDITIVE migration `0003_nasty_pyro.sql`
+  (+ `meta/0003_snapshot.json`, journal idx 3): CREATE TABLE provider, DROP the 3
+  old `*_provider_id_user_id_fk` constraints, ADD the 4 new provider FKs. Base
+  `0000_concerned_violations.sql` UNCHANGED (postgis + category-seed SQL intact)
+  → no rebuild, no escalation.
+- Applied to dev (`neighborhood_showcase`) + test (`neighborhood_showcase_test`)
+  via `docker exec ... psql` (db:push blocks on postgis). Truncated
+  `announcement`/`provider_location`/`provider_profile` CASCADE first (legacy rows
+  held user-ids; seed rebuild in ST-04 repopulates) so the new FK constraints add
+  cleanly. Verified provider table cols + all 4 new constraints in dev DB.
+- Gates: server + db `check-types` clean (cache-hit); web fails only on
+  pre-existing TS5103 `--ignoreDeprecations` (untouched by this slice).
+- Next: ST-02 (Provider domain entity + repository).
 
 ---
 

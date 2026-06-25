@@ -46,7 +46,7 @@
 | E-17 | Announcement Creation and Authoring Model | done | — | `.plan/epics/17-announcement-creation-and-authoring-model/epic.md` |
 | E-18 | Announcement Detail, Edit Split, and Analytics | done | — | `.plan/epics/18-announcement-detail-edit-and-analytics/epic.md` |
 | E-19 | Provider Identity, Configuration IA, and Public Profile | done | — | `.plan/epics/19-provider-identity-and-public-profile/epic.md` |
-| E-20 | Provider Entity Refactor | ready | — | `.plan/epics/20-provider-entity-refactor/epic.md` |
+| E-20 | Provider Entity Refactor | in-progress | — | `.plan/epics/20-provider-entity-refactor/epic.md` |
 | E-21 | Verified Resident Stamp | ready | — | `.plan/epics/21-verified-resident-stamp/epic.md` |
 
 ## Tasks
@@ -93,7 +93,7 @@
 | T-19-04 | E-19 | Configuration IA reorg, identity-first | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/04-configuration-ia-reorg.md` |
 | T-19-05 | E-19 | Public page identity-hero recomposition | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/05-public-page-recomposition.md` |
 | T-19-06 | E-19 | i18n pt/en parity and cross-surface E2E matrix | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/06-i18n-parity-and-e2e-matrix.md` |
-| T-20-01 | E-20 | Provider table, re-key migration, domain/repo plumbing, seed rebuild | ready | — | `.plan/epics/20-provider-entity-refactor/tasks/01-provider-table-rekey-and-seed.md` |
+| T-20-01 | E-20 | Provider table, re-key migration, domain/repo plumbing, seed rebuild | in-progress | — | `.plan/epics/20-provider-entity-refactor/tasks/01-provider-table-rekey-and-seed.md` |
 | T-20-02 | E-20 | Provider-profile read/write re-key + soft-delete exclusion | ready | T-20-01 | `.plan/epics/20-provider-entity-refactor/tasks/02-provider-profile-rekey.md` |
 | T-20-03 | E-20 | Announcement read/write re-key + soft-delete exclusion | ready | T-20-01 | `.plan/epics/20-provider-entity-refactor/tasks/03-announcement-rekey.md` |
 | T-20-04 | E-20 | Layered auth — global role + provider-scoped gating | ready | T-20-01 | `.plan/epics/20-provider-entity-refactor/tasks/04-layered-auth.md` |

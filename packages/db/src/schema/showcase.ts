@@ -119,11 +119,29 @@ export const condominium = pgTable('condominium', {
   geog: geography('geog'),
 });
 
+// First-class provider entity (PRD-v13 / T-20-01). A user owns MANY providers;
+// each provider is bound to exactly ONE condo via its assignment. Provider is a
+// business identity, not a membership — there is NO unique constraint on
+// (ownerId, condominiumId). Soft-delete via `deletedAt` hides the provider and
+// its announcements while preserving payment/analytics history.
+export const provider = pgTable('provider', {
+  id: text('id').primaryKey(),
+  ownerId: text('owner_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at')
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+  deletedAt: timestamp('deleted_at'),
+});
+
 export const providerAssignment = pgTable('provider_location', {
   id: text('id').primaryKey(),
   providerId: text('provider_id')
     .notNull()
-    .references(() => user.id, { onDelete: 'cascade' }),
+    .references(() => provider.id, { onDelete: 'cascade' }),
   type: providerAssignmentTypeEnum('type').notNull(),
   status: providerAssignmentStatusEnum('status').default('PENDING').notNull(),
   condominiumId: text('condominium_id').references(() => condominium.id, {
@@ -148,7 +166,7 @@ export const providerAssignment = pgTable('provider_location', {
 export const providerProfile = pgTable('provider_profile', {
   providerId: text('provider_id')
     .primaryKey()
-    .references(() => user.id, { onDelete: 'cascade' }),
+    .references(() => provider.id, { onDelete: 'cascade' }),
   displayName: text('display_name').notNull(),
   companyName: text('company_name'),
   tradeName: text('trade_name'),
@@ -200,12 +218,22 @@ export const condominiumRelations = relations(condominium, ({ one, many }) => ({
   providerAssignments: many(providerAssignment),
 }));
 
+export const providerRelations = relations(provider, ({ one, many }) => ({
+  owner: one(user, {
+    fields: [provider.ownerId],
+    references: [user.id],
+  }),
+  profile: one(providerProfile),
+  assignments: many(providerAssignment),
+  announcements: many(announcement),
+}));
+
 export const providerAssignmentRelations = relations(
   providerAssignment,
   ({ one }) => ({
-    provider: one(user, {
+    provider: one(provider, {
       fields: [providerAssignment.providerId],
-      references: [user.id],
+      references: [provider.id],
     }),
     condominium: one(condominium, {
       fields: [providerAssignment.condominiumId],
@@ -221,9 +249,9 @@ export const providerAssignmentRelations = relations(
 export const providerProfileRelations = relations(
   providerProfile,
   ({ one }) => ({
-    provider: one(user, {
+    provider: one(provider, {
       fields: [providerProfile.providerId],
-      references: [user.id],
+      references: [provider.id],
     }),
   }),
 );
@@ -247,7 +275,7 @@ export const announcement = pgTable('announcement', {
   id: text('id').primaryKey(),
   providerId: text('provider_id')
     .notNull()
-    .references(() => user.id, { onDelete: 'cascade' }),
+    .references(() => provider.id, { onDelete: 'cascade' }),
   providerAssignmentId: text('provider_location_id').references(
     () => providerAssignment.id,
     { onDelete: 'cascade' },
@@ -297,9 +325,9 @@ export const announcement = pgTable('announcement', {
 export const announcementRelations = relations(
   announcement,
   ({ one, many }) => ({
-    provider: one(user, {
+    provider: one(provider, {
       fields: [announcement.providerId],
-      references: [user.id],
+      references: [provider.id],
     }),
     providerAssignment: one(providerAssignment, {
       fields: [announcement.providerAssignmentId],
