@@ -33,6 +33,7 @@ import Cropper, { type Area } from 'react-easy-crop';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import type { ProviderDashboardAnnouncementItem } from '../-provider-dashboard-types';
+import { useActiveProviderId } from './-active-provider-context';
 import {
   type AnnouncementContactMode,
   AnnouncementContactSection,
@@ -142,6 +143,7 @@ export function AnnouncementForm({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const activeProviderId = useActiveProviderId();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isEditMode = mode === 'edit';
@@ -177,7 +179,7 @@ export function AnnouncementForm({
   );
 
   const providerProfileQuery = useQuery(
-    trpc.providerProfile.get.queryOptions(),
+    trpc.providerProfile.get.queryOptions({ providerId: activeProviderId }),
   );
   const providerDefaults = providerProfileQuery.data?.contactDefaults ?? null;
 
@@ -188,9 +190,12 @@ export function AnnouncementForm({
   const isLoadingAssignments = assignmentsQuery.isLoading;
 
   const dashboardQuery = useQuery(
-    trpc.announcement.getDashboardData.queryOptions(undefined, {
-      enabled: isEditMode,
-    }),
+    trpc.announcement.getDashboardData.queryOptions(
+      { providerId: activeProviderId },
+      {
+        enabled: isEditMode,
+      },
+    ),
   );
 
   const editingAnnouncement =
@@ -232,9 +237,13 @@ export function AnnouncementForm({
       !editingAnnouncement
     ) {
       toast.error(t('meus_anuncios.detail.not_found_toast'));
-      void navigate({ to: '/panel/provider/announcements' });
+      void navigate({
+        to: '/panel/provider/$providerId/announcements',
+        params: { providerId: activeProviderId },
+      });
     }
   }, [
+    activeProviderId,
     isEditMode,
     dashboardQuery.isLoading,
     dashboardQuery.data,
@@ -280,7 +289,10 @@ export function AnnouncementForm({
     trpc.announcement.create.mutationOptions({
       onSuccess: () => {
         toast.success(t('new_announcement.toast.draft_created'));
-        navigate({ to: '/panel/provider' });
+        navigate({
+          to: '/panel/provider/$providerId',
+          params: { providerId: activeProviderId },
+        });
       },
       onError: (err) => {
         toast.error(err.message || t('new_announcement.toast.create_error'));
@@ -297,8 +309,8 @@ export function AnnouncementForm({
         });
         if (announcementId) {
           navigate({
-            to: '/panel/provider/announcements/$id',
-            params: { id: announcementId },
+            to: '/panel/provider/$providerId/announcements/$id',
+            params: { providerId: activeProviderId, id: announcementId },
           });
         }
       },
@@ -388,6 +400,7 @@ export function AnnouncementForm({
       if (isEditMode && announcementId) {
         updateMutation.mutate({
           id: announcementId,
+          providerId: activeProviderId,
           title,
           subtitle: subtitle || null,
           description,
@@ -401,6 +414,7 @@ export function AnnouncementForm({
         });
       } else {
         createMutation.mutate({
+          providerId: activeProviderId,
           providerAssignmentId: selectedLocationId,
           title,
           subtitle: subtitle || null,
@@ -445,7 +459,12 @@ export function AnnouncementForm({
           <Button
             variant="outline"
             size="icon"
-            onClick={() => navigate({ to: '/panel/provider' })}
+            onClick={() =>
+              navigate({
+                to: '/panel/provider/$providerId',
+                params: { providerId: activeProviderId },
+              })
+            }
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -862,7 +881,12 @@ export function AnnouncementForm({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate({ to: '/panel/provider' })}
+                onClick={() =>
+                  navigate({
+                    to: '/panel/provider/$providerId',
+                    params: { providerId: activeProviderId },
+                  })
+                }
                 className="flex-1"
               >
                 {t('new_announcement.submit.cancel')}

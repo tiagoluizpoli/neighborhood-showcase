@@ -1,17 +1,12 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { ProviderDashboardPaymentFlow } from './panel/-provider-dashboard-payment-flow';
-import { PanelContentContainer } from '@/components/panel-content-container';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { requireDefaultProviderId } from './panel/provider/-resolve-active-provider';
 
 export const Route = createFileRoute('/panel/provider/anuncios/$id/pagamento')({
-  component: PaymentRouteComponent,
+  beforeLoad: async ({ params }) => {
+    const providerId = await requireDefaultProviderId();
+    throw redirect({
+      to: '/panel/provider/$providerId/anuncios/$id/pagamento',
+      params: { providerId, id: params.id },
+    });
+  },
 });
-
-function PaymentRouteComponent() {
-  const { id } = Route.useParams();
-
-  return (
-    <PanelContentContainer variant="default">
-      <ProviderDashboardPaymentFlow announcementId={id} />
-    </PanelContentContainer>
-  );
-}

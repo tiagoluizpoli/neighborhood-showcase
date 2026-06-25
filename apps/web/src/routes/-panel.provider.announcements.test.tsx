@@ -4,6 +4,13 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useEffect } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
+import { ActiveProviderIdProvider } from '@/routes/panel/provider/-active-provider-context';
+
+// Provider-scoped routes now carry a `$providerId` segment; the proxy mock keys
+// on the procedure name and ignores the input, so any non-empty id resolves the
+// same fixtures. The active-provider context is seeded with the same id so the
+// shared form's `useActiveProviderId()` resolves under test.
+const ACTIVE_PROVIDER_ID = 'prov-1';
 
 // biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
 let mockDashboardData: any = null;
@@ -193,7 +200,9 @@ function renderRoute(Component: any) {
   return render(
     <QueryClientProvider client={makeClient()}>
       <I18nextProvider i18n={i18n}>
-        <Component />
+        <ActiveProviderIdProvider providerId={ACTIVE_PROVIDER_ID}>
+          <Component />
+        </ActiveProviderIdProvider>
       </I18nextProvider>
     </QueryClientProvider>,
   );
@@ -201,17 +210,23 @@ function renderRoute(Component: any) {
 
 async function importEditRoute() {
   const { Route } = await import(
-    '@/routes/panel.provider.announcements.$id.edit'
+    '@/routes/panel.provider.$providerId.announcements.$id.edit'
   );
-  Route.useParams = (() => ({ id: 'ann-1' })) as typeof Route.useParams;
+  Route.useParams = (() => ({
+    providerId: ACTIVE_PROVIDER_ID,
+    id: 'ann-1',
+  })) as typeof Route.useParams;
   return Route;
 }
 
 async function importDetailRoute() {
   const { Route } = await import(
-    '@/routes/panel.provider.announcements.$id.index'
+    '@/routes/panel.provider.$providerId.announcements.$id.index'
   );
-  Route.useParams = (() => ({ id: 'ann-1' })) as typeof Route.useParams;
+  Route.useParams = (() => ({
+    providerId: ACTIVE_PROVIDER_ID,
+    id: 'ann-1',
+  })) as typeof Route.useParams;
   return Route;
 }
 
@@ -232,8 +247,11 @@ describe('Provider announcements routes', () => {
 
   test('announcements index error state: outer wrapper has no px-6 or py-8', async () => {
     const { Route } = await import(
-      '@/routes/panel.provider.announcements.index'
+      '@/routes/panel.provider.$providerId.announcements.index'
     );
+    Route.useParams = (() => ({
+      providerId: ACTIVE_PROVIDER_ID,
+    })) as typeof Route.useParams;
     const { container } = renderRoute(Route.options.component);
     const outer = container.firstElementChild as HTMLElement;
     expect(outer.className).not.toContain('px-6');
@@ -241,7 +259,9 @@ describe('Provider announcements routes', () => {
   });
 
   test('announcements new: renders inside the default PanelContentContainer', async () => {
-    const { Route } = await import('@/routes/panel.provider.announcements.new');
+    const { Route } = await import(
+      '@/routes/panel.provider.$providerId.announcements.new'
+    );
     const { container } = renderRoute(Route.options.component);
     const outer = container.firstElementChild as HTMLElement;
     // Outer element is the shared container (not a bespoke padded div).
@@ -249,7 +269,9 @@ describe('Provider announcements routes', () => {
   });
 
   test('announcements new: page title and subtitle resolve through i18n', async () => {
-    const { Route } = await import('@/routes/panel.provider.announcements.new');
+    const { Route } = await import(
+      '@/routes/panel.provider.$providerId.announcements.new'
+    );
     const { container } = renderRoute(Route.options.component);
     expect(container.textContent).toContain('Novo Anúncio');
     expect(container.textContent).toContain(
@@ -260,9 +282,12 @@ describe('Provider announcements routes', () => {
   test('announcements $id: detail-header renders the announcement title', async () => {
     mockDashboardData = withAnnouncement();
     const { Route } = await import(
-      '@/routes/panel.provider.announcements.$id.index'
+      '@/routes/panel.provider.$providerId.announcements.$id.index'
     );
-    Route.useParams = (() => ({ id: 'ann-1' })) as typeof Route.useParams;
+    Route.useParams = (() => ({
+      providerId: ACTIVE_PROVIDER_ID,
+      id: 'ann-1',
+    })) as typeof Route.useParams;
     const { container } = renderRoute(Route.options.component);
 
     expect(
@@ -285,9 +310,12 @@ describe('Provider announcements routes', () => {
       },
     });
     const { Route } = await import(
-      '@/routes/panel.provider.announcements.$id.index'
+      '@/routes/panel.provider.$providerId.announcements.$id.index'
     );
-    Route.useParams = (() => ({ id: 'ann-1' })) as typeof Route.useParams;
+    Route.useParams = (() => ({
+      providerId: ACTIVE_PROVIDER_ID,
+      id: 'ann-1',
+    })) as typeof Route.useParams;
     const { container } = renderRoute(Route.options.component);
 
     await screen.findAllByText('Test Announcement');

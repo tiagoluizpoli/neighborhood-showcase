@@ -30,6 +30,7 @@ import { Route as PanelDashboardIndexRouteImport } from './routes/panel.dashboar
 import { Route as PanelProviderConfigurationRouteImport } from './routes/panel/provider/configuration'
 import { Route as PanelProviderCondoSetupRouteImport } from './routes/panel.provider.condo-setup'
 import { Route as PanelProviderAnnouncementsRouteImport } from './routes/panel/provider/announcements'
+import { Route as PanelProviderProviderIdRouteImport } from './routes/panel.provider.$providerId'
 import { Route as PanelModerationResidentsRouteImport } from './routes/panel/moderation/residents'
 import { Route as PanelModerationReportsRouteImport } from './routes/panel/moderation/reports'
 import { Route as PanelModerationCondominiumRouteImport } from './routes/panel/moderation/condominium'
@@ -46,15 +47,23 @@ import { Route as DashboardAnnouncementsNewRouteImport } from './routes/dashboar
 import { Route as PortalProvidersIdRouteImport } from './routes/_portal.providers.$id'
 import { Route as PortalAnunciosIdRouteImport } from './routes/_portal.anuncios.$id'
 import { Route as PanelProviderAnnouncementsIndexRouteImport } from './routes/panel.provider.announcements.index'
+import { Route as PanelProviderProviderIdIndexRouteImport } from './routes/panel.provider.$providerId.index'
 import { Route as PanelDashboardAnnouncementsIndexRouteImport } from './routes/panel.dashboard.announcements.index'
 import { Route as PanelProviderAnnouncementsNewRouteImport } from './routes/panel.provider.announcements.new'
+import { Route as PanelProviderProviderIdConfigurationRouteImport } from './routes/panel.provider.$providerId.configuration'
+import { Route as PanelProviderProviderIdAnnouncementsRouteImport } from './routes/panel.provider.$providerId.announcements'
 import { Route as PanelDashboardAnunciosNovoRouteImport } from './routes/panel.dashboard.anuncios.novo'
 import { Route as PanelDashboardAnnouncementsIdRouteImport } from './routes/panel.dashboard.announcements.$id'
 import { Route as DashboardAnunciosIdPagamentoRouteImport } from './routes/dashboard.anuncios.$id.pagamento'
 import { Route as PanelProviderAnnouncementsIdIndexRouteImport } from './routes/panel.provider.announcements.$id.index'
+import { Route as PanelProviderProviderIdAnnouncementsIndexRouteImport } from './routes/panel.provider.$providerId.announcements.index'
 import { Route as PanelProviderAnunciosIdPagamentoRouteImport } from './routes/panel.provider.anuncios.$id.pagamento'
 import { Route as PanelProviderAnnouncementsIdEditRouteImport } from './routes/panel.provider.announcements.$id.edit'
+import { Route as PanelProviderProviderIdAnnouncementsNewRouteImport } from './routes/panel.provider.$providerId.announcements.new'
 import { Route as PanelDashboardAnunciosIdPagamentoRouteImport } from './routes/panel.dashboard.anuncios.$id.pagamento'
+import { Route as PanelProviderProviderIdAnnouncementsIdIndexRouteImport } from './routes/panel.provider.$providerId.announcements.$id.index'
+import { Route as PanelProviderProviderIdAnunciosIdPagamentoRouteImport } from './routes/panel.provider.$providerId.anuncios.$id.pagamento'
+import { Route as PanelProviderProviderIdAnnouncementsIdEditRouteImport } from './routes/panel.provider.$providerId.announcements.$id.edit'
 
 const PanelRoute = PanelRouteImport.update({
   id: '/panel',
@@ -162,6 +171,11 @@ const PanelProviderAnnouncementsRoute =
     path: '/announcements',
     getParentRoute: () => PanelProviderRoute,
   } as any)
+const PanelProviderProviderIdRoute = PanelProviderProviderIdRouteImport.update({
+  id: '/$providerId',
+  path: '/$providerId',
+  getParentRoute: () => PanelProviderRoute,
+} as any)
 const PanelModerationResidentsRoute =
   PanelModerationResidentsRouteImport.update({
     id: '/residents',
@@ -250,6 +264,12 @@ const PanelProviderAnnouncementsIndexRoute =
     path: '/',
     getParentRoute: () => PanelProviderAnnouncementsRoute,
   } as any)
+const PanelProviderProviderIdIndexRoute =
+  PanelProviderProviderIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => PanelProviderProviderIdRoute,
+  } as any)
 const PanelDashboardAnnouncementsIndexRoute =
   PanelDashboardAnnouncementsIndexRouteImport.update({
     id: '/',
@@ -261,6 +281,18 @@ const PanelProviderAnnouncementsNewRoute =
     id: '/new',
     path: '/new',
     getParentRoute: () => PanelProviderAnnouncementsRoute,
+  } as any)
+const PanelProviderProviderIdConfigurationRoute =
+  PanelProviderProviderIdConfigurationRouteImport.update({
+    id: '/configuration',
+    path: '/configuration',
+    getParentRoute: () => PanelProviderProviderIdRoute,
+  } as any)
+const PanelProviderProviderIdAnnouncementsRoute =
+  PanelProviderProviderIdAnnouncementsRouteImport.update({
+    id: '/announcements',
+    path: '/announcements',
+    getParentRoute: () => PanelProviderProviderIdRoute,
   } as any)
 const PanelDashboardAnunciosNovoRoute =
   PanelDashboardAnunciosNovoRouteImport.update({
@@ -286,6 +318,12 @@ const PanelProviderAnnouncementsIdIndexRoute =
     path: '/$id/',
     getParentRoute: () => PanelProviderAnnouncementsRoute,
   } as any)
+const PanelProviderProviderIdAnnouncementsIndexRoute =
+  PanelProviderProviderIdAnnouncementsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => PanelProviderProviderIdAnnouncementsRoute,
+  } as any)
 const PanelProviderAnunciosIdPagamentoRoute =
   PanelProviderAnunciosIdPagamentoRouteImport.update({
     id: '/anuncios/$id/pagamento',
@@ -298,11 +336,35 @@ const PanelProviderAnnouncementsIdEditRoute =
     path: '/$id/edit',
     getParentRoute: () => PanelProviderAnnouncementsRoute,
   } as any)
+const PanelProviderProviderIdAnnouncementsNewRoute =
+  PanelProviderProviderIdAnnouncementsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => PanelProviderProviderIdAnnouncementsRoute,
+  } as any)
 const PanelDashboardAnunciosIdPagamentoRoute =
   PanelDashboardAnunciosIdPagamentoRouteImport.update({
     id: '/anuncios/$id/pagamento',
     path: '/anuncios/$id/pagamento',
     getParentRoute: () => PanelDashboardRoute,
+  } as any)
+const PanelProviderProviderIdAnnouncementsIdIndexRoute =
+  PanelProviderProviderIdAnnouncementsIdIndexRouteImport.update({
+    id: '/$id/',
+    path: '/$id/',
+    getParentRoute: () => PanelProviderProviderIdAnnouncementsRoute,
+  } as any)
+const PanelProviderProviderIdAnunciosIdPagamentoRoute =
+  PanelProviderProviderIdAnunciosIdPagamentoRouteImport.update({
+    id: '/anuncios/$id/pagamento',
+    path: '/anuncios/$id/pagamento',
+    getParentRoute: () => PanelProviderProviderIdRoute,
+  } as any)
+const PanelProviderProviderIdAnnouncementsIdEditRoute =
+  PanelProviderProviderIdAnnouncementsIdEditRouteImport.update({
+    id: '/$id/edit',
+    path: '/$id/edit',
+    getParentRoute: () => PanelProviderProviderIdAnnouncementsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -335,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/panel/moderation/condominium': typeof PanelModerationCondominiumRoute
   '/panel/moderation/reports': typeof PanelModerationReportsRoute
   '/panel/moderation/residents': typeof PanelModerationResidentsRoute
+  '/panel/provider/$providerId': typeof PanelProviderProviderIdRouteWithChildren
   '/panel/provider/announcements': typeof PanelProviderAnnouncementsRouteWithChildren
   '/panel/provider/condo-setup': typeof PanelProviderCondoSetupRoute
   '/panel/provider/configuration': typeof PanelProviderConfigurationRoute
@@ -344,13 +407,21 @@ export interface FileRoutesByFullPath {
   '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
   '/panel/dashboard/announcements/$id': typeof PanelDashboardAnnouncementsIdRoute
   '/panel/dashboard/anuncios/novo': typeof PanelDashboardAnunciosNovoRoute
+  '/panel/provider/$providerId/announcements': typeof PanelProviderProviderIdAnnouncementsRouteWithChildren
+  '/panel/provider/$providerId/configuration': typeof PanelProviderProviderIdConfigurationRoute
   '/panel/provider/announcements/new': typeof PanelProviderAnnouncementsNewRoute
   '/panel/dashboard/announcements/': typeof PanelDashboardAnnouncementsIndexRoute
+  '/panel/provider/$providerId/': typeof PanelProviderProviderIdIndexRoute
   '/panel/provider/announcements/': typeof PanelProviderAnnouncementsIndexRoute
   '/panel/dashboard/anuncios/$id/pagamento': typeof PanelDashboardAnunciosIdPagamentoRoute
+  '/panel/provider/$providerId/announcements/new': typeof PanelProviderProviderIdAnnouncementsNewRoute
   '/panel/provider/announcements/$id/edit': typeof PanelProviderAnnouncementsIdEditRoute
   '/panel/provider/anuncios/$id/pagamento': typeof PanelProviderAnunciosIdPagamentoRoute
+  '/panel/provider/$providerId/announcements/': typeof PanelProviderProviderIdAnnouncementsIndexRoute
   '/panel/provider/announcements/$id/': typeof PanelProviderAnnouncementsIdIndexRoute
+  '/panel/provider/$providerId/announcements/$id/edit': typeof PanelProviderProviderIdAnnouncementsIdEditRoute
+  '/panel/provider/$providerId/anuncios/$id/pagamento': typeof PanelProviderProviderIdAnunciosIdPagamentoRoute
+  '/panel/provider/$providerId/announcements/$id/': typeof PanelProviderProviderIdAnnouncementsIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
@@ -385,13 +456,20 @@ export interface FileRoutesByTo {
   '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
   '/panel/dashboard/announcements/$id': typeof PanelDashboardAnnouncementsIdRoute
   '/panel/dashboard/anuncios/novo': typeof PanelDashboardAnunciosNovoRoute
+  '/panel/provider/$providerId/configuration': typeof PanelProviderProviderIdConfigurationRoute
   '/panel/provider/announcements/new': typeof PanelProviderAnnouncementsNewRoute
   '/panel/dashboard/announcements': typeof PanelDashboardAnnouncementsIndexRoute
+  '/panel/provider/$providerId': typeof PanelProviderProviderIdIndexRoute
   '/panel/provider/announcements': typeof PanelProviderAnnouncementsIndexRoute
   '/panel/dashboard/anuncios/$id/pagamento': typeof PanelDashboardAnunciosIdPagamentoRoute
+  '/panel/provider/$providerId/announcements/new': typeof PanelProviderProviderIdAnnouncementsNewRoute
   '/panel/provider/announcements/$id/edit': typeof PanelProviderAnnouncementsIdEditRoute
   '/panel/provider/anuncios/$id/pagamento': typeof PanelProviderAnunciosIdPagamentoRoute
+  '/panel/provider/$providerId/announcements': typeof PanelProviderProviderIdAnnouncementsIndexRoute
   '/panel/provider/announcements/$id': typeof PanelProviderAnnouncementsIdIndexRoute
+  '/panel/provider/$providerId/announcements/$id/edit': typeof PanelProviderProviderIdAnnouncementsIdEditRoute
+  '/panel/provider/$providerId/anuncios/$id/pagamento': typeof PanelProviderProviderIdAnunciosIdPagamentoRoute
+  '/panel/provider/$providerId/announcements/$id': typeof PanelProviderProviderIdAnnouncementsIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -425,6 +503,7 @@ export interface FileRoutesById {
   '/panel/moderation/condominium': typeof PanelModerationCondominiumRoute
   '/panel/moderation/reports': typeof PanelModerationReportsRoute
   '/panel/moderation/residents': typeof PanelModerationResidentsRoute
+  '/panel/provider/$providerId': typeof PanelProviderProviderIdRouteWithChildren
   '/panel/provider/announcements': typeof PanelProviderAnnouncementsRouteWithChildren
   '/panel/provider/condo-setup': typeof PanelProviderCondoSetupRoute
   '/panel/provider/configuration': typeof PanelProviderConfigurationRoute
@@ -434,13 +513,21 @@ export interface FileRoutesById {
   '/dashboard/anuncios/$id/pagamento': typeof DashboardAnunciosIdPagamentoRoute
   '/panel/dashboard/announcements/$id': typeof PanelDashboardAnnouncementsIdRoute
   '/panel/dashboard/anuncios/novo': typeof PanelDashboardAnunciosNovoRoute
+  '/panel/provider/$providerId/announcements': typeof PanelProviderProviderIdAnnouncementsRouteWithChildren
+  '/panel/provider/$providerId/configuration': typeof PanelProviderProviderIdConfigurationRoute
   '/panel/provider/announcements/new': typeof PanelProviderAnnouncementsNewRoute
   '/panel/dashboard/announcements/': typeof PanelDashboardAnnouncementsIndexRoute
+  '/panel/provider/$providerId/': typeof PanelProviderProviderIdIndexRoute
   '/panel/provider/announcements/': typeof PanelProviderAnnouncementsIndexRoute
   '/panel/dashboard/anuncios/$id/pagamento': typeof PanelDashboardAnunciosIdPagamentoRoute
+  '/panel/provider/$providerId/announcements/new': typeof PanelProviderProviderIdAnnouncementsNewRoute
   '/panel/provider/announcements/$id/edit': typeof PanelProviderAnnouncementsIdEditRoute
   '/panel/provider/anuncios/$id/pagamento': typeof PanelProviderAnunciosIdPagamentoRoute
+  '/panel/provider/$providerId/announcements/': typeof PanelProviderProviderIdAnnouncementsIndexRoute
   '/panel/provider/announcements/$id/': typeof PanelProviderAnnouncementsIdIndexRoute
+  '/panel/provider/$providerId/announcements/$id/edit': typeof PanelProviderProviderIdAnnouncementsIdEditRoute
+  '/panel/provider/$providerId/anuncios/$id/pagamento': typeof PanelProviderProviderIdAnunciosIdPagamentoRoute
+  '/panel/provider/$providerId/announcements/$id/': typeof PanelProviderProviderIdAnnouncementsIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -474,6 +561,7 @@ export interface FileRouteTypes {
     | '/panel/moderation/condominium'
     | '/panel/moderation/reports'
     | '/panel/moderation/residents'
+    | '/panel/provider/$providerId'
     | '/panel/provider/announcements'
     | '/panel/provider/condo-setup'
     | '/panel/provider/configuration'
@@ -483,13 +571,21 @@ export interface FileRouteTypes {
     | '/dashboard/anuncios/$id/pagamento'
     | '/panel/dashboard/announcements/$id'
     | '/panel/dashboard/anuncios/novo'
+    | '/panel/provider/$providerId/announcements'
+    | '/panel/provider/$providerId/configuration'
     | '/panel/provider/announcements/new'
     | '/panel/dashboard/announcements/'
+    | '/panel/provider/$providerId/'
     | '/panel/provider/announcements/'
     | '/panel/dashboard/anuncios/$id/pagamento'
+    | '/panel/provider/$providerId/announcements/new'
     | '/panel/provider/announcements/$id/edit'
     | '/panel/provider/anuncios/$id/pagamento'
+    | '/panel/provider/$providerId/announcements/'
     | '/panel/provider/announcements/$id/'
+    | '/panel/provider/$providerId/announcements/$id/edit'
+    | '/panel/provider/$providerId/anuncios/$id/pagamento'
+    | '/panel/provider/$providerId/announcements/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/admin'
@@ -524,13 +620,20 @@ export interface FileRouteTypes {
     | '/dashboard/anuncios/$id/pagamento'
     | '/panel/dashboard/announcements/$id'
     | '/panel/dashboard/anuncios/novo'
+    | '/panel/provider/$providerId/configuration'
     | '/panel/provider/announcements/new'
     | '/panel/dashboard/announcements'
+    | '/panel/provider/$providerId'
     | '/panel/provider/announcements'
     | '/panel/dashboard/anuncios/$id/pagamento'
+    | '/panel/provider/$providerId/announcements/new'
     | '/panel/provider/announcements/$id/edit'
     | '/panel/provider/anuncios/$id/pagamento'
+    | '/panel/provider/$providerId/announcements'
     | '/panel/provider/announcements/$id'
+    | '/panel/provider/$providerId/announcements/$id/edit'
+    | '/panel/provider/$providerId/anuncios/$id/pagamento'
+    | '/panel/provider/$providerId/announcements/$id'
   id:
     | '__root__'
     | '/_portal'
@@ -563,6 +666,7 @@ export interface FileRouteTypes {
     | '/panel/moderation/condominium'
     | '/panel/moderation/reports'
     | '/panel/moderation/residents'
+    | '/panel/provider/$providerId'
     | '/panel/provider/announcements'
     | '/panel/provider/condo-setup'
     | '/panel/provider/configuration'
@@ -572,13 +676,21 @@ export interface FileRouteTypes {
     | '/dashboard/anuncios/$id/pagamento'
     | '/panel/dashboard/announcements/$id'
     | '/panel/dashboard/anuncios/novo'
+    | '/panel/provider/$providerId/announcements'
+    | '/panel/provider/$providerId/configuration'
     | '/panel/provider/announcements/new'
     | '/panel/dashboard/announcements/'
+    | '/panel/provider/$providerId/'
     | '/panel/provider/announcements/'
     | '/panel/dashboard/anuncios/$id/pagamento'
+    | '/panel/provider/$providerId/announcements/new'
     | '/panel/provider/announcements/$id/edit'
     | '/panel/provider/anuncios/$id/pagamento'
+    | '/panel/provider/$providerId/announcements/'
     | '/panel/provider/announcements/$id/'
+    | '/panel/provider/$providerId/announcements/$id/edit'
+    | '/panel/provider/$providerId/anuncios/$id/pagamento'
+    | '/panel/provider/$providerId/announcements/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -739,6 +851,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanelProviderAnnouncementsRouteImport
       parentRoute: typeof PanelProviderRoute
     }
+    '/panel/provider/$providerId': {
+      id: '/panel/provider/$providerId'
+      path: '/$providerId'
+      fullPath: '/panel/provider/$providerId'
+      preLoaderRoute: typeof PanelProviderProviderIdRouteImport
+      parentRoute: typeof PanelProviderRoute
+    }
     '/panel/moderation/residents': {
       id: '/panel/moderation/residents'
       path: '/residents'
@@ -851,6 +970,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanelProviderAnnouncementsIndexRouteImport
       parentRoute: typeof PanelProviderAnnouncementsRoute
     }
+    '/panel/provider/$providerId/': {
+      id: '/panel/provider/$providerId/'
+      path: '/'
+      fullPath: '/panel/provider/$providerId/'
+      preLoaderRoute: typeof PanelProviderProviderIdIndexRouteImport
+      parentRoute: typeof PanelProviderProviderIdRoute
+    }
     '/panel/dashboard/announcements/': {
       id: '/panel/dashboard/announcements/'
       path: '/'
@@ -864,6 +990,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/panel/provider/announcements/new'
       preLoaderRoute: typeof PanelProviderAnnouncementsNewRouteImport
       parentRoute: typeof PanelProviderAnnouncementsRoute
+    }
+    '/panel/provider/$providerId/configuration': {
+      id: '/panel/provider/$providerId/configuration'
+      path: '/configuration'
+      fullPath: '/panel/provider/$providerId/configuration'
+      preLoaderRoute: typeof PanelProviderProviderIdConfigurationRouteImport
+      parentRoute: typeof PanelProviderProviderIdRoute
+    }
+    '/panel/provider/$providerId/announcements': {
+      id: '/panel/provider/$providerId/announcements'
+      path: '/announcements'
+      fullPath: '/panel/provider/$providerId/announcements'
+      preLoaderRoute: typeof PanelProviderProviderIdAnnouncementsRouteImport
+      parentRoute: typeof PanelProviderProviderIdRoute
     }
     '/panel/dashboard/anuncios/novo': {
       id: '/panel/dashboard/anuncios/novo'
@@ -893,6 +1033,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanelProviderAnnouncementsIdIndexRouteImport
       parentRoute: typeof PanelProviderAnnouncementsRoute
     }
+    '/panel/provider/$providerId/announcements/': {
+      id: '/panel/provider/$providerId/announcements/'
+      path: '/'
+      fullPath: '/panel/provider/$providerId/announcements/'
+      preLoaderRoute: typeof PanelProviderProviderIdAnnouncementsIndexRouteImport
+      parentRoute: typeof PanelProviderProviderIdAnnouncementsRoute
+    }
     '/panel/provider/anuncios/$id/pagamento': {
       id: '/panel/provider/anuncios/$id/pagamento'
       path: '/anuncios/$id/pagamento'
@@ -907,12 +1054,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanelProviderAnnouncementsIdEditRouteImport
       parentRoute: typeof PanelProviderAnnouncementsRoute
     }
+    '/panel/provider/$providerId/announcements/new': {
+      id: '/panel/provider/$providerId/announcements/new'
+      path: '/new'
+      fullPath: '/panel/provider/$providerId/announcements/new'
+      preLoaderRoute: typeof PanelProviderProviderIdAnnouncementsNewRouteImport
+      parentRoute: typeof PanelProviderProviderIdAnnouncementsRoute
+    }
     '/panel/dashboard/anuncios/$id/pagamento': {
       id: '/panel/dashboard/anuncios/$id/pagamento'
       path: '/anuncios/$id/pagamento'
       fullPath: '/panel/dashboard/anuncios/$id/pagamento'
       preLoaderRoute: typeof PanelDashboardAnunciosIdPagamentoRouteImport
       parentRoute: typeof PanelDashboardRoute
+    }
+    '/panel/provider/$providerId/announcements/$id/': {
+      id: '/panel/provider/$providerId/announcements/$id/'
+      path: '/$id'
+      fullPath: '/panel/provider/$providerId/announcements/$id/'
+      preLoaderRoute: typeof PanelProviderProviderIdAnnouncementsIdIndexRouteImport
+      parentRoute: typeof PanelProviderProviderIdAnnouncementsRoute
+    }
+    '/panel/provider/$providerId/anuncios/$id/pagamento': {
+      id: '/panel/provider/$providerId/anuncios/$id/pagamento'
+      path: '/anuncios/$id/pagamento'
+      fullPath: '/panel/provider/$providerId/anuncios/$id/pagamento'
+      preLoaderRoute: typeof PanelProviderProviderIdAnunciosIdPagamentoRouteImport
+      parentRoute: typeof PanelProviderProviderIdRoute
+    }
+    '/panel/provider/$providerId/announcements/$id/edit': {
+      id: '/panel/provider/$providerId/announcements/$id/edit'
+      path: '/$id/edit'
+      fullPath: '/panel/provider/$providerId/announcements/$id/edit'
+      preLoaderRoute: typeof PanelProviderProviderIdAnnouncementsIdEditRouteImport
+      parentRoute: typeof PanelProviderProviderIdAnnouncementsRoute
     }
   }
 }
@@ -1031,6 +1206,53 @@ const PanelModerationRouteWithChildren = PanelModerationRoute._addFileChildren(
   PanelModerationRouteChildren,
 )
 
+interface PanelProviderProviderIdAnnouncementsRouteChildren {
+  PanelProviderProviderIdAnnouncementsNewRoute: typeof PanelProviderProviderIdAnnouncementsNewRoute
+  PanelProviderProviderIdAnnouncementsIndexRoute: typeof PanelProviderProviderIdAnnouncementsIndexRoute
+  PanelProviderProviderIdAnnouncementsIdEditRoute: typeof PanelProviderProviderIdAnnouncementsIdEditRoute
+  PanelProviderProviderIdAnnouncementsIdIndexRoute: typeof PanelProviderProviderIdAnnouncementsIdIndexRoute
+}
+
+const PanelProviderProviderIdAnnouncementsRouteChildren: PanelProviderProviderIdAnnouncementsRouteChildren =
+  {
+    PanelProviderProviderIdAnnouncementsNewRoute:
+      PanelProviderProviderIdAnnouncementsNewRoute,
+    PanelProviderProviderIdAnnouncementsIndexRoute:
+      PanelProviderProviderIdAnnouncementsIndexRoute,
+    PanelProviderProviderIdAnnouncementsIdEditRoute:
+      PanelProviderProviderIdAnnouncementsIdEditRoute,
+    PanelProviderProviderIdAnnouncementsIdIndexRoute:
+      PanelProviderProviderIdAnnouncementsIdIndexRoute,
+  }
+
+const PanelProviderProviderIdAnnouncementsRouteWithChildren =
+  PanelProviderProviderIdAnnouncementsRoute._addFileChildren(
+    PanelProviderProviderIdAnnouncementsRouteChildren,
+  )
+
+interface PanelProviderProviderIdRouteChildren {
+  PanelProviderProviderIdAnnouncementsRoute: typeof PanelProviderProviderIdAnnouncementsRouteWithChildren
+  PanelProviderProviderIdConfigurationRoute: typeof PanelProviderProviderIdConfigurationRoute
+  PanelProviderProviderIdIndexRoute: typeof PanelProviderProviderIdIndexRoute
+  PanelProviderProviderIdAnunciosIdPagamentoRoute: typeof PanelProviderProviderIdAnunciosIdPagamentoRoute
+}
+
+const PanelProviderProviderIdRouteChildren: PanelProviderProviderIdRouteChildren =
+  {
+    PanelProviderProviderIdAnnouncementsRoute:
+      PanelProviderProviderIdAnnouncementsRouteWithChildren,
+    PanelProviderProviderIdConfigurationRoute:
+      PanelProviderProviderIdConfigurationRoute,
+    PanelProviderProviderIdIndexRoute: PanelProviderProviderIdIndexRoute,
+    PanelProviderProviderIdAnunciosIdPagamentoRoute:
+      PanelProviderProviderIdAnunciosIdPagamentoRoute,
+  }
+
+const PanelProviderProviderIdRouteWithChildren =
+  PanelProviderProviderIdRoute._addFileChildren(
+    PanelProviderProviderIdRouteChildren,
+  )
+
 interface PanelProviderAnnouncementsRouteChildren {
   PanelProviderAnnouncementsNewRoute: typeof PanelProviderAnnouncementsNewRoute
   PanelProviderAnnouncementsIndexRoute: typeof PanelProviderAnnouncementsIndexRoute
@@ -1054,6 +1276,7 @@ const PanelProviderAnnouncementsRouteWithChildren =
   )
 
 interface PanelProviderRouteChildren {
+  PanelProviderProviderIdRoute: typeof PanelProviderProviderIdRouteWithChildren
   PanelProviderAnnouncementsRoute: typeof PanelProviderAnnouncementsRouteWithChildren
   PanelProviderCondoSetupRoute: typeof PanelProviderCondoSetupRoute
   PanelProviderConfigurationRoute: typeof PanelProviderConfigurationRoute
@@ -1062,6 +1285,7 @@ interface PanelProviderRouteChildren {
 }
 
 const PanelProviderRouteChildren: PanelProviderRouteChildren = {
+  PanelProviderProviderIdRoute: PanelProviderProviderIdRouteWithChildren,
   PanelProviderAnnouncementsRoute: PanelProviderAnnouncementsRouteWithChildren,
   PanelProviderCondoSetupRoute: PanelProviderCondoSetupRoute,
   PanelProviderConfigurationRoute: PanelProviderConfigurationRoute,

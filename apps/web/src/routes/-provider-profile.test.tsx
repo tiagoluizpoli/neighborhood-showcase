@@ -4,6 +4,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
+import { ActiveProviderIdProvider } from '@/routes/panel/provider/-active-provider-context';
 
 // biome-ignore lint/suspicious/noExplicitAny: fixture mirrors API payload
 let mockQueryData: any = null;
@@ -75,7 +76,9 @@ ProfileRoute.useParams = (() => ({
   id: 'provider-123',
 })) as typeof ProfileRoute.useParams;
 
-const { Route: ConfigRoute } = await import('./panel/provider/configuration');
+const { Route: ConfigRoute } = await import(
+  './panel.provider.$providerId.configuration'
+);
 
 function renderConfig() {
   const client = new QueryClient({
@@ -85,7 +88,9 @@ function renderConfig() {
   return render(
     <QueryClientProvider client={client}>
       <I18nextProvider i18n={i18n}>
-        <Component />
+        <ActiveProviderIdProvider providerId="provider-123">
+          <Component />
+        </ActiveProviderIdProvider>
       </I18nextProvider>
     </QueryClientProvider>,
   );

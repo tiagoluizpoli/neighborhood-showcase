@@ -2,7 +2,7 @@
 type: task
 id: T-20-05
 epic: E-20
-status: ready
+status: in-progress
 blocked-by: [T-20-01, T-20-04]
 default-model: high
 ---
@@ -29,7 +29,7 @@ Panel provider routes: `apps/web/src/routes/panel/provider/` (`announcements.tsx
 
 ### ST-01 - `$providerId` route segment + redirects
 
-status: ready
+status: done
 model: high
 escalate-if:
 - The file-based routing refactor forces a breaking change to a route contract consumed outside the panel (e.g. public links) beyond redirect handling.
@@ -124,7 +124,54 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+##### ST-01 (done)
+
+`$providerId` segment + redirects + ownership gate.
+
+New URL-encoded provider context (NO session/localStorage store):
+- `panel.provider.$providerId.tsx` — layout route. `beforeLoad` ownership gate:
+  calls `providerProfile.get({ providerId })` (resolves only providers the caller
+  owns; throws otherwise) and, on throw, redirects to the caller's default
+  provider via `requireDefaultProviderId` (or the create flow when they own
+  none). Renders `ActiveProviderIdProvider` seeded from the URL param.
+- `panel/provider/-active-provider-context.tsx` — `ActiveProviderIdProvider` +
+  `useActiveProviderId()` (throws outside provider; value derived from URL every
+  render, so switching is just navigation, refresh-safe + deep-linkable).
+- Full content moved off the legacy routes into the `$providerId` variants:
+  `$providerId/` (index), `$providerId/configuration`, `$providerId/announcements`
+  (+ `/`, `/new`, `/$id/`, `/$id/edit`), `$providerId/anuncios/$id/pagamento`.
+  Internal `Link`/`navigate` targets thread `params: { providerId }`.
+- `-announcement-form.tsx` reads `useActiveProviderId()` and feeds it into
+  `providerProfile.get` / `announcement.getDashboardData` queries and
+  `announcement.create`/`update` mutations + all navigation.
+
+Legacy redirect handling (segment-less `/panel/provider/...` links keep working):
+- `-resolve-active-provider.ts`: `resolveDefaultProviderId()` (no-input
+  `providerProfile.get` → caller's default provider id, `null` on failure) +
+  `requireDefaultProviderId()` (throws a redirect into `condo-setup` when none).
+- Each legacy leaf route (`panel.provider.index`, `panel/provider/configuration`,
+  `panel.provider.announcements.{index,new,$id.index,$id.edit}`,
+  `panel.provider.anuncios.$id.pagamento`) is now a `beforeLoad`-only redirect
+  into its `$providerId` variant, forwarding `id`/`message` where present.
+- `condo-setup` left as-is (ST-04 makes it the repeatable create flow).
+- Multi-provider callers without a usable default land in `condo-setup` until the
+  My Providers page (ST-02) becomes the landing — documented limitation, no loop.
+
+Ownership/standing enforcement is the T-20-04 server guard on every provider
+procedure; the layout `beforeLoad` adds a client-edge redirect so a deep-link to
+an unowned provider never renders a broken page.
+
+Tests fixed (broken by the legacy→redirect move + the form's new context dep):
+- `-panel.provider.announcements.test.tsx` (19/19): imports repointed to
+  `$providerId` routes, `Route.useParams` stubs carry `providerId`, `renderRoute`
+  wraps in `ActiveProviderIdProvider`.
+- `-provider-profile.test.tsx` (20/20): config render repointed to
+  `$providerId.configuration` + wrapped in `ActiveProviderIdProvider`.
+- `-panel.test.tsx` (8/8) unaffected.
+
+Gates: `bun run --filter web check-types` clean except the pre-existing web
+TS5103 `--ignoreDeprecations` error (untouched); `bun run check` clean
+(pre-existing optional-chain warning + broken-symlink info only).
 
 ---
 

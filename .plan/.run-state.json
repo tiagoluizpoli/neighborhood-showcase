@@ -1,18 +1,22 @@
 {
-  "currentRunId": "e-20-t-20-05",
+  "currentRunId": "e-20-t-20-05-st-02",
   "currentPrdId": "PRD-v13-provider-entity-and-verified-stamp",
   "currentEpicId": "E-20",
   "currentTaskId": "T-20-05",
-  "currentSubTaskId": null,
+  "currentSubTaskId": "ST-02",
   "attemptCount": 0,
   "retrievalRound": 0,
-  "lastModel": "sonnet",
+  "lastModel": "opus",
   "escalated": false,
   "requiredModel": "high",
   "runnerName": "claude",
   "escalateIf": [],
-  "filesToTouch": [],
-  "lastCommitChanged": false,
+  "filesToTouch": [
+    "apps/web/src/routes/panel/provider/",
+    "apps/web/src/locales/pt/translation.json",
+    "apps/web/src/locales/en/translation.json"
+  ],
+  "lastCommitChanged": true,
   "lastFailureReason": null,
   "epicDone": false
 }

@@ -610,3 +610,15 @@ Next: T-20-04/ST-02 (pin platform-admin vs provider-scoped action split; apply g
 - Gates: bun run --filter server check-types clean; root bun run check clean (pre-existing optional-chain warning + broken-symlink info only).
 - Next: T-20-04/ST-03 (authorization integration tests).
 2026-06-25T13:04:55Z [T-20-04/ST-03] DONE: Authorization integration tests complete. admin-role-management: 14/14 (added provider rows for FK, FORBIDDEN assertions). provider-profile: 8/8 (distinct userId/providerId fixtures, non-owner FORBIDDEN, no-APPROVED-standing FORBIDDEN via announcement.create, owner+APPROVED allowed). T-20-04 fully done. Next: T-20-05.
+
+---
+2026-06-25 T-20-05/ST-01 DONE
+- Added $providerId panel segment with NO session/localStorage store: active provider derived from URL param every render (refresh-safe + deep-linkable).
+- panel.provider.$providerId.tsx layout: ActiveProviderIdProvider seeded from param + beforeLoad ownership gate (providerProfile.get({providerId}) throws for unowned → redirect to caller default via requireDefaultProviderId, else condo-setup). Complements T-20-04 server guards.
+- New -active-provider-context.tsx (provider + useActiveProviderId hook) and -resolve-active-provider.ts (resolveDefaultProviderId + requireDefaultProviderId).
+- Full content moved into $providerId variants (index, configuration, announcements + /,new,$id,$id/edit, anuncios/$id/pagamento); internal Link/navigate thread params.providerId. -announcement-form.tsx wired to useActiveProviderId for queries/mutations/nav.
+- Legacy segment-less routes converted to beforeLoad-only redirects into the $providerId variants (forwarding id/message); condo-setup left for ST-04.
+- Known limitation: multi-provider caller with no usable default lands in condo-setup until My Providers (ST-02) becomes the landing; no redirect loop.
+- Tests self-corrected: -panel.provider.announcements.test.tsx 19/19 (imports repointed to $providerId, useParams stubs carry providerId, renderRoute wraps ActiveProviderIdProvider); -provider-profile.test.tsx 20/20 (config repointed + wrapped); -panel.test.tsx 8/8.
+- Gates: web check-types clean except pre-existing TS5103 ignoreDeprecations; bun run check clean (pre-existing optional-chain warning + broken-symlink info only).
+- Run-state advanced to T-20-05/ST-02 (My Providers page).
