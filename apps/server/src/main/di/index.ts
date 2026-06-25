@@ -4,6 +4,8 @@ export type { AnnouncementRouterDependencies } from './announcement-router';
 export { createAnnouncementRouterDependencies } from './announcement-router';
 export type { AssignmentRouterDependencies } from './assignment-router';
 export { createAssignmentRouterDependencies } from './assignment-router';
+export type { AuthGuardDependencies } from './auth-guard';
+export { createAuthGuardDependencies } from './auth-guard';
 export type { CondominiumRouterDependencies } from './condominium-router';
 export { createCondominiumRouterDependencies } from './condominium-router';
 export type { ProviderProfileRouterDependencies } from './provider-profile-router';

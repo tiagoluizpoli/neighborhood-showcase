@@ -582,3 +582,17 @@ Task state:
   - T-20-03 fully complete. All 3 STs done.
   - Advanced run-state to T-20-04.
 Next: T-20-04 (Layered auth — global role + provider-scoped gating).
+
+---
+[2026-06-25] T-20-04/ST-01 DONE — Provider-scoped authorization guard (ownership + APPROVED standing)
+Code:
+  - `apps/server/src/main/di/auth-guard.ts` (new): composition-root factory `createAuthGuardDependencies()` → `{ providerRepository: DrizzleProviderRepository, assignmentRepository: DrizzleAssignmentRepository }`. Re-exported from `main/di/index.ts`.
+  - `apps/server/src/presentation/trpc.ts`: added provider-scoped guard. `assertProviderScopedAccess(input)` resolves target provider.id (findById excludes soft-deleted), throws NOT_FOUND if missing, FORBIDDEN if !isOwnedBy(userId), and (when requireApprovedAssignment) FORBIDDEN if !hasApprovedResidentAssignment(providerId). Wrappers `assertProviderOwnership` (ownership-only) and `assertProviderApprovedStanding` (ownership + APPROVED) make the two-layer distinction explicit. Repos wired at module scope via the DI factory so presentation never imports infrastructure directly.
+  - `context.ts` intentionally NOT modified: putting repos on the request Context widened the type and broke ~8 integration-test call sites that hand-build {auth,session}; module-scope wiring avoids that. filesToTouch listed context.ts but it was evaluated and left unchanged.
+Verification:
+  - bun run --filter server check-types ✅
+  - bun run check ✅ (pre-existing optional-chain warning + broken-symlink info only)
+Task state:
+  - T-20-04 ST-01 done. ST-02 (apply guards across routers) and ST-03 (auth integration tests) remain.
+  - Advance run-state to T-20-04/ST-02.
+Next: T-20-04/ST-02 (pin platform-admin vs provider-scoped action split; apply guards in admin/provider-profile/announcement-provider/assignment routers).

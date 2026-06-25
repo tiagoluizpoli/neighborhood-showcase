@@ -1,17 +1,22 @@
 {
-  "currentRunId": "e-20-t-20-04",
+  "currentRunId": "e-20-t-20-04-st-02",
   "currentPrdId": "PRD-v13-provider-entity-and-verified-stamp",
   "currentEpicId": "E-20",
   "currentTaskId": "T-20-04",
-  "currentSubTaskId": null,
-  "attemptCount": 0,
-  "retrievalRound": 0,
-  "lastModel": "sonnet",
+  "currentSubTaskId": "ST-02",
+  "attemptCount": 1,
+  "retrievalRound": 1,
+  "lastModel": "opus",
   "escalated": false,
   "requiredModel": "high",
   "runnerName": "claude",
   "escalateIf": [],
-  "filesToTouch": [],
+  "filesToTouch": [
+    "apps/server/src/presentation/routers/admin.ts",
+    "apps/server/src/presentation/routers/provider-profile.ts",
+    "apps/server/src/presentation/routers/announcement/provider.ts",
+    "apps/server/src/presentation/routers/assignment.ts"
+  ],
   "lastCommitChanged": false,
   "lastFailureReason": null,
   "epicDone": false

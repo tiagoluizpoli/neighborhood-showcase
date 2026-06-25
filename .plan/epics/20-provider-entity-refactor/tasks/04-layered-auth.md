@@ -2,7 +2,7 @@
 type: task
 id: T-20-04
 epic: E-20
-status: ready
+status: in-progress
 blocked-by: [T-20-01]
 default-model: high
 ---
@@ -28,7 +28,7 @@ Global role: `packages/db/src/schema/auth.ts`. Auth/procedure plumbing: `apps/se
 
 ### ST-01 - Provider-scoped authorization helper (ownership + approved assignment)
 
-status: ready
+status: done
 model: high
 escalate-if:
 - Resolving the active provider for gating requires the URL `$providerId` context owned by T-20-05 in a way that blocks server-side enforcement.
@@ -95,7 +95,38 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- ST-01 done. Provider-scoped guard added in
+  `apps/server/src/presentation/trpc.ts`:
+  - `assertProviderScopedAccess(input)` — core guard. Resolves the concrete
+    target `provider.id` via `ProviderRepository.findById` (already excludes
+    soft-deleted), throws `NOT_FOUND` if missing, `FORBIDDEN` if
+    `!provider.isOwnedBy(userId)`, and — when
+    `requireApprovedAssignment: true` — `FORBIDDEN` if
+    `AssignmentRepository.hasApprovedResidentAssignment(providerId)` is false.
+    Returns the resolved `Provider` for callers that need it.
+  - `assertProviderOwnership(input)` — ownership-only wrapper
+    (`requireApprovedAssignment: false`).
+  - `assertProviderApprovedStanding(input)` — ownership + APPROVED-standing
+    wrapper. This is the explicit distinction required by the sub-task: reads
+    and ownership-only mutations use the former; standing-requiring actions
+    (e.g. publishing announcements) use the latter.
+- Repositories wired through a new composition-root factory
+  `apps/server/src/main/di/auth-guard.ts`
+  (`createAuthGuardDependencies()` → `{ providerRepository, assignmentRepository }`),
+  re-exported from `main/di/index.ts`. `trpc.ts` instantiates the deps once at
+  module scope, so the presentation layer never imports infrastructure
+  directly (same composition-root seam the routers already use).
+- `context.ts` left unchanged: an earlier attempt added the repos to the tRPC
+  request context, but that widened the `Context` type and broke ~8 existing
+  integration-test call sites that hand-build `{ auth, session }` contexts for
+  `createCaller`. Module-scope wiring in `trpc.ts` keeps the guard injectable
+  via the composition root without forcing every test caller to supply repos.
+  The `filesToTouch` hint listed `context.ts`; it was evaluated and
+  intentionally not modified.
+- Guards are defined but not yet applied to routers (that is ST-02) and not yet
+  tested (ST-03).
+- Gates: `bun run --filter server check-types` clean; root `bun run check`
+  clean (pre-existing optional-chain warning + broken-symlink info only).
 
 ---
 
