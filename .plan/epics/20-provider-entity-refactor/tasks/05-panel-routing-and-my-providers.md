@@ -51,7 +51,7 @@ verification:
 
 ### ST-02 - My Providers page (list + empty state)
 
-status: ready
+status: done
 model: high
 escalate-if:
 - Listing owned providers needs a server contract not delivered by T-20-01's provider repository.
@@ -172,6 +172,60 @@ Tests fixed (broken by the legacy→redirect move + the form's new context dep):
 Gates: `bun run --filter web check-types` clean except the pre-existing web
 TS5103 `--ignoreDeprecations` error (untouched); `bun run check` clean
 (pre-existing optional-chain warning + broken-symlink info only).
+
+##### ST-02 (done)
+
+My Providers page (list + empty state) + the owner-facing list contract.
+
+Server contract (T-20-01's `ProviderRepository.listByOwner` exists but was not
+surfaced to the client; ST-02 wires it through — escalate-if was about the repo
+capability, which is present):
+- `application/use-cases/provider/list-owned-providers.ts` — `ListOwnedProviders`
+  use case (ctor-injected `ProviderRepository` + `ProviderProfileRepository`).
+  `execute({ ownerId })` → `listByOwner` (soft-deleted already excluded), then
+  enriches each provider with `displayName`/`logoUrl` from its profile (null when
+  no profile yet) since the `provider` entity carries no human label. Returns
+  `OwnedProviderSummary[]` (`{ id, displayName, logoUrl }`).
+- `provider-profile.ts` router: added `listMine` query (protectedProcedure,
+  owner-scoped on `ctx.session.user.id` — no per-provider ownership guard since
+  it only ever returns the caller's own providers).
+- `main/di/provider-profile-router.ts`: deps extended with
+  `listOwnedProvidersUseCase`, wired with `DrizzleProviderRepository` +
+  `ProviderProfileRepositoryImpl`. Real `appRouter` picks it up; the
+  provider-profile integration test (uses `appRouter.createCaller`) is unaffected.
+
+Web:
+- `panel.provider.my-providers.tsx` — route `/panel/provider/my-providers`, a
+  sibling of `$providerId` under the `panel.provider` group layout (so it sits
+  OUTSIDE the ownership-gated `$providerId` layout; reachable with zero
+  providers). `useQuery(trpc.providerProfile.listMine.queryOptions())`. Zero
+  providers → empty state (`my-providers-empty`) with a CTA into
+  `/panel/provider/condo-setup` ("create your first provider"). Populated → card
+  grid, each card a `Link to="/panel/provider/$providerId"` threading
+  `params.providerId`; unnamed providers fall back to `my_providers.unnamed`.
+- `routeTree.gen.ts` regenerated via `vite build` (no `tsr` CLI in repo).
+- i18n: `my_providers.*` block added to pt + en (page title/subtitle, create
+  button, empty title/description/cta, open_card aria, unnamed, loading,
+  load_error).
+
+Tests:
+- `-panel.provider.my-providers.test.tsx` (2/2): empty state CTA `data-to ===
+  /panel/provider/condo-setup`; populated cards carry
+  `data-to=/panel/provider/$providerId` + `data-params={providerId}`, unnamed
+  provider renders the localized placeholder.
+- Sibling web suites unaffected: `-panel.provider.test.tsx` 2/2,
+  `-panel.provider.announcements.test.tsx` 19/19, `-provider-profile.test.tsx`
+  20/20.
+
+Known limitation carried from ST-01: legacy redirects + `requireDefaultProviderId`
+still send a no-default caller to `condo-setup` rather than this page; making My
+Providers the multi-provider landing is folded into ST-03 (switcher) / the
+landing wiring.
+
+Gates: `bun run --filter server check-types` clean; `bun run --filter web
+check-types` clean except the pre-existing web TS5103 `--ignoreDeprecations`
+error (untouched); `bun run check` clean (pre-existing optional-chain warning +
+broken-symlink info only).
 
 ---
 

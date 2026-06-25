@@ -366,6 +366,18 @@
     "loading": "Carregando conta...",
     "unauthenticated": "Faça login para acessar sua conta."
   },
+  "my_providers": {
+    "page_title": "Meus Prestadores",
+    "page_subtitle": "Veja todos os prestadores que você administra e escolha em qual deseja trabalhar.",
+    "create_button": "Criar prestador",
+    "open_card": "Abrir {{name}}",
+    "unnamed": "Prestador sem nome",
+    "loading": "Carregando seus prestadores...",
+    "load_error": "Não foi possível carregar seus prestadores.",
+    "empty_title": "Você ainda não tem prestadores",
+    "empty_description": "Crie seu primeiro prestador para começar a publicar anúncios no seu condomínio.",
+    "empty_cta": "Criar seu primeiro prestador"
+  },
   "meus_anuncios": {
     "page_title": "Meus Anúncios",
     "page_subtitle": "Acompanhe seus anúncios por status e entre no detalhe de cada um.",

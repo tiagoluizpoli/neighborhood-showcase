@@ -27,6 +27,7 @@ import { Route as DashboardCondoSetupRouteImport } from './routes/dashboard.cond
 import { Route as PanelProviderIndexRouteImport } from './routes/panel.provider.index'
 import { Route as PanelModerationIndexRouteImport } from './routes/panel/moderation/index'
 import { Route as PanelDashboardIndexRouteImport } from './routes/panel.dashboard.index'
+import { Route as PanelProviderMyProvidersRouteImport } from './routes/panel.provider.my-providers'
 import { Route as PanelProviderConfigurationRouteImport } from './routes/panel/provider/configuration'
 import { Route as PanelProviderCondoSetupRouteImport } from './routes/panel.provider.condo-setup'
 import { Route as PanelProviderAnnouncementsRouteImport } from './routes/panel/provider/announcements'
@@ -154,6 +155,12 @@ const PanelDashboardIndexRoute = PanelDashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PanelDashboardRoute,
 } as any)
+const PanelProviderMyProvidersRoute =
+  PanelProviderMyProvidersRouteImport.update({
+    id: '/my-providers',
+    path: '/my-providers',
+    getParentRoute: () => PanelProviderRoute,
+  } as any)
 const PanelProviderConfigurationRoute =
   PanelProviderConfigurationRouteImport.update({
     id: '/configuration',
@@ -401,6 +408,7 @@ export interface FileRoutesByFullPath {
   '/panel/provider/announcements': typeof PanelProviderAnnouncementsRouteWithChildren
   '/panel/provider/condo-setup': typeof PanelProviderCondoSetupRoute
   '/panel/provider/configuration': typeof PanelProviderConfigurationRoute
+  '/panel/provider/my-providers': typeof PanelProviderMyProvidersRoute
   '/panel/dashboard/': typeof PanelDashboardIndexRoute
   '/panel/moderation/': typeof PanelModerationIndexRoute
   '/panel/provider/': typeof PanelProviderIndexRoute
@@ -450,6 +458,7 @@ export interface FileRoutesByTo {
   '/panel/moderation/residents': typeof PanelModerationResidentsRoute
   '/panel/provider/condo-setup': typeof PanelProviderCondoSetupRoute
   '/panel/provider/configuration': typeof PanelProviderConfigurationRoute
+  '/panel/provider/my-providers': typeof PanelProviderMyProvidersRoute
   '/panel/dashboard': typeof PanelDashboardIndexRoute
   '/panel/moderation': typeof PanelModerationIndexRoute
   '/panel/provider': typeof PanelProviderIndexRoute
@@ -507,6 +516,7 @@ export interface FileRoutesById {
   '/panel/provider/announcements': typeof PanelProviderAnnouncementsRouteWithChildren
   '/panel/provider/condo-setup': typeof PanelProviderCondoSetupRoute
   '/panel/provider/configuration': typeof PanelProviderConfigurationRoute
+  '/panel/provider/my-providers': typeof PanelProviderMyProvidersRoute
   '/panel/dashboard/': typeof PanelDashboardIndexRoute
   '/panel/moderation/': typeof PanelModerationIndexRoute
   '/panel/provider/': typeof PanelProviderIndexRoute
@@ -565,6 +575,7 @@ export interface FileRouteTypes {
     | '/panel/provider/announcements'
     | '/panel/provider/condo-setup'
     | '/panel/provider/configuration'
+    | '/panel/provider/my-providers'
     | '/panel/dashboard/'
     | '/panel/moderation/'
     | '/panel/provider/'
@@ -614,6 +625,7 @@ export interface FileRouteTypes {
     | '/panel/moderation/residents'
     | '/panel/provider/condo-setup'
     | '/panel/provider/configuration'
+    | '/panel/provider/my-providers'
     | '/panel/dashboard'
     | '/panel/moderation'
     | '/panel/provider'
@@ -670,6 +682,7 @@ export interface FileRouteTypes {
     | '/panel/provider/announcements'
     | '/panel/provider/condo-setup'
     | '/panel/provider/configuration'
+    | '/panel/provider/my-providers'
     | '/panel/dashboard/'
     | '/panel/moderation/'
     | '/panel/provider/'
@@ -829,6 +842,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/panel/dashboard/'
       preLoaderRoute: typeof PanelDashboardIndexRouteImport
       parentRoute: typeof PanelDashboardRoute
+    }
+    '/panel/provider/my-providers': {
+      id: '/panel/provider/my-providers'
+      path: '/my-providers'
+      fullPath: '/panel/provider/my-providers'
+      preLoaderRoute: typeof PanelProviderMyProvidersRouteImport
+      parentRoute: typeof PanelProviderRoute
     }
     '/panel/provider/configuration': {
       id: '/panel/provider/configuration'
@@ -1280,6 +1300,7 @@ interface PanelProviderRouteChildren {
   PanelProviderAnnouncementsRoute: typeof PanelProviderAnnouncementsRouteWithChildren
   PanelProviderCondoSetupRoute: typeof PanelProviderCondoSetupRoute
   PanelProviderConfigurationRoute: typeof PanelProviderConfigurationRoute
+  PanelProviderMyProvidersRoute: typeof PanelProviderMyProvidersRoute
   PanelProviderIndexRoute: typeof PanelProviderIndexRoute
   PanelProviderAnunciosIdPagamentoRoute: typeof PanelProviderAnunciosIdPagamentoRoute
 }
@@ -1289,6 +1310,7 @@ const PanelProviderRouteChildren: PanelProviderRouteChildren = {
   PanelProviderAnnouncementsRoute: PanelProviderAnnouncementsRouteWithChildren,
   PanelProviderCondoSetupRoute: PanelProviderCondoSetupRoute,
   PanelProviderConfigurationRoute: PanelProviderConfigurationRoute,
+  PanelProviderMyProvidersRoute: PanelProviderMyProvidersRoute,
   PanelProviderIndexRoute: PanelProviderIndexRoute,
   PanelProviderAnunciosIdPagamentoRoute: PanelProviderAnunciosIdPagamentoRoute,
 }

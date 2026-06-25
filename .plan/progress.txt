@@ -622,3 +622,13 @@ Next: T-20-04/ST-02 (pin platform-admin vs provider-scoped action split; apply g
 - Tests self-corrected: -panel.provider.announcements.test.tsx 19/19 (imports repointed to $providerId, useParams stubs carry providerId, renderRoute wraps ActiveProviderIdProvider); -provider-profile.test.tsx 20/20 (config repointed + wrapped); -panel.test.tsx 8/8.
 - Gates: web check-types clean except pre-existing TS5103 ignoreDeprecations; bun run check clean (pre-existing optional-chain warning + broken-symlink info only).
 - Run-state advanced to T-20-05/ST-02 (My Providers page).
+
+---
+2026-06-25 T-20-05/ST-02 DONE
+- My Providers page + the owner-facing list contract. T-20-01's ProviderRepository.listByOwner existed but was unsurfaced; ST-02 wired it through (escalate-if was about the repo capability, which is present — no escalation).
+- Server: application/use-cases/provider/list-owned-providers.ts (ListOwnedProviders; ctor-injected ProviderRepository + ProviderProfileRepository; execute({ownerId}) → listByOwner [soft-deleted excluded] enriched with displayName/logoUrl per profile → OwnedProviderSummary[]). provider-profile.ts router: listMine query (protectedProcedure, owner-scoped on session.user.id, no per-provider guard). main/di/provider-profile-router.ts: deps + DrizzleProviderRepository wiring. Real appRouter picks it up; provider-profile.integration.test unaffected.
+- Web: panel.provider.my-providers.tsx (route /panel/provider/my-providers, sibling of $providerId so OUTSIDE the ownership gate — reachable at zero providers). useQuery listMine. Empty state → CTA into condo-setup ("create your first provider"); populated → card grid, each Link to /panel/provider/$providerId threading params.providerId; unnamed → my_providers.unnamed. routeTree.gen.ts regenerated via vite build (no tsr CLI). i18n my_providers.* added pt+en.
+- Tests: -panel.provider.my-providers.test.tsx 2/2 (empty CTA data-to=condo-setup; cards data-to=$providerId + data-params={providerId}; unnamed fallback). Sibling suites unaffected: -panel.provider.test.tsx 2/2, -panel.provider.announcements.test.tsx 19/19, -provider-profile.test.tsx 20/20.
+- Known limitation (from ST-01): legacy redirects + requireDefaultProviderId still send a no-default caller to condo-setup, not this page; making My Providers the multi-provider landing folds into ST-03.
+- Gates: server check-types clean; web check-types clean except pre-existing TS5103 ignoreDeprecations; bun run check clean (pre-existing optional-chain warning + broken-symlink info only).
+- Run-state advanced to T-20-05/ST-03 (persistent header provider switcher).

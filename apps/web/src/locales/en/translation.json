@@ -366,6 +366,18 @@
     "loading": "Loading account...",
     "unauthenticated": "Sign in to access your account."
   },
+  "my_providers": {
+    "page_title": "My Providers",
+    "page_subtitle": "See every provider you manage and choose which one to work on.",
+    "create_button": "Create provider",
+    "open_card": "Open {{name}}",
+    "unnamed": "Unnamed provider",
+    "loading": "Loading your providers...",
+    "load_error": "We couldn't load your providers.",
+    "empty_title": "You don't have any providers yet",
+    "empty_description": "Create your first provider to start publishing announcements in your condominium.",
+    "empty_cta": "Create your first provider"
+  },
   "meus_anuncios": {
     "page_title": "My Announcements",
     "page_subtitle": "Track your announcements by status and open each detail view.",

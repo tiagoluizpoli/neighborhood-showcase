@@ -49,10 +49,23 @@ const updateProviderProfileSchema = providerProfileIdentitySchema.extend({
 export function createProviderProfileRouter(
   dependencies: ProviderProfileRouterDependencies,
 ) {
-  const { getProviderProfileUseCase, updateProviderProfileUseCase } =
-    dependencies;
+  const {
+    getProviderProfileUseCase,
+    updateProviderProfileUseCase,
+    listOwnedProvidersUseCase,
+  } = dependencies;
 
   return router({
+    // Owner-scoped list backing the "My Providers" panel page. Keyed on the
+    // caller's session id; soft-deleted providers are excluded by the repository.
+    // No per-provider ownership guard is needed — the list only ever returns the
+    // caller's own providers.
+    listMine: protectedProcedure.query(async ({ ctx }) => {
+      return listOwnedProvidersUseCase.execute({
+        ownerId: ctx.session.user.id,
+      });
+    }),
+
     get: protectedProcedure
       .input(providerProfileIdentitySchema.optional())
       .query(async ({ ctx, input }) => {
