@@ -55,6 +55,8 @@ export async function listAnnouncementsForModeration(
         eq(announcementSchema.condominiumId, condominiumId),
         inArray(announcementSchema.status, ['ACTIVE', 'SUSPENDED']),
         isNull(announcementSchema.deletedAt),
+        // Exclude announcements belonging to a soft-deleted provider.
+        isNull(providerSchema.deletedAt),
       ),
     );
 
@@ -76,12 +78,18 @@ export async function listAnnouncementsForModeration(
 export async function listReportedAnnouncements(
   input: ListReportedAnnouncementsRepositoryInput,
 ): Promise<ReportedAnnouncementDTO[]> {
+  // Exclude announcements whose provider is soft-deleted (provider is
+  // inner-joined below), alongside soft-deleted announcement rows.
   const announcementFilter = input.condominiumIds
     ? and(
         isNull(announcementSchema.deletedAt),
+        isNull(providerSchema.deletedAt),
         inArray(announcementSchema.condominiumId, input.condominiumIds),
       )
-    : isNull(announcementSchema.deletedAt);
+    : and(
+        isNull(announcementSchema.deletedAt),
+        isNull(providerSchema.deletedAt),
+      );
 
   const spotlightedAnnouncements = await db
     .select({

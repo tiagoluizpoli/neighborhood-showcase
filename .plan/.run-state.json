@@ -1,22 +1,22 @@
 {
-  "currentRunId": "e-20-t-20-03-st-02",
+  "currentRunId": "e-20-t-20-03-st-03",
   "currentPrdId": "PRD-v13-provider-entity-and-verified-stamp",
   "currentEpicId": "E-20",
   "currentTaskId": "T-20-03",
-  "currentSubTaskId": "ST-02",
+  "currentSubTaskId": "ST-03",
   "attemptCount": 1,
   "retrievalRound": 1,
-  "lastModel": "gpt-5.4",
+  "lastModel": "opus",
   "escalated": false,
-  "requiredModel": "high",
-  "runnerName": "hermes",
-  "escalateIf": [],
+  "requiredModel": "medium",
+  "runnerName": "claude",
+  "escalateIf": [
+    "Soft-delete exclusion cannot be asserted within the existing integration-test harness."
+  ],
   "filesToTouch": [
-    "apps/server/src/application/use-cases/announcement/create-announcement.ts",
-    "apps/server/src/application/use-cases/announcement/update-announcement.ts",
-    "apps/server/src/application/use-cases/announcement/get-provider-dashboard-data.ts",
-    "apps/server/src/application/use-cases/announcement/list-announcements-for-moderation.ts",
-    "apps/server/src/presentation/routers/announcement/"
+    "apps/server/src/application/use-cases/announcement/list-public-announcements.integration.test.ts",
+    "apps/server/src/application/use-cases/announcement/get-public-announcement.integration.test.ts",
+    "apps/server/src/application/use-cases/announcement/get-provider-dashboard-data.integration.test.ts"
   ],
   "lastCommitChanged": false,
   "lastFailureReason": null,

@@ -157,6 +157,10 @@ export function createProviderAnnouncementRouter(
     create: protectedProcedure
       .input(
         z.object({
+          // Optional active provider PK. Panel URLs key on $providerId in
+          // T-20-05; until then single-provider callers fall back to the
+          // session user id (which equals provider.id for those providers).
+          providerId: z.string().min(1).optional(),
           providerAssignmentId: z.string().min(1),
           title: z.string().min(3).max(100),
           subtitle: z.string().nullable().optional(),
@@ -178,7 +182,7 @@ export function createProviderAnnouncementRouter(
 
         try {
           const ann = await createAnnouncementUseCase.execute({
-            providerId: ctx.session.user.id,
+            providerId: input.providerId ?? ctx.session.user.id,
             providerAssignmentId: input.providerAssignmentId,
             title: input.title,
             subtitle: input.subtitle,
@@ -246,11 +250,19 @@ export function createProviderAnnouncementRouter(
         }
       }),
 
-    getDashboardData: protectedProcedure.query(async ({ ctx }) => {
-      return getProviderDashboardDataUseCase.execute({
-        providerId: ctx.session.user.id,
-      });
-    }),
+    getDashboardData: protectedProcedure
+      .input(
+        z
+          .object({
+            providerId: z.string().min(1).optional(),
+          })
+          .optional(),
+      )
+      .query(async ({ input, ctx }) => {
+        return getProviderDashboardDataUseCase.execute({
+          providerId: input?.providerId ?? ctx.session.user.id,
+        });
+      }),
 
     getAnalytics: protectedProcedure
       .input(
@@ -290,6 +302,9 @@ export function createProviderAnnouncementRouter(
     update: protectedProcedure
       .input(
         z.object({
+          // Optional active provider PK; see `create` above for the T-20-05
+          // routing seam. Falls back to the session user id today.
+          providerId: z.string().min(1).optional(),
           id: z.string().min(1),
           title: z.string().min(3).max(100),
           subtitle: z.string().nullable().optional(),
@@ -313,7 +328,7 @@ export function createProviderAnnouncementRouter(
                 phone: input.contactLinks?.phone,
               });
           const updatedAnn = await updateAnnouncementUseCase.execute({
-            actorId: ctx.session.user.id,
+            providerId: input.providerId ?? ctx.session.user.id,
             announcementId: input.id,
             title: input.title,
             subtitle: input.subtitle,

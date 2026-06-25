@@ -6,6 +6,7 @@ import {
   condominium as condominiumSchema,
   providerAssignment as providerAssignmentSchema,
   providerProfile as providerProfileSchema,
+  provider as providerSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { and, eq, isNull } from 'drizzle-orm';
 import type {
@@ -166,6 +167,11 @@ export async function findActiveAnnouncementsByProviderId(
       providerLocState: addressSchema.state,
     })
     .from(announcementSchema)
+    // Key on provider.id and drop announcements whose provider is soft-deleted.
+    .innerJoin(
+      providerSchema,
+      eq(announcementSchema.providerId, providerSchema.id),
+    )
     .innerJoin(
       categorySchema,
       eq(announcementSchema.categoryId, categorySchema.id),
@@ -191,6 +197,7 @@ export async function findActiveAnnouncementsByProviderId(
         eq(announcementSchema.providerId, providerId),
         eq(announcementSchema.status, 'ACTIVE'),
         isNull(announcementSchema.deletedAt),
+        isNull(providerSchema.deletedAt),
       ),
     );
 
@@ -276,6 +283,11 @@ export async function findDashboardAnnouncementsByProviderId(
       providerAssignmentId: announcementSchema.providerAssignmentId,
     })
     .from(announcementSchema)
+    // Key on provider.id and drop announcements whose provider is soft-deleted.
+    .innerJoin(
+      providerSchema,
+      eq(announcementSchema.providerId, providerSchema.id),
+    )
     .leftJoin(
       condominiumSchema,
       eq(announcementSchema.condominiumId, condominiumSchema.id),
@@ -292,6 +304,7 @@ export async function findDashboardAnnouncementsByProviderId(
       and(
         eq(announcementSchema.providerId, providerId),
         isNull(announcementSchema.deletedAt),
+        isNull(providerSchema.deletedAt),
       ),
     );
 

@@ -50,7 +50,7 @@ verification:
 
 ### ST-02 - Re-key panel/dashboard/moderation announcement paths + soft-delete exclusion
 
-status: in-progress
+status: done
 model: high
 escalate-if:
 - A panel write path needs the active-provider routing context owned by T-20-05 to resolve `provider.id`.
@@ -97,7 +97,34 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- ST-02 (done): panel/dashboard/moderation announcement paths re-keyed on
+  `provider.id` + provider soft-delete exclusion.
+  - `update-announcement.ts`: ownership now keys on `input.providerId`
+    (`announcement.providerId === providerId`) instead of the broken
+    `actorId` (user id) comparison left over from the re-key.
+  - `routers/announcement/provider.ts`: `create`, `getDashboardData`, and
+    `update` accept an optional `providerId` and feed the active provider PK
+    into the use-cases, falling back to `ctx.session.user.id` for legacy
+    single-provider callers (their `provider.id === user.id` in the seed)
+    until T-20-05 wires panel URLs onto `$providerId`. Same seam as T-20-02.
+  - Infra soft-delete exclusion (provider inner-joined, `provider.deletedAt
+    IS NULL`): `announcement-repository/provider.ts`
+    (`findDashboardAnnouncementsByProviderId`,
+    `findActiveAnnouncementsByProviderId`) and
+    `announcement-repository/moderation.ts` (`listAnnouncementsForModeration`
+    + `listReportedAnnouncements`).
+  - `create-announcement.ts` + `list-announcements-for-moderation.ts`
+    use-cases needed no change (create already keys on `input.providerId`;
+    moderation read exclusion lives in the repo).
+  - Gates: `bun run --filter server check-types` clean; root `bun run check`
+    clean (pre-existing optional-chain warning + broken-symlink info only).
+  - The announcement panel integration tests (`get-provider-dashboard-data`,
+    `update-announcement`) still fail at seed time on the T-20-01 provider-row
+    FK gap (`provider_profile_provider_id_provider_id_fk` /
+    `provider_location_provider_id_provider_id_fk`) — fixtures seed
+    profiles/locations without first inserting `provider` rows. This is
+    pre-existing (the untouched dashboard test fails identically) and is
+    exactly ST-03's fixture rebuild scope, not an ST-02 regression.
 
 ---
 

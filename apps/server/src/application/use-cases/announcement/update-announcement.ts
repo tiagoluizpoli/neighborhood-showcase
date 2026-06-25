@@ -25,7 +25,9 @@ export class VerifiedBadgeEligibilityError extends DomainError {
 }
 
 export interface UpdateAnnouncementInput {
-  actorId: string;
+  // The active provider PK (announcement.providerId references provider.id).
+  // Ownership is keyed on this, not on the actor's user id.
+  providerId: string;
   announcementId: string;
   title: string;
   subtitle?: string | null;
@@ -50,7 +52,7 @@ export class UpdateAnnouncement {
       input.announcementId,
     );
 
-    if (!announcement || announcement.providerId !== input.actorId) {
+    if (!announcement || announcement.providerId !== input.providerId) {
       throw new AnnouncementUpdateAccessDeniedError();
     }
 

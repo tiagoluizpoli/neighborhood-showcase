@@ -96,7 +96,7 @@ describe('UpdateAnnouncement use case', () => {
 
   test('updates owner announcement, reactivates suspended status, and flags for review', async () => {
     const result = await updateAnnouncement.execute({
-      actorId: ownerId,
+      providerId: ownerId,
       announcementId,
       title: 'New Title',
       subtitle: null,
@@ -132,7 +132,7 @@ describe('UpdateAnnouncement use case', () => {
 
   test('normalizes tags and price on update (parity with create)', async () => {
     await updateAnnouncement.execute({
-      actorId: ownerId,
+      providerId: ownerId,
       announcementId,
       title: 'Normalized Title',
       subtitle: null,
@@ -161,7 +161,7 @@ describe('UpdateAnnouncement use case', () => {
 
   test('persists inherit mode without a custom payload', async () => {
     await updateAnnouncement.execute({
-      actorId: ownerId,
+      providerId: ownerId,
       announcementId,
       title: 'Inherited Contact Title',
       subtitle: null,
@@ -191,7 +191,7 @@ describe('UpdateAnnouncement use case', () => {
   test('throws AnnouncementUpdateAccessDeniedError for non-owner', async () => {
     await expect(
       updateAnnouncement.execute({
-        actorId: outsiderId,
+        providerId: outsiderId,
         announcementId,
         title: 'New Title',
         subtitle: null,
@@ -218,7 +218,7 @@ describe('UpdateAnnouncement use case', () => {
 
     await expect(
       updateAnnouncement.execute({
-        actorId: ownerId,
+        providerId: ownerId,
         announcementId,
         title: 'New Title',
         subtitle: null,

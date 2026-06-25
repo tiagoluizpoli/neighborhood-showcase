@@ -546,3 +546,21 @@ Task state:
   - T-20-03 remains in-progress.
   - Advanced run-state to T-20-03/ST-02.
 Next: T-20-03/ST-02 (re-key panel/dashboard/moderation announcement paths + soft-delete exclusion).
+
+---
+[2026-06-25] T-20-03/ST-02 DONE — Panel/dashboard/moderation announcement paths re-keyed on provider.id + provider soft-delete exclusion
+Code:
+  - `apps/server/src/application/use-cases/announcement/update-announcement.ts`: ownership now keys on `input.providerId` (`announcement.providerId === providerId`) instead of the broken `actorId` (user-id) comparison left over from the T-20-01 re-key. Input field `actorId` -> `providerId`.
+  - `apps/server/src/presentation/routers/announcement/provider.ts`: `create`, `getDashboardData`, and `update` accept an optional `providerId` and feed the active provider PK into the use-cases, falling back to `ctx.session.user.id` for legacy single-provider callers (provider.id === user.id in the seed) until T-20-05 wires panel URLs onto `$providerId`. Same seam as T-20-02.
+  - `apps/server/src/infrastructure/db/announcement-repository/provider.ts`: inner-join `provider` + `provider.deletedAt IS NULL` in `findDashboardAnnouncementsByProviderId` and `findActiveAnnouncementsByProviderId`.
+  - `apps/server/src/infrastructure/db/announcement-repository/moderation.ts`: added `provider.deletedAt IS NULL` to `listAnnouncementsForModeration` and `listReportedAnnouncements` (provider already inner-joined).
+  - `create-announcement.ts` and `list-announcements-for-moderation.ts` use-cases unchanged (create already keys on `input.providerId`; moderation exclusion lives in the repo).
+  - Renamed `actorId` -> `providerId` in `update-announcement.integration.test.ts` to keep type-check green (full fixture rebuild + soft-delete assertions are ST-03).
+Verification:
+  - bun run --filter server check-types ✅
+  - bun run check ✅ (pre-existing optional-chain warning + broken-symlink info only)
+  - Per-file: `get-provider-dashboard-data` and `update-announcement` integration tests still fail at SEED time on the T-20-01 provider-row FK gap (`provider_profile_provider_id_provider_id_fk` / `provider_location_provider_id_provider_id_fk` — fixtures seed profiles/locations without first inserting `provider` rows). Pre-existing (the untouched dashboard test fails identically), NOT an ST-02 regression; this is exactly ST-03's fixture-rebuild scope.
+Task state:
+  - T-20-03 remains in-progress.
+  - Advanced run-state to T-20-03/ST-03.
+Next: T-20-03/ST-03 (integration tests for re-key + soft-delete exclusion — rebuild fixtures around distinct provider.id and provider rows).
