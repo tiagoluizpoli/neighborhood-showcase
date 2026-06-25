@@ -1,15 +1,32 @@
-import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from 'bun:test';
 import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
-import { providerProfile } from '@neighborhood-showcase/db/schema/showcase';
+import {
+  condominium,
+  provider,
+  providerAssignment,
+  providerProfile,
+} from '@neighborhood-showcase/db/schema/showcase';
+import { appRouter } from './index';
 
 describe('ProviderProfile Router Integration Tests', () => {
   const userAId = 'ppr-user-a-id';
   const userBId = 'ppr-user-b-id';
+  const providerAId = 'ppr-provider-a-id';
+  const providerBId = 'ppr-provider-b-id';
+  const condoId = 'ppr-condo-id';
+  const assignmentId = 'ppr-assignment-id';
 
   beforeAll(async () => {
-    // Clean slate
-    await db.delete(providerProfile);
+    // Cascade order: provider → providerProfile, providerAssignment; condo → announcement
+    await db.delete(condominium);
     await db.delete(user);
 
     await db.insert(user).values([
@@ -30,17 +47,45 @@ describe('ProviderProfile Router Integration Tests', () => {
         status: 'ACTIVE',
       },
     ]);
+
+    // Distinct provider PKs from user IDs — the new model
+    await db.insert(provider).values([
+      { id: providerAId, ownerId: userAId },
+      { id: providerBId, ownerId: userBId },
+    ]);
+
+    await db.insert(condominium).values({
+      id: condoId,
+      name: 'PPR Towers',
+      city: 'Florianópolis',
+      state: 'SC',
+      cep: '88000000',
+      createdBy: userAId,
+      status: 'APPROVED',
+    });
+
+    // APPROVED RESIDENT assignment for providerA — required by assertProviderApprovedStanding
+    await db.insert(providerAssignment).values({
+      id: assignmentId,
+      providerId: providerAId,
+      condominiumId: condoId,
+      type: 'RESIDENT',
+      status: 'APPROVED',
+      unitInfo: 'Apt 101',
+    });
+  });
+
+  afterAll(async () => {
+    await db.delete(condominium);
+    await db.delete(user);
   });
 
   beforeEach(async () => {
-    // Reset provider profiles between tests
     await db.delete(providerProfile);
   });
 
-  const createCaller = (userId: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { appRouter } = require('./index');
-    return appRouter.createCaller({
+  const createCaller = (userId: string) =>
+    appRouter.createCaller({
       auth: null,
       session: {
         session: {
@@ -66,13 +111,14 @@ describe('ProviderProfile Router Integration Tests', () => {
         },
       },
     });
-  };
 
-  test('(a) logged-in User A can get their own profile after update', async () => {
+  // --- Owner allowed (ownership guard passes) ---
+
+  test('(a) owner can get their own profile after update', async () => {
     const callerA = createCaller(userAId);
 
-    // Upsert first — profile may not exist yet
     await callerA.providerProfile.update({
+      providerId: providerAId,
       displayName: 'Provider A Profile',
       companyName: 'Company A',
       tradeName: 'TradeA',
@@ -82,7 +128,9 @@ describe('ProviderProfile Router Integration Tests', () => {
       isProviderVisible: true,
     });
 
-    const result = await callerA.providerProfile.get();
+    const result = await callerA.providerProfile.get({
+      providerId: providerAId,
+    });
 
     expect(result.displayName).toBe('Provider A Profile');
     expect(result.companyName).toBe('Company A');
@@ -95,70 +143,118 @@ describe('ProviderProfile Router Integration Tests', () => {
     expect(result.isProviderVisible).toBe(true);
   });
 
-  test('(b) logged-in User A can update their profile and changes persist', async () => {
+  test('(b) owner update persists across multiple writes', async () => {
     const callerA = createCaller(userAId);
 
     await callerA.providerProfile.update({
+      providerId: providerAId,
       displayName: 'First Name',
     });
 
-    const first = await callerA.providerProfile.get();
+    const first = await callerA.providerProfile.get({
+      providerId: providerAId,
+    });
     expect(first.displayName).toBe('First Name');
 
     await callerA.providerProfile.update({
+      providerId: providerAId,
       displayName: 'Updated Name',
       publicDescription: 'Updated description text.',
       isProviderVisible: false,
     });
 
-    const second = await callerA.providerProfile.get();
+    const second = await callerA.providerProfile.get({
+      providerId: providerAId,
+    });
     expect(second.displayName).toBe('Updated Name');
     expect(second.publicDescription).toBe('Updated description text.');
     expect(second.isProviderVisible).toBe(false);
-    // Unchanged fields stay intact
     expect(second.companyName).toBeNull();
   });
 
-  test('(c) User A CANNOT read User B profile (cross-tenant check)', async () => {
+  // --- Non-owner denied (ownership guard: FORBIDDEN) ---
+
+  test('(c) non-owner get is denied with FORBIDDEN', async () => {
     const callerA = createCaller(userAId);
-    const callerB = createCaller(userBId);
 
-    // User B creates a profile
-    await callerB.providerProfile.update({
-      displayName: 'User B Profile',
-      companyName: 'Company B',
-    });
-
-    // User A tries to get User B — but providerProfile.get() uses ctx.session.user.id
-    // so User A only ever gets their own. This is enforced by the router design.
-    // We verify User A's call fails with NOT_FOUND since their own profile doesn't exist yet
-    await expect(callerA.providerProfile.get()).rejects.toThrow(
-      expect.objectContaining({ code: 'NOT_FOUND' }),
-    );
+    await expect(
+      callerA.providerProfile.get({ providerId: providerBId }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 
-  test('(d) displayName with length < 3 is rejected', async () => {
+  test('(d) non-owner update is denied with FORBIDDEN', async () => {
     const callerA = createCaller(userAId);
 
     await expect(
       callerA.providerProfile.update({
-        displayName: 'AB', // 2 chars — below minimum
+        providerId: providerBId,
+        displayName: 'Hijack Attempt',
       }),
-    ).rejects.toMatchObject({
-      code: 'BAD_REQUEST',
-    });
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 
-  test('(e) publicDescription with length > 500 is rejected', async () => {
+  // --- APPROVED standing guard (assertProviderApprovedStanding) ---
+
+  test('(e) provider without APPROVED assignment is denied create announcement with FORBIDDEN', async () => {
+    // providerB has no assignment — assertProviderApprovedStanding must throw FORBIDDEN
+    const callerB = createCaller(userBId);
+
+    await expect(
+      callerB.announcement.create({
+        providerId: providerBId,
+        providerAssignmentId: 'nonexistent-assignment',
+        title: 'My Announcement',
+        description: 'This is a minimal test announcement description.',
+        imageUrl: 'http://localhost/img.jpg',
+        categoryId: 'cat-alimentacao',
+        tags: [],
+        showVerifiedBadge: false,
+      }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
+
+  test('(f) owner with APPROVED assignment passes the standing guard and creates announcement', async () => {
+    // providerA has APPROVED RESIDENT assignment — guard passes, use case runs
+    const callerA = createCaller(userAId);
+
+    const result = await callerA.announcement.create({
+      providerId: providerAId,
+      providerAssignmentId: assignmentId,
+      title: 'My Announcement',
+      description: 'This is a minimal test announcement description.',
+      imageUrl: 'http://localhost/img.jpg',
+      categoryId: 'cat-alimentacao',
+      tags: [],
+      contact: { mode: 'inherit', custom: null },
+      showVerifiedBadge: false,
+    });
+
+    expect(result).toBeDefined();
+    expect(result.providerId).toBe(providerAId);
+  });
+
+  // --- Input validation (Zod guard, pre-auth) ---
+
+  test('(g) displayName with length < 3 is rejected', async () => {
+    const callerA = createCaller(userAId);
+
+    await expect(
+      callerA.providerProfile.update({
+        providerId: providerAId,
+        displayName: 'AB',
+      }),
+    ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+  });
+
+  test('(h) publicDescription with length > 500 is rejected', async () => {
     const callerA = createCaller(userAId);
     const longDesc = 'A'.repeat(501);
 
     await expect(
       callerA.providerProfile.update({
+        providerId: providerAId,
         publicDescription: longDesc,
       }),
-    ).rejects.toMatchObject({
-      code: 'BAD_REQUEST',
-    });
+    ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
   });
 });

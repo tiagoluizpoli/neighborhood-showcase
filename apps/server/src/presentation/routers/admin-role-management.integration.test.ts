@@ -4,6 +4,7 @@ import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   providerAssignment as assignment,
   condominium,
+  provider,
   roleChangeLog,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
@@ -55,6 +56,13 @@ describe('Admin role management Integration Tests', () => {
         role: 'USER',
         status: 'ACTIVE',
       },
+    ]);
+
+    // assignModerator uses targetUserId as the providerAssignment.providerId (legacy
+    // pattern where userId === providerId). Seed provider rows so the FK is satisfied.
+    await db.insert(provider).values([
+      { id: userId, ownerId: userId },
+      { id: user2Id, ownerId: user2Id },
     ]);
 
     await db.insert(condominium).values({
@@ -217,11 +225,11 @@ describe('Admin role management Integration Tests', () => {
     expect(updated?.role).toBe('SYSTEM_MANAGER');
   });
 
-  test('promoteToSystemManager: rejects non-global-admin callers', async () => {
+  test('promoteToSystemManager: rejects non-global-admin callers with FORBIDDEN', async () => {
     const caller = createUserCaller();
-    expect(
+    await expect(
       caller.admin.promoteToSystemManager({ targetUserId: user2Id }),
-    ).rejects.toThrow();
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 
   test('promoteToSystemManager: returns NOT_FOUND for unknown user', async () => {
@@ -281,14 +289,14 @@ describe('Admin role management Integration Tests', () => {
     expect(result.success).toBe(true);
   });
 
-  test('assignModerator: rejects non-global-admin callers', async () => {
+  test('assignModerator: rejects non-global-admin callers with FORBIDDEN', async () => {
     const caller = createUserCaller();
-    expect(
+    await expect(
       caller.admin.assignModerator({
         targetUserId: user2Id,
         condominiumId: condoId,
       }),
-    ).rejects.toThrow();
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 
   test('assignModerator: returns NOT_FOUND for unknown user', async () => {
@@ -336,10 +344,10 @@ describe('Admin role management Integration Tests', () => {
     expect(result.isProviderVisible).toBe(false);
   });
 
-  test('toggleProviderVisibility: rejects non-global-admin callers', async () => {
+  test('toggleProviderVisibility: rejects non-global-admin callers with FORBIDDEN', async () => {
     const caller = createUserCaller();
-    expect(
+    await expect(
       caller.admin.toggleProviderVisibility({ targetUserId: user2Id }),
-    ).rejects.toThrow();
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 });

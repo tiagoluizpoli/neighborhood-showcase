@@ -2,7 +2,7 @@
 type: task
 id: T-20-04
 epic: E-20
-status: in-progress
+status: done
 blocked-by: [T-20-01]
 default-model: high
 ---
@@ -73,7 +73,7 @@ verification:
 
 ### ST-03 - Authorization integration tests
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The non-owner / no-approved-assignment denial cannot be exercised within the existing test harness.
@@ -177,6 +177,41 @@ verification:
   type/lint only.
 - Gates: `bun run --filter server check-types` clean; root `bun run check`
   clean (pre-existing optional-chain warning + broken-symlink info only).
+
+- ST-03 done. **Authorization integration tests added (14 + 8 = 22 per-file passes).**
+
+  `admin-role-management.integration.test.ts` (14 pass):
+  - Added `provider` table import and two provider rows (`{ id: userId, ownerId: userId }`,
+    `{ id: user2Id, ownerId: user2Id }`) in `beforeAll` to satisfy the
+    `providerAssignment.providerId → provider.id` FK used by `assignModerator` (legacy
+    pattern: moderator userId === providerId). Also satisfies the
+    `provider_profile.providerId → provider.id` FK used by `toggleProviderVisibility`
+    (`updateProviderVisibility` upserts a `provider_profile` row).
+  - The three "rejects non-global-admin callers" tests upgraded from `.rejects.toThrow()`
+    to `.rejects.toMatchObject({ code: 'FORBIDDEN' })`, explicitly asserting `adminProcedure`
+    returns the correct error code.
+
+  `provider-profile.integration.test.ts` (8 pass):
+  - Complete rewrite. Distinct `userId` / `providerId` identities:
+    `userAId='ppr-user-a-id'`, `providerAId='ppr-provider-a-id'`
+    (ownerId=userA); `userBId='ppr-user-b-id'`, `providerBId='ppr-provider-b-id'`
+    (ownerId=userB). `provider` rows seeded before `condominium` and `providerAssignment`.
+  - Condo `ppr-condo-id` + APPROVED RESIDENT assignment (`assignmentId`, `unitInfo: 'Apt 101'`)
+    seeded for providerA; providerB has NO assignment.
+  - Tests (a)–(b): owner `get`/`update` with explicit `providerId` → verify persistence.
+  - Tests (c)–(d): non-owner `get`/`update` with providerBId under callerA → `FORBIDDEN`.
+  - Test (e): providerB (no assignment) calls `announcement.create` → `FORBIDDEN`
+    from `assertProviderApprovedStanding`.
+  - Test (f): providerA (APPROVED assignment) calls `announcement.create` with
+    `contact: { mode: 'inherit', custom: null }` → resolves; `result.providerId === providerAId`.
+  - Tests (g)–(h): Zod validation (displayName < 3 → BAD_REQUEST; publicDescription > 500
+    → BAD_REQUEST). These fire before the guard.
+  - `afterAll` cascade-deletes via `db.delete(condominium)` + `db.delete(user)`.
+
+- Gates: 14/14 (admin-role-management), 8/8 (provider-profile) per-file.
+  `bun run --filter server check-types` clean; `bun run check` clean (pre-existing
+  optional-chain warning + broken-symlink info only).
+- T-20-04 fully done (all 3 STs complete). Next: T-20-05.
 
 ---
 

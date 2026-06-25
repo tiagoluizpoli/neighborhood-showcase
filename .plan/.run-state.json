@@ -1,23 +1,18 @@
 {
-  "currentRunId": "e-20-t-20-04-st-03",
+  "currentRunId": "e-20-t-20-05",
   "currentPrdId": "PRD-v13-provider-entity-and-verified-stamp",
   "currentEpicId": "E-20",
-  "currentTaskId": "T-20-04",
-  "currentSubTaskId": "ST-03",
-  "attemptCount": 1,
-  "retrievalRound": 1,
-  "lastModel": "opus",
+  "currentTaskId": "T-20-05",
+  "currentSubTaskId": null,
+  "attemptCount": 0,
+  "retrievalRound": 0,
+  "lastModel": "sonnet",
   "escalated": false,
-  "requiredModel": "medium",
+  "requiredModel": "high",
   "runnerName": "claude",
-  "escalateIf": [
-    "The non-owner / no-approved-assignment denial cannot be exercised within the existing test harness."
-  ],
-  "filesToTouch": [
-    "apps/server/src/presentation/routers/admin-role-management.integration.test.ts",
-    "apps/server/src/presentation/routers/provider-profile.integration.test.ts"
-  ],
-  "lastCommitChanged": true,
+  "escalateIf": [],
+  "filesToTouch": [],
+  "lastCommitChanged": false,
   "lastFailureReason": null,
   "epicDone": false
 }

@@ -609,3 +609,4 @@ Next: T-20-04/ST-02 (pin platform-admin vs provider-scoped action split; apply g
 - Existing router tests safe except provider-profile.integration.test.ts a/b (no provider rows seeded) which will fail the ownership guard until ST-03 rebuilds those fixtures — that file is ST-03's to-touch. ST-02 gates are type/lint only.
 - Gates: bun run --filter server check-types clean; root bun run check clean (pre-existing optional-chain warning + broken-symlink info only).
 - Next: T-20-04/ST-03 (authorization integration tests).
+2026-06-25T13:04:55Z [T-20-04/ST-03] DONE: Authorization integration tests complete. admin-role-management: 14/14 (added provider rows for FK, FORBIDDEN assertions). provider-profile: 8/8 (distinct userId/providerId fixtures, non-owner FORBIDDEN, no-APPROVED-standing FORBIDDEN via announcement.create, owner+APPROVED allowed). T-20-04 fully done. Next: T-20-05.
