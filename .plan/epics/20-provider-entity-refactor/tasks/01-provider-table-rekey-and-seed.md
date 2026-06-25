@@ -53,7 +53,7 @@ verification:
 
 ### ST-02 - Provider domain entity + repository
 
-status: ready
+status: done
 model: high
 escalate-if:
 - An existing consumer assumes a 1:1 user↔provider relation in a way that cannot be threaded to `provider.id` without a contract break beyond this slice.
@@ -143,6 +143,28 @@ verification:
 - Gates: server + db `check-types` clean (cache-hit); web fails only on
   pre-existing TS5103 `--ignoreDeprecations` (untouched by this slice).
 - Next: ST-02 (Provider domain entity + repository).
+
+- ST-02 (2026-06-24): Added `Provider` domain entity
+  (`apps/server/src/domain/entities/provider.entity.ts`) extending
+  `AuditableEntity` — getters `ownerId`, `deletedAt`, `isDeleted`, ownership
+  helper `isOwnedBy(userId)` (`ownerId === userId`); plus `ProviderNotFoundError`
+  (`DomainError`). `ProviderRepository` interface
+  (`apps/server/src/domain/repositories/provider.repository.ts`): `create`,
+  `findById` (excludes soft-deleted), `listByOwner` (excludes soft-deleted),
+  `softDelete`; `CreateProviderInput` param object (`id?`, `ownerId`).
+- `DrizzleProviderRepository`
+  (`apps/server/src/infrastructure/db/provider-repository.ts`) + `ProviderMapper`
+  (`apps/server/src/infrastructure/db/mappers/provider.mapper.ts`) follow
+  provider-profile/assignment prior art. `findById`/`listByOwner` filter
+  `and(eq(id|ownerId), isNull(deletedAt))`; `create` generates `crypto.randomUUID()`
+  when `id` absent; `softDelete` sets `deletedAt = new Date()`.
+- Composition-root wiring of existing consumers to `provider.id` is ST-03; this
+  slice only adds the entity + repo (no consumer assumed 1:1 user↔provider in a
+  way needing a contract break beyond the slice → no escalation).
+- Gates: server + db `check-types` clean; web fails only on pre-existing TS5103.
+  `bun run check` clean (pre-existing biome-config migrate warning + broken-symlink
+  info only; biome auto-collapsed the mapper `implements` line).
+- Next: ST-03 (thread `provider.id` through existing repos/mappers).
 
 ---
 

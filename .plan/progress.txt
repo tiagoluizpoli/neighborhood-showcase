@@ -408,3 +408,20 @@ Migration:
 Gates: server + db check-types clean (cache-hit); web fails only on pre-existing
   TS5103 --ignoreDeprecations (untouched by this DB-only slice).
 Advancing to ST-02 (Provider domain entity + repository).
+
+[2026-06-24] T-20-01/ST-02 DONE — Provider domain entity + repository
+Domain:
+  - provider.entity.ts: Provider extends AuditableEntity — getters ownerId,
+    deletedAt, isDeleted; ownership helper isOwnedBy(userId) (ownerId === userId).
+    + ProviderNotFoundError (DomainError).
+  - provider.repository.ts: ProviderRepository interface — create, findById
+    (excludes soft-deleted), listByOwner (excludes soft-deleted), softDelete;
+    CreateProviderInput param object (id?, ownerId).
+Infrastructure:
+  - provider-repository.ts: DrizzleProviderRepository. findById/listByOwner filter
+    and(eq(...), isNull(deletedAt)); create -> crypto.randomUUID() when id absent;
+    softDelete sets deletedAt = new Date().
+  - mappers/provider.mapper.ts: ProviderMapper (EntityMapper) toDomain/toPersistence.
+Gates: server + db check-types clean; web fails only on pre-existing TS5103.
+  bun run check clean (pre-existing biome-config warning + broken-symlink info only).
+Consumer wiring to provider.id deferred to ST-03. Advancing to ST-03.

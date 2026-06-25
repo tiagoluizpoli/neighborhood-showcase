@@ -1,23 +1,21 @@
 {
-  "currentRunId": "e-20-t-20-01-st-02",
+  "currentRunId": "e-20-t-20-01-st-03",
   "currentPrdId": "PRD-v13-provider-entity-and-verified-stamp",
   "currentEpicId": "E-20",
   "currentTaskId": "T-20-01",
-  "currentSubTaskId": "ST-02",
-  "attemptCount": 1,
-  "retrievalRound": 1,
+  "currentSubTaskId": "ST-03",
+  "attemptCount": 0,
+  "retrievalRound": 0,
   "lastModel": "opus",
   "escalated": false,
   "requiredModel": "high",
   "runnerName": "claude",
-  "escalateIf": [
-    "An existing consumer assumes a 1:1 user↔provider relation in a way that cannot be threaded to provider.id without a contract break beyond this slice."
-  ],
+  "escalateIf": [],
   "filesToTouch": [
-    "apps/server/src/domain/entities/provider.entity.ts",
-    "apps/server/src/domain/repositories/provider.repository.ts",
-    "apps/server/src/infrastructure/db/provider-repository.ts",
-    "apps/server/src/infrastructure/db/mappers/provider.mapper.ts"
+    "apps/server/src/infrastructure/db/provider-profile-repository.ts",
+    "apps/server/src/infrastructure/db/mappers/provider-profile.mapper.ts",
+    "apps/server/src/infrastructure/db/announcement-repository/",
+    "apps/server/src/infrastructure/db/mappers/"
   ],
   "lastCommitChanged": true,
   "lastFailureReason": null,
