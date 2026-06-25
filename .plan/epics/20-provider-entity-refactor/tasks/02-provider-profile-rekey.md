@@ -2,8 +2,8 @@
 type: task
 id: T-20-02
 epic: E-20
-status: ready
-blocked-by: [T-20-01]
+status: in-progress
+blocked-by: []
 default-model: high
 ---
 
@@ -27,7 +27,7 @@ Use-cases: `apps/server/src/application/use-cases/provider-profile/get-provider-
 
 ### ST-01 - Re-key provider-profile use-cases + soft-delete filter
 
-status: ready
+status: done
 model: high
 escalate-if:
 - A read path cannot exclude soft-deleted providers without a repository query change that conflicts with T-20-01's repo contract.
@@ -50,7 +50,7 @@ verification:
 
 ### ST-02 - Re-key provider-profile router contract
 
-status: ready
+status: in-progress
 model: medium
 escalate-if:
 - The router input/output cannot be keyed by `provider.id` without breaking a panel caller owned by T-20-05.
@@ -93,7 +93,7 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- 2026-06-24 — ST-01 complete. `ProviderProfileRepositoryImpl.findByProviderId()` now inner-joins `provider` and filters `provider.deletedAt IS NULL`, so panel profile reads stop leaking soft-deleted providers. `DrizzleUserRepository.findPublicProviderById()` now resolves the public profile by `provider.id` via `provider.ownerId -> user.id` and also filters soft-deleted providers, preserving auth-user fallback name/avatar while moving the public read onto the provider PK. Verification: `bun run --filter server check-types` ✅, `bun run check` ✅, root `bun run check-types` still fails only on the pre-existing web TS5103 `--ignoreDeprecations` issue.
 
 ---
 

@@ -471,9 +471,27 @@ Verification:
   - bun run src/infrastructure/db/seed.ts ✅
   - live DB query confirmed the 3 required states ✅
   - bun run --filter server check-types ✅
-  - bun run check ✅ (pre-existing Biome deprecation warning + broken symlink info only)
+  - bun run check ✅ (pre-existing Biome deprecation warning + broken-symlink info only)
   - bun run check-types -> only pre-existing web TS5103 --ignoreDeprecations failure
 Task state:
   - T-20-01 fully complete.
   - Advanced run-state to T-20-02/ST-01.
 Next: T-20-02/ST-01 (re-key provider-profile use-cases + soft-delete filter).
+
+---
+[2026-06-24] T-20-02/ST-01 DONE — Provider-profile reads now key on provider.id and exclude soft-deleted providers
+Code:
+  - apps/server/src/infrastructure/db/provider-profile-repository.ts now resolves profiles through
+    provider_profile.providerId -> provider.id and filters provider.deletedAt IS NULL before mapping.
+  - apps/server/src/infrastructure/db/user-repository.ts public provider read now starts from provider,
+    joins provider.ownerId -> user.id for auth-user fallback fields, resolves provider_profile by
+    provider.id, and excludes soft-deleted providers.
+Behavior:
+  - Panel provider-profile reads stop returning rows for soft-deleted providers.
+  - Public provider-profile reads now resolve branding/contact data by provider.id instead of assuming
+    provider.id === user.id.
+Verification:
+  - bun run --filter server check-types ✅
+  - bun run check ✅ (pre-existing Biome deprecation warning + broken-symlink info only)
+  - bun run check-types -> only pre-existing web TS5103 --ignoreDeprecations failure
+Next: T-20-02/ST-02 (re-key provider-profile router contract).

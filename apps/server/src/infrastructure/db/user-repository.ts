@@ -11,9 +11,19 @@ import {
   condominium as condominiumSchema,
   providerAssignment as providerAssignmentSchema,
   providerProfile as providerProfileSchema,
+  provider as providerSchema,
   roleChangeLog as roleChangeLogSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
-import { and, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
+import {
+  and,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  or,
+  type SQL,
+  sql,
+} from 'drizzle-orm';
 import { User } from '../../domain/entities/user.entity';
 import type {
   ListProvidersRepositoryInput,
@@ -63,7 +73,7 @@ export class DrizzleUserRepository implements UserRepository {
   ): Promise<PublicProviderProfileDTO | null> {
     const [row] = await db
       .select({
-        id: userSchema.id,
+        id: providerSchema.id,
         status: userSchema.status,
         deletedAt: userSchema.deletedAt,
         fallbackName: userSchema.name,
@@ -81,12 +91,13 @@ export class DrizzleUserRepository implements UserRepository {
         contactMetadata: providerProfileSchema.contactMetadata,
         isProviderVisible: providerProfileSchema.isProviderVisible,
       })
-      .from(userSchema)
+      .from(providerSchema)
+      .innerJoin(userSchema, eq(providerSchema.ownerId, userSchema.id))
       .leftJoin(
         providerProfileSchema,
-        eq(providerProfileSchema.providerId, userSchema.id),
+        eq(providerProfileSchema.providerId, providerSchema.id),
       )
-      .where(eq(userSchema.id, id))
+      .where(and(eq(providerSchema.id, id), isNull(providerSchema.deletedAt)))
       .limit(1);
 
     if (!row) {

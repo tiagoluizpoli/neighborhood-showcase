@@ -1,6 +1,9 @@
 import { db } from '@neighborhood-showcase/db';
-import { providerProfile as providerProfileSchema } from '@neighborhood-showcase/db/schema/showcase';
-import { eq } from 'drizzle-orm';
+import {
+  providerProfile as providerProfileSchema,
+  provider as providerSchema,
+} from '@neighborhood-showcase/db/schema/showcase';
+import { and, eq, isNull } from 'drizzle-orm';
 import type { ProviderProfile } from '../../domain/entities/provider-profile.entity';
 import type {
   ProviderProfileRepository,
@@ -15,14 +18,23 @@ export class ProviderProfileRepositoryImpl
 
   async findByProviderId(providerId: string): Promise<ProviderProfile | null> {
     const [row] = await db
-      .select()
+      .select({ profile: providerProfileSchema })
       .from(providerProfileSchema)
-      .where(eq(providerProfileSchema.providerId, providerId))
+      .innerJoin(
+        providerSchema,
+        eq(providerProfileSchema.providerId, providerSchema.id),
+      )
+      .where(
+        and(
+          eq(providerProfileSchema.providerId, providerId),
+          isNull(providerSchema.deletedAt),
+        ),
+      )
       .limit(1);
 
     if (!row) return null;
 
-    return this.mapper.toDomain(row);
+    return this.mapper.toDomain(row.profile);
   }
 
   async upsert(input: UpsertProviderProfileInput): Promise<ProviderProfile> {
