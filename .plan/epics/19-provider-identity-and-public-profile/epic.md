@@ -28,7 +28,6 @@ Current state: the public page `apps/web/src/routes/_portal.providers.$id.tsx` r
 | T-19-04 | Configuration IA reorg, identity-first | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/04-configuration-ia-reorg.md` |
 | T-19-05 | Public page identity-hero recomposition | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/05-public-page-recomposition.md` |
 | T-19-06 | i18n pt/en parity and cross-surface E2E matrix | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/06-i18n-parity-and-e2e-matrix.md` |
-
 ---
 
 <!-- INDEX SYNC: After completing or modifying any child task file, run

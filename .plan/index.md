@@ -5,7 +5,7 @@
 
 ## Current Run Family
 
-- Current PRD: `.plan/prds/PRD-v12-provider-identity-and-public-profile.md`
+- Current PRD: `.plan/prds/PRD-v13-provider-entity-and-verified-stamp.md`
 - Current PRD pointer: `.plan/prds/.current-prd`
 - Current grilling pointer: `.plan/grilling/.current-session`
 - Current grill handoff pointer: `.plan/handoffs/.current-grill-handoff`
@@ -32,7 +32,8 @@
 | SUPERSEDED | v9 | Panel shell, layout, and navigation | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | `.plan/prds/PRD-v9-panel-shell-layout-and-navigation.md` | 2026-06-19 |
 | SUPERSEDED | v10 | Announcement creation and authoring model | `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md` | `.plan/prds/PRD-v10-announcement-creation-and-authoring-model.md` | 2026-06-20 |
 | SUPERSEDED | v11 | Announcement detail, edit split, and analytics | `.plan/prds/PRD-v11-announcement-detail-edit-and-analytics.md` | `.plan/prds/PRD-v11-announcement-detail-edit-and-analytics.md` | 2026-06-22 |
-| CURRENT | v12 | Provider identity, configuration IA, and public profile | `.plan/prds/PRD-v12-provider-identity-and-public-profile.md` | `.plan/prds/PRD-v12-provider-identity-and-public-profile.md` | 2026-06-23 |
+| SUPERSEDED | v12 | Provider identity, configuration IA, and public profile | `.plan/prds/PRD-v12-provider-identity-and-public-profile.md` | `.plan/prds/PRD-v12-provider-identity-and-public-profile.md` | 2026-06-23 |
+| CURRENT | v13 | Provider entity refactor and verified resident stamp | `.plan/prds/PRD-v13-provider-entity-and-verified-stamp.md` | `.plan/prds/PRD-v13-provider-entity-and-verified-stamp.md` | 2026-06-24 |
 
 ## Epics
 
@@ -45,6 +46,8 @@
 | E-17 | Announcement Creation and Authoring Model | done | — | `.plan/epics/17-announcement-creation-and-authoring-model/epic.md` |
 | E-18 | Announcement Detail, Edit Split, and Analytics | done | — | `.plan/epics/18-announcement-detail-edit-and-analytics/epic.md` |
 | E-19 | Provider Identity, Configuration IA, and Public Profile | done | — | `.plan/epics/19-provider-identity-and-public-profile/epic.md` |
+| E-20 | Provider Entity Refactor | ready | — | `.plan/epics/20-provider-entity-refactor/epic.md` |
+| E-21 | Verified Resident Stamp | ready | — | `.plan/epics/21-verified-resident-stamp/epic.md` |
 
 ## Tasks
 
@@ -90,7 +93,14 @@
 | T-19-04 | E-19 | Configuration IA reorg, identity-first | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/04-configuration-ia-reorg.md` |
 | T-19-05 | E-19 | Public page identity-hero recomposition | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/05-public-page-recomposition.md` |
 | T-19-06 | E-19 | i18n pt/en parity and cross-surface E2E matrix | done | — | `.plan/epics/19-provider-identity-and-public-profile/tasks/06-i18n-parity-and-e2e-matrix.md` |
-
+| T-20-01 | E-20 | Provider table, re-key migration, domain/repo plumbing, seed rebuild | ready | — | `.plan/epics/20-provider-entity-refactor/tasks/01-provider-table-rekey-and-seed.md` |
+| T-20-02 | E-20 | Provider-profile read/write re-key + soft-delete exclusion | ready | T-20-01 | `.plan/epics/20-provider-entity-refactor/tasks/02-provider-profile-rekey.md` |
+| T-20-03 | E-20 | Announcement read/write re-key + soft-delete exclusion | ready | T-20-01 | `.plan/epics/20-provider-entity-refactor/tasks/03-announcement-rekey.md` |
+| T-20-04 | E-20 | Layered auth — global role + provider-scoped gating | ready | T-20-01 | `.plan/epics/20-provider-entity-refactor/tasks/04-layered-auth.md` |
+| T-20-05 | E-20 | Panel `$providerId` routing + My Providers + switcher + onboarding | ready | T-20-01, T-20-04 | `.plan/epics/20-provider-entity-refactor/tasks/05-panel-routing-and-my-providers.md` |
+| T-21-01 | E-21 | `get-public-profile` condo contract | ready | T-20-02 | `.plan/epics/21-verified-resident-stamp/tasks/01-get-public-profile-condo-contract.md` |
+| T-21-02 | E-21 | Verified stamp UI + i18n keys | ready | T-21-01 | `.plan/epics/21-verified-resident-stamp/tasks/02-verified-stamp-ui-and-i18n.md` |
+| T-21-03 | E-21 | i18n pt/en parity pass + cross-surface E2E matrix | ready | T-21-02, T-20-05 | `.plan/epics/21-verified-resident-stamp/tasks/03-i18n-parity-and-e2e-matrix.md` |
 ## Migration Note
 
 - The active workflow has been cut over to `.plan/`.
