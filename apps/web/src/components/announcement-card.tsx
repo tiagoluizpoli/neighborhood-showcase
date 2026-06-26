@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from '@neighborhood-showcase/ui/components/card';
 import { useNavigate } from '@tanstack/react-router';
-import { CheckCircle2, Mail, MessageCircle, Phone } from 'lucide-react';
+import { Mail, MessageCircle, Phone } from 'lucide-react';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -22,6 +22,7 @@ import {
   ctaAnalyticsTarget,
   resolveCtaHref,
 } from '@/components/announcement-cta';
+import { VerifiedResidentStamp } from '@/components/verified-resident-stamp';
 import type { RouterOutputs } from '@/utils/trpc';
 
 type PublicAnnouncement = RouterOutputs['announcement']['listPublic'][number];
@@ -158,6 +159,10 @@ export function AnnouncementCard({
           currency: 'BRL',
         }).format(ad.priceCents / 100)
       : null;
+  const shouldShowVerifiedResidentStamp =
+    ad.showVerifiedBadge &&
+    Boolean(ad.providerAssignmentId) &&
+    Boolean(ad.condoName);
 
   return (
     <Card
@@ -230,10 +235,13 @@ export function AnnouncementCard({
               <AvatarFallback>{getInitials(ad.providerName)}</AvatarFallback>
             </Avatar>
             <span className="flex items-center gap-1 truncate font-semibold text-foreground text-xs">
-              {ad.providerName}
-              {ad.showVerifiedBadge && (
-                <CheckCircle2 className="h-3.5 w-3.5 shrink-0 fill-current text-primary" />
-              )}
+              <span className="truncate">{ad.providerName}</span>
+              {shouldShowVerifiedResidentStamp && ad.condoName ? (
+                <VerifiedResidentStamp
+                  condoName={ad.condoName}
+                  variant="card"
+                />
+              ) : null}
             </span>
           </a>
 

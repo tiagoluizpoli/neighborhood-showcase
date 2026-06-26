@@ -2,7 +2,7 @@
 type: task
 id: T-21-02
 epic: E-21
-status: in-progress
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -72,7 +72,7 @@ verification:
 
 ### ST-03 - Announcement-card hybrid-gate mark
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The card lacks the provider eligibility signal needed for the hybrid gate without a contract change to the card's data source.
@@ -98,6 +98,9 @@ verification:
 - 2026-06-26 ST-02 DONE: `apps/web/src/components/provider-identity-hero.tsx` gained an additive `bannerBadge` slot so the public provider hero can dock the verified-resident pill in the banner's top-right corner without recomposing the existing identity block or disturbing the configuration-preview consumer.
 - 2026-06-26 ST-02 DONE: `apps/web/src/routes/_portal.providers.$id.tsx` now reuses `VerifiedResidentStamp` on the public provider page. Eligible providers (`verifiedCondo` present, with an announcements-based condo-name fallback when seed/mock data still exposes only `isVerified`) render the condo-name-only mark in the hero; sparse/no-banner profiles get the same mark in a neutral absolute top-right position with no broken placeholder for non-eligible providers.
 - 2026-06-26 ST-02 DONE: verification — `bun test src/routes/-provider-profile.test.tsx` passed in `apps/web`; repo-root `bun run check` passed; repo-root `bun run --filter web check-types` still fails only on the pre-existing web TS5103 `--ignoreDeprecations` config error; targeted `bun x tsc --project tsconfig.json --ignoreDeprecations 5.0 --noEmit` still fails only on the pre-existing condo-setup prop mismatches outside T-21-02/ST-02; `bun run test:e2e` remains red on stale/unrelated Playwright expectations outside this sub-task (public-provider selectors/snapshots deferred to T-21-03).
+- 2026-06-26 ST-03 DONE: `apps/web/src/components/announcement-card.tsx` now reuses `VerifiedResidentStamp` for the public-card provider identity row instead of the legacy check icon. The hybrid gate is enforced locally as `showVerifiedBadge && providerAssignmentId && condoName`, so the card only renders the condo-name mark when the announcement is opted in and still carries the provider-assignment/condo context required for an approved resident announcement.
+- 2026-06-26 ST-03 DONE: `apps/web/src/components/announcement-card.test.tsx` now asserts the hybrid gate explicitly: the mark renders with the localized `aria-label` when the announcement is opted in, disappears when `showVerifiedBadge` is false, and disappears when the assignment context is absent.
+- 2026-06-26 ST-03 DONE: verification — `bun test --preload ./test-setup.ts src/components/announcement-card.test.tsx` passed in `apps/web` (15/15). Repo-root `bun run check` passed with only the pre-existing Biome deprecation warning + optional-chain info. Repo-root `bun run --filter web check-types` still fails only on the pre-existing TS5103 `--ignoreDeprecations` config error. Repo-root `bun run test` remains red on pre-existing provider-FK fixture debt outside T-21-02. Repo-root `bun run test:e2e` remains red on pre-existing Playwright failures outside T-21-02/T-21-03 (configuration/dashboard/public-provider matrix debt).
 
 ---
 

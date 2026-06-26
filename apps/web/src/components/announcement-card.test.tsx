@@ -55,6 +55,7 @@ describe('AnnouncementCard', () => {
   const mockAd = {
     id: 'ann-123',
     providerId: 'prov-456',
+    providerAssignmentId: 'assignment-123',
     condominiumId: 'condo-789',
     condoName: 'Condominio Central',
     condoCity: 'Florianópolis',
@@ -108,15 +109,40 @@ describe('AnnouncementCard', () => {
     expect(onContactClick).toHaveBeenCalled();
   });
 
-  test('shows verified badge near provider name', () => {
-    const { container } = renderCard({ ad: mockAd });
-    const providerLink = container.querySelector(
-      'a[href="/providers/prov-456"]',
-    );
-    expect(providerLink).toBeTruthy();
+  test('shows the verified resident stamp only under the hybrid gate', () => {
+    const { container, rerender } = renderCard({ ad: mockAd });
     expect(
-      providerLink?.querySelector('.fill-current.text-primary'),
+      screen.getByLabelText('Morador verificado em Condominio Central'),
     ).toBeTruthy();
+    expect(container.textContent).toContain('Condominio Central');
+
+    rerender(
+      <I18nextProvider i18n={i18n}>
+        <AnnouncementCard
+          ad={{
+            ...mockAd,
+            showVerifiedBadge: false,
+          }}
+        />
+      </I18nextProvider>,
+    );
+    expect(
+      screen.queryByLabelText('Morador verificado em Condominio Central'),
+    ).toBeNull();
+
+    rerender(
+      <I18nextProvider i18n={i18n}>
+        <AnnouncementCard
+          ad={{
+            ...mockAd,
+            providerAssignmentId: null,
+          }}
+        />
+      </I18nextProvider>,
+    );
+    expect(
+      screen.queryByLabelText('Morador verificado em Condominio Central'),
+    ).toBeNull();
   });
 
   test('displays correct location/proximity text based on confidence rules', () => {

@@ -679,3 +679,11 @@ Next: T-20-04/ST-02 (pin platform-admin vs provider-scoped action split; apply g
 - `apps/web/src/routes/_portal.providers.$id.tsx` now derives `verifiedCondoName` from `provider.verifiedCondo?.condoName` with an announcements-based fallback for older seed/mock fixtures that still expose only `isVerified`, then renders the same shared stamp in bannered and sparse/no-banner hero layouts.
 - Verification: `bun test src/routes/-provider-profile.test.tsx` pass (run from `apps/web`); repo-root `bun run check` pass; repo-root `bun run --filter web check-types` still fails only on the pre-existing TS5103 `--ignoreDeprecations` config error; targeted `bun x tsc --project tsconfig.json --ignoreDeprecations 5.0 --noEmit` still fails only on the pre-existing condo-setup prop mismatches outside this slice; repo-root `bun run test:e2e` remains red on stale/unrelated Playwright expectations deferred to T-21-03.
 - Run-state advanced to T-21-02/ST-03 (announcement-card hybrid-gate mark).
+
+---
+2026-06-26 T-21-02/ST-03 DONE → T-21-02 FULLY DONE
+- `apps/web/src/components/announcement-card.tsx` now reuses `VerifiedResidentStamp` in the provider identity row instead of the legacy check icon.
+- The announcement-card hybrid gate is enforced as `showVerifiedBadge && providerAssignmentId && condoName`, so the condo-name mark renders only when the announcement is opted in and still carries the assignment/condo context needed for an approved resident announcement.
+- `apps/web/src/components/announcement-card.test.tsx` now asserts the localized mark appears under that gate and disappears when either `showVerifiedBadge` is false or the assignment context is absent.
+- Verification: `bun test --preload ./test-setup.ts src/components/announcement-card.test.tsx` pass (15/15, run from `apps/web`); repo-root `bun run check` pass with pre-existing Biome deprecation warning + optional-chain info only; repo-root `bun run --filter web check-types` still fails only on the pre-existing TS5103 `--ignoreDeprecations` config error; repo-root `bun run test` remains red on pre-existing provider-FK fixture debt outside T-21-02; repo-root `bun run test:e2e` remains red on pre-existing Playwright failures outside T-21-02/T-21-03.
+- T-21-02 fully done. Run-state advanced to T-21-03/ST-01 (i18n parity pass + cross-surface E2E matrix).
