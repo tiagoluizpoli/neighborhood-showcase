@@ -7,7 +7,7 @@ import {
 import { InvalidAddressError } from '../../application/use-cases/assignment/register-external-location';
 import type { AssignmentRepository } from '../../domain/repositories/assignment.repository';
 import { createAssignmentRouterDependencies } from '../../main/di';
-import { protectedProcedure, router } from '../trpc';
+import { assertProviderOwnership, protectedProcedure, router } from '../trpc';
 
 const checkModerator = async (
   userId: string,
@@ -47,14 +47,28 @@ export function createAssignmentRouter(
     request: protectedProcedure
       .input(
         z.object({
+          // Optional: the repeatable create flow (T-20-05/ST-04) passes a
+          // freshly-minted providerId so a RESIDENT assignment is created for
+          // the new provider. Legacy single-provider callers omit it and fall
+          // back to the session id (provider.id === user.id in the seed).
+          providerId: z.string().min(1).optional(),
           condominiumId: z.string().min(1),
           unitInfo: z.string().min(1).max(100),
           proofOfResidency: z.string().optional(),
         }),
       )
       .mutation(async ({ input, ctx }) => {
+        const providerId = input.providerId ?? ctx.session.user.id;
+        // When an explicit providerId is supplied, enforce ownership so a
+        // caller cannot create an assignment for a provider they do not own.
+        if (input.providerId) {
+          await assertProviderOwnership({
+            providerId: input.providerId,
+            userId: ctx.session.user.id,
+          });
+        }
         const assign = await requestAssignmentUseCase.execute({
-          providerId: ctx.session.user.id,
+          providerId,
           condominiumId: input.condominiumId,
           unitInfo: input.unitInfo,
           proofOfResidency: input.proofOfResidency,
@@ -179,6 +193,9 @@ export function createAssignmentRouter(
     registerExternal: protectedProcedure
       .input(
         z.object({
+          // See `request`: the repeatable create flow passes a minted
+          // providerId; legacy callers omit it.
+          providerId: z.string().min(1).optional(),
           cep: z.string().min(8).max(9),
           street: z.string().min(1),
           neighborhood: z.string().min(1),
@@ -189,9 +206,15 @@ export function createAssignmentRouter(
         }),
       )
       .mutation(async ({ input, ctx }) => {
+        if (input.providerId) {
+          await assertProviderOwnership({
+            providerId: input.providerId,
+            userId: ctx.session.user.id,
+          });
+        }
         try {
           const result = await registerExternalUseCase.execute({
-            providerId: ctx.session.user.id,
+            providerId: input.providerId ?? ctx.session.user.id,
             cep: input.cep,
             street: input.street,
             neighborhood: input.neighborhood,

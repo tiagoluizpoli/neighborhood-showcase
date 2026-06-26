@@ -2,7 +2,7 @@
 type: task
 id: T-20-05
 epic: E-20
-status: in-progress
+status: done
 blocked-by: [T-20-01, T-20-04]
 default-model: high
 ---
@@ -99,7 +99,7 @@ verification:
 
 ### ST-04 - Repeatable condo-setup create-provider flow
 
-status: ready
+status: done
 model: high
 escalate-if:
 - Making condo-setup repeatable requires a backend create-provider contract not delivered by T-20-01.
@@ -277,6 +277,90 @@ auto-formatted the two touched files). dependency-cruiser: no layer violations.
 Note: making My Providers the multi-provider landing (the ST-01/ST-02 known
 limitation) is still open and now most naturally folds into ST-04's create-flow
 landing wiring.
+
+##### ST-04 (done)
+
+Repeatable condo-setup create-provider flow + the backend create-provider
+contract it needs.
+
+Escalate-if check (mirrors ST-02): the trigger was "a backend create-provider
+contract not delivered by T-20-01". T-20-01 delivered `ProviderRepository.create`
+(the repo capability is present); ST-04 wires it through application +
+presentation, same as ST-02 surfaced `listByOwner`. No escalation. Confirmed by
+inspection that NO runtime path minted a `provider` row — every flow hardcoded
+`providerId = ctx.session.user.id`, working only because the seed keeps
+`provider.id === user.id` for single-provider users. A brand-new signup owns no
+provider row at all, so the first AND the Nth provider both need minting.
+
+Backend (server scope, beyond the declared web files — precedented by ST-02):
+- `application/use-cases/provider/create-provider.ts` — `CreateProvider`
+  (ctor-injected `ProviderRepository` + `ProviderProfileRepository`).
+  `execute({ ownerId, displayName })` mints a provider via `providerRepo.create`
+  AND upserts a minimal **hidden** default profile (`isProviderVisible: false`).
+  The default profile is load-bearing: every `$providerId` panel read goes
+  through `providerProfile.get`, which throws `NOT_FOUND` for a profile-less
+  provider — without it the `$providerId` ownership gate would bounce a
+  freshly-created provider instead of landing it. Returns `{ providerId }`.
+- `presentation/routers/provider-profile.ts` — `create` mutation
+  (protectedProcedure, owner-scoped on `ctx.session.user.id`, Zod
+  `displayName` min 3 / max 100).
+- `main/di/provider-profile-router.ts` — `createProviderUseCase` wired with
+  `DrizzleProviderRepository` + `ProviderProfileRepositoryImpl`.
+- `presentation/routers/assignment.ts` — `request` + `registerExternal` accept
+  an optional `providerId`; when supplied, `assertProviderOwnership` enforces
+  the caller owns it (closes the hole that these self-scoped procedures would
+  otherwise let a caller assign to a provider they don't own). Omitted →
+  legacy `ctx.session.user.id` fallback. `RequestAssignment` already keys its
+  duplicate guard on `(providerId, condominiumId)`, so a new provider can join
+  the same condo as an existing one with no conflict.
+
+Web (the declared files):
+- `panel.provider.condo-setup.tsx` — now the repeatable create flow. Adds a
+  `providerProfile.listMine` query; the legacy per-user status panels are gated
+  behind `ownsProviders === false` (first-time, pre-provider state only — e.g. a
+  pending sindico condo request, which mints no provider). A caller who already
+  owns ≥1 provider always gets the create selector. Resident/external flows now
+  navigate to `/panel/provider/$providerId` on success (`goToProvider`).
+- `-provider-dashboard-condo-setup-resident-flow.tsx` — mints a provider
+  (`displayName` = selected condo name) then creates the RESIDENT assignment for
+  it, then `onProviderCreated(providerId)`. Switched `request` from `mutate` +
+  callbacks to sequenced `mutateAsync`.
+- `-provider-dashboard-condo-setup-external-flow.tsx` — mints a provider
+  (`displayName` derived from the address) then `registerExternal` for it, then
+  `onProviderCreated(providerId)`.
+- `-provider-dashboard-condo-setup-sindico-flow.tsx` — unchanged: the sindico
+  flow creates a CONDO (PENDING_APPROVAL), not a provider; the provider/moderator
+  materializes on condo approval.
+
+i18n: no new visible strings added (navigation is silent; the seeded display
+names are data derived from condo name / address, not UI copy). The pre-existing
+hardcoded PT copy in these files is logged to `.plan/backlog.md` for a dedicated
+i18n sweep.
+
+Tests:
+- `provider-profile.integration.test.ts` (12/12): added (i) `create` mints a
+  fresh owned provider with a seeded hidden default profile (get succeeds →
+  landing works); (j) `create` rejects displayName < 3 (BAD_REQUEST);
+  (k) a created provider can `assignment.request` a RESIDENT assignment
+  (PENDING, providerId threaded); (l) `assignment.request` with an unowned
+  providerId is FORBIDDEN.
+- `-panel.provider.condo-setup.test.tsx` (2/2): a provider owner sees the create
+  selector not the approved-status panel; a zero-provider caller still sees the
+  status panel.
+- Sibling web suites unaffected: `-panel.provider.my-providers.test.tsx` 2/2,
+  `-provider-switcher.test.tsx` 4/4, `-panel.provider.test.tsx` 2/2,
+  `-panel.provider.announcements.test.tsx` 19/19 (27/27 combined).
+
+Deferred (logged to `.plan/backlog.md`, all sourced to T-20-05/ST-04): condo-setup
+flow-file i18n sweep; reword the selector heading for create mode; surface the
+sindico condo-request pending status for multi-provider owners; make My Providers
+(not condo-setup) the no-default landing.
+
+Gates: `bun run --filter server check-types` clean; `bun run --filter web
+check-types` clean except the pre-existing web TS5103 `--ignoreDeprecations`
+error (untouched); `bun run check` clean (pre-existing optional-chain warning +
+broken-symlink info only; biome auto-formatted touched files); dependency-cruiser
+no layer violations. T-20-05 fully done (all 4 STs).
 
 ---
 

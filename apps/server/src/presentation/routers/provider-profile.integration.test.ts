@@ -257,4 +257,66 @@ describe('ProviderProfile Router Integration Tests', () => {
       }),
     ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
   });
+
+  // --- Repeatable create-provider flow (T-20-05/ST-04) ---
+
+  test('(i) create mints a new owned provider with a seeded default profile', async () => {
+    const callerA = createCaller(userAId);
+
+    const created = await callerA.providerProfile.create({
+      displayName: 'Brand New Provider',
+    });
+
+    // A fresh providerId distinct from the caller's session id and any seed PK.
+    expect(created.providerId).toBeDefined();
+    expect(created.providerId).not.toBe(userAId);
+    expect(created.providerId).not.toBe(providerAId);
+
+    // The default profile must exist so the `$providerId` panel ownership gate
+    // (which reads providerProfile.get) lets the caller land in the new context
+    // instead of bouncing on NOT_FOUND.
+    const profile = await callerA.providerProfile.get({
+      providerId: created.providerId,
+    });
+    expect(profile.displayName).toBe('Brand New Provider');
+    // Seeded hidden until the owner configures it.
+    expect(profile.isProviderVisible).toBe(false);
+  });
+
+  test('(j) create rejects a displayName shorter than 3 chars', async () => {
+    const callerA = createCaller(userAId);
+
+    await expect(
+      callerA.providerProfile.create({ displayName: 'AB' }),
+    ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+  });
+
+  test('(k) a created provider can request a RESIDENT assignment via assignment.request', async () => {
+    const callerA = createCaller(userAId);
+
+    const created = await callerA.providerProfile.create({
+      displayName: 'Second Provider For UserA',
+    });
+
+    const assignment = await callerA.assignment.request({
+      providerId: created.providerId,
+      condominiumId: condoId,
+      unitInfo: 'Apt 202',
+    });
+
+    expect(assignment.providerId).toBe(created.providerId);
+    expect(assignment.status).toBe('PENDING');
+  });
+
+  test('(l) assignment.request with a providerId the caller does not own is FORBIDDEN', async () => {
+    const callerA = createCaller(userAId);
+
+    await expect(
+      callerA.assignment.request({
+        providerId: providerBId,
+        condominiumId: condoId,
+        unitInfo: 'Apt 303',
+      }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
 });

@@ -26,12 +26,12 @@ type ApprovedCondoOption = {
 
 type ProviderDashboardCondoSetupResidentFlowProps = {
   onBack: () => void;
-  onRequestSuccess: () => void;
+  onProviderCreated: (providerId: string) => void;
 };
 
 export function ProviderDashboardCondoSetupResidentFlow({
   onBack,
-  onRequestSuccess,
+  onProviderCreated,
 }: ProviderDashboardCondoSetupResidentFlowProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -52,16 +52,11 @@ export function ProviderDashboardCondoSetupResidentFlow({
     trpc.condominium.listApproved.queryOptions({ query: debouncedQuery }),
   );
 
+  const createProviderMutation = useMutation(
+    trpc.providerProfile.create.mutationOptions(),
+  );
   const requestAssignmentMutation = useMutation(
-    trpc.assignment.request.mutationOptions({
-      onSuccess: () => {
-        toast.success('Solicitação de acesso enviada com sucesso!');
-        onRequestSuccess();
-      },
-      onError: (err) => {
-        toast.error(err.message || 'Erro ao solicitar acesso.');
-      },
-    }),
+    trpc.assignment.request.mutationOptions(),
   );
 
   const handleBack = () => {
@@ -116,11 +111,23 @@ export function ProviderDashboardCondoSetupResidentFlow({
       setIsUploadingResident(false);
     }
 
-    requestAssignmentMutation.mutate({
-      condominiumId: selectedCondo.id,
-      unitInfo: unitInfo.trim(),
-      proofOfResidency: proofUrl || undefined,
-    });
+    try {
+      // Mint a new provider first, then create its RESIDENT assignment. The same
+      // path serves the first and the Nth provider (T-20-05/ST-04).
+      const { providerId } = await createProviderMutation.mutateAsync({
+        displayName: selectedCondo.name,
+      });
+      await requestAssignmentMutation.mutateAsync({
+        providerId,
+        condominiumId: selectedCondo.id,
+        unitInfo: unitInfo.trim(),
+        proofOfResidency: proofUrl || undefined,
+      });
+      toast.success('Solicitação de acesso enviada com sucesso!');
+      onProviderCreated(providerId);
+    } catch (err) {
+      toast.error((err as Error).message || 'Erro ao solicitar acesso.');
+    }
   };
 
   return (
@@ -244,7 +251,9 @@ export function ProviderDashboardCondoSetupResidentFlow({
               <Button
                 type="submit"
                 disabled={
-                  isUploadingResident || requestAssignmentMutation.isPending
+                  isUploadingResident ||
+                  createProviderMutation.isPending ||
+                  requestAssignmentMutation.isPending
                 }
                 className="mt-6 w-full"
               >

@@ -1,4 +1,9 @@
 import {
+  CreateProvider,
+  type CreateProviderInput,
+  type CreateProviderResult,
+} from '../../application/use-cases/provider/create-provider';
+import {
   ListOwnedProviders,
   type ListOwnedProvidersInput,
   type OwnedProviderSummary,
@@ -22,6 +27,9 @@ export interface ProviderProfileRouterDependencies {
   listOwnedProvidersUseCase: {
     execute(input: ListOwnedProvidersInput): Promise<OwnedProviderSummary[]>;
   };
+  createProviderUseCase: {
+    execute(input: CreateProviderInput): Promise<CreateProviderResult>;
+  };
 }
 
 export function createProviderProfileRouterDependencies(): ProviderProfileRouterDependencies {
@@ -32,5 +40,6 @@ export function createProviderProfileRouterDependencies(): ProviderProfileRouter
     getProviderProfileUseCase: new GetProviderProfile(repo),
     updateProviderProfileUseCase: new UpdateProviderProfile(repo),
     listOwnedProvidersUseCase: new ListOwnedProviders(providerRepo, repo),
+    createProviderUseCase: new CreateProvider(providerRepo, repo),
   };
 }

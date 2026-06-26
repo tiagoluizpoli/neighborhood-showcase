@@ -2,7 +2,7 @@
 type: epic
 id: E-20
 name: "Provider Entity Refactor"
-status: in-progress
+status: done
 blocked-by: []
 ---
 
@@ -26,7 +26,7 @@ Code truth at grill time: schema `packages/db/src/schema/showcase.ts` — `provi
 | T-20-02 | Provider-profile read/write re-key + soft-delete exclusion | done | — | `.plan/epics/20-provider-entity-refactor/tasks/02-provider-profile-rekey.md` |
 | T-20-03 | Announcement read/write re-key + soft-delete exclusion | done | — | `.plan/epics/20-provider-entity-refactor/tasks/03-announcement-rekey.md` |
 | T-20-04 | Layered auth — global role + provider-scoped gating | done | T-20-01 | `.plan/epics/20-provider-entity-refactor/tasks/04-layered-auth.md` |
-| T-20-05 | Panel `$providerId` routing + My Providers + switcher + onboarding | in-progress | T-20-01, T-20-04 | `.plan/epics/20-provider-entity-refactor/tasks/05-panel-routing-and-my-providers.md` |
+| T-20-05 | Panel `$providerId` routing + My Providers + switcher + onboarding | done | T-20-01, T-20-04 | `.plan/epics/20-provider-entity-refactor/tasks/05-panel-routing-and-my-providers.md` |
 
 ---
 

@@ -1,9 +1,9 @@
 {
-  "currentRunId": "e-20-t-20-05-st-04",
+  "currentRunId": "e-21-t-21-01-st-01",
   "currentPrdId": "PRD-v13-provider-entity-and-verified-stamp",
-  "currentEpicId": "E-20",
-  "currentTaskId": "T-20-05",
-  "currentSubTaskId": "ST-04",
+  "currentEpicId": "E-21",
+  "currentTaskId": "T-21-01",
+  "currentSubTaskId": "ST-01",
   "attemptCount": 0,
   "retrievalRound": 0,
   "lastModel": "opus",
@@ -11,13 +11,8 @@
   "requiredModel": "high",
   "runnerName": "claude",
   "escalateIf": [],
-  "filesToTouch": [
-    "apps/web/src/routes/panel.provider.condo-setup.tsx",
-    "apps/web/src/routes/panel/-provider-dashboard-condo-setup-resident-flow.tsx",
-    "apps/web/src/routes/panel/-provider-dashboard-condo-setup-external-flow.tsx",
-    "apps/web/src/routes/panel/-provider-dashboard-condo-setup-sindico-flow.tsx"
-  ],
-  "lastCommitChanged": false,
+  "filesToTouch": [],
+  "lastCommitChanged": true,
   "lastFailureReason": null,
   "epicDone": false
 }

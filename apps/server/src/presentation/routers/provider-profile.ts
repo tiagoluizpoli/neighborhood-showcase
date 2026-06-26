@@ -53,9 +53,27 @@ export function createProviderProfileRouter(
     getProviderProfileUseCase,
     updateProviderProfileUseCase,
     listOwnedProvidersUseCase,
+    createProviderUseCase,
   } = dependencies;
 
   return router({
+    // Mints a new provider owned by the caller plus a hidden default profile.
+    // Backs the repeatable condo-setup create flow (T-20-05/ST-04): the same
+    // path serves the first and the Nth provider, returning the new providerId
+    // so the client can land in its `$providerId` context.
+    create: protectedProcedure
+      .input(
+        z.object({
+          displayName: z.string().trim().min(3).max(100),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        return createProviderUseCase.execute({
+          ownerId: ctx.session.user.id,
+          displayName: input.displayName,
+        });
+      }),
+
     // Owner-scoped list backing the "My Providers" panel page. Keyed on the
     // caller's session id; soft-deleted providers are excluded by the repository.
     // No per-provider ownership guard is needed — the list only ever returns the

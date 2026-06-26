@@ -31,9 +31,21 @@ function CondoSetupComponent() {
   const myAssignmentsQuery = useQuery(
     trpc.assignment.getMyAssignments.queryOptions(),
   );
+  const ownedProvidersQuery = useQuery(
+    trpc.providerProfile.listMine.queryOptions(),
+  );
 
   const myCondo = myCondoQuery.data;
   const myAssignments = myAssignmentsQuery.data;
+  // Repeatable create flow (T-20-05/ST-04): a caller who already owns a provider
+  // always gets the create selector. The legacy per-user status panels only
+  // serve the genuine first-time, pre-provider state (e.g. a pending sindico
+  // condo request, which does not mint a provider). Per-provider status now
+  // lives on the My Providers page + each provider's `$providerId` dashboard.
+  const ownsProviders = (ownedProvidersQuery.data?.length ?? 0) > 0;
+
+  const goToProvider = (providerId: string) =>
+    navigate({ to: '/panel/provider/$providerId', params: { providerId } });
 
   const statusPanels = ProviderDashboardCondoSetupStatusPanels({
     myCondo,
@@ -45,7 +57,7 @@ function CondoSetupComponent() {
 
   let content: React.ReactNode = null;
 
-  if (statusPanels) {
+  if (statusPanels && !ownsProviders) {
     content = statusPanels;
   } else if (flow === 'select') {
     content = (
@@ -134,17 +146,14 @@ function CondoSetupComponent() {
     content = (
       <ProviderDashboardCondoSetupResidentFlow
         onBack={() => setFlow('select')}
-        onRequestSuccess={() => myAssignmentsQuery.refetch()}
+        onProviderCreated={goToProvider}
       />
     );
   } else if (flow === 'external') {
     content = (
       <ProviderDashboardCondoSetupExternalFlow
         onBack={() => setFlow('select')}
-        onRegisterSuccess={() => {
-          myAssignmentsQuery.refetch();
-          navigate({ to: '/panel/provider' });
-        }}
+        onProviderCreated={goToProvider}
       />
     );
   } else {

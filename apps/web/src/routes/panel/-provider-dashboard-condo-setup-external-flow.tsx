@@ -16,12 +16,12 @@ import { trpc } from '@/utils/trpc';
 
 type ProviderDashboardCondoSetupExternalFlowProps = {
   onBack: () => void;
-  onRegisterSuccess: () => void;
+  onProviderCreated: (providerId: string) => void;
 };
 
 export function ProviderDashboardCondoSetupExternalFlow({
   onBack,
-  onRegisterSuccess,
+  onProviderCreated,
 }: ProviderDashboardCondoSetupExternalFlowProps) {
   const [extCep, setExtCep] = useState('');
   const [extStreet, setExtStreet] = useState('');
@@ -32,16 +32,11 @@ export function ProviderDashboardCondoSetupExternalFlow({
   const [extComplement, setExtComplement] = useState('');
   const [isSearchingExtCep, setIsSearchingExtCep] = useState(false);
 
+  const createProviderMutation = useMutation(
+    trpc.providerProfile.create.mutationOptions(),
+  );
   const registerExternalMutation = useMutation(
-    trpc.assignment.registerExternal.mutationOptions({
-      onSuccess: () => {
-        toast.success('Localização registrada com sucesso!');
-        onRegisterSuccess();
-      },
-      onError: (err) => {
-        toast.error(err.message || 'Erro ao registrar localização.');
-      },
-    }),
+    trpc.assignment.registerExternal.mutationOptions(),
   );
 
   useEffect(() => {
@@ -73,7 +68,7 @@ export function ProviderDashboardCondoSetupExternalFlow({
     }
   }, [extCep]);
 
-  const handleExternalSubmit = (e: React.FormEvent) => {
+  const handleExternalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (
@@ -88,15 +83,29 @@ export function ProviderDashboardCondoSetupExternalFlow({
       return;
     }
 
-    registerExternalMutation.mutate({
-      cep: extCep.replace(/\D/g, ''),
-      street: extStreet,
-      neighborhood: extNeighborhood,
-      city: extCity,
-      state: extState.toUpperCase(),
-      number: extNumber,
-      complement: extComplement || undefined,
-    });
+    try {
+      // Mint a new provider, then register its EXTERNAL (auto-approved)
+      // location. Same repeatable path for the first and the Nth provider.
+      // The address seeds an editable default display name (no profile yet).
+      const displayName = `${extStreet}, ${extNumber}`.trim();
+      const { providerId } = await createProviderMutation.mutateAsync({
+        displayName,
+      });
+      await registerExternalMutation.mutateAsync({
+        providerId,
+        cep: extCep.replace(/\D/g, ''),
+        street: extStreet,
+        neighborhood: extNeighborhood,
+        city: extCity,
+        state: extState.toUpperCase(),
+        number: extNumber,
+        complement: extComplement || undefined,
+      });
+      toast.success('Localização registrada com sucesso!');
+      onProviderCreated(providerId);
+    } catch (err) {
+      toast.error((err as Error).message || 'Erro ao registrar localização.');
+    }
   };
 
   return (
@@ -207,7 +216,10 @@ export function ProviderDashboardCondoSetupExternalFlow({
 
             <Button
               type="submit"
-              disabled={registerExternalMutation.isPending}
+              disabled={
+                createProviderMutation.isPending ||
+                registerExternalMutation.isPending
+              }
               className="mt-6 w-full"
             >
               {registerExternalMutation.isPending ? (

@@ -46,7 +46,7 @@
 | E-17 | Announcement Creation and Authoring Model | done | — | `.plan/epics/17-announcement-creation-and-authoring-model/epic.md` |
 | E-18 | Announcement Detail, Edit Split, and Analytics | done | — | `.plan/epics/18-announcement-detail-edit-and-analytics/epic.md` |
 | E-19 | Provider Identity, Configuration IA, and Public Profile | done | — | `.plan/epics/19-provider-identity-and-public-profile/epic.md` |
-| E-20 | Provider Entity Refactor | in-progress | — | `.plan/epics/20-provider-entity-refactor/epic.md` |
+| E-20 | Provider Entity Refactor | done | — | `.plan/epics/20-provider-entity-refactor/epic.md` |
 | E-21 | Verified Resident Stamp | ready | — | `.plan/epics/21-verified-resident-stamp/epic.md` |
 
 ## Tasks
@@ -97,7 +97,7 @@
 | T-20-02 | E-20 | Provider-profile read/write re-key + soft-delete exclusion | done | — | `.plan/epics/20-provider-entity-refactor/tasks/02-provider-profile-rekey.md` |
 | T-20-03 | E-20 | Announcement read/write re-key + soft-delete exclusion | done | — | `.plan/epics/20-provider-entity-refactor/tasks/03-announcement-rekey.md` |
 | T-20-04 | E-20 | Layered auth — global role + provider-scoped gating | done | T-20-01 | `.plan/epics/20-provider-entity-refactor/tasks/04-layered-auth.md` |
-| T-20-05 | E-20 | Panel `$providerId` routing + My Providers + switcher + onboarding | in-progress | T-20-01, T-20-04 | `.plan/epics/20-provider-entity-refactor/tasks/05-panel-routing-and-my-providers.md` |
+| T-20-05 | E-20 | Panel `$providerId` routing + My Providers + switcher + onboarding | done | T-20-01, T-20-04 | `.plan/epics/20-provider-entity-refactor/tasks/05-panel-routing-and-my-providers.md` |
 | T-21-01 | E-21 | `get-public-profile` condo contract | ready | T-20-02 | `.plan/epics/21-verified-resident-stamp/tasks/01-get-public-profile-condo-contract.md` |
 | T-21-02 | E-21 | Verified stamp UI + i18n keys | ready | T-21-01 | `.plan/epics/21-verified-resident-stamp/tasks/02-verified-stamp-ui-and-i18n.md` |
 | T-21-03 | E-21 | i18n pt/en parity pass + cross-surface E2E matrix | ready | T-21-02, T-20-05 | `.plan/epics/21-verified-resident-stamp/tasks/03-i18n-parity-and-e2e-matrix.md` |
