@@ -1,18 +1,20 @@
 {
-  "currentRunId": "e-21-t-21-03-st-01",
+  "currentRunId": "e-21-t-21-03-st-02",
   "currentPrdId": "PRD-v13-provider-entity-and-verified-stamp",
   "currentEpicId": "E-21",
   "currentTaskId": "T-21-03",
-  "currentSubTaskId": "ST-01",
+  "currentSubTaskId": "ST-02",
   "attemptCount": 0,
   "retrievalRound": 0,
   "lastModel": "gpt-5.4",
   "escalated": false,
   "requiredModel": "medium",
   "runnerName": "hermes",
-  "escalateIf": [],
-  "filesToTouch": [],
-  "lastCommitChanged": false,
+  "escalateIf": [
+    "An E2E scenario cannot be driven without seed/fixtures beyond the rebuilt seed's three states."
+  ],
+  "filesToTouch": ["apps/web/"],
+  "lastCommitChanged": true,
   "lastFailureReason": null,
   "epicDone": false
 }

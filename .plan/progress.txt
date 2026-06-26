@@ -687,3 +687,11 @@ Next: T-20-04/ST-02 (pin platform-admin vs provider-scoped action split; apply g
 - `apps/web/src/components/announcement-card.test.tsx` now asserts the localized mark appears under that gate and disappears when either `showVerifiedBadge` is false or the assignment context is absent.
 - Verification: `bun test --preload ./test-setup.ts src/components/announcement-card.test.tsx` pass (15/15, run from `apps/web`); repo-root `bun run check` pass with pre-existing Biome deprecation warning + optional-chain info only; repo-root `bun run --filter web check-types` still fails only on the pre-existing TS5103 `--ignoreDeprecations` config error; repo-root `bun run test` remains red on pre-existing provider-FK fixture debt outside T-21-02; repo-root `bun run test:e2e` remains red on pre-existing Playwright failures outside T-21-02/T-21-03.
 - T-21-02 fully done. Run-state advanced to T-21-03/ST-01 (i18n parity pass + cross-surface E2E matrix).
+
+---
+2026-06-26 T-21-03/ST-01 DONE
+- Added `apps/web/src/i18n-provider-stamp-parity.test.ts` as an isolated parity seam for the 16 new `my_providers.*`, `provider_switcher.*`, `verified_resident_stamp.label`, and `provider_profile.verified_resident` keys.
+- Assertions: both pt/en resolve every key, values are non-empty, raw keys do not leak, and `verified_resident_stamp.label` keeps `{{condo}}` interpolation in both locales.
+- Verification: `cd apps/web && bun test src/i18n-provider-stamp-parity.test.ts` passed (2/2); repo-root `bun run check` passed.
+- Known pre-existing gate debt unchanged: repo-root `bun run check-types` and targeted web `bun x tsc --project tsconfig.json --ignoreDeprecations 5.0 --noEmit` still fail only in `announcement-card.test.tsx` and `panel.dashboard.condo-setup*` files outside ST-01 scope.
+- Run-state advanced to T-21-03/ST-02 (cross-surface E2E matrix).

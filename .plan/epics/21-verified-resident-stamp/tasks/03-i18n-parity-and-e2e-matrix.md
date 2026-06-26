@@ -2,8 +2,8 @@
 type: task
 id: T-21-03
 epic: E-21
-status: ready
-blocked-by: [T-21-02, T-20-05]
+status: in-progress
+blocked-by: []
 default-model: medium
 ---
 
@@ -29,7 +29,7 @@ This task depends on the full UI being in place: stamp UI (T-21-02) and panel ro
 
 ### ST-01 - i18n pt/en parity pass for new keys
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - A new key cannot be made parity-clean without a string still hardcoded in a component owned by an earlier task.
@@ -71,7 +71,8 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- 2026-06-26 — ST-01 done. Added `apps/web/src/i18n-provider-stamp-parity.test.ts` to assert the 16 new `my_providers.*`, `provider_switcher.*`, `verified_resident_stamp.label`, and `provider_profile.verified_resident` keys resolve in both `pt` and `en`, are non-empty, and do not leak raw keys. Also asserted `verified_resident_stamp.label` preserves `{{condo}}` interpolation in both locales.
+- Verification: `cd apps/web && bun test src/i18n-provider-stamp-parity.test.ts` passed (2/2). Repo-root `bun run check` passed. Repo-root `bun run check-types` and targeted `cd apps/web && bun x tsc --project tsconfig.json --ignoreDeprecations 5.0 --noEmit` still fail only on pre-existing unrelated errors in `announcement-card.test.tsx` and `panel.dashboard.condo-setup*` files outside ST-01 scope.
 
 ---
 
