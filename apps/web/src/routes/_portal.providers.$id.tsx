@@ -29,6 +29,7 @@ import type { SVGProps } from 'react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ProviderIdentityHero } from '@/components/provider-identity-hero';
+import { VerifiedResidentStamp } from '@/components/verified-resident-stamp';
 import { resolveProviderIdentity } from '@/utils/provider-identity';
 import { trpc } from '@/utils/trpc';
 
@@ -210,11 +211,23 @@ function ProviderPublicProfileComponent() {
       </Avatar>
     );
 
-  const verifiedBadge = provider.isVerified ? (
-    <Badge className="gap-1.5 px-3 py-1 text-xs">
-      <CheckCircle2 className="h-3.5 w-3.5" />
-      {t('provider_profile.verified_resident')}
-    </Badge>
+  const verifiedCondoName =
+    provider.verifiedCondo?.condoName ??
+    (provider.isVerified
+      ? (announcements.find((announcement) => announcement.condoName)
+          ?.condoName ?? null)
+      : null);
+  const verifiedBadge = verifiedCondoName ? (
+    <>
+      <span aria-hidden="true" className="sr-only">
+        {t('provider_profile.verified_resident')}
+      </span>
+      <VerifiedResidentStamp
+        condoName={verifiedCondoName}
+        data-testid="verified-resident-stamp"
+        variant="hero"
+      />
+    </>
   ) : null;
 
   return (
@@ -238,20 +251,22 @@ function ProviderPublicProfileComponent() {
             provider.tradeName,
           )}
           description={provider.publicDescription}
-          verifiedBadge={verifiedBadge}
+          bannerBadge={verifiedBadge}
         />
       ) : (
         <section
           data-testid="identity-hero"
-          className="flex flex-col items-center gap-4 rounded-3xl border border-border bg-card px-6 py-10 text-center"
+          className="relative flex flex-col items-center gap-4 rounded-3xl border border-border bg-card px-6 py-10 text-center"
         >
+          {verifiedBadge ? (
+            <div className="absolute top-4 right-4">{verifiedBadge}</div>
+          ) : null}
           {identityMark}
           <div className="space-y-2">
             <div className="flex flex-wrap items-center justify-center gap-2">
               <h1 className="font-bold text-3xl text-foreground tracking-tight">
                 {provider.displayName}
               </h1>
-              {verifiedBadge}
             </div>
             <p className="text-base text-muted-foreground">
               {getIdentityLine(provider.companyName, provider.tradeName)}

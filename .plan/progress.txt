@@ -667,7 +667,15 @@ Next: T-20-04/ST-02 (pin platform-admin vs provider-scoped action split; apply g
 
 ---
 2026-06-26 T-21-02/ST-01 DONE
-- Added shared `apps/web/src/components/verified-resident-stamp.tsx` with a single `VerifiedResidentStamp({ condoName, variant })` primitive for both future surfaces. It renders the check-seal icon + condo-name-only chip, keeps the icon `aria-hidden`, and localizes the shared tooltip / `aria-label` through i18n interpolation so hero + card can reuse the same visual without divergent components.
+- 2026-06-26 ST-01 DONE: added shared `apps/web/src/components/verified-resident-stamp.tsx` with a single `VerifiedResidentStamp({ condoName, variant })` primitive for both future surfaces. It renders the check-seal icon + condo-name-only chip, keeps the icon `aria-hidden`, and localizes the shared tooltip / `aria-label` through i18n interpolation so hero + card can reuse the same visual without divergent components.
 - Added `verified_resident_stamp.label` to both locale files (`Verified resident at {condo}` / `Morador verificado em {condo}`). No hardcoded UI text introduced.
 - Gates: `bun run check` pass (pre-existing Biome deprecation warning + optional-chain warning + broken-symlink info only). `bun run check-types` still fails on the pre-existing web `TS5103 --ignoreDeprecations` config error; targeted `bun x tsc --noEmit --project apps/web/tsconfig.json --ignoreDeprecations 5.0` surfaced only pre-existing condo-setup prop mismatches outside T-21-02/ST-01 and no errors from the new stamp component.
 - Run-state advanced to T-21-02/ST-02 (profile hero stamp always-on when eligible).
+
+---
+2026-06-26 T-21-02/ST-02 DONE
+- Public provider hero now reuses `VerifiedResidentStamp` and shows the condo-name-only mark top-right whenever the provider is eligible; non-eligible providers keep a neutral hero state with no broken/empty stamp slot.
+- `apps/web/src/components/provider-identity-hero.tsx` gained an additive `bannerBadge` slot so the verified pill can dock in the banner's top-right corner without recomposing the existing hero structure or breaking the configuration-preview consumer.
+- `apps/web/src/routes/_portal.providers.$id.tsx` now derives `verifiedCondoName` from `provider.verifiedCondo?.condoName` with an announcements-based fallback for older seed/mock fixtures that still expose only `isVerified`, then renders the same shared stamp in bannered and sparse/no-banner hero layouts.
+- Verification: `bun test src/routes/-provider-profile.test.tsx` pass (run from `apps/web`); repo-root `bun run check` pass; repo-root `bun run --filter web check-types` still fails only on the pre-existing TS5103 `--ignoreDeprecations` config error; targeted `bun x tsc --project tsconfig.json --ignoreDeprecations 5.0 --noEmit` still fails only on the pre-existing condo-setup prop mismatches outside this slice; repo-root `bun run test:e2e` remains red on stale/unrelated Playwright expectations deferred to T-21-03.
+- Run-state advanced to T-21-02/ST-03 (announcement-card hybrid-gate mark).

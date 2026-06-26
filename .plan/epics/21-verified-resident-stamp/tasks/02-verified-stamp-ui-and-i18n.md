@@ -50,7 +50,7 @@ verification:
 
 ### ST-02 - Profile hero stamp (always-on when eligible) + neutral state
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The hero layout cannot dock the pill top-right without a recomposition beyond this slice.
@@ -95,6 +95,9 @@ verification:
 
 - 2026-06-26 ST-01 DONE: added shared `apps/web/src/components/verified-resident-stamp.tsx` exporting `VerifiedResidentStamp({ condoName, variant })`. The component renders a single check-seal + condo-name-only chip, localizes the shared tooltip/`aria-label` via `verified_resident_stamp.label`, and uses a `variant` seam (`hero` / `card`) so the hero pill and announcement-card mark can share one visual primitive in ST-02/ST-03 without divergence. The icon is `aria-hidden`; the visible chip remains condo name only.
 - 2026-06-26 ST-01 DONE: added `verified_resident_stamp.label` to both `apps/web/src/locales/en/translation.json` and `apps/web/src/locales/pt/translation.json` with `{ condo }` interpolation (`Verified resident at {{condo}}` / `Morador verificado em {{condo}}`).
+- 2026-06-26 ST-02 DONE: `apps/web/src/components/provider-identity-hero.tsx` gained an additive `bannerBadge` slot so the public provider hero can dock the verified-resident pill in the banner's top-right corner without recomposing the existing identity block or disturbing the configuration-preview consumer.
+- 2026-06-26 ST-02 DONE: `apps/web/src/routes/_portal.providers.$id.tsx` now reuses `VerifiedResidentStamp` on the public provider page. Eligible providers (`verifiedCondo` present, with an announcements-based condo-name fallback when seed/mock data still exposes only `isVerified`) render the condo-name-only mark in the hero; sparse/no-banner profiles get the same mark in a neutral absolute top-right position with no broken placeholder for non-eligible providers.
+- 2026-06-26 ST-02 DONE: verification — `bun test src/routes/-provider-profile.test.tsx` passed in `apps/web`; repo-root `bun run check` passed; repo-root `bun run --filter web check-types` still fails only on the pre-existing web TS5103 `--ignoreDeprecations` config error; targeted `bun x tsc --project tsconfig.json --ignoreDeprecations 5.0 --noEmit` still fails only on the pre-existing condo-setup prop mismatches outside T-21-02/ST-02; `bun run test:e2e` remains red on stale/unrelated Playwright expectations outside this sub-task (public-provider selectors/snapshots deferred to T-21-03).
 
 ---
 

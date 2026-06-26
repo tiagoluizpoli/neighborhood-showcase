@@ -1,21 +1,21 @@
 {
-  "currentRunId": "e-21-t-21-02-st-02",
+  "currentRunId": "e-21-t-21-02-st-03",
   "currentPrdId": "PRD-v13-provider-entity-and-verified-stamp",
   "currentEpicId": "E-21",
   "currentTaskId": "T-21-02",
-  "currentSubTaskId": "ST-02",
-  "attemptCount": 0,
-  "retrievalRound": 0,
+  "currentSubTaskId": "ST-03",
+  "attemptCount": 1,
+  "retrievalRound": 1,
   "lastModel": "gpt-5.4",
   "escalated": false,
   "requiredModel": "medium",
   "runnerName": "hermes",
   "escalateIf": [],
   "filesToTouch": [
-    "apps/web/src/components/provider-identity-hero.tsx",
-    "apps/web/src/routes/_portal.providers.$id.tsx"
+    "apps/web/src/components/announcement-card.tsx",
+    "apps/web/src/components/announcement-card.test.tsx"
   ],
-  "lastCommitChanged": true,
+  "lastCommitChanged": false,
   "lastFailureReason": null,
   "epicDone": false
 }

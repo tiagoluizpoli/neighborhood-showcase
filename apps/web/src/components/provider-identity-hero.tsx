@@ -17,6 +17,7 @@ export interface ProviderIdentityHeroProps {
   identityLine?: string | null;
   description?: string | null;
   verifiedBadge?: ReactNode;
+  bannerBadge?: ReactNode;
   /** Shown when name is empty (preview placeholder only). */
   namePlaceholder?: string;
   /**
@@ -41,6 +42,7 @@ export function ProviderIdentityHero({
   identityLine,
   description,
   verifiedBadge,
+  bannerBadge,
   namePlaceholder,
   bannerEdit,
   logoEdit,
@@ -63,6 +65,9 @@ export function ProviderIdentityHero({
         ) : (
           <div className="aspect-[8/1] w-full bg-gradient-to-r from-muted to-muted/40" />
         )}
+        {bannerBadge ? (
+          <div className="absolute top-3 right-3">{bannerBadge}</div>
+        ) : null}
         {bannerEdit}
       </div>
 
