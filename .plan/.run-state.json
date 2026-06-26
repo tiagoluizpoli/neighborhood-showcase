@@ -1,9 +1,9 @@
 {
-  "currentRunId": "e-21-t-21-02-st-01",
+  "currentRunId": "e-21-t-21-02-st-02",
   "currentPrdId": "PRD-v13-provider-entity-and-verified-stamp",
   "currentEpicId": "E-21",
   "currentTaskId": "T-21-02",
-  "currentSubTaskId": "ST-01",
+  "currentSubTaskId": "ST-02",
   "attemptCount": 0,
   "retrievalRound": 0,
   "lastModel": "gpt-5.4",
@@ -12,9 +12,8 @@
   "runnerName": "hermes",
   "escalateIf": [],
   "filesToTouch": [
-    "apps/web/src/components/",
-    "apps/web/src/locales/pt/translation.json",
-    "apps/web/src/locales/en/translation.json"
+    "apps/web/src/components/provider-identity-hero.tsx",
+    "apps/web/src/routes/_portal.providers.$id.tsx"
   ],
   "lastCommitChanged": true,
   "lastFailureReason": null,

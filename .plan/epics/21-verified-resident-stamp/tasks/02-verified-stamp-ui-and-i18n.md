@@ -2,8 +2,8 @@
 type: task
 id: T-21-02
 epic: E-21
-status: ready
-blocked-by: [T-21-01]
+status: in-progress
+blocked-by: []
 default-model: medium
 ---
 
@@ -28,7 +28,7 @@ Hero: `apps/web/src/components/provider-identity-hero.tsx`; public page `apps/we
 
 ### ST-01 - Shared verified-stamp component + i18n keys
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - A check-seal + condo-name visual cannot satisfy both the hero pill and the card mark without two divergent components.
@@ -93,7 +93,8 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- 2026-06-26 ST-01 DONE: added shared `apps/web/src/components/verified-resident-stamp.tsx` exporting `VerifiedResidentStamp({ condoName, variant })`. The component renders a single check-seal + condo-name-only chip, localizes the shared tooltip/`aria-label` via `verified_resident_stamp.label`, and uses a `variant` seam (`hero` / `card`) so the hero pill and announcement-card mark can share one visual primitive in ST-02/ST-03 without divergence. The icon is `aria-hidden`; the visible chip remains condo name only.
+- 2026-06-26 ST-01 DONE: added `verified_resident_stamp.label` to both `apps/web/src/locales/en/translation.json` and `apps/web/src/locales/pt/translation.json` with `{ condo }` interpolation (`Verified resident at {{condo}}` / `Morador verificado em {{condo}}`).
 
 ---
 

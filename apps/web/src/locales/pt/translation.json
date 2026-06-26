@@ -502,6 +502,9 @@
       }
     }
   },
+  "verified_resident_stamp": {
+    "label": "Morador verificado em {{condo}}"
+  },
   "provider_profile": {
     "loading": "Carregando perfil do prestador...",
     "back_to_showcase": "Voltar para a vitrine",

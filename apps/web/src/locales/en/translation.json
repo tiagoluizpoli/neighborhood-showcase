@@ -502,6 +502,9 @@
       }
     }
   },
+  "verified_resident_stamp": {
+    "label": "Verified resident at {{condo}}"
+  },
   "provider_profile": {
     "loading": "Loading provider profile...",
     "back_to_showcase": "Back to showcase",

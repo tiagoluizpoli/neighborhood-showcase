@@ -99,7 +99,7 @@
 | T-20-04 | E-20 | Layered auth — global role + provider-scoped gating | done | T-20-01 | `.plan/epics/20-provider-entity-refactor/tasks/04-layered-auth.md` |
 | T-20-05 | E-20 | Panel `$providerId` routing + My Providers + switcher + onboarding | done | T-20-01, T-20-04 | `.plan/epics/20-provider-entity-refactor/tasks/05-panel-routing-and-my-providers.md` |
 | T-21-01 | E-21 | `get-public-profile` condo contract | done | T-20-02 | `.plan/epics/21-verified-resident-stamp/tasks/01-get-public-profile-condo-contract.md` |
-| T-21-02 | E-21 | Verified stamp UI + i18n keys | ready | T-21-01 | `.plan/epics/21-verified-resident-stamp/tasks/02-verified-stamp-ui-and-i18n.md` |
+| T-21-02 | E-21 | Verified stamp UI + i18n keys | in-progress | — | `.plan/epics/21-verified-resident-stamp/tasks/02-verified-stamp-ui-and-i18n.md` |
 | T-21-03 | E-21 | i18n pt/en parity pass + cross-surface E2E matrix | ready | T-21-02, T-20-05 | `.plan/epics/21-verified-resident-stamp/tasks/03-i18n-parity-and-e2e-matrix.md` |
 ## Migration Note
 

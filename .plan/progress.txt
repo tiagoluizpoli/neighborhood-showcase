@@ -664,3 +664,10 @@ Next: T-20-04/ST-02 (pin platform-admin vs provider-scoped action split; apply g
 - Gates: `bun run --filter server check-types` pass; `bun run check` pass (pre-existing Biome warning/info only).
 - Repo-wide status: root `bun run check-types` still fails only on the pre-existing web TS5103 `--ignoreDeprecations` error; root `bun run test` remains red on pre-existing provider-FK fixture debt outside T-21-01.
 - Next: T-21-02 / ST-01.
+
+---
+2026-06-26 T-21-02/ST-01 DONE
+- Added shared `apps/web/src/components/verified-resident-stamp.tsx` with a single `VerifiedResidentStamp({ condoName, variant })` primitive for both future surfaces. It renders the check-seal icon + condo-name-only chip, keeps the icon `aria-hidden`, and localizes the shared tooltip / `aria-label` through i18n interpolation so hero + card can reuse the same visual without divergent components.
+- Added `verified_resident_stamp.label` to both locale files (`Verified resident at {condo}` / `Morador verificado em {condo}`). No hardcoded UI text introduced.
+- Gates: `bun run check` pass (pre-existing Biome deprecation warning + optional-chain warning + broken-symlink info only). `bun run check-types` still fails on the pre-existing web `TS5103 --ignoreDeprecations` config error; targeted `bun x tsc --noEmit --project apps/web/tsconfig.json --ignoreDeprecations 5.0` surfaced only pre-existing condo-setup prop mismatches outside T-21-02/ST-01 and no errors from the new stamp component.
+- Run-state advanced to T-21-02/ST-02 (profile hero stamp always-on when eligible).
