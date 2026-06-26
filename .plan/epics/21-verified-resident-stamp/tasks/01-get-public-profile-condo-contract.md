@@ -2,7 +2,7 @@
 type: task
 id: T-21-01
 epic: E-21
-status: ready
+status: done
 blocked-by: [T-20-02]
 default-model: high
 ---
@@ -27,7 +27,7 @@ Use-case `apps/server/src/application/use-cases/user/get-public-provider-profile
 
 ### ST-01 - Extend the public-profile read contract with the condo field
 
-status: ready
+status: done
 model: high
 escalate-if:
 - The approved-RESIDENT condo cannot be resolved through the existing assignment→condominium join without a new query path that conflicts with E-20's repo contract.
@@ -50,7 +50,7 @@ verification:
 
 ### ST-02 - Integration tests for the condo contract
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - The eligibility matrix cannot be exercised within the existing integration-test harness.
@@ -70,7 +70,9 @@ verification:
 
 #### Execution Notes
 
-- No execution notes yet.
+- ST-01 done: `get-public-provider-profile` now returns `provider.verifiedCondo` (`{ condoId, condoName } | null`) via the existing provider-assignment-to-condominium join in `DrizzleUserRepository.findPublicProviderById`, while preserving the existing `isVerified` boolean contract.
+- ST-02 done: integration coverage now asserts the full eligibility matrix per-file — APPROVED RESIDENT returns the condo payload; EXTERNAL, MODERATOR, PENDING, REJECTED, and no-assignment return `null`.
+- Verification: `bun test apps/server/src/application/use-cases/user/get-public-provider-profile.integration.test.ts` 10/10 pass; `bun test apps/server/src/presentation/routers/user-get-public-profile.integration.test.ts` 3/3 pass; `bun run --filter server check-types` pass; `bun run check` pass with only the pre-existing Biome deprecation/info output. Root `bun run check-types` still fails only on the pre-existing web TS5103 `--ignoreDeprecations` issue. Root `bun run test` remains red on pre-existing provider-FK fixture debt outside T-21-01.
 
 ---
 

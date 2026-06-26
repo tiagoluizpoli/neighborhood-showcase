@@ -32,6 +32,10 @@ describe('user.getPublicProfile Router Procedure', () => {
             instagram: 'jane.provider',
           },
           isVerified: true,
+          verifiedCondo: {
+            condoId: 'profile-test-condo-id',
+            condoName: 'Profile Towers',
+          },
         },
         announcements: [
           {

@@ -654,3 +654,13 @@ Next: T-20-04/ST-02 (pin platform-admin vs provider-scoped action split; apply g
 - Deferred to .plan/backlog.md (all T-20-05/ST-04): condo-setup flow-file i18n sweep; reword selector heading for create mode; surface sindico condo-request pending status for multi-provider owners; make My Providers the no-default landing instead of condo-setup.
 - Gates: server check-types clean; web check-types clean except pre-existing TS5103 ignoreDeprecations; bun run check clean (pre-existing optional-chain warning + broken-symlink info only); dependency-cruiser no violations.
 - T-20-05 fully done. E-20 (Provider Entity Refactor) fully done. Run-state advanced to T-21-01/ST-01 (get-public-profile condo contract, E-21 verified resident stamp).
+
+---
+2026-06-26 T-21-01 DONE
+- Added `verifiedCondo: { condoId, condoName } | null` to the public provider profile contract.
+- `DrizzleUserRepository.findPublicProviderById` now resolves the approved RESIDENT condo through the existing providerAssignment -> condominium join and returns null for EXTERNAL, MODERATOR, PENDING, REJECTED, or no-assignment providers.
+- `GetPublicProviderProfile` now threads the condo payload through while preserving `isVerified`.
+- Added/updated verification coverage: `get-public-provider-profile.integration.test.ts` 10/10 pass, `user-get-public-profile.integration.test.ts` 3/3 pass.
+- Gates: `bun run --filter server check-types` pass; `bun run check` pass (pre-existing Biome warning/info only).
+- Repo-wide status: root `bun run check-types` still fails only on the pre-existing web TS5103 `--ignoreDeprecations` error; root `bun run test` remains red on pre-existing provider-FK fixture debt outside T-21-01.
+- Next: T-21-02 / ST-01.

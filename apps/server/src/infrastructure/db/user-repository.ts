@@ -29,14 +29,33 @@ import type {
   ListProvidersRepositoryInput,
   ListUsersRepositoryInput,
   PublicProviderProfileDTO,
+  PublicVerifiedCondoDTO,
   UserProfileDTO,
   UserRepository,
 } from '../../domain/repositories/user.repository';
 import { deriveSocialLinks } from './mappers/provider-social-links';
 import { UserMapper } from './mappers/user.mapper';
 
+export interface VerifiedCondoRow {
+  condoId: string | null;
+  condoName: string | null;
+}
+
 export class DrizzleUserRepository implements UserRepository {
   private userMapper = new UserMapper();
+
+  private mapVerifiedCondo(
+    input: VerifiedCondoRow,
+  ): PublicVerifiedCondoDTO | null {
+    if (!input.condoId || !input.condoName) {
+      return null;
+    }
+
+    return {
+      condoId: input.condoId,
+      condoName: input.condoName,
+    };
+  }
 
   async findProfileById(id: string): Promise<UserProfileDTO | null> {
     const [row] = await db
@@ -90,12 +109,26 @@ export class DrizzleUserRepository implements UserRepository {
         callEnabled: providerProfileSchema.callEnabled,
         contactMetadata: providerProfileSchema.contactMetadata,
         isProviderVisible: providerProfileSchema.isProviderVisible,
+        verifiedCondoId: condominiumSchema.id,
+        verifiedCondoName: condominiumSchema.name,
       })
       .from(providerSchema)
       .innerJoin(userSchema, eq(providerSchema.ownerId, userSchema.id))
       .leftJoin(
         providerProfileSchema,
         eq(providerProfileSchema.providerId, providerSchema.id),
+      )
+      .leftJoin(
+        providerAssignmentSchema,
+        and(
+          eq(providerAssignmentSchema.providerId, providerSchema.id),
+          eq(providerAssignmentSchema.type, 'RESIDENT'),
+          eq(providerAssignmentSchema.status, 'APPROVED'),
+        ),
+      )
+      .leftJoin(
+        condominiumSchema,
+        eq(condominiumSchema.id, providerAssignmentSchema.condominiumId),
       )
       .where(and(eq(providerSchema.id, id), isNull(providerSchema.deletedAt)))
       .limit(1);
@@ -123,6 +156,10 @@ export class DrizzleUserRepository implements UserRepository {
         primaryPhone: row.primaryPhone ?? '',
         callEnabled: row.callEnabled ?? false,
         metadata: row.contactMetadata ?? {},
+      }),
+      verifiedCondo: this.mapVerifiedCondo({
+        condoId: row.verifiedCondoId,
+        condoName: row.verifiedCondoName,
       }),
       status: row.status,
       deletedAt: row.deletedAt,

@@ -1,17 +1,21 @@
 {
-  "currentRunId": "e-21-t-21-01-st-01",
+  "currentRunId": "e-21-t-21-02-st-01",
   "currentPrdId": "PRD-v13-provider-entity-and-verified-stamp",
   "currentEpicId": "E-21",
-  "currentTaskId": "T-21-01",
+  "currentTaskId": "T-21-02",
   "currentSubTaskId": "ST-01",
   "attemptCount": 0,
   "retrievalRound": 0,
-  "lastModel": "opus",
+  "lastModel": "gpt-5.4",
   "escalated": false,
-  "requiredModel": "high",
-  "runnerName": "claude",
+  "requiredModel": "medium",
+  "runnerName": "hermes",
   "escalateIf": [],
-  "filesToTouch": [],
+  "filesToTouch": [
+    "apps/web/src/components/",
+    "apps/web/src/locales/pt/translation.json",
+    "apps/web/src/locales/en/translation.json"
+  ],
   "lastCommitChanged": true,
   "lastFailureReason": null,
   "epicDone": false

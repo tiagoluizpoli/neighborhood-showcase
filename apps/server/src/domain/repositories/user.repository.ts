@@ -11,6 +11,11 @@ export interface UserProfileDTO {
   emailVerified: boolean;
 }
 
+export interface PublicVerifiedCondoDTO {
+  condoId: string;
+  condoName: string;
+}
+
 export interface PublicProviderProfileDTO {
   id: string;
   displayName: string;
@@ -23,6 +28,7 @@ export interface PublicProviderProfileDTO {
   bannerOriginalUrl: string | null;
   publicDescription: string | null;
   socialLinks: Record<string, string | undefined>;
+  verifiedCondo: PublicVerifiedCondoDTO | null;
   status: 'ACTIVE' | 'BANNED';
   deletedAt?: Date | null;
 }

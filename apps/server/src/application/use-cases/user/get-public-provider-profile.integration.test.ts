@@ -9,6 +9,10 @@ import {
   provider as providerSchema,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
+import type {
+  AssignmentStatus,
+  AssignmentType,
+} from '../../../domain/entities/assignment.entity';
 import { DrizzleAnnouncementRepository } from '../../../infrastructure/db/announcement-repository';
 import { DrizzleAssignmentRepository } from '../../../infrastructure/db/assignment-repository';
 import { DrizzleUserRepository } from '../../../infrastructure/db/user-repository';
@@ -30,6 +34,42 @@ describe('GetPublicProviderProfile use case', () => {
     new DrizzleAssignmentRepository(),
     new DrizzleAnnouncementRepository(),
   );
+
+  const seedAssignment = async (input?: {
+    status?: AssignmentStatus;
+    type?: AssignmentType;
+  }) => {
+    await db
+      .delete(providerAssignment)
+      .where(eq(providerAssignment.id, assignmentId));
+
+    await db.insert(providerAssignment).values({
+      id: assignmentId,
+      providerId,
+      condominiumId: condoId,
+      type: input?.type ?? 'RESIDENT',
+      status: input?.status ?? 'APPROVED',
+    });
+  };
+
+  const seedAnnouncement = async () => {
+    await db.delete(announcement).where(eq(announcement.id, announcementId));
+
+    await db.insert(announcement).values({
+      id: announcementId,
+      providerId,
+      providerAssignmentId: assignmentId,
+      condominiumId: condoId,
+      title: 'Encanador 24h',
+      description: 'Atendimento rápido e confiável',
+      imageUrl: 'https://cdn.example.com/encanador.jpg',
+      categoryId,
+      contactMode: 'custom' as const,
+      contactCustom: { primaryPhone: '5511999999999', callEnabled: false },
+      showVerifiedBadge: true,
+      status: 'ACTIVE',
+    });
+  };
 
   beforeAll(async () => {
     await db.delete(announcement).where(eq(announcement.id, announcementId));
@@ -104,6 +144,8 @@ describe('GetPublicProviderProfile use case', () => {
     await db
       .delete(providerProfile)
       .where(eq(providerProfile.providerId, providerId));
+    await seedAssignment();
+    await seedAnnouncement();
 
     await db.insert(providerProfile).values({
       providerId,
@@ -124,6 +166,10 @@ describe('GetPublicProviderProfile use case', () => {
       instagram: 'provider-branding',
     });
     expect(result.provider.isVerified).toBe(true);
+    expect(result.provider.verifiedCondo).toEqual({
+      condoId,
+      condoName: 'Condomínio Central',
+    });
     expect(result.announcements[0]?.providerName).toBe(
       'Provider Branding Name',
     );
@@ -141,6 +187,10 @@ describe('GetPublicProviderProfile use case', () => {
 
     expect(result.provider.displayName).toBe('Auth Identity Name');
     expect(result.provider.socialLinks).toEqual({});
+    expect(result.provider.verifiedCondo).toEqual({
+      condoId,
+      condoName: 'Condomínio Central',
+    });
     expect(result.announcements[0]?.providerName).toBe('Auth Identity Name');
     expect(result.announcements[0]?.providerAvatarUrl).toBe(
       'https://cdn.example.com/auth-avatar.jpg',
@@ -153,6 +203,53 @@ describe('GetPublicProviderProfile use case', () => {
       .limit(1);
 
     expect(profileRow).toBeUndefined();
+  });
+
+  test('returns null verifiedCondo for EXTERNAL assignments', async () => {
+    await seedAssignment({ type: 'EXTERNAL' });
+
+    const result = await useCase.execute({ providerId });
+
+    expect(result.provider.isVerified).toBe(false);
+    expect(result.provider.verifiedCondo).toBeNull();
+  });
+
+  test('returns null verifiedCondo for MODERATOR assignments', async () => {
+    await seedAssignment({ type: 'MODERATOR' });
+
+    const result = await useCase.execute({ providerId });
+
+    expect(result.provider.isVerified).toBe(false);
+    expect(result.provider.verifiedCondo).toBeNull();
+  });
+
+  test('returns null verifiedCondo for pending resident assignments', async () => {
+    await seedAssignment({ status: 'PENDING' });
+
+    const result = await useCase.execute({ providerId });
+
+    expect(result.provider.isVerified).toBe(false);
+    expect(result.provider.verifiedCondo).toBeNull();
+  });
+
+  test('returns null verifiedCondo for rejected resident assignments', async () => {
+    await seedAssignment({ status: 'REJECTED' });
+
+    const result = await useCase.execute({ providerId });
+
+    expect(result.provider.isVerified).toBe(false);
+    expect(result.provider.verifiedCondo).toBeNull();
+  });
+
+  test('returns null verifiedCondo when the provider has no assignment', async () => {
+    await db
+      .delete(providerAssignment)
+      .where(eq(providerAssignment.id, assignmentId));
+
+    const result = await useCase.execute({ providerId });
+
+    expect(result.provider.isVerified).toBe(false);
+    expect(result.provider.verifiedCondo).toBeNull();
   });
 
   test('throws not found for banned providers', async () => {
