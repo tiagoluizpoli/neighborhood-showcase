@@ -3,10 +3,12 @@ import { db } from '@neighborhood-showcase/db';
 import { user } from '@neighborhood-showcase/db/schema/auth';
 import {
   condominium,
+  provider,
   providerAssignment,
 } from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 import { DrizzleAssignmentRepository } from '../../../infrastructure/db/assignment-repository';
+import { DrizzleProviderRepository } from '../../../infrastructure/db/provider-repository';
 import { GetUserAccessProfile } from './get-user-access-profile';
 
 describe('GetUserAccessProfile use case', () => {
@@ -15,18 +17,39 @@ describe('GetUserAccessProfile use case', () => {
   const pendingResidentUserId = 'access-profile-pending-resident-user-id';
   const condoId = 'access-profile-condo-id';
 
-  const useCase = new GetUserAccessProfile(new DrizzleAssignmentRepository());
+  const useCase = new GetUserAccessProfile(
+    new DrizzleAssignmentRepository(),
+    new DrizzleProviderRepository(),
+  );
 
   beforeAll(async () => {
     await db
       .delete(providerAssignment)
-      .where(eq(providerAssignment.providerId, providerEnabledUserId));
+      .where(
+        eq(
+          providerAssignment.id,
+          'access-profile-approved-resident-assignment-id',
+        ),
+      );
     await db
       .delete(providerAssignment)
-      .where(eq(providerAssignment.providerId, moderatorOnlyUserId));
+      .where(
+        eq(
+          providerAssignment.id,
+          'access-profile-approved-moderator-assignment-id',
+        ),
+      );
     await db
       .delete(providerAssignment)
-      .where(eq(providerAssignment.providerId, pendingResidentUserId));
+      .where(
+        eq(
+          providerAssignment.id,
+          'access-profile-pending-resident-assignment-id',
+        ),
+      );
+    await db.delete(provider).where(eq(provider.id, providerEnabledUserId));
+    await db.delete(provider).where(eq(provider.id, moderatorOnlyUserId));
+    await db.delete(provider).where(eq(provider.id, pendingResidentUserId));
     await db.delete(condominium).where(eq(condominium.id, condoId));
     await db.delete(user).where(eq(user.id, providerEnabledUserId));
     await db.delete(user).where(eq(user.id, moderatorOnlyUserId));
@@ -57,6 +80,12 @@ describe('GetUserAccessProfile use case', () => {
         role: 'USER',
         status: 'ACTIVE',
       },
+    ]);
+
+    await db.insert(provider).values([
+      { id: providerEnabledUserId, ownerId: providerEnabledUserId },
+      { id: moderatorOnlyUserId, ownerId: moderatorOnlyUserId },
+      { id: pendingResidentUserId, ownerId: pendingResidentUserId },
     ]);
 
     await db.insert(condominium).values({

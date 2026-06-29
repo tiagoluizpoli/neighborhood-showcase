@@ -1,7 +1,10 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
 import { db } from '@neighborhood-showcase/db';
 import { user as userSchema } from '@neighborhood-showcase/db/schema/auth';
-import { providerProfile } from '@neighborhood-showcase/db/schema/showcase';
+import {
+  provider,
+  providerProfile,
+} from '@neighborhood-showcase/db/schema/showcase';
 import { eq } from 'drizzle-orm';
 import { DrizzleUserRepository } from '../../../infrastructure/db/user-repository';
 import { UpdateUser } from './update-user';
@@ -14,6 +17,7 @@ describe('UpdateUser integration tests', () => {
     await db
       .delete(providerProfile)
       .where(eq(providerProfile.providerId, testUserId));
+    await db.delete(provider).where(eq(provider.id, testUserId));
     await db.delete(userSchema).where(eq(userSchema.id, testUserId));
 
     await db.insert(userSchema).values({
@@ -24,6 +28,11 @@ describe('UpdateUser integration tests', () => {
       status: 'ACTIVE',
       language: 'pt-BR',
       theme: 'system',
+    });
+
+    await db.insert(provider).values({
+      id: testUserId,
+      ownerId: testUserId,
     });
   });
 

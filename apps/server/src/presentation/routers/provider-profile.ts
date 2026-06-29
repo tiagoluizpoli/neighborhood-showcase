@@ -87,7 +87,17 @@ export function createProviderProfileRouter(
     get: protectedProcedure
       .input(providerProfileIdentitySchema.optional())
       .query(async ({ ctx, input }) => {
-        const providerId = input?.providerId ?? ctx.session.user.id;
+        let providerId = input?.providerId;
+        if (!providerId) {
+          const owned = await listOwnedProvidersUseCase.execute({
+            ownerId: ctx.session.user.id,
+          });
+          if (owned.length > 0) {
+            providerId = owned[0]!.id;
+          } else {
+            providerId = ctx.session.user.id;
+          }
+        }
         // Provider-scoped read: ownership only (no APPROVED standing required to
         // view your own provider profile).
         await assertProviderOwnership({
@@ -141,7 +151,17 @@ export function createProviderProfileRouter(
     update: protectedProcedure
       .input(updateProviderProfileSchema)
       .mutation(async ({ ctx, input }) => {
-        const providerId = input.providerId ?? ctx.session.user.id;
+        let providerId = input.providerId;
+        if (!providerId) {
+          const owned = await listOwnedProvidersUseCase.execute({
+            ownerId: ctx.session.user.id,
+          });
+          if (owned.length > 0) {
+            providerId = owned[0]!.id;
+          } else {
+            providerId = ctx.session.user.id;
+          }
+        }
         // Provider-scoped mutation: ownership only (managing your provider's
         // profile does not require APPROVED residency standing).
         await assertProviderOwnership({
@@ -152,6 +172,7 @@ export function createProviderProfileRouter(
           providerId,
           displayName: input.displayName,
           companyName: input.companyName,
+
           tradeName: input.tradeName,
           logoUrl: input.logoUrl,
           logoOriginalUrl: input.logoOriginalUrl,

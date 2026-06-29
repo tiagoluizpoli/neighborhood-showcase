@@ -19,6 +19,7 @@ import {
 } from '../../application/use-cases/user/update-user';
 import { DrizzleAnnouncementRepository } from '../../infrastructure/db/announcement-repository';
 import { DrizzleAssignmentRepository } from '../../infrastructure/db/assignment-repository';
+import { DrizzleProviderRepository } from '../../infrastructure/db/provider-repository';
 import { DrizzleUserRepository } from '../../infrastructure/db/user-repository';
 
 export interface UserRouterDependencies {
@@ -54,6 +55,7 @@ export function createUserRouterDependencies(): UserRouterDependencies {
   const userRepo = new DrizzleUserRepository();
   const assignmentRepo = new DrizzleAssignmentRepository();
   const announcementRepo = new DrizzleAnnouncementRepository();
+  const providerRepo = new DrizzleProviderRepository();
 
   return {
     deleteUserAccountUseCase: new DeleteUserAccount(userRepo),
@@ -62,7 +64,10 @@ export function createUserRouterDependencies(): UserRouterDependencies {
       assignmentRepo,
       announcementRepo,
     ),
-    getUserAccessProfileUseCase: new GetUserAccessProfile(assignmentRepo),
+    getUserAccessProfileUseCase: new GetUserAccessProfile(
+      assignmentRepo,
+      providerRepo,
+    ),
     getUserProfileUseCase: new GetUserProfile(userRepo),
     updateUserUseCase: new UpdateUser(userRepo),
   };

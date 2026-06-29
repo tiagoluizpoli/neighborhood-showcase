@@ -8,6 +8,28 @@ const SYSTEM_MANAGER_EMAIL = 'system.manager@test.com';
 const NON_PROVIDER_EMAIL = 'nonprovider@test.com';
 
 async function signInViaUI(page: Page, email: string) {
+  page.on('console', (msg) =>
+    console.log(`[BROWSER]: ${msg.type()}: ${msg.text()}`),
+  );
+  page.on('request', (req) =>
+    console.log(`[REQ]: ${req.method()} ${req.url()}`),
+  );
+  page.on('response', async (res) => {
+    if (res.url().includes('/trpc/')) {
+      try {
+        const text = await res.text();
+        console.log(`[TRPC RESP]: ${res.url()} -> ${text}`);
+      } catch (_e) {
+        console.log(`[TRPC RESP ERROR READ]: ${res.url()}`);
+      }
+    } else {
+      if (res.status() >= 400) {
+        console.log(`[RESP ERROR]: ${res.status()} ${res.url()}`);
+      } else {
+        console.log(`[RESP]: ${res.status()} ${res.url()}`);
+      }
+    }
+  });
   await page.goto('/auth');
   await page.getByPlaceholder(/email/i).fill(email);
   await page.getByPlaceholder(/senha/i).fill(PASSWORD);

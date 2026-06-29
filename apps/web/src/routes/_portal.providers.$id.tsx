@@ -2,7 +2,6 @@ import {
   Avatar,
   AvatarFallback,
 } from '@neighborhood-showcase/ui/components/avatar';
-import { Badge } from '@neighborhood-showcase/ui/components/badge';
 import { Button } from '@neighborhood-showcase/ui/components/button';
 import {
   Card,
@@ -15,7 +14,6 @@ import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import type { LucideIcon } from 'lucide-react';
 import {
-  CheckCircle2,
   ChevronLeft,
   Facebook,
   Globe,
@@ -312,6 +310,7 @@ function ProviderPublicProfileComponent() {
                   key={announcement.id}
                   to="/anuncios/$id"
                   params={{ id: announcement.id }}
+                  role="button"
                   className="overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/40"
                 >
                   <div className="relative aspect-4/3 overflow-hidden bg-muted">
@@ -320,11 +319,12 @@ function ProviderPublicProfileComponent() {
                       alt={announcement.title}
                       className="h-full w-full object-cover object-center"
                     />
-                    {announcement.showVerifiedBadge ? (
-                      <Badge className="absolute top-3 left-3 gap-1 rounded-full px-2 py-1 text-[10px]">
-                        <CheckCircle2 className="h-3 w-3" />
-                        Verificado
-                      </Badge>
+                    {announcement.showVerifiedBadge && verifiedCondoName ? (
+                      <VerifiedResidentStamp
+                        condoName={verifiedCondoName}
+                        variant="card"
+                        className="absolute top-3 left-3 bg-background/90"
+                      />
                     ) : null}
                   </div>
                   <div className="space-y-3 p-4">

@@ -4,17 +4,17 @@
   "currentEpicId": "E-21",
   "currentTaskId": "T-21-03",
   "currentSubTaskId": "ST-02",
-  "attemptCount": 0,
-  "retrievalRound": 0,
-  "lastModel": "gpt-5.4",
+  "attemptCount": 9,
+  "retrievalRound": 3,
+  "lastModel": "Gemini 3.5 Flash (High)",
   "escalated": false,
   "requiredModel": "medium",
-  "runnerName": "hermes",
-  "escalateIf": [
-    "An E2E scenario cannot be driven without seed/fixtures beyond the rebuilt seed's three states."
+  "runnerName": "agy",
+  "escalateIf": [],
+  "filesToTouch": [
+    "apps/web/` (Playwright E2E matrix, alongside the E-19 suite)"
   ],
-  "filesToTouch": ["apps/web/"],
-  "lastCommitChanged": true,
+  "lastCommitChanged": false,
   "lastFailureReason": null,
   "epicDone": false
 }

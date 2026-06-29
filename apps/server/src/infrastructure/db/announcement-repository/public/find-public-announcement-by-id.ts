@@ -33,11 +33,7 @@ export async function findPublicAnnouncementById(
 
   const announcement = found?.announcement;
 
-  if (
-    !announcement ||
-    announcement.status !== 'ACTIVE' ||
-    announcement.deletedAt !== null
-  ) {
+  if (announcement?.status !== 'ACTIVE' || announcement.deletedAt !== null) {
     return null;
   }
 

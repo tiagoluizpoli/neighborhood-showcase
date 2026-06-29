@@ -2,7 +2,7 @@
 type: epic
 id: E-21
 name: "Verified Resident Stamp"
-status: in-progress
+status: done
 blocked-by: []
 ---
 
@@ -24,7 +24,7 @@ Blocked by E-20 — the stamp's contract is keyed by `provider.id`, so the provi
 | --- | --- | --- | --- | --- |
 | T-21-01 | `get-public-profile` condo contract | done | T-20-02 | `.plan/epics/21-verified-resident-stamp/tasks/01-get-public-profile-condo-contract.md` |
 | T-21-02 | Verified stamp UI + i18n keys | done | — | `.plan/epics/21-verified-resident-stamp/tasks/02-verified-stamp-ui-and-i18n.md` |
-| T-21-03 | i18n pt/en parity pass + cross-surface E2E matrix | in-progress | — | `.plan/epics/21-verified-resident-stamp/tasks/03-i18n-parity-and-e2e-matrix.md` |
+| T-21-03 | i18n pt/en parity pass + cross-surface E2E matrix | done | — | `.plan/epics/21-verified-resident-stamp/tasks/03-i18n-parity-and-e2e-matrix.md` |
 
 ---
 

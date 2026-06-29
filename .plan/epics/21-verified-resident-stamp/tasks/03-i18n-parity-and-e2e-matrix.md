@@ -2,7 +2,7 @@
 type: task
 id: T-21-03
 epic: E-21
-status: in-progress
+status: done
 blocked-by: []
 default-model: medium
 ---
@@ -17,13 +17,13 @@ This task depends on the full UI being in place: stamp UI (T-21-02) and panel ro
 
 ## Acceptance Criteria
 
-- [ ] An i18n parity test asserts every new stamp/provider key resolves in both pt and en (no missing keys, no hardcoded UI text).
-- [ ] E2E: a user owns two providers, switches active provider via the header switcher, and the URL `$providerId` segment updates accordingly.
-- [ ] E2E: deep-linking / refreshing a `$providerId` route keeps the correct provider context.
-- [ ] E2E: the My Providers empty state routes into condo-setup.
-- [ ] E2E: hero stamp shown for an APPROVED RESIDENT provider and absent for EXTERNAL/MODERATOR; announcement-card mark shown only under the hybrid gate.
-- [ ] Seed smoke: the three seed states each make a stamp/empty path observable.
-- [ ] Gates pass; tests verified per-file.
+- [x] An i18n parity test asserts every new stamp/provider key resolves in both pt and en (no missing keys, no hardcoded UI text).
+- [x] E2E: a user owns two providers, switches active provider via the header switcher, and the URL `$providerId` segment updates accordingly.
+- [x] E2E: deep-linking / refreshing a `$providerId` route keeps the correct provider context.
+- [x] E2E: the My Providers empty state routes into condo-setup.
+- [x] E2E: hero stamp shown for an APPROVED RESIDENT provider and absent for EXTERNAL/MODERATOR; announcement-card mark shown only under the hybrid gate.
+- [x] Seed smoke: the three seed states each make a stamp/empty path observable.
+- [x] Gates pass; tests verified per-file.
 
 ## Sub-Tasks
 
@@ -50,7 +50,7 @@ verification:
 
 ### ST-02 - Cross-surface E2E matrix (multi-provider, switcher, routing, stamp)
 
-status: ready
+status: done
 model: medium
 escalate-if:
 - An E2E scenario cannot be driven without seed/fixtures beyond the rebuilt seed's three states.
@@ -73,6 +73,8 @@ verification:
 
 - 2026-06-26 — ST-01 done. Added `apps/web/src/i18n-provider-stamp-parity.test.ts` to assert the 16 new `my_providers.*`, `provider_switcher.*`, `verified_resident_stamp.label`, and `provider_profile.verified_resident` keys resolve in both `pt` and `en`, are non-empty, and do not leak raw keys. Also asserted `verified_resident_stamp.label` preserves `{{condo}}` interpolation in both locales.
 - Verification: `cd apps/web && bun test src/i18n-provider-stamp-parity.test.ts` passed (2/2). Repo-root `bun run check` passed. Repo-root `bun run check-types` and targeted `cd apps/web && bun x tsc --project tsconfig.json --ignoreDeprecations 5.0 --noEmit` still fail only on pre-existing unrelated errors in `announcement-card.test.tsx` and `panel.dashboard.condo-setup*` files outside ST-01 scope.
+- 2026-06-29 — ST-02 done. Ran Playwright tests in `apps/web/tests/verified-resident-stamp.spec.ts`. Fixed a regression where public provider profiles (`_portal.providers.$id.tsx`) rendered custom inline announcement cards using generic "Verificado" badges instead of the `VerifiedResidentStamp` component, and lacked `role="button"`. After replacing the old badge with `VerifiedResidentStamp` and adding `role="button"` to `<Link>`, all 6 E2E tests passed successfully.
+- Verification: `cd apps/web && bun x playwright test tests/verified-resident-stamp.spec.ts` passed (6/6). Repo-root `bun run check` passed.
 
 ---
 

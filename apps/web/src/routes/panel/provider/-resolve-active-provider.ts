@@ -16,7 +16,8 @@ export async function resolveDefaultProviderId(): Promise<string | null> {
   try {
     const profile = await trpcClient.providerProfile.get.query();
     return profile.providerId;
-  } catch {
+  } catch (error) {
+    console.error('resolveDefaultProviderId failed:', error);
     return null;
   }
 }

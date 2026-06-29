@@ -695,3 +695,19 @@ Next: T-20-04/ST-02 (pin platform-admin vs provider-scoped action split; apply g
 - Verification: `cd apps/web && bun test src/i18n-provider-stamp-parity.test.ts` passed (2/2); repo-root `bun run check` passed.
 - Known pre-existing gate debt unchanged: repo-root `bun run check-types` and targeted web `bun x tsc --project tsconfig.json --ignoreDeprecations 5.0 --noEmit` still fail only in `announcement-card.test.tsx` and `panel.dashboard.condo-setup*` files outside ST-01 scope.
 - Run-state advanced to T-21-03/ST-02 (cross-surface E2E matrix).
+
+---
+2026-06-29 T-21-03/ST-02 DONE → T-21-03 FULLY DONE → E-21 COMPLETE
+- Configured public provider profile page (`_portal.providers.$id.tsx`) to render announcement cards with `role="button"` and the `VerifiedResidentStamp` component under the hybrid gate (`announcement.showVerifiedBadge && verifiedCondoName`), resolving the missing card stamp in E2E tests.
+- Ran all 6 tests in `apps/web/tests/verified-resident-stamp.spec.ts` proving:
+  - Header-switcher: multi-provider owner can switch active provider and URL updates.
+  - Deep-link & refresh: active provider context is retained.
+  - Empty-state: non-provider sees empty state and CTA routes to condo-setup.
+  - Stamp gating: resident hero stamp is shown only for eligible providers.
+  - Stamp gating: announcement card verified stamp shown only under hybrid gate.
+  - Seed smoke: the three seed states are correctly set up and observable.
+- Fixed pre-existing foreign key type checking issue (`Object is possibly 'undefined'`) in `apps/server/src/presentation/routers/provider-profile.ts` by adding non-null assertions to `owned[0]!.id`.
+- Fixed pre-existing foreign key database constraint failure in `apps/server/src/application/use-cases/user/update-user.integration.test.ts` by inserting a matching mock provider row in `beforeAll` setup.
+- Verification: `bun run check` clean, `server check-types` clean, all 6 Playwright tests in `apps/web/tests/verified-resident-stamp.spec.ts` pass, `i18n-provider-stamp-parity.test.ts` passes.
+- Advanced run-state to E-21 done. All tasks completed.
+[2026-06-29 20:56:50] NO MORE TASKS
