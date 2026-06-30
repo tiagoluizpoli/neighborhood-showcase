@@ -44,14 +44,22 @@ describe('Provider route-group guard — beforeLoad', () => {
   test('provider-enabled user passes through without redirect', async () => {
     mockProviderEnabled = true;
     await expect(
-      beforeLoad?.({ context: { session: { data: session } } }),
+      beforeLoad?.({
+        context: { session: { data: session } },
+        location: { pathname: '/panel/provider' },
+        // biome-ignore lint/suspicious/noExplicitAny: mock context
+      } as any),
     ).resolves.toBeUndefined();
   });
 
   test('non-provider user is redirected', async () => {
     mockProviderEnabled = false;
     try {
-      await beforeLoad?.({ context: { session: { data: session } } });
+      await beforeLoad?.({
+        context: { session: { data: session } },
+        location: { pathname: '/panel/provider' },
+        // biome-ignore lint/suspicious/noExplicitAny: mock context
+      } as any);
       expect.unreachable();
     } catch (err: unknown) {
       const redirectErr = err as RedirectError;
@@ -63,7 +71,11 @@ describe('Provider route-group guard — beforeLoad', () => {
 
   test('unauthenticated user is redirected to root', async () => {
     try {
-      await beforeLoad?.({ context: { session: null } });
+      await beforeLoad?.({
+        context: { session: null },
+        location: { pathname: '/panel/provider' },
+        // biome-ignore lint/suspicious/noExplicitAny: mock context
+      } as any);
       expect.unreachable();
     } catch (err: unknown) {
       const redirectErr = err as RedirectError;

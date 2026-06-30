@@ -69,6 +69,14 @@ describe('AnnouncementCard', () => {
     category: 'Alimentação',
     categoryId: 'cat-1',
     tags: [],
+    cta: {
+      primary: null,
+      secondary: [],
+    },
+    contact: {
+      mode: 'inherit' as const,
+      custom: null,
+    },
     contactLinks: {
       whatsapp: '5548999999999',
       phone: '4833333333',
@@ -76,7 +84,7 @@ describe('AnnouncementCard', () => {
     },
     showVerifiedBadge: true,
     status: 'ACTIVE',
-    createdAt: new Date(),
+    createdAt: new Date().toISOString(),
     providerName: 'John Pizza',
     providerAvatarUrl: 'avatar.jpg',
   };
@@ -290,10 +298,18 @@ describe('AnnouncementPresentationPrimitive variant dispatch', () => {
     category: 'Services',
     categoryId: 'cat-1',
     tags: [],
+    cta: {
+      primary: null,
+      secondary: [],
+    },
+    contact: {
+      mode: 'inherit' as const,
+      custom: null,
+    },
     contactLinks: { whatsapp: '', phone: '', email: '' },
     showVerifiedBadge: false,
     status: 'ACTIVE',
-    createdAt: new Date(),
+    createdAt: new Date().toISOString(),
     providerName: 'Provider A',
     providerAvatarUrl: null,
   };

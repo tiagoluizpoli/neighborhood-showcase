@@ -14,6 +14,15 @@ mock.module('@/utils/trpc', () => ({
         }),
       },
     },
+    providerProfile: {
+      create: {
+        // biome-ignore lint/suspicious/noExplicitAny: test boundary mock
+        mutationOptions: (opts: any) => ({
+          mutationFn: async () => ({ providerId: 'new-provider-id' }),
+          ...opts,
+        }),
+      },
+    },
   },
 }));
 
@@ -33,7 +42,7 @@ function renderFlow() {
     <QueryClientProvider client={client}>
       <ProviderDashboardCondoSetupExternalFlow
         onBack={() => {}}
-        onRegisterSuccess={() => {}}
+        onProviderCreated={() => {}}
       />
     </QueryClientProvider>,
   );

@@ -72,13 +72,17 @@ mock.module('@neighborhood-showcase/ui/components/popover', () => ({
   // biome-ignore lint/suspicious/noExplicitAny: test boundary stub
   PopoverContent: ({ children }: any) => children,
 }));
-mock.module('@neighborhood-showcase/ui/components/avatar', () => ({
-  // biome-ignore lint/suspicious/noExplicitAny: test boundary stub
-  Avatar: ({ children }: any) => children,
-  AvatarImage: () => null,
-  // biome-ignore lint/suspicious/noExplicitAny: test boundary stub
-  AvatarFallback: ({ children }: any) => children,
-}));
+mock.module('@neighborhood-showcase/ui/components/avatar', () => {
+  const React = require('react');
+  return {
+    // biome-ignore lint/suspicious/noExplicitAny: stub
+    Avatar: (props: any) => React.createElement('div', props),
+    // biome-ignore lint/suspicious/noExplicitAny: stub
+    AvatarImage: (props: any) => React.createElement('img', props),
+    // biome-ignore lint/suspicious/noExplicitAny: stub
+    AvatarFallback: (props: any) => React.createElement('span', props),
+  };
+});
 
 mock.module('@/lib/auth-client', () => ({
   authClient: {
@@ -105,6 +109,15 @@ mock.module('@/utils/trpc', () => ({
           queryKey: ['getAccessProfile'],
           queryFn: async () => mockAccessProfile,
           initialData: mockAccessProfile,
+        }),
+      },
+    },
+    providerProfile: {
+      listMine: {
+        queryOptions: () => ({
+          queryKey: ['listMine'],
+          queryFn: async () => [],
+          initialData: [],
         }),
       },
     },

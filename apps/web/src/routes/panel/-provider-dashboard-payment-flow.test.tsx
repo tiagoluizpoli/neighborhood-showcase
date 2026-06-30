@@ -80,5 +80,5 @@ describe('ProviderDashboardPaymentFlow', () => {
     // Once details resolve, the pix copy-paste surface renders.
     expect(await screen.findByText('Copiar Código Pix')).toBeTruthy();
     expect(container.querySelector('#pix-copia-cola')).toBeTruthy();
-  });
+  }, 5000);
 });

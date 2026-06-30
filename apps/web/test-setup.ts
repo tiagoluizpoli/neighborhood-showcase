@@ -13,6 +13,59 @@ if (!globalThis.document) {
   GlobalRegistrator.register();
 }
 
+// Stub Canvas API in Happy-DOM once, globally.
+const originalCreateElement = globalThis.document.createElement;
+globalThis.document.createElement = function (
+  tagName: string,
+  options?: ElementCreationOptions,
+) {
+  const element = originalCreateElement.call(this, tagName, options);
+  if (tagName.toLowerCase() === 'canvas') {
+    // biome-ignore lint/suspicious/noExplicitAny: stubbing happy-dom canvas
+    const canvas = element as any;
+    if (!canvas.getContext || canvas.getContext('2d') === null) {
+      canvas.getContext = (contextId: string) => {
+        if (contextId === '2d') {
+          return {
+            drawImage: () => {},
+            clearRect: () => {},
+            getImageData: () => ({ data: new Uint8ClampedArray() }),
+            putImageData: () => {},
+          };
+        }
+        return null;
+      };
+    }
+    if (!canvas.toBlob) {
+      // biome-ignore lint/suspicious/noExplicitAny: stubbing canvas method
+      canvas.toBlob = (callback: any, type?: string, _quality?: any) => {
+        callback(new Blob(['mock-image-data'], { type: type || 'image/webp' }));
+      };
+    }
+  }
+  return element;
+};
+
+// Stub Image class in Happy-DOM once, globally to auto-trigger load event.
+class MockImage {
+  onload: (() => void) | null = null;
+  // biome-ignore lint/suspicious/noExplicitAny: stub
+  onerror: ((err: any) => void) | null = null;
+  src = '';
+  crossOrigin = '';
+  constructor() {
+    queueMicrotask(() => {
+      if (this.onload) this.onload();
+    });
+  }
+  addEventListener(event: string, callback: () => void) {
+    if (event === 'load') this.onload = callback;
+    if (event === 'error') this.onerror = callback;
+  }
+}
+// biome-ignore lint/suspicious/noExplicitAny: override happy-dom Image constructor
+globalThis.Image = MockImage as any;
+
 // Stub @tanstack/react-router ONCE, globally. bun's `mock.module` is
 // process-global and permanent, so a partial per-file router mock that drops a
 // named export (e.g. `useNavigate`) makes that import throw in *other* files
@@ -39,6 +92,7 @@ mock.module('@tanstack/react-router', () => ({
     );
   },
   useNavigate: () => () => {},
+  useParams: () => ({}),
   // Route layouts render <Outlet/>; the real one needs a RouterProvider that
   // unit tests do not mount.
   Outlet: () => null,

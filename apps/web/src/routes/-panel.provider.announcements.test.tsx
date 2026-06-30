@@ -445,37 +445,7 @@ describe('Provider announcements routes', () => {
     // same technique crop-image.test.ts uses) plus fetch, so the create flow's
     // upload path resolves. Restore everything afterwards — no module mock, so
     // nothing leaks into other suites.
-    const originalCreateElement = document.createElement.bind(document);
-    const originalImage = globalThis.Image;
     const originalFetch = globalThis.fetch;
-    // biome-ignore lint/suspicious/noExplicitAny: minimal canvas stub
-    const canvasStub: any = {
-      width: 0,
-      height: 0,
-      getContext: () => ({ drawImage: () => {} }),
-      // biome-ignore lint/suspicious/noExplicitAny: blob callback
-      toBlob: (cb: any) => cb(new Blob(['img'], { type: 'image/webp' })),
-    };
-    document.createElement = ((tag: string) =>
-      tag === 'canvas'
-        ? canvasStub
-        : originalCreateElement(tag)) as typeof document.createElement;
-    globalThis.Image = class {
-      onload: (() => void) | null = null;
-      // biome-ignore lint/suspicious/noExplicitAny: error handler
-      onerror: ((err: any) => void) | null = null;
-      src = '';
-      crossOrigin = '';
-      constructor() {
-        queueMicrotask(() => this.onload?.());
-      }
-      // biome-ignore lint/suspicious/noExplicitAny: addEventListener stub
-      addEventListener(event: string, cb: any) {
-        if (event === 'load') this.onload = cb;
-        if (event === 'error') this.onerror = cb;
-      }
-      // biome-ignore lint/suspicious/noExplicitAny: Image global cast
-    } as any;
     globalThis.fetch = (async () => ({
       ok: true,
       json: async () => ({ url: 'http://example.com/uploaded.webp' }),
@@ -516,8 +486,6 @@ describe('Provider announcements routes', () => {
       expect(create?.variables.id).toBeUndefined();
       expect(mutationCalls.some((c) => c.method === 'update')).toBe(false);
     } finally {
-      document.createElement = originalCreateElement;
-      globalThis.Image = originalImage;
       globalThis.fetch = originalFetch;
     }
   });
