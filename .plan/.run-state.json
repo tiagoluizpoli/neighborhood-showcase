@@ -14,7 +14,7 @@
   "filesToTouch": [
     "apps/web/` (Playwright E2E matrix, alongside the E-19 suite)"
   ],
-  "lastCommitChanged": false,
+  "lastCommitChanged": true,
   "lastFailureReason": null,
   "epicDone": false
 }
