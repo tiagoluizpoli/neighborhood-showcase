@@ -92,11 +92,7 @@ export function createProviderProfileRouter(
           const owned = await listOwnedProvidersUseCase.execute({
             ownerId: ctx.session.user.id,
           });
-          if (owned.length > 0) {
-            providerId = owned[0]!.id;
-          } else {
-            providerId = ctx.session.user.id;
-          }
+          providerId = owned[0]?.id ?? ctx.session.user.id;
         }
         // Provider-scoped read: ownership only (no APPROVED standing required to
         // view your own provider profile).
@@ -156,11 +152,7 @@ export function createProviderProfileRouter(
           const owned = await listOwnedProvidersUseCase.execute({
             ownerId: ctx.session.user.id,
           });
-          if (owned.length > 0) {
-            providerId = owned[0]!.id;
-          } else {
-            providerId = ctx.session.user.id;
-          }
+          providerId = owned[0]?.id ?? ctx.session.user.id;
         }
         // Provider-scoped mutation: ownership only (managing your provider's
         // profile does not require APPROVED residency standing).
