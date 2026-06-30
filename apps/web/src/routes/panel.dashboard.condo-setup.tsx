@@ -151,7 +151,12 @@ function CondoSetupComponent() {
     return (
       <ProviderDashboardCondoSetupResidentFlow
         onBack={() => setFlow('select')}
-        onRequestSuccess={() => myAssignmentsQuery.refetch()}
+        onProviderCreated={(providerId) =>
+          navigate({
+            to: '/panel/provider/$providerId',
+            params: { providerId },
+          })
+        }
       />
     );
   }
